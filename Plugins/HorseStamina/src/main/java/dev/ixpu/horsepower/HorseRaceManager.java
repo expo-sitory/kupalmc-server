@@ -249,22 +249,22 @@ public void recordImPerfectJump(Player player) {
   private double getDepletionByPaceLevel(int paceLevel) {
       return switch (paceLevel) {
           case 5 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-5", 0.0);
-          case 4 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-4", 0.08);
-          case 3 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-3", 0.05);
-          case 2 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-2", 0.03);
-          case 1 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-1", 0.1);
-          case 0 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-0", 0.5);
-          default -> 0.2;
-      }; // Free run has maximum depletion
+          case 4 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-4", 0.0);
+          case 3 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-3", 0.0);
+          case 2 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-2", 0.0);
+          case 1 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-1", 0.0);
+          case 0 -> plugin.getConfig().getDouble("race.stamina-depletion.pace-0", 0.0);
+          default -> plugin.getConfig().getDouble("race.stamina-depletion.pace-0", 0.0);
+      }; 
   }
 
   private double getRegenByStamina(double stamina) {
-    if (stamina <= 10) return plugin.getConfig().getDouble("race.stamina-ranges.0-10.regen", 0.3);
-    else if (stamina <= 20) return plugin.getConfig().getDouble("race.stamina-ranges.10-20.regen", 0.25);
-    else if (stamina <= 30) return plugin.getConfig().getDouble("race.stamina-ranges.20-30.regen", 0.2);
-    else if (stamina <= 40) return plugin.getConfig().getDouble("race.stamina-ranges.30-40.regen", 0.15);
-    else if (stamina <= 50) return plugin.getConfig().getDouble("race.stamina-ranges.40-50.regen", 0.1);
-    else return plugin.getConfig().getDouble("race.stamina-ranges.50-100.regen", 0.05);
+    if (stamina <= 10) return plugin.getConfig().getDouble("race.stamina-ranges.0-10.regen", 0.0);
+    else if (stamina <= 20) return plugin.getConfig().getDouble("race.stamina-ranges.10-20.regen", 0.0);
+    else if (stamina <= 30) return plugin.getConfig().getDouble("race.stamina-ranges.20-30.regen", 0.0);
+    else if (stamina <= 40) return plugin.getConfig().getDouble("race.stamina-ranges.30-40.regen", 0.0);
+    else if (stamina <= 50) return plugin.getConfig().getDouble("race.stamina-ranges.40-50.regen", 0.0);
+    else return plugin.getConfig().getDouble("race.stamina-ranges.50-500.regen", 0.0);
   }
 
   private int getSlownessAmplifierByPace(int paceLevel) {
@@ -275,13 +275,13 @@ public void recordImPerfectJump(Player player) {
           case 2 -> plugin.getConfig().getInt("race.pace-slowness.pace-2", 2);
           case 1 -> plugin.getConfig().getInt("race.pace-slowness.pace-1", 1);
           case 0 -> plugin.getConfig().getInt("race.pace-slowness.pace-0", 0);
-          default -> 0;
+          default -> plugin.getConfig().getInt("race.pace-slowness.pace-0", 0);
       };
   }
 
   private int getSlownessAmplifierByStamina(double stamina) {
-    if (stamina <= 10) return plugin.getConfig().getInt("race.stamina-ranges.0-10.slowness-amplifier", 2);
-    else if (stamina <= 20) return plugin.getConfig().getInt("race.stamina-ranges.10-20.slowness-amplifier", 1);
+    if (stamina <= 10) return plugin.getConfig().getInt("race.stamina-ranges.0-10.slowness-amplifier", 0);
+    else if (stamina <= 20) return plugin.getConfig().getInt("race.stamina-ranges.10-20.slowness-amplifier", 0);
     else if (stamina <= 30) return plugin.getConfig().getInt("race.stamina-ranges.20-30.slowness-amplifier", 0);
     else if (stamina <= 40) return plugin.getConfig().getInt("race.stamina-ranges.30-40.slowness-amplifier", 0);
     else return plugin.getConfig().getInt("race.stamina-ranges.40-50.slowness-amplifier", 0);
