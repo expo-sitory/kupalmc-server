@@ -1,0 +1,16 @@
+command /horseracemode:
+	trigger:
+		execute console command "lp user %player% permission set horsepower.use true"
+		wait 5 ticks
+		make player execute command "race"
+		play sound "entity.experience_orb.pickup" at player
+		set {horserace.%player%} to true
+
+on horse jump:
+	if {horserace.%passenger of event-entity%} is true:
+		pull event-entity downwards at speed 5
+
+on dismount:
+	if {horserace.%player%} is true:
+		delete {horserace.%player%}
+		execute console command "lp user %player% permission set horsepower.use false"

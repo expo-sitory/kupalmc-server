@@ -1,0 +1,32 @@
+options:
+    prefix: &d&lᴋᴜᴘᴀʟᴍᴄ &r&7- &fᴘʀɪᴠᴀᴛᴇ ᴍᴀɪʟ &7| &r
+
+on redis message:
+    if redis channel is "kupalmc:tell:global":
+        set {_data} to redis message
+        set {_parts::*} to {_data} split by "|||"
+        set {_sender} to {_parts::1}
+        set {_recipient} to {_parts::2}
+        set {_msg} to {_parts::3}
+        
+        loop all players:
+            if loop-player's name is {_recipient}:
+                send "&7&o%{_sender}% sent you a pm: &f%{_msg}%" to loop-player
+
+command /pm <text> <text>:
+    trigger:
+        set {_target} to arg 1
+        set {_msg} to arg 2
+        set {_found} to false
+        
+        loop all players:
+            if loop-player's name is {_target}:
+                send "&7&oYou sent a pm to %loop-player%: &f%{_msg}%" to player
+                send "&7&o%player% sent you a pm: &f%{_msg}%" to loop-player
+                set {_found} to true
+                stop
+        
+        if {_found} is false:
+            set {_payload} to "%player%|||%{_target}%|||%{_msg}%"
+            send redis message {_payload} to channel "kupalmc:tell:global"
+            send "&7&oYou sent a pm to %{_target}%: &f%{_msg}%" to player

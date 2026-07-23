@@ -1,0 +1,190 @@
+options:
+    prefix: &d&lᴋᴜᴘᴀʟᴍᴄ &r&7- &fᴀᴅᴠᴀɴᴄᴇᴍᴇɴᴛs &7| &r
+    server_id: LUZON
+
+on load:
+    set {advancement_names::minecraft::story::punch_tree} to "Minecraft"
+    set {advancement_names::minecraft::story::mine_wood} to "Getting Wood"
+    set {advancement_names::minecraft::story::mine_stone} to "Stone Age"
+    set {advancement_names::minecraft::story::upgrade_tools} to "Getting an Upgrade"
+    set {advancement_names::minecraft::story::smelt_iron} to "Acquire Hardware"
+    set {advancement_names::minecraft::story::obtain_armor} to "Suit Up"
+    set {advancement_names::minecraft::story::lava_bucket} to "Hot Stuff"
+    set {advancement_names::minecraft::story::iron_tools} to "Isn't It Iron Pick"
+    set {advancement_names::minecraft::story::deflect_arrow} to "Not Today, Thank You"
+    set {advancement_names::minecraft::story::form_obsidian} to "Ice Bucket Challenge"
+    set {advancement_names::minecraft::story::mine_diamond} to "Diamonds!"
+    set {advancement_names::minecraft::story::enter_the_nether} to "We Need to Go Deeper"
+    set {advancement_names::minecraft::story::enchant_item} to "Enchanter"
+    set {advancement_names::minecraft::story::cure_zombie_villager} to "Zombie Doctor"
+    set {advancement_names::minecraft::story::follow_ender_eye} to "Eye Spy"
+    set {advancement_names::minecraft::story::enter_the_end} to "The End?"
+    set {advancement_names::minecraft::adventure::use_loadstone} to "Country Load, Take Me Home"
+    set {advancement_names::minecraft::adventure::kill_a_mob} to "Advancement Made!"
+    set {advancement_names::minecraft::adventure::kill_all_mobs} to "Monsters Hunted"
+    set {advancement_names::minecraft::adventure::trade} to "What a Deal!"
+    set {advancement_names::minecraft::adventure::sleep_in_bed} to "Sweet Dreams"
+    set {advancement_names::minecraft::adventure::obtain_block} to "Ol' Betsy"
+    set {advancement_names::minecraft::adventure::lightning_rod_with_flag} to "Surge Protector"
+    set {advancement_names::minecraft::adventure::very_very_frightening} to "Very Very Frightening"
+    set {advancement_names::minecraft::adventure::play_jukebox_in_meadows} to "Sound of Music"
+    set {advancement_names::minecraft::adventure::summon_iron_golem} to "Iron Man"
+    set {advancement_names::minecraft::adventure::blow_up_deepslate} to "Take Aim"
+    set {advancement_names::minecraft::adventure::arbalistic} to "Arbalistic"
+    set {advancement_names::minecraft::adventure::adventuring_time} to "Adventuring Time"
+    set {advancement_names::minecraft::adventure::spyglass_at_parrot} to "Is It a Bird?"
+    set {advancement_names::minecraft::adventure::bullseye} to "Bullseye"
+    set {advancement_names::minecraft::adventure::totem_of_undying} to "Cheating Death"
+    set {advancement_names::minecraft::adventure::fall_from_world_top} to "Caves & Cliffs"
+    set {advancement_names::minecraft::adventure::water_bucket_save} to "Bucket Brigade"
+    set {advancement_names::minecraft::adventure::under_the_rain} to "Sneak 100"
+    set {advancement_names::minecraft::adventure::fishing} to "Fishing"
+    set {advancement_names::minecraft::adventure::fall_from_high_place} to "High as a Kite"
+    set {advancement_names::minecraft::adventure::voluntary_exile} to "Voluntary Exile"
+    set {advancement_names::minecraft::adventure::hero_of_the_village} to "Hero of the Village"
+    set {advancement_names::minecraft::adventure::uneasy_alliance} to "Uneasy Alliance"
+    set {advancement_names::minecraft::adventure::loot_bastion} to "War Pigs"
+    set {advancement_names::minecraft::adventure::ride_fall} to "Ride the Lava"
+    set {advancement_names::minecraft::adventure::recovery} to "Recovery"
+    set {advancement_names::minecraft::adventure::is_it_a_bird} to "Is It a Bird?"
+    set {advancement_names::minecraft::adventure::charged_creeper} to "Sticky Situation"
+    set {advancement_names::minecraft::adventure::power_of_books} to "The Power of Books"
+    set {advancement_names::minecraft::adventure::crafting_a_new_look} to "Crafting a New Look"
+    set {advancement_names::minecraft::adventure::is_it_a_balloon} to "Is It a Balloon?"
+    set {advancement_names::minecraft::adventure::a_throwaway_joke} to "A Throwaway Joke"
+    set {advancement_names::minecraft::adventure::two_birds_one_arrow} to "Two Birds, One Arrow"
+    set {advancement_names::minecraft::adventure::who_is_the_pillager_now} to "Who's the Pillager Now?"
+    set {advancement_names::minecraft::adventure::sniper_duel} to "Sniper Duel"
+    set {advancement_names::minecraft::adventure::is_it_a_plane} to "Is It a Plane?"
+    set {advancement_names::minecraft::adventure::respecting_the_remnants} to "Respecting the Remnants"
+    set {advancement_names::minecraft::adventure::light_as_a_rabbit} to "Light as a Rabbit"
+    set {advancement_names::minecraft::adventure::careful_restoration} to "Careful Restoration"
+    set {advancement_names::minecraft::adventure::hired_help} to "Hired Help"
+    set {advancement_names::minecraft::adventure::star_trader} to "Star Trader"
+    set {advancement_names::minecraft::adventure::isn_it_scute} to "Isn't It Scute?"
+    set {advancement_names::minecraft::adventure::smithing_with_style} to "Smithing with Style"
+    set {advancement_names::minecraft::adventure::spyglass_at_dragon} to "Is It a Dragon?"
+    set {advancement_names::minecraft::adventure::kill_mob_near_sculk_catalyst} to "Sculk Spreading"
+    set {advancement_names::minecraft::adventure::remove_mob_head} to "Royal Decree"
+    set {advancement_names::minecraft::adventure::walk_on_powder_snow_with_leather_boots} to "First Frost"
+    set {advancement_names::minecraft::adventure::spear_many_mobs} to "Mob Kabob"
+    set {advancement_names::minecraft::nether::return_to_sender} to "Return to Sender"
+    set {advancement_names::minecraft::nether::find_fortress} to "A Terrible Fortress"
+    set {advancement_names::minecraft::nether::obtain_ancient_debris} to "Hidden in the Depths"
+    set {advancement_names::minecraft::nether::obtain_crying_obsidian} to "Who is Cutting Onions?"
+    set {advancement_names::minecraft::nether::distract_piglin} to "Oh Shiny"
+    set {advancement_names::minecraft::nether::ride_strider} to "This Boat Has Legs"
+    set {advancement_names::minecraft::nether::use_lodestone} to "Into Fire"
+    set {advancement_names::minecraft::nether::explore_nether} to "Hot Tourist Destinations"
+    set {advancement_names::minecraft::nether::obtain_blaze_rod} to "Into Fire"
+    set {advancement_names::minecraft::nether::create_beacon} to "Bring Home the Beacon"
+    set {advancement_names::minecraft::nether::all_potions} to "A Furious Cocktail"
+    set {advancement_names::minecraft::nether::all_effects} to "How Did We Get Here?"
+    set {advancement_names::minecraft::nether::fast_travel} to "Subspace Bubble"
+    set {advancement_names::minecraft::nether::find_bastion} to "Those Were the Days"
+    set {advancement_names::minecraft::nether::get_wither_skull} to "Spooky Scary Skeleton"
+    set {advancement_names::minecraft::nether::charge_respawn_anchor} to "Not Quite Nine Lives"
+    set {advancement_names::minecraft::nether::netherite_armor} to "Cover Me in Debris"
+    set {advancement_names::minecraft::nether::uneasy_alliance} to "Uneasy Alliance"
+    set {advancement_names::minecraft::nether::loot_bastion} to "War Pigs"
+    set {advancement_names::minecraft::nether::get_wither} to "Spooky Scary Skeleton"
+    set {advancement_names::minecraft::nether::summon_wither} to "Spooky Scary Skeleton"
+    set {advancement_names::minecraft::nether::explore_crimson_forest} to "A Crimson Promise"
+    set {advancement_names::minecraft::nether::explore_warped_forest} to "Into the Wilds"
+    set {advancement_names::minecraft::end::kill_dragon} to "The Next Generation"
+    set {advancement_names::minecraft::end::dragon_egg} to "The End... Again..."
+    set {advancement_names::minecraft::end::find_end_city} to "The City at the End of the Game"
+    set {advancement_names::minecraft::end::elytra} to "Sky's the Limit"
+    set {advancement_names::minecraft::end::levitate} to "Levitation"
+    set {advancement_names::minecraft::end::respawn_dragon} to "The End... Again..."
+    set {advancement_names::minecraft::end::dragon_breath} to "A Challenge"
+    set {advancement_names::minecraft::end::summon_wither} to "Spooky Scary Skeleton"
+    set {advancement_names::minecraft::end::kill_all_mobs} to "Monsters Hunted"
+    set {advancement_names::minecraft::husbandry::breed_an_animal} to "The Parrots and the Bats"
+    set {advancement_names::minecraft::husbandry::tame_an_animal} to "Best Friends Forever"
+    set {advancement_names::minecraft::husbandry::fishy_business} to "Fishy Business"
+    set {advancement_names::minecraft::husbandry::plant_seed} to "Seedy Place"
+    set {advancement_names::minecraft::husbandry::fungus_collected} to "Cavern Explorer"
+    set {advancement_names::minecraft::husbandry::plant_any_sniffer_seed} to "Planting the Past"
+    set {advancement_names::minecraft::husbandry::obtain_netherite_hoe} to "Serious Dedication"
+    set {advancement_names::minecraft::husbandry::complete_catalogue} to "A Complete Catalogue"
+    set {advancement_names::minecraft::husbandry::tactical_fishing} to "Tactical Fishing"
+    set {advancement_names::minecraft::husbandry::ride_strider} to "This Boat Has Legs"
+    set {advancement_names::minecraft::husbandry::allay_deliver_item_to_player} to "It Spreads"
+    set {advancement_names::minecraft::husbandry::froglights} to "Amphibious"
+    set {advancement_names::minecraft::husbandry::axolotl_in_a_bucket} to "The Cutest Predator"
+    set {advancement_names::minecraft::husbandry::kill_axolotl_variants} to "Liberating the Axolotls"
+    set {advancement_names::minecraft::husbandry::all_snow_golem_types} to "Snowball Fight"
+    set {advancement_names::minecraft::husbandry::all_frog_types} to "Bullfrog"
+    set {advancement_names::minecraft::husbandry::pet_allay_with_amethyst} to "Allay"
+    set {advancement_names::minecraft::husbandry::bee_our_guest} to "Bee Our Guest"
+    set {advancement_names::minecraft::husbandry::breakthrough} to "Breakthrough"
+    set {advancement_names::minecraft::husbandry::obtain_all_snow_golems} to "Snowball Fight"
+    set {advancement_names::minecraft::husbandry::silk_touch_nest} to "Trusty Steed"
+    set {advancement_names::minecraft::husbandry::safely_harvest_honey} to "Bee Our Guest"
+    set {advancement_names::minecraft::husbandry::wax_on} to "Wax On"
+    set {advancement_names::minecraft::husbandry::wax_off} to "Wax Off"
+    set {advancement_names::minecraft::husbandry::leash_all_frog_types} to "Leashed Together"
+    set {advancement_names::minecraft::husbandry::brush_wolf} to "Glow and Behold!"
+    set {advancement_names::minecraft::husbandry::give_wolf_armor} to "The Pack"
+    set {advancement_names::minecraft::husbandry::decorate_wolf_armor} to "Fuzzy Armor"
+    set {advancement_names::minecraft::husbandry::make_a_sign_glow} to "Glow and Behold!"
+    set {advancement_names::minecraft::husbandry::breed_horses} to "Repopulation"
+    set {advancement_names::minecraft::husbandry::kill_chicken_with_egg} to "Egg Hunt"
+
+
+on redis message:
+    if redis channel is "kupalmc:advancements:global":
+        set {_data} to redis message
+        set {_parts::*} to {_data} split by "|||"
+        set {_origin_server} to {_parts::1}
+        set {_player_name} to {_parts::2}
+        set {_advancement} to {_parts::3}
+        set {_type} to {_parts::4}
+        
+        # Only broadcast on other servers (vanilla shows locally on origin)
+        if {_origin_server} is "{@server_id}":
+            stop
+        
+        if {_type} is "goal":
+            set {_chat_msg} to "&f%{_player_name}% &ahas reached the goal &a[%{_advancement}%]"
+        else if {_type} is "challenge":
+            set {_chat_msg} to "&f%{_player_name}% &dhas completed the challenge &5[%{_advancement}%]"
+        else:
+            set {_chat_msg} to "&f%{_player_name}% has made an advancement &a[%{_advancement}%]"
+        
+        loop all players:
+            if {showAdvancements::%loop-player's uuid%} is not set:
+                send {_chat_msg} to loop-player
+
+
+on advancement done:
+    set {_raw} to "%event-advancement%"
+    
+    if {_raw} contains "root":
+        stop
+    if {_raw} contains "decorations":
+        stop
+    if {_raw} contains "recipes":
+        stop
+    
+    set {_player_name} to player's name
+    set {_key} to {_raw}
+    replace all ":" with "::" in {_key}
+    replace all "/" with "::" in {_key}
+    set {_advancement} to {advancement_names::%{_key}%}
+    
+    if {_advancement} is not set:
+        set {_advancement} to {_raw}
+    
+    if {_raw} contains "[goal]":
+        set {_type} to "goal"
+    else if {_raw} contains "[challenge]":
+        set {_type} to "challenge"
+    else:
+        set {_type} to "advancement"
+    
+    set {_server} to "{@server_id}"
+    set {_payload} to "%{_server}%|||%{_player_name}%|||%{_advancement}%|||%{_type}%"
+    send redis message {_payload} to channel "kupalmc:advancements:global"
+

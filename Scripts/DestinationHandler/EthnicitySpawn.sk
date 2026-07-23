@@ -1,0 +1,48 @@
+command /ethnicity-spawn:
+    trigger:
+        if player does not have permission "first-join.spawn":
+            if player has permission "ethnicity.tagalog":
+                teleport player to location(-1509.5, 67.0, -6864.5, world "LUZON")
+                set player's yaw to 86.25
+                set player's pitch to -8.25
+            else if player has permission "ethnicity.ilocano":
+                teleport player to location(-3274.5, 63.0, -15468.5, world "LUZON")
+                set player's yaw to 88.65
+                set player's pitch to -3.6
+            else if player has permission "ethnicity.bicolano":
+                teleport player to location(4603.5, 68.0, -4254.5, world "LUZON")
+                set player's yaw to 91.95
+                set player's pitch to -3.9
+            else if player has permission "ethnicity.igorot":
+                teleport player to location(-1403.5, 121.0, -15750.5, world "LUZON")
+                set player's yaw to 93.75
+                set player's pitch to -9.6
+            else if player has permission "ethnicity.kampampangan":
+                teleport player to location(-2773.5, 67.0, -8338.5, world "LUZON")
+                set player's yaw to 91.95
+                set player's pitch to -3.9
+            else:
+                stop
+            wait 5 ticks
+            execute console command "lp user %player% permission set first-join.spawn true"
+            execute console command "spawnpoint %player% %floor(player's x)% %floor(player's y)% %floor(player's z)%"
+        else:
+            send "&cYou don't have permission to use this command" to player
+
+command /resetsession <player>:
+    permission: op
+    trigger:
+        execute console command "lp user %arg-1% permission unset first-join.spawn"
+
+
+on join:
+    wait 2 seconds
+    if player does not have permission "first-join.spawn":
+        execute console command "sudo %player% c:/ethnicity-spawn"
+
+
+
+command /worldspawn:
+    permission: op
+    trigger:
+        teleport player to the world's spawn

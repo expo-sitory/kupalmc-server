@@ -1,0 +1,677 @@
+options:
+    prefix: &d&lᴋᴜᴘᴀʟᴍᴄ &r&7- &fᴛᴏᴡɴꜱ &7| &r
+    webhook: https://discord.com/api/webhooks/1510649018483736736/hNH3ZzoKR73isEXpe5EU_GeqvVnp3Y3VC7JZNG15ugxHZQMIolqMiG9A4vq4mPOEaBK0
+
+# ==================================================
+# WEBHOOK FUNCTION
+# ==================================================
+
+function sendTownWebhook(title: text, desc: text):
+    set {_footer} to new footer with name "mc.kupal.org" and icon url "https://cdn.discordapp.com/attachments/1305357258749902880/1503656575175360563/kupla-mc.png?ex=6a1d3150&is=6a1bdfd0&hm=a76b6add019ad53c97e1f0169eebfd967ea8c509ce9e120804ea55dbebd83cbb&"
+
+    create a new embed:
+        title: {_title}
+        description: {_desc}
+        color: "##b94ae6"
+        timestamp: true
+        footer: {_footer}
+        thumbnail: "https://cdn.discordapp.com/attachments/1305357258749902880/1497243705348849714/minecraft_title.png?ex=6a1cef1c&is=6a1b9d9c&hm=b2f969d518c919b10427d1a8f2e3d733c6352891214c4ad3a702ee1016c88ae6&"
+        saveInto: {_embed}
+
+    create a new webhook message:
+        webhook: "{@webhook}"
+        username: "Koharu"
+        embed: {_embed}
+  
+
+# ======================================================
+# TAB COMPLETE
+# ======================================================
+on tab complete of "/town":
+    set tab completions for position 1 to "create" and "invite" and "accept" and "leave" and "kick" and "movebeacon"
+ 
+    if tab arg 1 is "invite":
+        set tab completions for position 2 to all players
+
+# ======================================================
+# COMMAND
+# ======================================================
+command /town [<text>] [<text>]:
+    trigger:
+
+        # ==================================================
+        # CREATE
+        # ==================================================
+        if arg-1 is "create":
+
+            if arg-2 is not set:
+                send "{@prefix}&cUsage: /town create <name>"
+                stop
+
+            if length of arg-2 > 17:
+                send "{@prefix}&cᴛᴏᴡɴ ɴᴀᴍᴇ ᴍᴜꜱᴛ ʙᴇ 17 ᴄʜᴀʀᴀᴄᴛᴇʀꜱ ᴏʀ ʟᴇꜱꜱ."
+                stop
+
+            set {_id} to arg-2
+            replace all " " with "_" in {_id}
+            set {_id} to lowercase {_id}
+
+            if {townLeader::%{_id}%} is set:
+                send "{@prefix}&cᴛᴏᴡɴ ᴀʟʀᴇᴀᴅʏ ᴇxɪꜱᴛꜱ."
+                stop
+
+            loop {townLeader::*}:
+                if loop-value is player's uuid:
+                    send "{@prefix}&cʏᴏᴜ ᴀʟʀᴇᴀᴅʏ ʟᴇᴀᴅ ᴀ ᴛᴏᴡɴ. ʏᴏᴜ ᴄᴀɴɴᴏᴛ ᴄʀᴇᴀᴛᴇ ᴍᴏʀᴇ ᴛʜᴀɴ ᴏɴᴇ."
+                    stop
+
+            if arg-2 contains "no town":
+                send "{@prefix}&cᴛʜᴀᴛ ᴛᴏᴡɴ ɴᴀᴍᴇ ɪꜱ ɴᴏᴛ ᴀʟʟᴏᴡᴇᴅ."
+                stop
+
+            # Check materials
+            if player does not have 4 of beacon in their inventory:
+                send "{@prefix}&cʏᴏᴜ ɴᴇᴇᴅ &e4 ʙᴇᴀᴄᴏɴꜱ &cᴛᴏ ᴄʀᴇᴀᴛᴇ ᴀ ᴛᴏᴡɴ."
+                stop
+
+            if player does not have 1 of ender eye in their inventory:
+                send "{@prefix}&cʏᴏᴜ ɴᴇᴇᴅ &e1 ᴇɴᴅᴇʀ ᴇʏᴇ &cᴛᴏ ᴄʀᴇᴀᴛᴇ ᴀ ᴛᴏᴡɴ."
+                stop
+
+            # Remove materials
+            remove 4 of beacon from player's inventory
+            remove 1 of ender eye from player's inventory
+
+            set {_display} to arg-2
+            replace all "_" with " " in {_display}
+            replace all ":" with "" in {_display}
+            replace all "," with "" in {_display}
+            replace all "." with "" in {_display}
+            set {_display} to lowercase {_display}
+
+            set {_words::*} to {_display} split at " "
+            set {_display} to ""
+
+            loop {_words::*}:
+                set {_word} to loop-value
+                set {_first} to first character of {_word}
+                set {_capFirst} to {_first} in upper case
+                replace first {_first} with {_capFirst} in {_word}
+                if {_display} is "":
+                    set {_display} to "%{_word}%"
+                else:
+                    set {_display} to "%{_display}% %{_word}%"
+
+            add {_id} to {townList::*}
+
+            execute console command "lp creategroup town_%{_id}%"
+            execute console command "lp group town_%{_id}% setweight 1"
+
+            set {_cmd} to "lp group town_%{_id}% meta addsuffix 4 ""%{_display}%"""
+            execute console command {_cmd}
+
+            set {_cmd2} to "lp group town_%{_id}% permission set town_%{_id}%"
+            execute console command {_cmd2}
+
+            execute console command "lp user %player% parent add town_%{_id}%"
+            execute console command "lp user %player% permission set town.leader.%{_id}% true"
+
+            set {townLeader::%{_id}%} to player's uuid
+            set {townDisplay::%{_id}%} to {_display}
+
+            add {_id} to {playerTowns::%player's uuid%::*}
+
+            # Give town beacon
+            set {_beacon} to a beacon named "&f%{_display}%"
+            give {_beacon} to player
+
+            send "{@prefix}&aTown &e%{_display}% &acreated."
+            sendTownWebhook("A new town has been founded!", "**%{_display}%** has been created by **%player%**. *Every empire begins with a single step. Yours starts today.*")
+            stop
+
+        # ==================================================
+        # INVITE
+        # ==================================================
+        if arg-1 is "invite":
+
+            set {_target} to arg-2 parsed as player
+
+            if {_target} is not set:
+                send "{@prefix}&cᴘʟᴀʏᴇʀ ɴᴏᴛ ᴏɴʟɪɴᴇ."
+                stop
+
+            set {_town} to ""
+
+            loop {townLeader::*}:
+                if loop-value is player's uuid:
+                    set {_town} to loop-index
+                    stop loop
+
+            if {_town} is "":
+                send "{@prefix}&cʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀ ᴛᴏᴡɴ ʟᴇᴀᴅᴇʀ."
+                stop
+
+            if size of {playerTowns::%{_target}'s uuid%::*} >= 1:
+                send "{@prefix}&cᴛʜᴀᴛ ᴘʟᴀʏᴇʀ ɪꜱ ᴀʟʀᴇᴀᴅʏ ɪɴ ᴀ ᴛᴏᴡɴ."
+                stop
+
+            if {_town} is in {townInvites::%{_target}'s uuid%::*}:
+                send "{@prefix}&cᴘʟᴀʏᴇʀ ᴀʟʀᴇᴀᴅʏ ʜᴀꜱ ᴀɴ ɪɴᴠɪᴛᴇ."
+                stop
+
+            add {_town} to {townInvites::%{_target}'s uuid%::*}
+
+            send "{@prefix}&aInvite sent to %{_target}%."
+
+            if {_target} is online:
+                send "{@prefix}&eʏᴏᴜ ᴡᴇʀᴇ ɪɴᴠɪᴛᴇᴅ ᴛᴏ &f%{townDisplay::%{_town}%}%&e." to {_target}
+                send "&7ᴜꜱᴇ &f/town accept %{_town}% &7ᴛᴏ ᴊᴏɪɴ." to {_target}
+
+        # ==================================================
+        # ACCEPT
+        # ==================================================
+        if arg-1 is "accept":
+
+            if arg-2 is not set:
+                send "{@prefix}&cUsage: /town accept <town>"
+                stop
+
+            set {_search} to lowercase arg-2
+            replace all " " with "_" in {_search}
+
+            if size of {playerTowns::%player's uuid%::*} >= 1:
+                send "{@prefix}&cʏᴏᴜ ᴄᴀɴ ᴏɴʟʏ ʙᴇ ɪɴ &e1 ᴛᴏᴡɴ&c."
+                stop
+
+            set {_found} to false
+
+            loop {townInvites::%player's uuid%::*}:
+
+                set {_invite} to lowercase loop-value
+                replace all " " with "_" in {_invite}
+
+                if {_invite} is {_search}:
+                    set {_town} to loop-value
+                    set {_found} to true
+                    stop loop
+
+            if {_found} is false:
+                send "{@prefix}&cNo invite from that town."
+                stop
+
+            execute console command "lp user %player% parent add town_%{_town}%"
+
+            add {_town} to {playerTowns::%player's uuid%::*}
+            remove {_town} from {townInvites::%player's uuid%::*}
+
+            send "{@prefix}&aʏᴏᴜ ᴊᴏɪɴᴇᴅ &e%{townDisplay::%{_town}%}%&a."
+            sendTownWebhook("A player has joined a town!", "**%player%** is now a member of **%{townDisplay::%{_town}%}%**. *A new soul joins the ranks. Welcome to the family*")
+            stop
+
+        # ==================================================
+        # LEAVE
+        # ==================================================
+        if arg-1 is "leave":
+            set {_town} to ""
+
+            loop {playerTowns::%player's uuid%::*}:
+                set {_town} to loop-value
+                stop loop
+
+            if {_town} is "":
+                send "{@prefix}&cʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ɪɴ ᴀ ᴛᴏᴡɴ."
+                stop
+
+            if {townDisplay::%{_town}%} is not set:
+                send "{@prefix}&cʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀ ᴍᴇᴍʙᴇʀ ᴏꜰ ᴛʜɪꜱ ᴛᴏᴡɴ."
+                remove {_town} from {playerTowns::%player's uuid%::*}
+                stop
+
+            if player has permission "town.leader.%{_town}%":
+                send "{@prefix}&cʟᴇᴀᴅᴇʀꜱ ᴄᴀɴɴᴏᴛ ʟᴇᴀᴠᴇ ᴛʜᴇɪʀ ᴏᴡɴ ᴛᴏᴡɴ."
+                stop
+
+            execute console command "lp user %player% parent remove town_%{_town}%"
+
+            remove {_town} from {playerTowns::%player's uuid%::*}
+
+            send "{@prefix}&aʏᴏᴜ ʟᴇꜰᴛ &e%{townDisplay::%{_town}%}%&a."
+            sendTownWebhook(" A player left a town!", "**%player%** is no longer a member of **%{townDisplay::%{_town}%}%**. *Every path leads somewhere. May yours lead to greatness.*")
+            stop
+
+
+
+        # ==================================================
+        # KICK
+        # ==================================================
+        if arg-1 is "kick":
+
+            if arg-2 is not set:
+                send "{@prefix}&cUsage: /town kick <player>"
+                stop
+
+            # Find leader's town
+            set {_town} to ""
+            loop {townLeader::*}:
+                if loop-value is player's uuid:
+                    set {_town} to loop-index
+                    stop loop
+
+            if {_town} is "":
+                send "{@prefix}&cʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀ ᴛᴏᴡɴ ʟᴇᴀᴅᴇʀ."
+                stop
+
+            set {_target} to arg-2 parsed as offline player
+
+            if {_target} is not set:
+                send "{@prefix}&cᴘʟᴀʏᴇʀ ɴᴏᴛ ꜰᴏᴜɴᴅ."
+                stop
+
+            if {_target} is player:
+                send "{@prefix}&cʏᴏᴜ ᴄᴀɴɴᴏᴛ ᴋɪᴄᴋ ʏᴏᴜʀꜱᴇʟꜰ."
+                stop
+                
+            # Check if target is in leader's town
+            set {_inTown} to false
+            loop {playerTowns::%{_target}'s uuid%::*}:
+                if loop-value is {_town}:
+                    set {_inTown} to true
+                    stop loop
+
+            if {_inTown} is false:
+                send "{@prefix}&cᴛʜᴀᴛ ᴘʟᴀʏᴇʀ ɪꜱ ɴᴏᴛ ɪɴ ʏᴏᴜʀ ᴛᴏᴡɴ."
+                stop
+
+            execute console command "lp user %{_target}% parent remove town_%{_town}%"
+
+            # Cleanly rebuild the player's town list without the kicked town
+            delete {_newList::*}
+            loop {playerTowns::%{_target}'s uuid%::*}:
+                if loop-value is not {_town}:
+                    add loop-value to {_newList::*}
+
+            delete {playerTowns::%{_target}'s uuid%::*}
+
+            loop {_newList::*}:
+                add loop-value to {playerTowns::%{_target}'s uuid%::*}
+
+            send "{@prefix}&cʏᴏᴜ ᴋɪᴄᴋᴇᴅ &e%{_target}% &cꜰʀᴏᴍ &e%{townDisplay::%{_town}%}%&c."
+
+            if {_target} is online:
+                send "{@prefix}&cʏᴏᴜ ʜᴀᴠᴇ ʙᴇᴇɴ ᴋɪᴄᴋᴇᴅ ꜰʀᴏᴍ &e%{townDisplay::%{_town}%}%&c." to {_target}
+                sendTownWebhook(" A player has been kicked!", "**%{_target}%** has been kicked from **%{townDisplay::%{_town}%}%**. *Every journey has its bumps. Rise above it.*")
+            stop
+
+        # ==================================================
+        # MOVEBEACON
+        # ==================================================
+        if arg-1 is "movebeacon":
+            # Find leader's town
+            set {_town} to ""
+            loop {townLeader::*}:
+                if loop-value is player's uuid:
+                    set {_town} to loop-index
+                    stop loop
+
+            if {_town} is "":
+                send "{@prefix}&cʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀ ᴛᴏᴡɴ ʟᴇᴀᴅᴇʀ."
+                stop
+
+            # Check if beacon exists
+            if {townBeaconLocation::%{_town}%} is not set:
+                send "{@prefix}&cʏᴏᴜʀ ᴛᴏᴡɴ ʜᴀꜱ ɴᴏ ʙᴇᴀᴄᴏɴ ᴘʟᴀᴄᴇᴅ."
+                stop
+
+            # Save the tier before resetting
+            set {_tier} to {townBeaconTier::%{_town}%}
+
+            # Remove old beacon location only (keep tier)
+            set block at {townBeaconLocation::%{_town}%} to air
+            delete {townBeaconLocation::%{_town}%}
+
+            # Give beacon back to leader
+            set {_beacon} to a beacon named "&f%{townDisplay::%{_town}%}%"
+            give {_beacon} to player
+
+            send "{@prefix}&aʙᴇᴀᴄᴏɴ ᴍᴏᴠᴇᴅ! ᴛɪᴇʀ &e%{_tier}% &ᴘʀᴇꜱᴇʀᴠᴇᴅ. ᴘʟᴀᴄᴇ ɪᴛ ɪɴ ᴀ ɴᴇᴡ ʟᴏᴄᴀᴛɪᴏɴ."
+            sendTownWebhook("Town beacon moved!", "**%{townDisplay::%{_town}%}%** beacon has been moved by **%player%**. Tier %{_tier}% preserved.")
+            stop
+
+
+
+
+# ======================================================
+# BEACON PROTECTION
+# ======================================================
+
+command /fixtown <text>:
+    permission: op
+    trigger:
+        if arg-1 is not set:
+            send "&cUsage: /fixtown <town_name>"
+            stop
+
+        set {_search} to lowercase arg-1
+        replace all " " with "_" in {_search}
+
+        set {_found} to false
+        set {_town} to ""
+
+        loop {townList::*}:
+            set {_check} to lowercase loop-value
+            replace all " " with "_" in {_check}
+            if {_check} is {_search}:
+                set {_town} to loop-value
+                set {_found} to true
+                stop loop
+
+        if {_found} is false:
+            send "&cᴛᴏᴡɴ '&e%arg-1%&c' ɴᴏᴛ ꜰᴏᴜɴᴅ."
+            send "&eᴀᴠᴀɪʟᴀʙʟᴇ ᴛᴏᴡɴꜱ: &f%{townList::*}%"
+            stop
+
+        # Get the leader
+        set {_leaderUUID} to {townLeader::%{_town}%}
+        
+        if {_leaderUUID} is not set:
+            send "&cʟᴇᴀᴅᴇʀ ɴᴏᴛ ꜰᴏᴜɴᴅ ꜰᴏʀ ᴛʜɪꜱ ᴛᴏᴡɴ."
+            stop
+
+        # Find leader in online players
+        set {_leaderFound} to false
+        loop all players:
+            if UUID of loop-player is {_leaderUUID}:
+                set {_leader} to loop-player
+                set {_leaderFound} to true
+                stop loop
+
+        # Reset the beacon data
+        if {townBeaconLocation::%{_town}%} is set:
+            set block at {townBeaconLocation::%{_town}%} to air
+            delete {townBeaconLocation::%{_town}%}
+
+        delete {townBeaconTier::%{_town}%}
+
+        # Give beacon to leader if online
+        if {_leaderFound} is true:
+            set {_beacon} to a beacon named "&f%{townDisplay::%{_town}%}%"
+            give {_beacon} to {_leader}
+            send "{@prefix}&a✓ ꜰɪxᴇᴅ ᴛᴏᴡɴ &e%{townDisplay::%{_town}%}%&a." to {_leader}
+            send "&eʏᴏᴜʀ ᴛᴏᴡɴ ʙᴇᴀᴄᴏɴ ʜᴀꜱ ʙᴇᴇɴ ʀᴇꜱᴛᴏʀᴇᴅ. ᴘʟᴀᴄᴇ ɪᴛ ᴀɢᴀɪɴ ᴛᴏ ʀᴇ-ʀᴇɢɪꜱᴛᴇʀ." to {_leader}
+        else:
+            send "&eʟᴇᴀᴅᴇʀ ɪꜱ ɴᴏᴛ ᴏɴʟɪɴᴇ. ʙᴇᴀᴄᴏɴ ᴄᴀɴɴᴏᴛ ʙᴇ ɢɪᴠᴇɴ."
+
+        send "&a✓ ꜰɪxᴇᴅ ᴛᴏᴡɴ &e%{townDisplay::%{_town}%}%&a."
+
+on break of beacon:
+    if player is set:
+        loop {townList::*}:
+            set {_town} to loop-value
+            if {townBeaconLocation::%{_town}%} is set:
+                if location of event-block is {townBeaconLocation::%{_town}%}:
+                    cancel event
+                    send "{@prefix}&cᴛʜɪꜱ ʙᴇᴀᴄᴏɴ ʙᴇʟᴏɴɢꜱ ᴛᴏ &e%{townDisplay::%{_town}%}% &cᴀɴᴅ ᴄᴀɴɴᴏᴛ ʙᴇ ʙʀᴏᴋᴇɴ."
+                    stop
+
+
+
+
+
+
+
+
+
+# ======================================================
+# TIER 3+ STORAGE CONTAINER PROTECTION
+# ======================================================
+
+on right click on chest or trapped chest or barrel or shulker box:
+    loop {townList::*}:
+        set {_town} to loop-value
+        if {townBeaconLocation::%{_town}%} is set:
+            if {townBeaconTier::%{_town}%} >= 3:
+                set {_loc} to {townBeaconLocation::%{_town}%}
+                set {_range} to 175
+                if {townBeaconTier::%{_town}%} >= 4:
+                    set {_range} to 225
+                if {townBeaconTier::%{_town}%} >= 5:
+                    set {_range} to 325
+
+                if distance between location of event-block and {_loc} <= {_range}:
+                    if player does not have permission "town_%{_town}%":
+                        cancel event
+                        send "{@prefix}&cʏᴏᴜ ᴄᴀɴɴᴏᴛ ᴀᴄᴄᴇꜱꜱ ꜱᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴀɪɴᴇʀꜱ ɪɴ ᴛʜɪꜱ ᴛᴏᴡɴ'ꜱ ᴛᴇʀʀɪᴛᴏʀʏ."
+                        stop
+
+# ======================================================
+# TIER 4+ RIDABLE MOB PROTECTION
+# ======================================================
+
+on right click on horse or donkey or mule or llama or camel or pig or strider:
+    loop {townList::*}:
+        set {_town} to loop-value
+        if {townBeaconLocation::%{_town}%} is set:
+            if {townBeaconTier::%{_town}%} >= 4:
+                set {_loc} to {townBeaconLocation::%{_town}%}
+                set {_range} to 225
+                if {townBeaconTier::%{_town}%} >= 5:
+                    set {_range} to 325
+
+                if distance between location of event-entity and {_loc} <= {_range}:
+                    if player does not have permission "town_%{_town}%":
+                        cancel event
+                        send "{@prefix}&cʏᴏᴜ ᴄᴀɴɴᴏᴛ ʀɪᴅᴇ ᴍᴏʙꜱ ɪɴ ᴛʜɪꜱ ᴛᴏᴡɴ'ꜱ ᴛᴇʀʀɪᴛᴏʀʏ."
+                        stop
+
+on block place:
+    loop {townList::*}:
+        set {_town} to loop-value
+        if {townBeaconLocation::%{_town}%} is set:
+            if {townBeaconTier::%{_town}%} >= 5:
+                set {_loc} to {townBeaconLocation::%{_town}%}
+                set {_range} to 325
+
+                if distance between location of event-block and {_loc} <= {_range}:
+                    if player does not have permission "town_%{_town}%":
+                        cancel event
+                        send "{@prefix}&cʏᴏᴜ ᴄᴀɴɴᴏᴛ ʙᴜɪʟᴅ ɪɴ ᴛʜɪꜱ ᴛᴏᴡɴ'ꜱ ᴛᴇʀʀɪᴛᴏʀʏ."
+                        stop
+
+on break:
+    loop {townList::*}:
+        set {_town} to loop-value
+        if {townBeaconLocation::%{_town}%} is set:
+            if {townBeaconTier::%{_town}%} >= 5:
+                set {_loc} to {townBeaconLocation::%{_town}%}
+                set {_range} to 325
+
+                if distance between location of event-block and {_loc} <= {_range}:
+                    if player does not have permission "town_%{_town}%":
+                        cancel event
+                        send "{@prefix}&cʏᴏᴜ ᴄᴀɴɴᴏᴛ ʙʀᴇᴀᴋ ʙʟᴏᴄᴋꜱ ɪɴ ᴛʜɪꜱ ᴛᴏᴡɴ'ꜱ ᴛᴇʀʀɪᴛᴏʀʏ."
+                        stop
+
+# ======================================================
+# BEACON PLACEMENT
+# ======================================================
+
+on place of beacon:
+    loop {playerTowns::%player's uuid%::*}:
+        set {_town} to loop-value
+        if player has permission "town.leader.%{_town}%":
+            if {townBeaconLocation::%{_town}%} is not set:
+                set {_item} to player's tool
+                if display name of {_item} contains {townDisplay::%{_town}%}:
+                    set {townBeaconLocation::%{_town}%} to location of event-block
+                    send "{@prefix}&aᴛᴏᴡɴ ʙᴇᴀᴄᴏɴ ᴘʟᴀᴄᴇᴅ ᴀɴᴅ ᴘʀᴏᴛᴇᴄᴛᴇᴅ."
+                    send "{@prefix}&fʀɪɢʜᴛ ᴄʟɪᴄᴋ ᴛʜᴇ ʙᴇᴀᴄᴏɴ ᴡʜɪʟᴇ ʜᴏʟᴅɪɴɢ ᴀ &7ɴᴇᴛʜᴇʀɪᴛᴇ ɪɴɢᴏᴛ &fᴛᴏ ᴜᴘɢʀᴀᴅᴇ ɪᴛ."
+                    stop
+
+command /clearleader <player>:
+    permission: op
+    trigger:
+        set {_target} to arg-1
+
+        if {_target} is not set:
+            send "&cPlayer not found."
+            stop
+
+        loop {townLeader::*}:
+            if loop-value is {_target}'s uuid:
+                set {_town} to loop-index
+                delete {townLeader::%{_town}%}
+                send "&aCleared leader data for %{_target}%"
+                stop
+
+        if {_town} is not set:
+            send "&e%{_target}% is not a town leader."
+
+
+command /clearplayertowns <player>:
+    permission: op
+    trigger:
+        set {_target} to arg 1
+
+        if {_target} is not set:
+            send "&cPlayer not found."
+            stop
+
+        delete {playerTowns::%{_target}'s uuid%::*}
+        delete {townInvites::%{_target}'s uuid%::*}
+
+        send "&aCleared all towns for &e%{_target}%&a."
+        if {_target} is online:
+            send "&aYour town list has been cleared by admin." to {_target}
+
+command /removetown <text>:
+    permission: op
+    trigger:
+        set {_search} to lowercase arg 1
+        replace all " " with "_" in {_search}
+
+        set {_found} to false
+        set {_town} to ""
+
+        loop {townList::*}:
+            set {_check} to lowercase loop-value
+            if {_check} is {_search}:
+                set {_town} to loop-value
+                set {_found} to true
+                stop loop
+
+        if {_found} is false:
+            send "&cᴛᴏᴡɴ ɴᴏᴛ ꜰᴏᴜɴᴅ."
+            stop
+
+        # Clean up all members' town data
+        loop all players:
+            execute console command "lp user %loop-player% parent remove town_%{_town}%"
+            execute console command "lp user %loop-player% permission unset town_%{_town}%"
+            execute console command "lp user %loop-player% parent remove town_%{_town}%"
+            execute console command "lp user %loop-player% permission unset town.leader.%{_town}%"
+            remove {_town} from {playerTowns::%loop-player's uuid%::*}
+
+        # Clean up stored invites
+        loop {townInvites::*}:
+            if {_town} is in {townInvites::%loop-index%::*}:
+                remove {_town} from {townInvites::%loop-index%::*}
+                
+
+        execute console command "lp deletegroup town_%{_town}%"
+
+        # Remove town beacon
+        if {townBeaconLocation::%{_town}%} is set:
+            set block at {townBeaconLocation::%{_town}%} to air
+            delete {townBeaconLocation::%{_town}%}
+            delete {townBeaconTier::%{_town}%}
+
+        set {_display} to {townDisplay::%{_town}%}
+        delete {townLeader::%{_town}%}
+        delete {townDisplay::%{_town}%}
+        remove {_town} from {townList::*}
+
+        send "&cAdmin removed town &e%{_display}%&c."
+
+command /towndebug <text>:
+    permission: op
+    trigger:
+        send "&eLeader: %{townLeader::%arg-1%}%"
+        send "&eDisplay: %{townDisplay::%arg-1%}%"
+
+command /settowndisplay <text> <text>:
+    permission: op
+    trigger:
+        set {townDisplay::%arg-1%} to arg-2
+        send "&aDisplay set."
+
+command /setleader <text> <player>:
+    permission: op
+    trigger:
+        set {_town} to lowercase arg-1
+        replace all " " with "_" in {_town}
+
+        set {townLeader::%{_town}%} to arg-2's uuid
+
+        execute console command "lp user %arg-2% parent add town_%{_town}%"
+        execute console command "lp user %arg-2% permission set town.leader.%{_town}% true"
+
+        if {_town} is not in {playerTowns::%arg-2's uuid%::*}:
+            add {_town} to {playerTowns::%arg-2's uuid%::*}
+
+        send "&aSet %arg-2% as leader of %{_town}%"
+
+command /fixdisplay <text> <text>:
+    permission: op
+    trigger:
+        set {townDisplay::%arg-1%} to arg-2
+        send "&aFixed display."
+
+command /regen beacon <text>:
+    permission: op
+    trigger:
+        if arg-1 is not set:
+            send "&cUsage: /regen beacon <town_name>"
+            stop
+
+        set {_search} to lowercase arg-1
+        replace all " " with "_" in {_search}
+
+        set {_found} to false
+        set {_town} to ""
+
+        loop {townList::*}:
+            set {_check} to lowercase loop-value
+            replace all " " with "_" in {_check}
+            if {_check} is {_search}:
+                set {_town} to loop-value
+                set {_found} to true
+                stop loop
+
+        if {_found} is false:
+            send "&cᴛᴏᴡɴ '&e%arg-1%&c' ɴᴏᴛ ꜰᴏᴜɴᴅ."
+            stop
+
+        set {_leaderUUID} to {townLeader::%{_town}%}
+        
+        if {_leaderUUID} is not set:
+            send "&cʟᴇᴀᴅᴇʀ ɴᴏᴛ ꜰᴏᴜɴᴅ ꜰᴏʀ ᴛʜɪꜱ ᴛᴏᴡɴ."
+            stop
+
+        set {_leaderFound} to false
+        loop all players:
+            if UUID of loop-player is {_leaderUUID}:
+                set {_leader} to loop-player
+                set {_leaderFound} to true
+                stop loop
+
+        if {_leaderFound} is false:
+            send "&cʟᴇᴀᴅᴇʀ ɪꜱ ɴᴏᴛ ᴏɴʟɪɴᴇ."
+            stop
+
+        set {_beacon} to a beacon named "&f%{townDisplay::%{_town}%}%"
+        give {_beacon} to {_leader}
+
+        send "{@prefix}&aBeacon restored to &e%{_leader}%&a."
+        send "{@prefix}&aʏᴏᴜʀ ᴛᴏᴡɴ ʙᴇᴀᴄᴏɴ ʜᴀꜱ ʙᴇᴇɴ ʀᴇꜱᴛᴏʀᴇᴅ!" to {_leader}
+
+

@@ -1,0 +1,151 @@
+options:
+    prefix: &d&lᴋᴜᴘᴀʟᴍᴄ &r&7- &fᴄʜᴀᴛ ᴄʜᴀɴɴᴇʟꜱ &7| &r
+
+
+on redis message:
+    if redis channel is "kupalmc:chat:global":
+        set {_data} to redis message
+        set {_parts::*} to {_data} split by "|||"
+        set {_sender} to {_parts::1}
+        set {_prefix} to {_parts::2}
+        set {_suffix} to {_parts::3}
+        set {_msg} to {_parts::4}
+        
+        loop all players:
+            if {chatChannel::%loop-player's uuid%} is "global":
+                if {mutedGlobal::%loop-player's uuid%} is not set:
+                    send "&f[ &eɢʙ &r] &f[&6%{_suffix}% &f] &r%{_prefix}%&r%{_sender}% &7⋙ &f%{_msg}%" to loop-player
+
+# CHAT CHANNELS
+
+on chat:
+    cancel event
+   
+    if {mutedAll} is true:
+        if player is not op:
+            send "&cᴄʜᴀᴛ ɪs ᴄᴜʀʀᴇɴᴛʟʏ ᴍᴜᴛᴇᴅ ʙʏ ᴀɴ ᴀᴅᴍɪɴɪsᴛʀᴀᴛᴏʀ." to player
+            stop
+    
+    set {_uuid} to player's uuid
+    set {_name} to player's name
+    set {_channel} to {chatChannel::%{_uuid}%}
+    set {_msg} to the message 
+    set {_prefix} to placeholder "luckperms_prefix_element_highest_not_from_group_no-prefix" of player
+    set {_suffix} to placeholder "luckperms_suffix" of player
+
+    if {_channel} is not set:
+        stop
+
+    # ---- ISLAND CHANNEL ----
+    if {_channel} is "island":
+        set {_island} to ""
+        if player has permission "current_server.luzon":
+            set {_island} to "Luzon"
+        else if player has permission "current_server.visayas":
+            set {_island} to "Visayas"
+        else if player has permission "current_server.mindanao":
+            set {_island} to "Mindanao"
+        loop all players:
+            if {chatChannel::%loop-player's uuid%} is "island":
+                if loop-player has permission "current_server.luzon":
+                    send "&f[ &a%{_island}% &f] %{_prefix}%&r%player% &7⋙ &f%{_msg}%" to loop-player
+                else if loop-player has permission "current_server.visayas":
+                    send "&f[ &e%{_island}% &f] %{_prefix}%&r%player% &7⋙ &f%{_msg}%" to loop-player
+                else:
+                    send "&f[ &c%{_island}% &f] %{_prefix}%&r%player% &7⋙ &f%{_msg}%" to loop-player
+                     
+            else if {chatChannel::%loop-player's uuid%} is "global":
+                if loop-player has permission "current_server.%{_island}%":
+                    if {mutedGlobal::%loop-player's uuid%} is not set:
+                        send "&f[ &eɢʙ &r] &f[ &a%{_island}% &f] %{_prefix}%%player% &7⋙ &f%{_msg}%" to loop-player                  
+        stop
+
+    if {_channel} is "global":
+        set {_payload} to "%player%|||%{_prefix}%|||%{_suffix}%|||%{_msg}%"
+        send redis message {_payload} to channel "kupalmc:chat:global"  
+        stop
+
+
+
+on tab complete of "/chat":
+    set tab completions for position 1 to "global" and "island" and "muteglobal" and "unmuteglobal"
+
+# CHAT COMMAND
+
+command /chat <text>:
+    trigger:
+        # /chat island
+        if arg 1 is "island":
+            if player has permission "current_server.luzon":
+                set {chatChannel::%player's uuid%} to "island"
+                send "&f [ &aʟᴜᴢᴏɴ &f] &aɪsʟᴀɴᴅ ᴄʜᴀᴛ ᴀᴄᴛɪᴠᴀᴛᴇᴅ." to player
+                stop
+            if player has permission "current_server.visayas":
+                set {chatChannel::%player's uuid%} to "island"
+                send "&f[ &eᴠɪsᴀʏᴀs &f] &aɪsʟᴀɴᴅ ᴄʜᴀᴛ ᴀᴄᴛɪᴠᴀᴛᴇᴅ." to player
+                stop
+            if player has permission "current_server.mindanao":
+                set {chatChannel::%player's uuid%} to "island"
+                send "&f[ &cᴍɪɴᴅᴀɴᴀᴏ &f] &aɪsʟᴀɴᴅ ᴄʜᴀᴛ ᴀᴄᴛɪᴠᴀᴛᴇᴅ." to player
+                stop
+            send "&cʏᴏᴜ ᴅᴏ ɴᴏᴛ ʜᴀᴠᴇ ᴀɴ ɪsʟᴀɴᴅ ᴘᴇʀᴍɪssɪᴏɴ." to player
+            stop
+
+        # /chat global
+        if arg 1 is "global":
+            set {chatChannel::%player's uuid%} to "global"
+            send "&aɢʟᴏʙᴀʟ ᴄʜᴀᴛ ᴀᴄᴛɪᴠᴀᴛᴇᴅ." to player
+            stop
+
+        # /chat muteglobal
+        if arg 1 is "muteglobal":
+            set {mutedGlobal::%player's uuid%} to true
+            send "&cɢʟᴏʙᴀʟ ᴄʜᴀᴛ ᴍᴜᴛᴇᴅ." to player
+            stop
+
+		# /chat unmuteglobal
+        if arg 1 is "unmuteglobal":
+            if {mutedGlobal::%player's uuid%} is set:
+                delete {mutedGlobal::%player's uuid%}
+                send "&aɢʟᴏʙᴀʟ ᴄʜᴀᴛ ᴜɴᴍᴜᴛᴇᴅ." to player
+                stop
+            else:
+                stop
+
+        send "{@prefix}&cᴜɴᴋɴᴏᴡɴ ᴄʜᴀɴɴᴇʟ. ᴜsᴀɢᴇ: /chat <island|town|global>" to player
+
+# MUTEALL COMMAND
+
+on tab complete of "/muteall":
+    set tab completions for position 1 to "on" and "off"
+
+command /muteall [<text>]:
+    trigger:
+        # Check if player is OP
+        if player is not op:
+            send "&cYou must be an operator to use this command." to player
+            stop
+
+        set {_status} to arg 1 if arg 1 is set else "status"
+
+        # /muteall on
+        if {_status} is "on":
+            set {mutedAll} to true
+            broadcast "{@prefix}&c%player% ʜᴀs ᴍᴜᴛᴇᴅ ᴀʟʟ ᴄʜᴀᴛ. ᴏɴʟʏ ᴀᴅᴍɪɴs ᴄᴀɴ ᴛᴀʟᴋ."
+            stop
+
+        # /muteall off
+        if {_status} is "off":
+            if {mutedAll} is true:
+                delete {mutedAll}
+                broadcast "{@prefix}&a%player% ʜᴀs ᴜɴᴍᴜᴛᴇᴅ ᴀʟʟ ᴄʜᴀᴛ."
+                stop
+            else:
+                send "{@prefix}&cᴄʜᴀᴛ ɪs ᴀʟʀᴇᴀᴅʏ ᴀᴄᴛɪᴠᴇ." to player
+                stop
+
+        # /muteall (check status)
+        if {mutedAll} is true:
+            send "{@prefix}&aᴄʜᴀᴛ ɪs ᴄᴜʀʀᴇɴᴛʟʏ &cᴍᴜᴛᴇᴅ&a." to player
+        else:
+            send "{@prefix}&aᴄʜᴀᴛ ɪs ᴄᴜʀʀᴇɴᴛʟʏ &aᴀᴄᴛɪᴠᴇ&a." to player

@@ -1,0 +1,65 @@
+options:
+    prefix: &d&lᴋᴜᴘᴀʟᴍᴄ &r&7- &fᴇᴛʜɴɪᴄɪᴛʏ &7|&r 
+
+on player join:
+    set {_target} to player
+    
+    if {last_reroll_perm::%{_target}%} is set:
+        execute console command "lp user %{_target}% permission unset %{last_reroll_perm::%{_target}%}%"
+    if {last_island_perm::%{_target}%} is set:
+        execute console command "lp user %{_target}% permission unset %{last_island_perm::%{_target}%}%"
+    
+    delete {reroll_total::%{_target}%}
+    delete {island_reroll_total::%{_target}%}
+    delete {last_reroll_perm::%{_target}%}
+    delete {last_island_perm::%{_target}%}
+
+every 1 second:
+    loop all players:
+        set {_player} to loop-player
+        set {_found_reroll} to 0
+        set {_found_island_reroll} to 0
+        
+        loop {_player}'s inventory:
+            if name of loop-value-2 is "&6Ethnicity Reroll":
+                add amount of loop-value-2 to {_found_reroll}
+                remove loop-value-2 from {_player}'s inventory
+                
+            if name of loop-value-2 is "&aIsland-Specific Ethnicity Reroll":
+                add amount of loop-value-2 to {_found_island_reroll}
+                remove loop-value-2 from {_player}'s inventory
+        
+        # Initialize variables if they don't exist
+        if {reroll_total::%{_player}%} is not set:
+            set {reroll_total::%{_player}%} to 0
+        if {island_reroll_total::%{_player}%} is not set:
+            set {island_reroll_total::%{_player}%} to 0
+        
+        # Add found items to lifetime totals
+        add {_found_reroll} to {reroll_total::%{_player}%}
+        add {_found_island_reroll} to {island_reroll_total::%{_player}%}
+        
+        if {_found_reroll} > 0:
+            send "&aAccumulated: %{reroll_total::%{_player}%}% Ethnicity Reroll | %{island_reroll_total::%{_player}%}% Specific-Island Ethnicity Reroll" to {_player}
+        
+        if {_found_island_reroll} > 0:
+            send "&aAccumulated: %{reroll_total::%{_player}%}% Ethnicity Reroll | %{island_reroll_total::%{_player}%}% Specific-Island Ethnicity Reroll" to {_player}
+        
+        # Set permissions only if amount > 0
+        if {reroll_total::%{_player}%} > 0:
+            set {_current_reroll_perm} to "ethnicity.reroll.%{reroll_total::%{_player}%}%"
+            if {_current_reroll_perm} is not {last_reroll_perm::%{_player}%}:
+                if {last_reroll_perm::%{_player}%} is set:
+                    execute console command "lp user %{_player}% permission unset %{last_reroll_perm::%{_player}%}%"
+                execute console command "lp user %{_player}% permission set %{_current_reroll_perm}% true"
+                set {last_reroll_perm::%{_player}%} to {_current_reroll_perm}
+        
+        # Set island permissions only if amount > 0
+        if {island_reroll_total::%{_player}%} > 0:
+            set {_current_island_perm} to "ethnicity.specific_reroll.%{island_reroll_total::%{_player}%}%"
+            if {_current_island_perm} is not {last_island_perm::%{_player}%}:
+                if {last_island_perm::%{_player}%} is set:
+                    execute console command "lp user %{_player}% permission unset %{last_island_perm::%{_player}%}%"
+                execute console command "lp user %{_player}% permission set %{_current_island_perm}% true"
+                set {last_island_perm::%{_player}%} to {_current_island_perm}
+

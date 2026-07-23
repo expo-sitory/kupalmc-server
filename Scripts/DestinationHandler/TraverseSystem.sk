@@ -1,0 +1,75 @@
+options:
+    suffix-display: &aLuzon
+    current-server: luzon
+    destination: visayas
+    #destination2:
+    old-server: visayas
+    old-server2: mindanao
+    z-coords: -2454
+    #z-coords2:
+    cooldown: 3m
+    range: 3
+    
+    
+on join:
+    set join message to ""
+    
+    wait 10 ticks       
+    # IF PLAYER IS REJOINING
+    if player has permission "player.rejoining.from.civ":
+        execute console command "lp user %name of player% permission unset player.rejoining"
+        
+    broadcast "&e%name of player% joined {@current-server}"
+    
+    wait 10 ticks
+    # ADD AND SET SUFFIX
+    execute console command "lp user %player% meta removesuffix 20"
+    execute console command "lp user %player% meta setsuffix 20 "" {@suffix-display}"""
+    
+    wait 10 ticks    
+    # ASSURANCE CLEANUP
+    execute console command "lp user %player% parent remove current-server-{@old-server}"
+    execute console command "lp user %player% parent remove current-server-{@old-server2}"
+    
+    # SET AS NEW SERVER
+    execute console command "lp user %player% parent add current-server-{@current-server}"
+  
+   
+every 5 seconds:
+    loop all players:
+        set {_z} to floor(z-coordinate of loop-player)
+        # WHEN WITHIN RANGE
+        if difference between {_z} and {@z-coords} <= {@range}:
+            if loop-player does not have permission "coordssync.use":
+                execute console command "sudo %loop-player% c:/t01"
+        # IF STEPPED OUT
+        else:            
+            if difference between {_z} and {@z-coords} > {@range}:
+                if loop-player has permission "coordssync.use":
+                    execute console command "lp user %loop-player% permission unset coordssync.use"
+
+# TRAVERSE
+command /t01:
+    trigger:
+        if player has permission "traverse.cooldown":
+            send title "&6&lᴛʀᴀᴠᴇʀꜱᴇ ᴏɴ ᴄᴏᴏʟᴅᴏᴡɴ" to player
+        else:
+            execute console command "lp user %player% permission set coordssync.use true"
+            wait 5 ticks
+            execute console command "sudo %player% c:/menu {@current-server}-to-{@destination}"  
+            play sound "entity.experience_orb.pickup" at player
+            
+
+on respawn:
+    wait 15 ticks
+    if safe bed location of player is set:
+        teleport player to safe bed location of player
+    else:
+        teleport player to spawn of player's world
+        
+
+                   
+        
+                
+                   
+        

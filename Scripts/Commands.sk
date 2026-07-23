@@ -1,0 +1,49 @@
+command /rejoin:
+    trigger:
+        execute console command "lp user %player% permission set player.rejoining.from.civ true"
+        connect player to "HUB"
+        
+command /trait:
+    trigger:
+        execute console command "dmenu open trait %player%"
+
+command /hub:
+    trigger:
+        send "&aꜱᴇɴᴅɪɴɢ ʏᴏᴜ ᴛᴏ ᴛʜᴇ ʜᴜʙ ꜱᴇʀᴠᴇʀ..." to player
+        connect player to "HUB"
+        
+        
+command /bannerhelm:
+    trigger:
+        if player's tool is air:
+            send "&cYou must hold a banner."
+            stop
+
+        if "%type of player's tool%" does not contain "banner":
+            send "&cYou must hold a banner."
+            stop
+
+        set {_banner} to player's tool
+        set player's tool to air
+
+        if helmet of player is not air:
+            give helmet of player to player
+
+        set helmet of player to {_banner}
+
+command /luzon:
+    permission: op
+    trigger:
+        connect player to "LUZON"
+
+command /visayas:
+    permission: op
+    trigger:
+        connect player to "VISAYAS"
+
+command /mindanao:
+    permission: op
+    trigger:
+        connect player to "MINDANAO"
+
+

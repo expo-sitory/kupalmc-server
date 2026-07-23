@@ -1,0 +1,77 @@
+options:
+    prefix: &d&lᴋᴜᴘᴀʟᴍᴄ &r&7- &fᴄᴏꜱᴍᴇᴛɪᴄꜱ &7|&r 
+    
+    
+function giveFirstRoll(p: player):
+    if {_p} does not have permission "first-join.roll":
+        execute console command "ethnicity key give %{_p}% island_select_with_reroll 1"
+        execute console command "lp user %{_p}% permission set first-join.roll true" 
+        
+on join:
+    wait 5 ticks    
+    execute console command "lp user %player% permission unset coordsync.use"
+    giveFirstRoll(player)   
+
+every 1 seconds:
+    loop all players:
+        if loop-player does not have permission "*":
+            set {_player} to loop-player
+            set {_found_reroll} to false
+            set {_found_island} to false
+            set {_found_purchased1} to false
+            set {_found_purchased2} to false
+            set {_found_purchased3} to false
+        
+            loop 1000 times:
+                set {_amount} to loop-number
+                set {_perm} to "ethnicity.reroll.%{_amount}%"
+            
+                if {_found_reroll} is false:
+                    if {_player} has permission {_perm}:
+                        execute console command "ethnicity key give %{_player}% ethnicity_reroll %{_amount}%"
+                        execute console command "lp user %{_player}% permission unset %{_perm}%"
+                        set {_found_reroll} to true
+        
+            loop 1000 times:
+                set {_amount} to loop-number
+                set {_island_perm} to "ethnicity.specific_reroll.%{_amount}%"
+            
+                if {_found_island} is false:
+                    if {_player} has permission {_island_perm}:
+                        execute console command "ethnicity key give %{_player}% island_select_with_reroll %{_amount}%"
+                        execute console command "lp user %{_player}% permission unset %{_island_perm}%"
+                        set {_found_island} to true
+
+                    
+            loop 1000 times:
+                set {_amount} to loop-number
+                set {_purchased_perm1} to "purchased.ethnicity_reroll_key.%{_amount}%"
+              
+                if {_found_purchased1} is false:
+                    if {_player} has permission {_purchased_perm1}:
+                        execute console command "ethnicity key give %{_player}% ethnicity_reroll %{_amount}%"
+                        execute console command "lp user %{_player}% permission unset %{_purchased_perm1}%"
+                        set {_found_purchased1} to true
+                    
+                    
+            loop 1000 times:
+                set {_amount} to loop-number
+                set {_purchased_perm2} to "purchased.ethnicity_specific_reroll_key.%{_amount}%"
+             
+                if {_found_purchased2} is false:
+                    if {_player} has permission {_purchased_perm2}:
+                        execute console command "ethnicity key give %{_player}% island_select_with_reroll %{_amount}%"
+                        execute console command "lp user %{_player}% permission unset %{_purchased_perm2}%"
+                        set {_found_purchased2} to true
+                      
+                    
+            loop 1000 times:
+                set {_amount} to loop-number
+                set {_purchased_perm3} to "purchased.cosmetics_key.%{_amount}%"
+            
+                if {_found_purchased3} is false:
+                    if {_player} has permission {_purchased_perm3}:
+                        execute console command "uc give key %{_amount}% %{_player}%"
+                        execute console command "lp user %{_player}% permission unset %{_purchased_perm3}%"
+                        send "{@prefix} &fʏᴏᴜ ʜᴀᴠᴇ ʀᴇᴄᴇɪᴠᴇᴅ &a%{_amount}% &fᴄᴏꜱᴍᴇᴛɪᴄꜱ ᴋᴇʏꜱ. ᴛʜᴀɴᴋʏᴏᴜ ꜰᴏʀ ʏᴏᴜʀ ꜱᴜᴘᴘᴏʀᴛ!" to {_player}
+                        set {_found_purchased3} to true

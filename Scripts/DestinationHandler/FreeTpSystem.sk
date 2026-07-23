@@ -1,0 +1,54 @@
+options:
+    current-server: luzon
+    # SEND
+    destination: visayas
+    destination2: mindanao
+    # RECEIVE
+    server-sender: visayas
+    server-sender2: mindanao
+    
+
+command /free-tp <text>:
+    trigger:
+        # SEND
+        if player does not have permission "free-tp.used":
+            execute console command "lp user %player% permission set free-tp.used true"
+            
+            if arg 1 is "{@current-server}-{@destination}":
+                execute console command "lp user %player% permission set free-tp.{@current-server}-{@destination} true"
+                connect player to "{@destination}"
+            if arg 1 is "{@current-server}-{@destination2}":
+                execute console command "lp user %player% permission set free-tp.{@current-server}-{@destination2} true"
+                connect player to "{@destination2}"
+
+on join:
+    wait 10 ticks
+    # IF NOT OP
+    if player does not have permission "*":
+        # RECEIVE
+        if player has permission "free-tp.used":
+            if player has permission "free-tp.{@server-sender}-{@current-server}":
+                teleport player to the world's spawn
+                execute console command "lp user %player% permission unset free-tp.{@server-sender}-{@current-server}"
+            if player has permission "free-tp.{@server-sender2}-{@current-server}":
+                teleport player to the world's spawn
+                execute console command "lp user %player% permission unset free-tp.{@server-sender2}-{@current-server}"
+    if player does not have permission "free-tp.used":        
+        execute console command "sudo %player% c:/freetp"
+        
+command /freetp:
+    trigger:
+        if player has permission "freetp.used":
+            send "&aFree Tp on cooldown" to player
+        else:
+            execute console command "sudo %player% c:/menu FreeTp"
+    
+            
+            
+            
+            
+
+
+            
+            
+            

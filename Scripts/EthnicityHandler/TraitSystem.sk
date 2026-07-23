@@ -1,0 +1,659 @@
+options:
+    prefix: &d&lᴋᴜᴘᴀʟᴍᴄ &r&7- &fᴛʀᴀɪᴛꜱ &7| &r
+
+on portal:
+    cancel event
+    
+# =================================== GLOBAL RULES =================================================
+    
+# CRAFTING HUNGER COST
+on craft:
+    set {_cost} to 0.5
+    if player has permission "ethnicity.kapampangan":
+        stop
+    
+    set {_hunger} to player's food level
+    
+    if {_hunger} <= 1:
+        cancel event
+        send "{@prefix}&cʏᴏᴜ ᴀʀᴇ ᴛᴏᴏ ʜᴜɴɢʀʏ ᴛᴏ ᴄʀᴀꜰᴛ. ᴇᴀᴛ ꜱᴏᴍᴇᴛʜɪɴɢ ꜰɪʀꜱᴛ."
+        stop
+    
+    if player has permission "ethnicity.bicolano":
+        set {_cost} to 1
+        send "{@prefix}&7ᴄʀᴀꜰᴛɪɴɢ ᴄᴏꜱᴛꜱ ʏᴏᴜ ᴀ ʜᴜɴɢᴇʀ ʙᴀʀ."
+        stop
+        
+    set player's food level to {_hunger} - {_cost}
+    send "{@prefix}&7ᴄʀᴀꜰᴛɪɴɢ ᴄᴏꜱᴛꜱ ʏᴏᴜ ᴀ ʜᴀʟꜰ ʜᴜɴɢᴇʀ ʙᴀʀ."
+    
+#  DISABLE MILK
+on consume of milk bucket:
+    cancel event
+
+
+# DISABLE RIPTIDE
+on inventory click:
+    if event-inventory is an anvil inventory:
+        if clicked slot is 2:
+            if event-item is set:
+                if event-item is enchanted with riptide:
+                    cancel event
+                    set repair cost of event-inventory to 0
+                    send "&cʀɪᴘᴛɪᴅᴇ ɪꜱ ɴᴏᴛ ᴀʟʟᴏᴡᴇᴅ." to player
+
+on inventory close:
+    loop items in player's inventory:
+        if loop-item is enchanted with riptide:
+            remove loop-item from player's inventory
+            give 1 trident to player
+            send "&cʀɪᴘᴛɪᴅᴇ ʜᴀꜱ ʙᴇᴇɴ ʀᴇᴍᴏᴠᴇᴅ ꜰʀᴏᴍ ʏᴏᴜʀ ɪɴᴠᴇɴᴛᴏʀʏ." to player
+
+# DISABLE TRIDENT ON ENCHANTMENT TABLE
+on enchant:
+    if event-item is trident:
+        cancel event
+        send "&cᴛʀɪᴅᴇɴᴛ ɪꜱ ᴅɪꜱᴀʙʟᴇᴅ ᴏɴ ᴇɴᴄʜᴀɴᴛᴍᴇɴᴛ ᴛᴀʙʟᴇ" to player
+
+# MACE DENSITY CD
+on damage:
+    attacker is a player
+
+    set {_item} to attacker's tool
+    if type of {_item} is mace:
+        set {_density} to enchantment level of density on {_item}
+
+        if {_density} > 0:
+            if {densityCooldown::%attacker's uuid%} is set:
+                if difference between now and {densityCooldown::%attacker's uuid%} < 5 minutes:
+                    cancel event
+                    send "&cʏᴏᴜʀ ᴅᴇɴꜱɪᴛʏ ᴍᴀᴄᴇ ɪꜱ ᴏɴ ᴄᴏᴏʟᴅᴏᴡɴ!" to attacker
+                    stop
+            set {densityCooldown::%attacker's uuid%} to now
+
+       
+# MILK BUCKET SYSTEM 
+on right click on entity:
+    if clicked entity is a player:
+        if player's held item is a bucket:
+            set {_target} to clicked entity
+            set {_target_name} to {_target}'s name
+            
+            set {_milk_bucket} to milk bucket
+            set display name of {_milk_bucket} to "&f%{_target_name}%'ꜱ ᴍɪʟᴋ"
+            
+            remove 1 bucket from player's inventory
+            if player can hold {_milk_bucket}:
+                give {_milk_bucket} to player
+                send "&a✓ &fʏᴏᴜ ᴍɪʟᴋᴇᴅ &a%{_target_name}%!" to player
+            else:
+                give 1 bucket to player
+                send "&c✗ &fʏᴏᴜʀ ɪɴᴠᴇɴᴛᴏʀʏ ɪꜱ ꜰᴜʟʟ!!" to player
+                
+# GATA HARVEST
+on right click on jungle log:
+    if player's tool is a bucket:
+        remove 1 bucket from player's inventory
+        give player a milk bucket named "&fGata"
+        
+
+# ====================================== ETHNICITY TRAIT COMMANDS ========================================= 
+            
+
+
+command /cleartraitcd [<text>]:
+    trigger:
+
+        if arg-1 is "bicolano":
+            loop all players:
+                if loop-player does not have permission "*":
+                    if loop-player has permission "ethnicity.bicolano":
+                        delete {fireResistCooldown::%loop-player's uuid%}
+                        send "{@prefix}&aCleared bicolano fire resistance trait cooldown for all player(s)" to player
+                        execute console command "lp user %loop-player% permission unsettemp bicolano.fire-res.cd"
+        if arg-1 is "igorot":
+            set {_count} to 0
+            set {_igorots} to size of {igorotDeath::*}
+            delete {igorotDeath::*}
+            loop {goldenAppleCooldown::*}:
+                delete {goldenAppleCooldown::%loop-index%}
+                add 1 to {_count}
+                send "{@prefix}&aCleared igorot golden appple debuff cooldown for &e%{_count}% &aplayer(s)." to player                        
+                send "{@prefix}&aCleared igorot death event trait cooldown for &e%{_count}% &aplayer(s)." to player
+                
+        if arg-1 is "cebuano":
+            set {_count} to 0
+            loop all players:
+                if {cebuanoCritical::%uuid of loop-player%} is set:
+                    delete {cebuanoCritical::%uuid of loop-player%}
+                    execute console command "lp user %loop-player% permission unsettemp cebuano.cd"
+                    add 1 to {_count}
+            send "{@prefix}&aCleared cebuano last breath trait event cooldown for &e%{_count}% &aplayer(s)." to player
+    
+        if arg-1 is "tagabawa":
+            loop all players:
+                if loop-player does not have permission "*":
+                    if loop-player has permission "ethnicity.tagabawa":
+                        delete {tagabawa_thorns_cooldown::%loop-player%}
+                        send "{@prefix}&aCleared tagabawa shield bash trait cooldow nfor all player(s)" to player
+                        execute console command "lp user %loop-player% permission unsettemp tagabawa.cd"
+            
+              
+    
+# ====================================== ETHNICITY TRAIT SYSTEM ===========================================   
+
+# ON JOIN TRIGGER
+
+on join:
+    wait 20 ticks
+
+    make player execute command "/chat global"
+    if player does not have permission "ethnicity.illonggo":
+        execute console command "squaremap show %player%"
+    
+    # TRAIT EFFECTS
+    if player does not have permission "*":
+    
+        # ================================= BUFFS =================================
+   
+        # ILOCANO 
+        if player has permission "ethnicity.ilocano":
+            if player does not have hero of the village:
+                execute console command "effect give %player% minecraft:hero_of_the_village infinite 2 true"
+
+        # IGOROT 
+        if player has permission "ethnicity.igorot":
+           # if player does not have health boost:
+            execute console command "effect give %player% minecraft:health_boost infinite 4 true"
+            
+        # AKLANON 
+        if player has permission "ethnicity.aklanon":
+            if player does not have haste:
+                execute console command "effect give %player% minecraft:haste infinite 1 true"
+            
+        # ROMBLOMANON
+        if player has permission "ethnicity.romblomanon":
+            if player does not have conduit power:
+                execute console command "effect give %player% minecraft:conduit_power infinite 1 true"
+            
+        # ILLONGGO
+        if player has permission "ethnicity.illonggo":
+            if player does not have speed:
+                execute console command "effect give %player% minecraft:speed infinite 0 true"
+                execute console command "effect give %player% minecraft:weakness infinite 1 true"      
+                       
+        if player has permission "ethnicity.badjao":
+            if player does not have dolphins grace:
+                execute console command "effect give %player% minecraft:dolphins_grace infinite 1 true"
+            
+        
+        # =============================== DEBUFFS =================================
+        
+        # KAPAMPANGAN 
+        if player has permission "ethnicity.kapampangan":
+            if player does not have weakness:
+                execute console command "effect give %player% minecraft:weakness infinite 0 true"
+            
+        # TAUSUG
+        if player has permission "ethnicity.tausug":
+            if player does not have hunger:
+                execute console command "effect give %player% minecraft:hunger infinite 1 true"
+                
+        # ETHNICITY CHANGE HANDLER
+
+        if player does not have permission "ethnicity.ilocano":     
+            if player has hero of the village:
+                execute console command "effect clear %player% minecraft:hero_of_the_village"
+
+        if player does not have permission "ethnicity.kapampangan":
+            if player has weakness:
+                execute console command "effect clear %player% minecraft:weakness"
+
+        if player does not have permission "ethnicity.igorot":
+            if player has health boost:
+                execute console command "effect clear %player% minecraft:health_boost"
+
+        if player does not have permission "ethnicity.aklanon":
+            if player has haste:
+                execute console command "effect clear %player% minecraft:haste"
+
+        if player does not have permission "ethnicity.romblomanon":
+            if player has conduit power:
+                execute console command "effect clear %player% minecraft:conduit_power"
+  
+        if player does not have permission "ethnicity.tausug":
+            if player has hunger:
+                execute console command "effect clear %player% minecraft:hunger"
+            
+        if player does not have permission "ethnicity.illonggo":
+            if player has speed:
+                execute console command "effect clear %player% minecraft:speed"
+                execute console command "effect clear %player% minecraft:weakness"
+            
+        else if player does not have permission "ethnicity.badjao":
+            if player has dolphins grace:
+                execute console command "effect clear %player% minecraft:dolphins_grace"
+
+                
+# ON RESPAWN TRIGGERS
+
+on respawn:
+    # TRAIT EFFECTS
+    wait 20 ticks
+    if player does not have permission "*":
+    
+        # ================================= BUFFS =================================
+   
+        # ILOCANO 
+        if player has permission "ethnicity.ilocano":
+            if player does not have hero of the village:
+                execute console command "effect give %player% minecraft:hero_of_the_village infinite 2 true"
+            stop
+        # IGOROT 
+        else if player has permission "ethnicity.igorot":
+            # DEATH EVENT
+            if {igorotDeathKilled::%player's uuid%} is set:
+                wait 5 ticks
+                send actionbar "&cʏᴏᴜ ᴡᴇʀᴇ ᴋɪʟʟᴇᴅ ʙʏ ᴛʜᴇ ɪɢᴏʀᴏᴛ ᴅᴇᴀᴛʜ ᴇᴠᴇɴᴛ." to player
+                delete {igorotDeathKilled::%player's uuid%}
+            delete {goldenAppleCooldown::%player's uuid%}
+            delete {igorotDeath::%player's uuid%}
+            if player does not have health boost:
+                execute console command "effect give %player% minecraft:health_boost infinite 4 true"
+            stop
+        # AKLANON 
+        else if player has permission "ethnicity.aklanon":
+            if player does not have haste:
+                execute console command "effect give %player% minecraft:haste infinite 1 true"
+            stop
+        # ROMBLOMANON
+        else if player has permission "ethnicity.romblomanon":
+            if player does not have conduit power:
+                execute console command "effect give %player% minecraft:conduit_power infinite 1 true"
+            stop
+
+        # ILLONGGO
+        else if player has permission "ethnicity.illonggo":
+            if player does not have speed:
+                execute console command "effect give %player% minecraft:speed infinite 0 true"
+                execute console command "effect give %player% minecraft:weakness infinite 1 true"
+            stop
+        
+        # =============================== DEBUFFS =================================
+        
+        # KAPAMPANGAN 
+        else if player has permission "ethnicity.kapampangan":
+            if player does not have weakness:
+                execute console command "effect give %player% minecraft:weakness infinite 0 true"
+            stop
+        # TAUSUG
+        else if player has permission "ethnicity.tausug":
+            if player does not have hunger:
+                execute console command "effect give %player% minecraft:hunger infinite 1 true"
+            stop
+
+
+
+                                            
+# ON DAMAGE TRIGGER
+
+on damage:
+
+    # =============================== BUFFS =================================
+
+    # BICOLANO FIRE RESISTANCE
+    if victim has permission "ethnicity.bicolano":
+       # send "{@prefix}[DEBUG] - BICOLANO" to the console
+        set {_cause} to "%damage cause%"
+        if {_cause} contains "fire":
+            if victim does not have permission "bicolano.fire-res.cd":
+                apply fire resistance to victim for 10 minutes
+                execute console command "lp user %victim% permission settemp bicolano.fire-res.cd true 13m"
+                send "{@prefix}&aꜰɪʀᴇ ʀᴇꜱɪꜱᴛᴀɴᴄᴇ ᴀᴄᴛɪᴠᴀᴛᴇᴅ ꜰᴏʀ 10 ᴍɪɴᴜᴛᴇꜱ." to {_p}
+            else:
+                send "{@prefix}&cᴛʀᴀɪᴛ ɪꜱ ᴏɴ ᴄᴏᴏʟᴅᴏᴡɴ!" to {_p}
+            stop
+        else if {_cause} contains "lava":
+            if victim does not have permission "bicolano.fire-res.cd":
+                apply fire resistance to victim for 10 minutes
+                execute console command "lp user %victim% permission settemp bicolano.fire-res.cd true 13m"
+                send "{@prefix}&aꜰɪʀᴇ ʀᴇꜱɪꜱᴛᴀɴᴄᴇ ᴀᴄᴛɪᴠᴀᴛᴇᴅ ꜰᴏʀ 10 ᴍɪɴᴜᴛᴇꜱ." to {_p}
+            else:
+                send "{@prefix}&cᴛʀᴀɪᴛ ɪꜱ ᴏɴ ᴄᴏᴏʟᴅᴏᴡɴ!" to {_p}
+    
+    # MAGUINDANAON DECREASE EXPLOSION DAMAGE
+    else if victim has permission "ethnicity.maguindanaon":
+       # send "{@prefix}[DEBUG] - MAGUINDANAON" to the console
+        set {_cause} to "%damage cause%"
+        if {_cause} contains "EXPLOSION":
+            set damage to damage * 0.05
+            apply nausea 5 to victim for 30 seconds
+            apply slowness 1 to victim for 30 seconds
+            apply blindness 3 to victim for 30 seconds
+            send "{@prefix}&cᴇxᴘʟᴏꜱɪᴏɴ ɪᴍᴘᴀᴄᴛ! ɴᴀᴜꜱᴇᴀ ᴀᴄᴛɪᴠᴀᴛᴇᴅ." to victim
+        stop    
+   
+    
+    # IGOROT DEATH EVENT
+    else if victim has permission "ethnicity.igorot":
+       # send "{@prefix}[DEBUG] - IGOROT" to the console
+        # ANTI TOTEM
+        if {igorotDeath::%victim's uuid%} is set:
+            if victim is holding totem of undying:
+                drop victim's tool at victim's location
+                set victim's tool to air
+                send action bar "&cᴛᴏᴛᴇᴍ ᴅʀᴏᴘᴘᴇᴅ ᴅᴜʀɪɴɢ ᴅᴇᴀᴛʜ ᴇᴠᴇɴᴛ." to victim
+            else if victim's offhand item is totem of undying:
+                drop victim's offhand item at victim's location
+                set victim's offhand item to air
+                send action bar "&cᴛᴏᴛᴇᴍ ᴅʀᴏᴘᴘᴇᴅ ᴅᴜʀɪɴɢ ᴅᴇᴀᴛʜ ᴇᴠᴇɴᴛ." to victim
+            stop
+            
+
+        if final damage >= victim's health:
+            if victim is holding totem of undying:
+                stop
+            if victim's offhand item is totem of undying:
+                stop
+
+            set {igorotDeath::%victim's uuid%} to true
+            cancel event
+            set victim's health to 20
+            play sound "entity.wither.death" with volume 1 and pitch 1 at victim's location for all players in radius 4 of victim
+            apply darkness 2 to victim for 999 days
+            apply wither 20 to victim for 999 days
+            apply health boost 5 to victim for 30 seconds
+            apply strength 2 to victim for 30 seconds
+            send "{@prefix}&cᴅᴇᴀᴛʜ ᴇᴠᴇɴᴛ! ᴛʀᴀɪᴛ ᴀᴄᴛɪᴠᴀᴛᴇᴅ." to victim
+            
+
+        stop
+
+        
+    # TAUSUG ANTI-DEBUFFS
+    else if victim has permission "ethnicity.tausug":
+       # send "{@prefix}[DEBUG] - TAUSUG" to the console
+        remove slowness from victim
+        remove weakness from victim
+        remove nausea from victim
+        remove poison from victim
+        remove wither from victim
+        remove blindness from victim
+        
+        set {_cause} to "%damage cause%"
+        
+        if {_cause} contains "projectile":
+            cancel event
+            send action bar "&aᴛᴀᴜꜱᴜɢ ᴛʀᴀɪᴛ- ᴘʀᴏᴊᴇᴄᴛɪʟᴇ ɪᴍᴍᴜɴᴇ!" to victim
+        
+        else if {_cause} contains "fire":
+            apply fire resistance to victim for 30 seconds
+            send action bar "&aᴛᴀᴜꜱᴜɢ ᴛʀᴀɪᴛ -ꜰɪʀᴇ ɪᴍᴍᴜɴᴇ!" to victim
+        
+        else if {_cause} contains "lava":
+            apply fire resistance to victim for 30 seconds
+            send action bar "&aᴛᴀᴜꜱᴜɢ ᴛʀᴀɪᴛ - ʟᴀᴠᴀ ɪᴍᴍᴜɴᴇ!" to victim
+        
+        else if {_cause} contains "fall":
+            set damage to damage * 0.6
+        
+        
+        stop
+        
+    # MARANAO ANTI FALL DAMAGE
+    else if victim has permission "ethnicity.maranao":
+       # send "{@prefix}[DEBUG] - MARANAO" to the console    
+        set {_cause} to "%damage cause%"
+        if {_cause} contains "fall":
+            if victim's health - damage <= 0:
+                cancel event
+                set victim's health to 3
+                # DEBUFFS
+                apply resistance 2 to victim for 10 seconds
+                apply slowness 3 to victim for 20 seconds
+                send "{@prefix}&6ꜱᴜʀᴠɪᴠᴇᴅ ᴛʜᴇ ꜰᴀʟʟ! ᴘᴏᴡᴇʀ ʙᴜꜰꜰꜱ ᴀᴄᴛɪᴠᴀᴛᴇᴅ." to victim
+                                
+        stop
+        
+    # =============================== DEBUFFS =================================
+    
+    # AKLANON ALL DAMAGE SOURCE MULTIPLIER
+    else if victim has permission "ethnicity.aklanon":
+       # send "{@prefix}[DEBUG] - AKLANON" to the console   
+        set damage to damage * 1.2
+        stop
+        
+    # ILLONGGO GLOWING EFFECT    
+    else if victim has permission "ethnicity.illonggo":
+       # send "{@prefix}[DEBUG] - ILLONGGO" to the console    
+        apply glowing to victim for 20 seconds
+        send action bar "{@prefix}&cʏᴏᴜ'ʀᴇ ɢʟᴏᴡɪɴɢ! ᴇᴠᴇʀʏᴏɴᴇ ᴄᴀɴ ꜱᴇᴇ ʏᴏᴜ." to victim
+        execute console command "squaremap show %victim%"
+        wait 20 seconds
+        execute console command "squaremap hide %victim%"
+        stop
+        
+    # ROMBLOMANON FALL DAMAGE MULTIPLIER  
+    else if victim has permission "ethnicity.romblomanon":
+       # send "{@prefix}[DEBUG] - ROMBLOMANON" to the console    
+        if damage cause is fall:
+            set damage to damage * 1.5
+        stop
+        
+    # TAUSUG HUNGER DAMAGE
+    else if victim has permission "ethnicity.tausug":
+       # send "{@prefix}[DEBUG] - TAUSUG" to the console    
+        set {_cause} to "%damage cause%"
+        if {_cause} contains "starve":
+            set damage to damage * 5
+        stop
+    
+    # CEBUANO UNDYING RAGE
+    else if victim has permission "ethnicity.cebuano":
+        if victim has permission "cebuano.immune.active":
+            set damage to 0
+        stop
+        
+    # BADJAO FALL DAMAGE MULTIPLIER
+    else if victim has permission "ethnicity.badjao":
+       # send "{@prefix}[DEBUG] - BADJAO" to the console    
+        set {_cause} to "%damage cause%"
+        if {_cause} contains "fall":
+            set {_fallDamage} to damage
+            set {_hungerCost} to {_fallDamage} * 0.5 * 4
+            
+            set {_currentHunger} to victim's food level
+            set victim's food level to {_currentHunger} - {_hungerCost}
+            
+            set damage to damage * 1.6
+            send "{@prefix}&cꜰᴀʟʟ ᴅᴀᴍᴀɢᴇ ᴛᴀᴋᴇɴ. ʜᴜɴɢᴇʀ ᴄᴏꜱᴛ: &e%{_hungerCost}/2% ʙᴀʀꜱ" to victim
+        stop
+        
+    # TAGABAWA SHIELD BASH      
+    else if victim has permission "ethnicity.tagabawa":
+       # send "{@prefix}[DEBUG] - TAGABAWA" to the console    
+        if victim's off hand item is a shield:
+            set {_thorns_level} to 3
+            set {_knockback_multiplier} to 1
+            
+            if {_knockback_multiplier} is set:
+                if {tagabawa_thorns_cooldown::%victim%} is not set:
+                    set {tagabawa_thorns_cooldown::%victim%} to true
+                    if attacker exists:
+                        set {_attacker_x} to x-coordinate of attacker
+                        set {_attacker_z} to z-coordinate of attacker
+                        
+                        set {_victim_x} to x-coordinate of victim
+                        set {_victim_z} to z-coordinate of victim
+                        
+                        set {_dir_x} to {_attacker_x} - {_victim_x}
+                        set {_dir_z} to {_attacker_z} - {_victim_z}
+                       
+                        set {_vel_x} to {_dir_x} * {_knockback_multiplier}
+                        set {_vel_z} to {_dir_z} * {_knockback_multiplier}
+                        
+                        set attacker's velocity to vector({_vel_x}, 0.5, {_vel_z})
+                        damage attacker by 6
+                        
+                        set {_current_hunger} to victim's food level
+                        set {_new_hunger} to {_current_hunger} / 2
+                        set victim's food level to {_new_hunger}
+                        
+                        send "{@prefix}&6ᴛᴀɢᴀʙᴀᴡᴀ ꜱʜɪᴇʟᴅ ʙᴀꜱʜ &6ᴀᴄᴛɪᴠᴀᴛᴇᴅ!" to victim
+                        send "{@prefix}&c&lᴋɴᴏᴄᴋᴇᴅ ʙᴀᴄᴋ!" to attacker
+                        execute console command "lp user %victim% permission settemp tagabawa.cd true 3m"
+                    
+                    wait 3 minutes
+                    delete {tagabawa_thorns_cooldown::%victim%}
+                    
+        stop
+    # =============================== DEBUFFS =================================
+                    
+# CONSUME TRIGGERS
+
+on consume:
+    # IGOROT ANTI EAT DURING DEATH EVENT
+    if player has permission "ethnicity.igorot":
+        if {igorotDeath::%player's uuid%} is set:
+            cancel event
+            send "{@prefix}&cʏᴏᴜ ᴄᴀɴɴᴏᴛ ᴇᴀᴛ ᴅᴜʀɪɴɢ ᴛʜᴇ ᴅᴇᴀᴛʜ ᴇᴠᴇɴᴛ." to player
+            stop
+            
+    else if {cebuanoNoEat::%player's uuid%} is set:
+        cancel event
+        send action bar "&cʏᴏᴜ ᴄᴀɴɴᴏᴛ ᴇᴀᴛ ꜰᴏʀ 10 ꜱᴇᴄᴏɴᴅꜱ ᴡʜɪʟᴇ ᴏɴ ᴛʀᴀɪᴛ ᴇᴠᴇɴᴛ!" to player
+        stop
+            
+# IGOROT GOLDEN APPLE COOLDOWN          
+on consume of golden apple or enchanted golden apple:
+    if player has permission "ethnicity.igorot":
+        if {igorotDeath::%player's uuid%} is set:
+            cancel event
+            send "{@prefix}&cʏᴏᴜ ᴄᴀɴɴᴏᴛ ᴇᴀᴛ ᴅᴜʀɪɴɢ ᴛʜᴇ ᴅᴇᴀᴛʜ ᴇᴠᴇɴᴛ." to player
+            stop
+
+        set {_cooldownEnd} to {goldenAppleCooldown::%player's uuid%}
+
+        if {_cooldownEnd} is set:
+            if {_cooldownEnd} is in the past:
+                delete {goldenAppleCooldown::%player's uuid%}
+            else:
+                cancel event
+                set {_remaining} to difference between now and {_cooldownEnd}
+                send action bar "&cɢᴏʟᴅᴇɴ ᴀᴘᴘʟᴇ ᴄᴏᴏʟᴅᴏᴡɴ: &e%{_remaining}%" to player
+                stop
+
+        set {goldenAppleCooldown::%player's uuid%} to now + 15 seconds
+        send action bar "&aɢᴏʟᴅᴇɴ ᴀᴘᴘʟᴇ ᴄᴏɴꜱᴜᴍᴇᴅ. ᴄᴏᴏʟᴅᴏᴡɴ: &e15 ꜱᴇᴄᴏɴᴅꜱ&a." to player
+        
+    
+    # ================================ BUFFS ==================================
+    
+# WARAY POTION AMPLIFIER MULTIPLIER
+on consume of potion:
+    if player has permission "ethnicity.waray":
+        set {_time} to "%time of player's world%"
+        set {_hour} to first 2 characters of {_time}
+        set {_hour} to {_hour} parsed as integer
+        if {_hour} >= 18:
+            if type of event-item = potion:
+                wait 1 tick
+                if player has strength:
+                    remove strength from player
+                    apply strength 3 to player for 2 minutes
+                if player has speed:
+                    remove speed from player
+                    apply speed 5 to player for 2 minutes
+                if player has regeneration:
+                    remove regeneration from player
+                    apply regeneration 5 to player for 2 minutes
+                if player has night vision:
+                    remove night vision from player
+                    apply night vision 5 to player for 30 minutes
+                if player has jump boost:
+                    remove jump boost from player
+                    apply jump boost 5 to player for 5 minutes
+                if player has fire resistance:
+                    remove fire resistance from player
+                    apply fire resistance 5 to player for 10 minutes
+    
+                send "{@prefix}&aᴘᴏᴛɪᴏɴ ᴀᴍᴘʟɪꜰɪᴇᴅ ᴛᴏ ʟᴇᴠᴇʟ ᴠ!" to player
+        else:
+            send "{@prefix}&cᴡᴀʀᴀʏ ᴛʀᴀɪᴛ ᴏɴʟʏ ᴡᴏʀᴋꜱ ᴀᴛ ɴɪɢʜᴛ" to player         
+           
+            
+# LOOP TRIGGERS
+every 1 second:
+    loop all players:
+        if loop-player has permission "ethnicity.tausug":
+            if loop-player's food level <= 3:
+                send action bar "&cᴛᴀᴜꜱᴜɢ ᴄᴜʀꜱᴇ | ᴋɪʟʟ ᴇɴᴛɪᴛɪᴇꜱ ᴛᴏ ꜱᴜʀᴠɪᴠᴇ ꜱᴛᴀʀᴠᴀᴛɪᴏɴ" to loop-player
+                apply darkness to loop-player for 1 second
+                apply speed 2 to loop-player for 1 second
+                apply strength 2 to loop-player for 1 second
+            
+        if loop-player has permission "ethnicity.aklanon":
+            loop all phantoms in radius 10 of loop-player:
+                kill loop-entity-2
+              
+                
+
+on right click on chest or trapped chest or barrel or shulker box or hopper or dropper or dispenser or furnace or blast furnace or smoker or brewing stand or ender chest:
+	player is sneaking
+	player's tool is air
+	if player does not have permission "ethnicity.illonggo":
+		cancel event
+
+on heal:
+    if {cebuanoNoEat::%uuid of player%} is set:
+        cancel event
+        
+on eat:
+    if player has permission "ethnicity.tausug":
+        if player's food level <= 3:
+            cancel event
+            send "{@prefix}&cʏᴏᴜ'ʀᴇ ᴛᴏᴏ ᴘᴀɴɪᴄᴋᴇᴅ ᴛᴏ ᴇᴀᴛ!" to player
+            
+on death of creature:
+    if attacker has permission "ethnicity.tausug":
+        if attacker's food level <= 3:
+            feed attacker by 4
+            send "{@prefix}&aᴋɪʟʟ ɢʀᴀɴᴛᴇᴅ x2 ꜱᴀᴛᴜʀᴀᴛɪᴏɴ!" to attacker
+
+on death of player:
+    if attacker has permission "ethnicity.tausug":
+        if attacker's food level <= 3:
+            feed attacker by 12
+            send "{@prefix}&6ᴘʟᴀʏᴇʀ ᴋɪʟʟ ɢʀᴀɴᴛᴇᴅ x6 ꜱᴀᴛᴜʀᴀᴛɪᴏɴ!" to attacker
+        
+on sneak toggle:
+    if player has permission "ethnicity.cebuano":
+        if {cebuanoSneak.%uuid of player%} is not set:
+            set {cebuanoSneak.%uuid of player%} to now
+        else:
+            set {_time-diff} to difference between now and {cebuanoSneak.%uuid of player%}
+            if {_time-diff} is less than 0.3 seconds:
+                if {cebuanoCritical::%uuid of player%} is not set:
+                    if player has permission "cebuano.cd":
+                        send action bar "&cᴄᴇʙᴜᴀɴᴏ ᴛʀᴀɪᴛ ᴏɴ ᴄᴏᴏʟᴅᴏᴡɴ" to player
+                        delete {cebuanoSneak.%uuid of player%}
+                        stop
+                    cancel event
+                    play sound "entity.ender_dragon.growl" with volume 1 and pitch 1 at player's location for all players in radius 4 of player
+                    apply darkness 2 to player for 2 seconds
+                    apply strength 2 to player for 15 seconds
+                    set {cebuanoCritical::%uuid of player%} to true
+                    set {cebuanoNoEat::%uuid of player%} to true
+                    execute console command "lp user %player% permission settemp cebuano.immune.active true 10s"
+                    send "{@prefix}&ccᴇʙᴜᴀɴᴏ ᴛʀᴀɪᴛ ᴀᴄᴛɪᴠᴀᴛᴇᴅ." to player
+                    wait 10 seconds
+                    delete {cebuanoImmune::%uuid of player%}
+                    delete {cebuanoNoEat::%uuid of player%}
+                    execute console command "lp user %player% permission settemp cebuano.cd true 8m"
+                    wait 8 minutes
+                    delete {cebuanoCritical::%uuid of player%}
+                    send action bar "&aᴄᴇʙᴜᴀɴᴏ ᴛʀᴀɪᴛ ᴄᴏᴏʟᴅᴏᴡɴ ʀᴇꜰʀᴇꜱʜᴇᴅ" to player
+            delete {cebuanoSneak.%uuid of player%}
+
+
+    

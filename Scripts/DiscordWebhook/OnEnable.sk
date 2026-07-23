@@ -1,0 +1,23 @@
+options:
+    webhook: https://discord.com/api/webhooks/1514416201420509326/lslPqd02FqCdxI3hedjgKEy3n_rE_sJ6tAWu_3zmcliU4Vil3PshOd_a4DrHLgr2thp1    
+    server: "server-id"
+
+function sendStartWebhook(title: text):
+    set {_footer} to new footer with name "mc.kupal.org" and icon url "https://cdn.discordapp.com/attachments/1305357258749902880/1503656575175360563/kupla-mc.png?ex=6a4df8d0&is=6a4ca750&hm=d83697e6acbd1fa27af7e305441ca8456a92d7a62dae479294d2b406b3a7bd88&"
+    set {_author} to new author with name "{@server} server is now online" and icon url "https://cdn.discordapp.com/attachments/1305357258749902880/1524235955135840256/start.png?ex=6a4f02da&is=6a4db15a&hm=928e3077108565a499f6a57bc6b0f1e67c84c370e37c7195c4cfcf22493718e8&"
+    
+    create a new embed:
+        author: {_author}
+        color: "b94ae6"
+        timestamp: true
+        footer: {_footer}
+        saveInto: {_embed}
+    
+    create a new webhook message:
+        webhook: "{@webhook}"
+        username: "⃟⃟"
+        embed: {_embed}
+
+
+on skript start:
+    sendStartWebhook("")
