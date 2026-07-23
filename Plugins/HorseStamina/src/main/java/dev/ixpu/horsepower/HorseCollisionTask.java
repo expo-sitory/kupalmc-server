@@ -1,16 +1,17 @@
 package dev.ixpu.horsepower;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 public class HorseCollisionTask {
   private final HorsePowerPlugin plugin;
@@ -32,7 +33,7 @@ public class HorseCollisionTask {
   public void start() {
     task = Bukkit.getScheduler().runTaskTimer(plugin, this::checkCollisions, 0L, 1L);
     if (DEBUG) {
-      plugin.getLogger().info("Block Collision Task started. Configured damage blocks: " + damageBlockTypes);
+      plugin.getLogger().info(() -> "Block Collision Task started. Configured damage blocks: " + damageBlockTypes);
     }
   }
 
@@ -55,7 +56,7 @@ public class HorseCollisionTask {
     java.util.List<String> blockList = plugin.getConfig().getStringList("race.block-contact.damage-blocks");
     damageBlockTypes.addAll(blockList);
     if (DEBUG) {
-      plugin.getLogger().info("Loaded " + damageBlockTypes.size() + " damage block types: " + damageBlockTypes);
+      plugin.getLogger().info(() -> "Loaded " + damageBlockTypes.size() + " damage block types: " + damageBlockTypes);
     }
   }
 
@@ -165,7 +166,7 @@ public class HorseCollisionTask {
                                                 blockEast, blockWest, blockNorthEast, blockNorthWest,
                                                 blockSouthEast, blockSouthWest, blockTopNorth,
                                                 blockTopSouth, blockTopEast, blockTopWest);
-        plugin.getLogger().info("Horse contacting damage block: " + blockName);
+        plugin.getLogger().info(() -> "Horse contacting damage block: " + blockName);
       }
       
       applyBlockContactDamage(owner, horse);
@@ -226,10 +227,10 @@ public class HorseCollisionTask {
     lastDamageTakenTime.put(horseId, currentTime);
     
     // Feedback
-    player.sendMessage("§c§lꜰᴇɴᴄᴇ ᴄᴏɴᴛᴀᴄᴛ! §7-" + String.format("%.1f", damage) + " HP");
+    player.sendTitle("§c§l⚠ ꜰᴇɴᴄᴇ ᴄᴏɴᴛᴀᴄᴛ ⚠", "§c-" + String.format("%.1f", damage) + " ʜᴘ", 0, 1, 0);
     
     if (DEBUG) {
-      plugin.getLogger().info("Block contact damage applied to " + player.getName() + ": -" + damage + " HP");
+      plugin.getLogger().info(() -> "Block contact damage applied to " + player.getName() + ": -" + damage + " HP");
     }
   }
 
@@ -284,7 +285,7 @@ public class HorseCollisionTask {
       org.bukkit.Location newLoc2 = loc2.clone().add(direction2to1.multiply(-separationDistance));
       
       if (DEBUG) {
-        plugin.getLogger().info("Force separating overlapping horses (distance: " + currentDistance + ")");
+        plugin.getLogger().info(() -> "Force separating overlapping horses (distance: " + currentDistance + ")");
       }
       
       horse1.teleport(newLoc1);
@@ -296,12 +297,12 @@ public class HorseCollisionTask {
     setCollisionCooldown(horse2);
 
     // Feedback
-    player1.sendMessage("§c§lᴄᴏʟʟɪꜱɪᴏɴ!");
-    player2.sendMessage("§c§lᴄᴏʟʟɪꜱɪᴏɴ!");
+    player1.sendTitle("§c§l⚠ ᴄᴏʟʟɪꜱɪᴏɴ ⚠", "", 0, 1, 0);
+    player2.sendTitle("§c§l⚠ ᴄᴏʟʟɪꜱɪᴏɴ ⚠", "", 0, 1, 0);
     
     if (DEBUG) {
-      plugin.getLogger().info("Collision between " + player1.getName() + " and " + player2.getName() 
-        + " (distance: " + String.format("%.2f", currentDistance) + ")");
+      plugin.getLogger().info(() -> "Collision between " + player1.getName() + " and " + player2.getName() 
+              + " (distance: " + String.format("%.2f", currentDistance) + ")");
     }
   }
 
