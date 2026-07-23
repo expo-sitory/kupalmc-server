@@ -230,7 +230,7 @@ on join:
                 execute console command "effect clear %player% minecraft:speed"
                 execute console command "effect clear %player% minecraft:weakness"
             
-        else if player does not have permission "ethnicity.badjao":
+        if player does not have permission "ethnicity.badjao":
             if player has dolphins grace:
                 execute console command "effect clear %player% minecraft:dolphins_grace"
 
