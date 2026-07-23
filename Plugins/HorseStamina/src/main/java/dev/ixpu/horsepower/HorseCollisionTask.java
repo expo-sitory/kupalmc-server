@@ -226,7 +226,7 @@ public class HorseCollisionTask {
     lastDamageTakenTime.put(horseId, currentTime);
     
     // Feedback
-    player.sendMessage("§c§lBLOCK CONTACT! §7-" + String.format("%.1f", damage) + " HP");
+    player.sendMessage("§c§lꜰᴇɴᴄᴇ ᴄᴏɴᴛᴀᴄᴛ! §7-" + String.format("%.1f", damage) + " HP");
     
     if (DEBUG) {
       plugin.getLogger().info("Block contact damage applied to " + player.getName() + ": -" + damage + " HP");
@@ -296,8 +296,8 @@ public class HorseCollisionTask {
     setCollisionCooldown(horse2);
 
     // Feedback
-    player1.sendMessage("§c§lᴄᴏʟʟɪꜱɪᴏɴ! §7STOPPED");
-    player2.sendMessage("§c§lᴄᴏʟʟɪꜱɪᴏɴ! §7STOPPED");
+    player1.sendMessage("§c§lᴄᴏʟʟɪꜱɪᴏɴ!");
+    player2.sendMessage("§c§lᴄᴏʟʟɪꜱɪᴏɴ!");
     
     if (DEBUG) {
       plugin.getLogger().info("Collision between " + player1.getName() + " and " + player2.getName() 
