@@ -1,0 +1,10 @@
+name: Ixpu-WorldEvents
+author: [Ixpu]
+version: '1.0.0'
+main: dev.ixpu.worldevents.WorldEvents
+api-version: 1.21
+description: World event management system
+commands:
+  we:
+    description: WorldEvents plugin commands
+    usage: /we reload or /we status

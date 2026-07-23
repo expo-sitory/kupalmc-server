@@ -1,0 +1,9 @@
+
+# Increases Emerald-Currency trade by 9x
+Inflation:
+  enabled: false
+  village-hero-discount: false
+
+# Disable Player XP Gain
+Stagnation:
+  enabled: false
