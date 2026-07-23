@@ -1,0 +1,47 @@
+# ==================================================================
+# CoordsSync Configuration File
+# ==================================================================
+# This file controls all settings for the CoordsSync plugin
+# Changes to this file require a plugin reload: /coordssync reload
+# For support, visit: https://github.com/expo-sitory
+# ==================================================================
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+
+database:
+  type: mysql
+  enabled: false
+  host: localhost
+  port: 3306
+  database: coordssync
+  username: root
+  password: ""
+  
+
+  pool:
+    max-connections: 10
+    min-idle: 2
+    connection-timeout: 5000
+
+server-id: luzon # luzon/visayas/mindanao
+
+features:
+  teleport-on-join: true
+  periodic-save: true
+  sync-alerts: false
+  use-mysql-fallback: true
+
+logging:
+  level: INFO
+  log-redis-operations: false
+  log-database-operations: false
+
+performance:
+  save-interval-ticks: 20
+  async-database-operations: true
+  batch-size: 10
+advanced:
+  # Redis Pub/Sub channel name for cross-server communication
