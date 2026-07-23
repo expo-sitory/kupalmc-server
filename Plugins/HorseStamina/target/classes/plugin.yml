@@ -1,0 +1,23 @@
+name: Ixpu-HorseStamina
+version: 1.0
+main: dev.ixpu.horsepower.HorsePowerPlugin
+description: Horse Racing with Stamina Minigames
+api-version: 1.21
+
+commands:
+  race:
+    description: Activate horse race mode
+    usage: /race
+    permission: horsepower.race
+  horsestamina:
+    description: HorsePower plugin management commands
+    usage: /horsestamina reload
+    permission: horsepower.admin
+
+permissions:
+  horsepower.race:
+    description: Allows players to use race mode
+    default: true
+  horsepower.admin:
+    description: Allows operators to reload HorsePower config
+    default: op

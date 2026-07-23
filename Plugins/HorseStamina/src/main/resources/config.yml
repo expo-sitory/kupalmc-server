@@ -1,0 +1,125 @@
+race:
+  stamina-mode: hp-based
+  stamina-hp-multiplier: 5
+  collision:
+    enabled: true
+    damage: 10         
+    cooldown-ticks: 30    
+    range: 1.5
+  
+  initial-slowness: 5
+  
+  stamina-depletion:
+    pace-5: 0.0
+    pace-4: 0.009
+    pace-3: 0.007
+    pace-2: 0.09
+    pace-1: 0.2
+  
+  pace-slowness:
+    pace-5: 6
+    pace-4: 4
+    pace-3: 3
+    pace-2: 2
+    pace-1: 1
+    pace-0: 0
+  
+  pace-minigame:
+    pace-5: 
+      minigame-1:
+        enabled: false
+        stamina-reward: 0-0
+      minigame-2:
+        enabled: false
+        stamina-reward: 0-0
+    pace-4:
+      minigame-1:
+        enabled: true
+        stamina-reward: 20-50
+      minigame-2:
+        enabled: true
+        stamina-reward: 20-50
+    pace-3:
+      minigame-1:
+        enabled: true
+        stamina-reward: 20-50
+      minigame-2:
+        enabled: true
+        stamina-reward: 20-50
+    pace-2:
+      minigame-1:
+        enabled: true
+        stamina-reward: 20-50
+      minigame-2:
+        enabled: true
+        stamina-reward: 20-50
+    pace-1:
+      minigame-1:
+        enabled: true
+        stamina-reward: 20-50
+      minigame-2:
+        enabled: true
+        stamina-reward: 20-50
+    pace-0:
+      minigame-1:
+        enabled: false
+        stamina-reward: default 
+      minigame-2:
+        enabled: false
+        stamina-reward: default
+
+  
+  emergency-slowness-amplifier: 4
+  emergency-stamina-threshold: 20
+  recovery-stamina-threshold: 50
+  
+  stamina-ranges:
+    0-10:
+      regen: 5.0
+      slowness-amplifier: 5
+    
+    10-20:
+      regen: 2.5
+      slowness-amplifier: 0
+    
+    20-30:
+      regen: 1.5
+      slowness-amplifier: 0
+ 
+    30-40:
+      regen: 0.5
+      slowness-amplifier: 0
+    
+    40-50:
+      regen: 0.0
+      slowness-amplifier: 0
+
+    50-100:
+      regen: 0.0
+      slowness-amplifier: 0
+
+minigame:
+  random-interval-min: 120
+  random-interval-max: 240
+  cooldown-between: 25
+  
+  game1:
+    perfect-jumps-required-min: 2
+    perfect-jumps-required-max: 5
+    stamina-reward: 20
+    duration-seconds: 8
+    stamina-penalty: 70
+  
+  game2:
+    timer-duration-seconds: 5
+    stamina-reward: 40
+    hit-tolerance-seconds: 0.5
+    stamina-penalty: 90
+  
+  minigame-dash:
+    distance-blocks: 3
+    speed-multiplier: 2.0
+    duration-ticks: 20
+    bonus-stamina: 0
+
+    
