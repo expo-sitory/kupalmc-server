@@ -17,7 +17,6 @@ import org.bukkit.potion.PotionEffectType;
 public class HorseRaceManager {
   private final HorsePowerPlugin plugin;
   public final Map<UUID, RaceData> activeRaces = new HashMap<>();
-  private final Map<UUID, Long> lastCollisionTime = new HashMap<>();
   private final Map<UUID, Long> paceChangeCooldown = new HashMap<>();
 
   public HorseRaceManager(HorsePowerPlugin plugin) {
@@ -49,9 +48,10 @@ public class HorseRaceManager {
       data.horse.setGlowing(false);
    
       data.staminaBar.removeAll();
-      // Clean up collision tracking
-      lastCollisionTime.remove(data.horse.getUniqueId());
+      // Clean up collision task tracking
+      plugin.getCollisionTask().cleanupHorse(data.horse);
       paceChangeCooldown.remove(playerId);
+      
       activeRaces.remove(playerId);
       player.sendMessage("§d§lᴋᴜᴘᴀʟᴍᴄ §r§7- §fʜᴏʀꜱᴇ §7| §7Race Mode Deactivated");
     }
@@ -327,10 +327,8 @@ public void recordImPerfectJump(Player player) {
   }
 
   // ==================== COLLISION MECHANICS ====================
-  
 
   // Check if a horse is currently in race mode
-
   public boolean isHorseInRace(Horse horse) {
     for (RaceData data : activeRaces.values()) {
       if (data.horse.equals(horse)) {
@@ -340,9 +338,7 @@ public void recordImPerfectJump(Player player) {
     return false;
   }
 
-
   // Get the player who owns a horse in race mode
-
   public Player getHorseOwner(Horse horse) {
     for (RaceData data : activeRaces.values()) {
       if (data.horse.equals(horse)) {
@@ -352,26 +348,7 @@ public void recordImPerfectJump(Player player) {
     return null;
   }
 
-
-  // Check if a horse can collide with another horse (cooldown has passed)
-
-  public boolean canCollide(Horse horse) {
-    UUID uuid = horse.getUniqueId();
-    long lastCollision = lastCollisionTime.getOrDefault(uuid, 0L);
-    long collisionCooldownMs = plugin.getConfig().getLong("race.collision.cooldown-ticks", 30) * 50L; // Convert ticks to millis (1 tick = 50ms)
-    return System.currentTimeMillis() - lastCollision >= collisionCooldownMs;
-  }
-
-
-  // Set the collision cooldown for a horse
-
-  public void setCollisionCooldown(Horse horse) {
-    lastCollisionTime.put(horse.getUniqueId(), System.currentTimeMillis());
-  }
-
-
-  // Get the collision damage amount from config
-
+  // Get collision damage from config
   public double getCollisionDamage() {
     return plugin.getConfig().getDouble("race.collision.damage", 2.0);
   }

@@ -75,7 +75,8 @@ public class StaminaMinigameManager {
       double reward = getMinigameReward(paceLevel, 1, baseReward);  
       int durationSeconds = plugin.getConfig().getInt("minigame.game1.duration-seconds", 5);
       state = new MinigameState(1, required, (int)reward, durationSeconds);
-      player.sendTitle("§e" + durationSeconds + "s - " + required + " ᴍᴀx ᴍᴇᴛᴇʀ", "§a+" + (int)reward + " ꜱᴛᴀᴍɪɴᴀ", 0, 60, 10);
+      player.sendTitle("§e§l" + durationSeconds + "s - " + required + " ᴍᴀx ᴍᴇᴛᴇʀ", "§a+" + (int)reward + " ꜱᴛᴀᴍɪɴᴀ", 0, 60, 10);
+      
     } else {
       int timerDuration = plugin.getConfig().getInt("minigame.game2.timer-duration-seconds", 5);
       
@@ -90,7 +91,7 @@ public class StaminaMinigameManager {
     
     if (state.gameType == 2) {
       startTimerDisplay(player, state.jumpTargetOrTimer);
-      player.sendTitle("§eʜɪᴛ ᴏɴ ᴢᴇʀᴏ", "§6" + state.jumpTargetOrTimer + " ꜱᴇᴄᴏɴᴅꜱ", 0, state.jumpTargetOrTimer * 20 + 20, 10);
+      player.sendTitle("§e§lʜɪᴛ ᴏɴ ᴢᴇʀᴏ", "§6" + state.jumpTargetOrTimer + " ꜱᴇᴄᴏɴᴅꜱ", 0, state.jumpTargetOrTimer * 20 + 20, 10);
     }
     
     long duration = gameType == 1 ? plugin.getConfig().getInt("minigame.game1.duration-seconds", 5) * 20 : ((long)plugin.getConfig().getInt("minigame.game2.timer-duration-seconds", 5) * 20);
@@ -106,8 +107,8 @@ public class StaminaMinigameManager {
         }
         
         activeMinigames.remove(playerId);                     
-        player.sendTitle("§cᴛɪᴍᴇ'ꜱ ᴜᴘ!", "§c" + gameState.durationSeconds + "s - ᴇxᴘɪʀᴇᴅ", 0, 20, 10);
-        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 5.0f, 1.0f);
+        player.sendTitle("§c§lᴛɪᴍᴇ'ꜱ ᴜᴘ!", "§c" + gameState.durationSeconds + "s - ᴇxᴘɪʀᴇᴅ", 0, 20, 10);
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_IMITATE_CREEPER, 5.0f, 1.0f);
         raceManager.setPaceChangeCooldown(playerId);
       }
     }, duration);
@@ -121,7 +122,7 @@ public class StaminaMinigameManager {
     for (int i = durationSeconds; i > 0; i--) {
       final int countdown = i;
       int taskId = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-        player.sendTitle("§eʜɪᴛ ᴏɴ ᴢᴇʀᴏ", "§c" + countdown + " ꜱᴇᴄᴏɴᴅꜱ", 0, 22, 0);
+        player.sendTitle("§e§lʜɪᴛ ᴏɴ ᴢᴇʀᴏ", "§c" + countdown + " ꜱᴇᴄᴏɴᴅꜱ", 0, 22, 0);
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BANJO, 1.0f, 1.0f);
       }, (long)(durationSeconds - countdown) * 20).getTaskId();
       state.timerTaskIds.add(taskId);
@@ -136,7 +137,7 @@ public class StaminaMinigameManager {
     if (state.gameType == 1) {
       state.perfectJumpsHit++;
       if (state.perfectJumpsHit >= state.jumpTargetOrTimer) {
-        player.sendTitle("§a✓ ꜱᴜᴄᴄᴇꜱꜱ!", "§a+" + state.reward + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
+        player.sendTitle("§a§l✓ ꜱᴜᴄᴄᴇꜱꜱ!", "§a+" + state.reward + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
         raceManager.addStamina(player, state.reward);
         activeMinigames.remove(playerId);
 
@@ -144,7 +145,8 @@ public class StaminaMinigameManager {
         raceManager.setPaceChangeCooldown(playerId);
 
       } else {
-        player.sendTitle("§e" + state.durationSeconds + "s - " + (state.jumpTargetOrTimer - state.perfectJumpsHit) + " ᴍᴀx ᴍᴇᴛᴇʀ", "§a+" + state.reward + " ꜱᴛᴀᴍɪɴᴀ", 0, 40, 10);
+        player.sendTitle("§e§l" + state.durationSeconds + "s - " + (state.jumpTargetOrTimer - state.perfectJumpsHit) + " ᴍᴀx ᴍᴇᴛᴇʀ", "§a+" + state.reward + " ꜱᴛᴀᴍɪɴᴀ", 0, 40, 10);
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 5.0f, 1.0f);
       }
     } else if (state.gameType == 2) {
       long elapsed = System.currentTimeMillis() - state.startTime;
@@ -158,7 +160,7 @@ public class StaminaMinigameManager {
       }
       
       if (Math.abs(elapsed - targetTime) <= tolerance) {
-        player.sendTitle("§a✓ ᴘᴇʀꜰᴇᴄᴛ ᴛɪᴍɪɴɢ!", "§a+" + state.reward + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
+        player.sendTitle("§a§l✓ ᴘᴇʀꜰᴇᴄᴛ ᴛɪᴍɪɴɢ!", "§a+" + state.reward + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
         raceManager.addStamina(player, state.reward);
         activeMinigames.remove(playerId);
         
@@ -167,7 +169,7 @@ public class StaminaMinigameManager {
 
       } else {
         int penalty = plugin.getConfig().getInt("minigame.game2.stamina-penalty", 10);
-        player.sendTitle("§cᴡʀᴏɴɢ ᴛɪᴍɪɴɢ! - ꜱᴋɪʟʟ ɪꜱꜱᴜᴇ", "§c-" + penalty + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
+        player.sendTitle("§c§lᴡʀᴏɴɢ ᴛɪᴍɪɴɢ! - ꜱᴋɪʟʟ ɪꜱꜱᴜᴇ", "§c-" + penalty + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
         player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
         raceManager.addStamina(player, -penalty);
         activeMinigames.remove(playerId);
@@ -200,7 +202,7 @@ public class StaminaMinigameManager {
     if (state.gameType == 1) {
       int penalty = plugin.getConfig().getInt("minigame.game1.stamina-penalty", 5);
       player.sendTitle("", "", 0, 1, 0);
-      player.sendTitle("§cᴍᴇᴛᴇʀ ᴍɪꜱᴛᴀᴋᴇ! - ꜱᴋɪʟʟ ɪꜱꜱᴜᴇ", "§c-" + penalty + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
+      player.sendTitle("§c§lᴍᴇᴛᴇʀ ᴍɪꜱᴛᴀᴋᴇ! - ꜱᴋɪʟʟ ɪꜱꜱᴜᴇ", "§c-" + penalty + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
       player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
       raceManager.addStamina(player, -penalty);
       activeMinigames.remove(playerId);
@@ -211,7 +213,7 @@ public class StaminaMinigameManager {
         Bukkit.getScheduler().cancelTask(taskId);
       }
       player.sendTitle("", "", 0, 1, 0);
-      player.sendTitle("§cᴡʀᴏɴɢ ᴛɪᴍɪɴɢ - ᴍɪꜱᴛᴀᴋᴇ!", "§c-" + penalty + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
+      player.sendTitle("§c§lᴡʀᴏɴɢ ᴛɪᴍɪɴɢ - ᴍɪꜱᴛᴀᴋᴇ!", "§c-" + penalty + " ꜱᴛᴀᴍɪɴᴀ", 0, 20, 10);
       player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);      raceManager.addStamina(player, -penalty);
       activeMinigames.remove(playerId);
       raceManager.setPaceChangeCooldown(playerId);

@@ -1,11 +1,22 @@
 race:
   stamina-mode: hp-based
   stamina-hp-multiplier: 5
+  
   collision:
     enabled: true
-    damage: 10         
-    cooldown-ticks: 30    
-    range: 1.5
+    damage: 10                    
+    cooldown-ticks: 0
+    range: 2.5
+    knockback-force: 1.5
+    separation-distance: 2.0
+  
+  block-contact:
+    damage: 2.0                    
+    stamina-drain: 10               
+    cooldown-ms: 0               
+    damage-blocks:
+      - PALE_OAK_LOG
+      - STRIPPED_PALE_OAK_LOG
   
   initial-slowness: 5
   
@@ -67,7 +78,6 @@ race:
       minigame-2:
         enabled: false
         stamina-reward: default
-
   
   emergency-slowness-amplifier: 4
   emergency-stamina-threshold: 20
@@ -121,5 +131,3 @@ minigame:
     speed-multiplier: 2.0
     duration-ticks: 20
     bonus-stamina: 0
-
-    

@@ -42,4 +42,8 @@ public class HorsePowerPlugin extends JavaPlugin {
   public FileConfiguration getPluginConfig() {
     return getConfig();
   }
+
+  public HorseCollisionTask getCollisionTask() {
+    return collisionTask;
+  }
 }
