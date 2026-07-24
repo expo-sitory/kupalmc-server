@@ -65,7 +65,7 @@ every 1 second:
         if loop-player does not have permission "ethnicity.slot-1.claimed":
             execute console command "lp user %loop-player% permission set ethnicity.slot-1.claimed true"
             execute console command "lp user %loop-player% permission set ethnicity.slot-2.none true"       
-            execute console command "lp user %loop-player% permission set ethnicity.slot-1.%{_current}% true"      
+            execute console command "lp user %loop-player% permission set ethnicity.slot-1.%{_current}% true"                     
 
         if loop-player has permission "kupal.membership":
             if loop-player does not have permission "ethnicity.slot-3.claimed":            
@@ -106,6 +106,11 @@ every 1 second:
             if {_has_slot2} is false:
                 if loop-player does not have permission "ethnicity.slot-2.none":
                     execute console command "lp user %loop-player% permission unset ethnicity.slot-2.claimed"
+
+            if {_has_slot2} is false:
+                if loop-player has permission "ethnicity.slot-1.claimed":
+                    if loop-player does not have permission "ethnicity.slot-2.none":
+                        execute console command "lp user %loop-player% permission set ethnicity.slot-2.none true"
 
         if loop-player has permission "ethnicity.slot-3.claimed":
             set {_has_slot3} to false
@@ -164,260 +169,684 @@ every 1 second:
                                 execute console command "lp user %loop-player% permission unset ethnicity.slot." 
                                 execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.rerolling"                      
                                 execute console command "lp user %loop-player% permission set ethnicity.slot-%{_slot}%.%{_current}% true"
+                                wait 10 ticks
                                 execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.none"
+                                wait 10 ticks
 
-                                wait 20 ticks
-
+                                # HARD CODED TO CLEAN UP THE MESSED UP PERMS FROM PLAYERS
+                                
                                 if {_current} is "tagalog":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"    
+                                        stop                                   
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"     
+                                        stop                                 
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":                                        
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":    
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":    
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
                                 else if {_current} is "ilocano":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
+
                                 else if {_current} is "bicolano":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
+
                                 else if {_current} is "kapampangan":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "igorot":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "cebuano":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "waray":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
-                                    stop
-
-                                else if {_current} is "aklanon":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "illonggo":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
+                                    stop
+
+                                else if {_current} is "aklanon":
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "romblomanon":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "maguindanaon":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "maranao":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "tausug":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "badjao":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tagabawa":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagabawa"
+                                        stop
                                     stop
 
                                 else if {_current} is "tagabawa":
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"                                       
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"                                      
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
-                                    execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                    if loop-player has permission "ethnicity.slot-%{_slot}%.tagalog":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tagalog"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.ilocano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.ilocano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.bicolano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.bicolano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.kapampangan":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.kapampangan"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.igorot":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.igorot"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.cebuano":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.cebuano"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.waray":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.waray"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.illonggo":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.illonggo"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.aklanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.aklanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.romblomanon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.romblomanon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maguindanaon":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maguindanaon"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.maranao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.maranao"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.tausug":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.tausug"
+                                        stop
+                                    else if loop-player has permission "ethnicity.slot-%{_slot}%.badjao":
+                                        execute console command "lp user %loop-player% permission unset ethnicity.slot-%{_slot}%.badjao"
+                                        stop
                                     stop
 
                     set {playerEthnicity::%loop-player's uuid%} to {_current}
