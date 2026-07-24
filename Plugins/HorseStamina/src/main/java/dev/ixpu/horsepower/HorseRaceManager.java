@@ -70,7 +70,7 @@ public class HorseRaceManager {
       if (data == null) return;
       
       if (isPaceSwitchDisabledForStamina(data.stamina)) {
-        sendActionBar(player, "§c✗ Pace switch disabled at this stamina level!");
+        sendActionBar(player, "§6§lꜱᴛᴀᴍɪɴᴀ ᴛᴏᴏ ʟᴏᴡ");
         return;
       }
 
@@ -295,12 +295,12 @@ public class HorseRaceManager {
   }
 
   private boolean isPaceSwitchDisabledForStamina(double stamina) {
-    if (stamina <= 10) return plugin.getConfig().getBoolean("race.stamina-ranges.0-10.pace-switch-disabled", false);
-    else if (stamina <= 20) return plugin.getConfig().getBoolean("race.stamina-ranges.10-20.pace-switch-disabled", true);
-    else if (stamina <= 30) return plugin.getConfig().getBoolean("race.stamina-ranges.20-30.pace-switch-disabled", true);
-    else if (stamina <= 40) return plugin.getConfig().getBoolean("race.stamina-ranges.30-40.pace-switch-disabled", true);
-    else if (stamina <= 50) return plugin.getConfig().getBoolean("race.stamina-ranges.40-50.pace-switch-disabled", true);
-    else return plugin.getConfig().getBoolean("race.stamina-ranges.50-500.pace-switch-disabled", true);
+    if (stamina <= 10) return plugin.getConfig().getBoolean("race.stamina-ranges.0-10.pace-switch-disabled", true);
+    else if (stamina <= 20) return plugin.getConfig().getBoolean("race.stamina-ranges.10-20.pace-switch-disabled", false);
+    else if (stamina <= 30) return plugin.getConfig().getBoolean("race.stamina-ranges.20-30.pace-switch-disabled", false);
+    else if (stamina <= 40) return plugin.getConfig().getBoolean("race.stamina-ranges.30-40.pace-switch-disabled", false);
+    else if (stamina <= 50) return plugin.getConfig().getBoolean("race.stamina-ranges.40-50.pace-switch-disabled", false);
+    else return plugin.getConfig().getBoolean("race.stamina-ranges.50-500.pace-switch-disabled", false);
   }
 
   // ==================== PACE LEVEL NAME HELPER ====================
