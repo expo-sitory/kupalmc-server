@@ -88,7 +88,7 @@ stamina-ranges:
   0-10:
     regen: 5.0
     slowness-amplifier: 5
-    pace-switch-disabled: false
+    pace-switch-disabled: true
   
   10-20:
     regen: 2.5
@@ -98,22 +98,22 @@ stamina-ranges:
   20-30:
     regen: 1.5
     slowness-amplifier: 0
-    pace-switch-disabled: true
+    pace-switch-disabled: false
 
   30-40:
     regen: 0.5
     slowness-amplifier: 0
-    pace-switch-disabled: true
+    pace-switch-disabled: false
   
   40-50:
     regen: 0.0
     slowness-amplifier: 0
-    pace-switch-disabled: true
+    pace-switch-disabled: false
 
   50-500:
     regen: 0.0
     slowness-amplifier: 0
-    pace-switch-disabled: true
+    pace-switch-disabled: false
 
 minigame:
   random-interval-min: 120
