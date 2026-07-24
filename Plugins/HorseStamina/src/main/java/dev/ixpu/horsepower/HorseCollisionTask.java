@@ -194,6 +194,11 @@ public class HorseCollisionTask {
     return damageBlockTypes.contains(blockType);
   }
 
+  private void sendActionBar(Player player, String message) {
+    player.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, 
+      net.md_5.bungee.chat.ComponentSerializer.parse("{\"text\":\"" + message + "\"}")[0]);
+  }
+
   private void applyBlockContactDamage(Player player, Horse horse) {
     UUID horseId = horse.getUniqueId();
     long currentTime = System.currentTimeMillis();
@@ -227,11 +232,8 @@ public class HorseCollisionTask {
     lastDamageTakenTime.put(horseId, currentTime);
     
     // Feedback
-    player.sendTitle("§c§l⚠ ꜰᴇɴᴄᴇ ᴄᴏɴᴛᴀᴄᴛ ⚠", "§c-" + String.format("%.1f", damage) + " ʜᴘ", 0, 1, 0);
+    sendActionBar(player, "§c§l⚠ ꜰᴇɴᴄᴇ ᴄᴏɴᴛᴀᴄᴛ ⚠ §r-" + String.format("%.1f", damage) + " ʜᴘ");
     
-    if (DEBUG) {
-      plugin.getLogger().info(() -> "Block contact damage applied to " + player.getName() + ": -" + damage + " HP");
-    }
   }
 
   // ==================== HORSE TO HORSE COLLISION HANDLER ====================
@@ -284,9 +286,6 @@ public class HorseCollisionTask {
       org.bukkit.Location newLoc1 = loc1.clone().add(direction1to2.multiply(-separationDistance));
       org.bukkit.Location newLoc2 = loc2.clone().add(direction2to1.multiply(-separationDistance));
       
-      if (DEBUG) {
-        plugin.getLogger().info(() -> "Force separating overlapping horses (distance: " + currentDistance + ")");
-      }
       
       horse1.teleport(newLoc1);
       horse2.teleport(newLoc2);
@@ -297,8 +296,8 @@ public class HorseCollisionTask {
     setCollisionCooldown(horse2);
 
     // Feedback
-    player1.sendTitle("§c§l⚠ ᴄᴏʟʟɪꜱɪᴏɴ ⚠", "", 0, 1, 0);
-    player2.sendTitle("§c§l⚠ ᴄᴏʟʟɪꜱɪᴏɴ ⚠", "", 0, 1, 0);
+    sendActionBar(player1, "§c§l⚠ ᴄᴏʟʟɪꜱɪᴏɴ ⚠");
+    sendActionBar(player2, "§c§l⚠ ᴄᴏʟʟɪꜱɪᴏɴ ⚠");
     
     if (DEBUG) {
       plugin.getLogger().info(() -> "Collision between " + player1.getName() + " and " + player2.getName() 
