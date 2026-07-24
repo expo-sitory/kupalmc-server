@@ -68,6 +68,11 @@ public class HorseRaceManager {
       
       RaceData data = activeRaces.get(playerId);
       if (data == null) return;
+      
+      if (isPaceSwitchDisabledForStamina(data.stamina)) {
+        sendActionBar(player, "§c✗ Pace switch disabled at this stamina level!");
+        return;
+      }
 
       if (data.slownessAmplifier >= 0) {
         int oldAmplifier = data.slownessAmplifier;
@@ -82,12 +87,14 @@ public class HorseRaceManager {
           case 1 -> sendActionBar(player, "§eᴘᴀᴄᴇ ᴄʜᴀɴɢᴇ: ꜰʀᴏɴᴛ ʀᴜɴɴᴇʀ");
           case 0 -> sendActionBar(player, "§aʟᴀꜱᴛ ꜱᴘᴜʀᴛ");
         }
+        
+        setPaceChangeCooldown(playerId);
       }
-    }
+  }
 
   // ==================== STRATEGY PACE LEVELS (SLOW DOWN) ====================
 
-public void recordImPerfectJump(Player player) {
+  public void recordImPerfectJump(Player player) {
     UUID playerId = player.getUniqueId();
     
     if (isPaceChangeOnCooldown(playerId)) {
@@ -166,7 +173,7 @@ public void recordImPerfectJump(Player player) {
     }
     
     // Apply bonus stamina from dash success
-    int bonusStamina = plugin.getConfig().getInt("minigame.minigame-dash.bonus-stamina", 20);
+    int bonusStamina = plugin.getConfig().getInt("minigame.minigame-dash.bonus-stamina", 0);
     addStamina(player, bonusStamina);
   }
 
@@ -285,6 +292,15 @@ public void recordImPerfectJump(Player player) {
     else if (stamina <= 30) return plugin.getConfig().getInt("race.stamina-ranges.20-30.slowness-amplifier", 0);
     else if (stamina <= 40) return plugin.getConfig().getInt("race.stamina-ranges.30-40.slowness-amplifier", 0);
     else return plugin.getConfig().getInt("race.stamina-ranges.40-50.slowness-amplifier", 0);
+  }
+
+  private boolean isPaceSwitchDisabledForStamina(double stamina) {
+    if (stamina <= 10) return plugin.getConfig().getBoolean("race.stamina-ranges.0-10.pace-switch-disabled", false);
+    else if (stamina <= 20) return plugin.getConfig().getBoolean("race.stamina-ranges.10-20.pace-switch-disabled", true);
+    else if (stamina <= 30) return plugin.getConfig().getBoolean("race.stamina-ranges.20-30.pace-switch-disabled", true);
+    else if (stamina <= 40) return plugin.getConfig().getBoolean("race.stamina-ranges.30-40.pace-switch-disabled", true);
+    else if (stamina <= 50) return plugin.getConfig().getBoolean("race.stamina-ranges.40-50.pace-switch-disabled", true);
+    else return plugin.getConfig().getBoolean("race.stamina-ranges.50-500.pace-switch-disabled", true);
   }
 
   // ==================== PACE LEVEL NAME HELPER ====================
