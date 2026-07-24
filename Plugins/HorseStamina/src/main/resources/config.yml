@@ -84,30 +84,36 @@ race:
   emergency-stamina-threshold: 20
   recovery-stamina-threshold: 50
   
-  stamina-ranges:
-    0-10:
-      regen: 5.0
-      slowness-amplifier: 5
-    
-    10-20:
-      regen: 2.5
-      slowness-amplifier: 0
-    
-    20-30:
-      regen: 1.5
-      slowness-amplifier: 0
- 
-    30-40:
-      regen: 0.5
-      slowness-amplifier: 0
-    
-    40-50:
-      regen: 0.0
-      slowness-amplifier: 0
+stamina-ranges:
+  0-10:
+    regen: 5.0
+    slowness-amplifier: 5
+    pace-switch-disabled: false
+  
+  10-20:
+    regen: 2.5
+    slowness-amplifier: 0
+    pace-switch-disabled: false
+  
+  20-30:
+    regen: 1.5
+    slowness-amplifier: 0
+    pace-switch-disabled: true
 
-    50-100:
-      regen: 0.0
-      slowness-amplifier: 0
+  30-40:
+    regen: 0.5
+    slowness-amplifier: 0
+    pace-switch-disabled: true
+  
+  40-50:
+    regen: 0.0
+    slowness-amplifier: 0
+    pace-switch-disabled: true
+
+  50-500:
+    regen: 0.0
+    slowness-amplifier: 0
+    pace-switch-disabled: true
 
 minigame:
   random-interval-min: 120
