@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
@@ -32,9 +33,6 @@ public class HorseCollisionTask {
 
   public void start() {
     task = Bukkit.getScheduler().runTaskTimer(plugin, this::checkCollisions, 0L, 1L);
-    if (DEBUG) {
-      plugin.getLogger().info(() -> "Block Collision Task started. Configured damage blocks: " + damageBlockTypes);
-    }
   }
 
   public void stop() {
@@ -55,9 +53,6 @@ public class HorseCollisionTask {
     damageBlockTypes = new HashSet<>();
     java.util.List<String> blockList = plugin.getConfig().getStringList("race.block-contact.damage-blocks");
     damageBlockTypes.addAll(blockList);
-    if (DEBUG) {
-      plugin.getLogger().info(() -> "Loaded " + damageBlockTypes.size() + " damage block types: " + damageBlockTypes);
-    }
   }
 
   public void reloadDamageBlocks() {
@@ -166,7 +161,6 @@ public class HorseCollisionTask {
                                                 blockEast, blockWest, blockNorthEast, blockNorthWest,
                                                 blockSouthEast, blockSouthWest, blockTopNorth,
                                                 blockTopSouth, blockTopEast, blockTopWest);
-        plugin.getLogger().info(() -> "Horse contacting damage block: " + blockName);
       }
       
       applyBlockContactDamage(owner, horse);
@@ -233,6 +227,7 @@ public class HorseCollisionTask {
     
     // Feedback
     sendActionBar(player, "§c§l⚠ ꜰᴇɴᴄᴇ ᴄᴏɴᴛᴀᴄᴛ ⚠ §r-" + String.format("%.1f", damage) + " ʜᴘ");
+    player.playSound(player.getLocation(), Sound.ENTITY_HORSE_HURT, 1.0f, 1.0f);
     
   }
 
@@ -298,11 +293,9 @@ public class HorseCollisionTask {
     // Feedback
     sendActionBar(player1, "§c§l⚠ ᴄᴏʟʟɪꜱɪᴏɴ ⚠");
     sendActionBar(player2, "§c§l⚠ ᴄᴏʟʟɪꜱɪᴏɴ ⚠");
-    
-    if (DEBUG) {
-      plugin.getLogger().info(() -> "Collision between " + player1.getName() + " and " + player2.getName() 
-              + " (distance: " + String.format("%.2f", currentDistance) + ")");
-    }
+    player1.playSound(player1.getLocation(), Sound.ENTITY_HORSE_HURT, 1.0f, 1.0f);
+    player2.playSound(player2.getLocation(), Sound.ENTITY_HORSE_HURT, 1.0f, 1.0f);
+
   }
 
   private void applyDamageWithMinHealth(Horse horse, double damage) {
