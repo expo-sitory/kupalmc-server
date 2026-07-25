@@ -1,0 +1,1085 @@
+# Rune Tree Selection Backend
+on load:
+    # Main Rune Paths
+    set {rune-paths::*} to ("precision", "domination", "resolve") # , "inspriration", "sorcery"
+    
+    # Precision
+    set {precision-keystone::*} to ("press-the-attack", "lethal-tempo", "fleet-footwork", "conqueror")
+    set {precision-slot-1::*} to ("absorb-life", "triump", "presence-of-mind")
+    set {precision-slot-2::*} to ("legend-alacrity", "legend-haste", "legend-bloodline")
+    set {precisiom-slot-3::*} to ("coup-de-grace", "cut-down", "last-stand")
+
+    # Domination
+    set {domination-keystone::*} to ("electrocute", "dark-harvest", "hail-of-blades")
+    set {domination-slot-1::*} to ("cheap-shot", "taste-of-blood", "sudden-impact")
+    set {domination-slot-2::*} to ("six-sense", "grisly-mementos", "deep-ward")
+    set {domination-slot-3::*} to ("treasure-hunter", "relentless-hunter", "ultimate-hunter")
+
+    # Resolve
+    set {resolve-keystone::*} to ("grasp-of-the-undying", "aftershock", "guardian")
+    set {resolve-slot-1::*} to ("demolish", "font-of-life", "shiled-bash")
+    set {resolve-slot-2::*} to ("conditioning", "second-wind", "bone-plating")
+    set {resolve-slot-3::*} to ("overgrowth", "revitalize", "unflinching")
+
+    # Sorcery
+    # set {sorcery-keystone::*} to ("summon-aery", "arcane-commet", "storm-raider-surge", "hell-fire-torch")
+    # set {sorcery-slot-1::*} to ("axiom-arcanist", "manaflow-band", "nimbus-cloak")
+    # set {sorcery-slot-2::*} to ("trascendence", "celerity", "absolute-focus")
+    # set {sorcery-slot-3::*} to ("scorch", "water-walking", "gathering-storm")
+
+    # Inspriration
+    # set {inspiration-keystone::*} to ("glacial-augment", "unsealed-spellbook", "first-strike")
+    # set {inspiration-slot-1::*} to ("hextech-flashtraption", "magical-footwear", "cash-back")
+    # set {inspiration-slot-2::*} to ("tripple-tonic", "time-warp-tonic", "biscuit-delivery")
+    # set {inspiration-slot-3::*} to ("cosmic-insight", "approach-velocity", "jack-of-all-trades")
+
+on tab complete of "/runes":
+    set tab completions for position 1 to "select" and "clear"
+
+    if tab arg-1 is "select":
+        set tab completions for position 2 to "precision" and "domination" and "resolve"
+        if tab arg-2 is "precision":
+            set tab completions for position 3 to "press-the-attack" and "lethal-tempo" and "fleet-footwork" and "conqueror"
+            if tab arg-3 is "press-the-attack" or "lethal-tempo" or "fleet-footwork" or "conqueror":
+                set tab completions for position 4 to "absorb-life" and "triump" and "presence-of-mind"
+                if tab arg-4 is "absorb-life" or "triump" or "presence-of-mind":
+                    set tab completions for position 5 to "legend-alacrity" and "legend-haste" and "legend-bloodline"
+                    if tab arg-5 is "legend-alacrity" or "legend-haste" or "legend-bloodline":
+                        set tab completions for position 6 to "coup-de-grace" and "cut-down" and "last-stand"       
+
+        else if tab arg-2 is "domination":
+            set tab completions for position 3 to "electrocute" and "dark-harvest" and "hail-of-blades"
+            if tab arg-3 is "electrocute" or "dark-harvest" or "hail-of-blades":
+                set tab completions for position 4 to "cheap-shot" and "taste-of-blood" and "sudden-impact"
+                if tab arg-4 is "cheap-shot" or "taste-of-blood" or "sudden-impact":
+                    set tab completions for position 5 to "six-sense" and "grisly-mementos" and "deep-ward"
+                    if tab arg-5 is "six-sense" or "grisly-mementos" or "deep-ward":
+                        set tab completions for position 6 to "treasure-hunter" and "relentless-hunter" and "ultimate-hunter"
+                            
+        else if tab arg-2 is "resolve":
+            set tab completions for position 3 to "grasp-of-the-undying" and "aftershock" and "guardian"
+            if tab arg-3 is "grasp-of-the-undying" or "aftershock" or "guardian":
+                set tab completions for position 4 to "demolish" and "font-of-life" and "shiled-bash"
+                if tab arg-4 is "demolish" or "font-of-life" or "shiled-bash":
+                    set tab completions for position 5 to "conditioning" and "second-wind" and "bone-plating"
+                    if tab arg-5 is "conditioning" or "second-wind" or "bone-plating":
+                        set tab completions for position 6 to "overgrowth" and "revitalize" and "unflinching"
+
+
+command /runes [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
+    trigger:
+        if arg-1 is "select":
+            # RUNE PATH
+            if arg-2 is "precision":
+                if player has permission "island.luzon":
+                    make player execute command "runes clear"
+                    wait 10 ticks
+                    execute console command "lp user %player% permission set runes.path.precision true"
+                   
+                    if arg-3 is "press-the-attack":
+                        execute console command "lp user %player% permission set runes.keystone.press-the-attack true"
+                        if arg-4 is "absorb-life":
+                            execute console command "lp user %player% permission set runes.slot-1.absorb-life true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+
+                        else if arg-4 is "triump":
+                            execute console command "lp user %player% permission set runes.slot-1.triump true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+
+                        else if arg-4 is "presence-of-mind":
+                            execute console command "lp user %player% permission set runes.slot-1.presence-of-mind true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+
+                            
+                        
+                    else if arg-3 is "lethal-tempo":
+                        execute console command "lp user %player% permission set runes.keystone.lethal-tempo true" 
+                        if arg-4 is "absorb-life":
+                            execute console command "lp user %player% permission set runes.slot-1.absorb-life true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+
+                        else if arg-4 is "triump":
+                            execute console command "lp user %player% permission set runes.slot-1.triump true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+
+                        else if arg-4 is "presence-of-mind":
+                            execute console command "lp user %player% permission set runes.slot-1.presence-of-mind true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+                            
+                    else if arg-3 is "fleet-footwork":
+                        execute console command "lp user %player% permission set runes.keystone.fleet-footwork true"
+                        if arg-4 is "absorb-life":
+                            execute console command "lp user %player% permission set runes.slot-1.absorb-life true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+
+                        else if arg-4 is "triump":
+                            execute console command "lp user %player% permission set runes.slot-1.triump true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+
+                        else if arg-4 is "presence-of-mind":
+                            execute console command "lp user %player% permission set runes.slot-1.presence-of-mind true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+                            
+
+                    else if arg-3 is "conqueror":
+                        execute console command "lp user %player% permission set runes.keystone.conqueror true"                      
+                        if arg-4 is "absorb-life":
+                            execute console command "lp user %player% permission set runes.slot-1.absorb-life true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+
+                        else if arg-4 is "triump":
+                            execute console command "lp user %player% permission set runes.slot-1.triump true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+
+                        else if arg-4 is "presence-of-mind":
+                            execute console command "lp user %player% permission set runes.slot-1.presence-of-mind true"                            
+                            if arg-5 is "legend-alacrity":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-alacrity true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                    
+                            else if arg-5 is "legend-haste":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-haste true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"                                                                                                  
+                            else if arg-5 is "legend-bloodline":
+                                execute console command "lp user %player% permission set runes.slot-2.legend-bloodline true"
+                                if arg-6 is "coup-de-grace":
+                                    execute console command "lp user %player% permission set runes.slot-3.coup-de-grace true"                                    
+                                else if arg-6 is "cut-down":
+                                    execute console command "lp user %player% permission set runes.slot-3.cut-down true"                                    
+                                else if arg-6 is "last-stand":
+                                    execute console command "lp user %player% permission set runes.slot-3.last-stand true"      
+                            else:
+                                send "&cinvalid use of command" to player 
+                    else:
+                        send "&cinvalid use of command" to player                   
+                
+            else if arg-2 is "domination":
+                if player has permission "island.visayas":
+                    make player execute command "runes clear"
+                    wait 10 ticks
+                    execute console command "lp user %player% permission set runes.path.domination true"      
+                    if arg-3 is "electrocute":
+                        execute console command "lp user %player% permission set runes.keystone.electrocute true"
+                        if arg-4 is "cheap-shot":
+                            execute console command "lp user %player% permission set runes.slot-1.cheap-shot true"
+                            if arg-5 is "six-sense":
+                                execute console command "lp user %player% permission set runes.slot-2.six-sense true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"                                    
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"                                    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+                            else if arg-5 is "grisly-mementos":
+                                execute console command "lp user %player% permission set runes.slot-2.grisly-mementos true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"                                    
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"                                    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                    
+                            else if arg-5 is "deep-ward":
+                                execute console command "lp user %player% permission set runes.slot-2.deep-ward true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+
+                        else if arg-4 is "taste-of-blood":
+                            execute console command "lp user %player% permission set runes.slot-1.taste-of-blood true"
+                            if arg-5 is "six-sense":
+                                execute console command "lp user %player% permission set runes.slot-2.six-sense true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"  
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"   
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"
+                            else if arg-5 is "grisly-mementos":
+                                execute console command "lp user %player% permission set runes.slot-2.grisly-mementos true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"
+                            else if arg-5 is "deep-ward":
+                                execute console command "lp user %player% permission set runes.slot-2.deep-ward true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                    
+                                                                                                                                    
+                        else if arg-4 is "sudden-impact":
+                            execute console command "lp user %player% permission set runes.slot-1.sudden-impact true"
+                            if arg-5 is "six-sense":
+                                execute console command "lp user %player% permission set runes.slot-2.six-sense true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"   
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+                            else if arg-5 is "grisly-mementos":
+                                execute console command "lp user %player% permission set runes.slot-2.grisly-mementos true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"  
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"  
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+                            else if arg-5 is "deep-ward":
+                                execute console command "lp user %player% permission set runes.slot-2.deep-ward true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"                                    
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"                                    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"  
+                                                                    
+                                
+
+                            
+                        
+                    else if arg-3 is "dark-harvest":
+                        execute console command "lp user %player% permission set runes.keystone.dark-harvest true"
+                        if arg-4 is "cheap-shot":
+                            execute console command "lp user %player% permission set runes.slot-1.cheap-shot true"
+                            if arg-5 is "six-sense":
+                                execute console command "lp user %player% permission set runes.slot-2.six-sense true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"                                    
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"                                    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+                            else if arg-5 is "grisly-mementos":
+                                execute console command "lp user %player% permission set runes.slot-2.grisly-mementos true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"                                    
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"                                    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                    
+                            else if arg-5 is "deep-ward":
+                                execute console command "lp user %player% permission set runes.slot-2.deep-ward true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+
+                        else if arg-4 is "taste-of-blood":
+                            execute console command "lp user %player% permission set runes.slot-1.taste-of-blood true"
+                            if arg-5 is "six-sense":
+                                execute console command "lp user %player% permission set runes.slot-2.six-sense true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"  
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"   
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"
+                            else if arg-5 is "grisly-mementos":
+                                execute console command "lp user %player% permission set runes.slot-2.grisly-mementos true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"
+                            else if arg-5 is "deep-ward":
+                                execute console command "lp user %player% permission set runes.slot-2.deep-ward true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                    
+                                                                                                                                    
+                        else if arg-4 is "sudden-impact":
+                            execute console command "lp user %player% permission set runes.slot-1.sudden-impact true"
+                            if arg-5 is "six-sense":
+                                execute console command "lp user %player% permission set runes.slot-2.six-sense true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"   
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+                            else if arg-5 is "grisly-mementos":
+                                execute console command "lp user %player% permission set runes.slot-2.grisly-mementos true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"  
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"  
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+                            else if arg-5 is "deep-ward":
+                                execute console command "lp user %player% permission set runes.slot-2.deep-ward true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"                                    
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"                                    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"  
+
+                        
+                    else if arg-3 is "hail-of-blades":
+                        execute console command "lp user %player% permission set runes.keystone.hail-of-blades true"
+                        if arg-4 is "cheap-shot":
+                            execute console command "lp user %player% permission set runes.slot-1.cheap-shot true"
+                            if arg-5 is "six-sense":
+                                execute console command "lp user %player% permission set runes.slot-2.six-sense true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"                                    
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"                                    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+                            else if arg-5 is "grisly-mementos":
+                                execute console command "lp user %player% permission set runes.slot-2.grisly-mementos true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"                                    
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"                                    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                    
+                            else if arg-5 is "deep-ward":
+                                execute console command "lp user %player% permission set runes.slot-2.deep-ward true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+
+                        else if arg-4 is "taste-of-blood":
+                            execute console command "lp user %player% permission set runes.slot-1.taste-of-blood true"
+                            if arg-5 is "six-sense":
+                                execute console command "lp user %player% permission set runes.slot-2.six-sense true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"  
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"   
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"
+                            else if arg-5 is "grisly-mementos":
+                                execute console command "lp user %player% permission set runes.slot-2.grisly-mementos true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"
+                            else if arg-5 is "deep-ward":
+                                execute console command "lp user %player% permission set runes.slot-2.deep-ward true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                    
+                                                                                                                                    
+                        else if arg-4 is "sudden-impact":
+                            execute console command "lp user %player% permission set runes.slot-1.sudden-impact true"
+                            if arg-5 is "six-sense":
+                                execute console command "lp user %player% permission set runes.slot-2.six-sense true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"   
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+                            else if arg-5 is "grisly-mementos":
+                                execute console command "lp user %player% permission set runes.slot-2.grisly-mementos true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"  
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"  
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                    
+                            else if arg-5 is "deep-ward":
+                                execute console command "lp user %player% permission set runes.slot-2.deep-ward true"
+                                if arg-6 is "treasure-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.treasure-hunter true"                                    
+                                else if arg-6 is "relentless-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.relentless-hunter true"                                    
+                                else if arg-6 is "ultimate-hunter":
+                                    execute console command "lp user %player% permission set runes.slot-3.ultimate-hunter true"                                                                                                                                
+
+                    else:
+                        send "&cinvalid use of command" to player  
+
+            
+            else if arg-2 is "resolve":
+                if player has permission "island.mindanao":
+                    make player execute command "runes clear"
+                    wait 10 ticks
+                    execute console command "lp user %player% permission set runes.path.resolve true"
+
+                    if arg-3 is "grasp-of-the-undying":
+                        execute console command "lp user %player% permission set runes.keystone.grasp-of-the-undying true"
+                        if arg-4 is "demolish":
+                            execute console command "lp user %player% permission set runes.slot-1.demolish true"
+                            if arg-5 is "conditioning":
+                                execute console command "lp user %player% permission set runes.slot-2.conditioning true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "second-wind":
+                                execute console command "lp user %player% permission set runes.slot-2.second-wind true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "bone-plating":
+                                execute console command "lp user %player% permission set runes.slot-2.bone-plating true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"  
+
+                        else if arg-4 is "font-of-life":
+                            execute console command "lp user %player% permission set runes.slot-1.font-of-life true"
+                            if arg-5 is "conditioning":
+                                execute console command "lp user %player% permission set runes.slot-2.conditioning true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "second-wind":
+                                execute console command "lp user %player% permission set runes.slot-2.second-wind true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "bone-plating":
+                                execute console command "lp user %player% permission set runes.slot-2.bone-plating true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"          
+
+                        else if arg-4 is "shiled-bash":
+                            execute console command "lp user %player% permission set runes.slot-1.shiled-bash true"
+                            if arg-5 is "conditioning":
+                                execute console command "lp user %player% permission set runes.slot-2.conditioning true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "second-wind":
+                                execute console command "lp user %player% permission set runes.slot-2.second-wind true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "bone-plating":
+                                execute console command "lp user %player% permission set runes.slot-2.bone-plating true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"   
+
+                    if arg-3 is "aftershock":
+                        execute console command "lp user %player% permission set runes.keystone.aftershock true"
+                        if arg-4 is "demolish":
+                            execute console command "lp user %player% permission set runes.slot-1.demolish true"
+                            if arg-5 is "conditioning":
+                                execute console command "lp user %player% permission set runes.slot-2.conditioning true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "second-wind":
+                                execute console command "lp user %player% permission set runes.slot-2.second-wind true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "bone-plating":
+                                execute console command "lp user %player% permission set runes.slot-2.bone-plating true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"  
+
+                        else if arg-4 is "font-of-life":
+                            execute console command "lp user %player% permission set runes.slot-1.font-of-life true"
+                            if arg-5 is "conditioning":
+                                execute console command "lp user %player% permission set runes.slot-2.conditioning true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "second-wind":
+                                execute console command "lp user %player% permission set runes.slot-2.second-wind true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "bone-plating":
+                                execute console command "lp user %player% permission set runes.slot-2.bone-plating true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"          
+
+                        else if arg-4 is "shiled-bash":
+                            execute console command "lp user %player% permission set runes.slot-1.shiled-bash true"
+                            if arg-5 is "conditioning":
+                                execute console command "lp user %player% permission set runes.slot-2.conditioning true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "second-wind":
+                                execute console command "lp user %player% permission set runes.slot-2.second-wind true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "bone-plating":
+                                execute console command "lp user %player% permission set runes.slot-2.bone-plating true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"         
+
+                    if arg-3 is "guardian":
+                        execute console command "lp user %player% permission set runes.keystone.guardian true"
+                        if arg-4 is "demolish":
+                            execute console command "lp user %player% permission set runes.slot-1.demolish true"
+                            if arg-5 is "conditioning":
+                                execute console command "lp user %player% permission set runes.slot-2.conditioning true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "second-wind":
+                                execute console command "lp user %player% permission set runes.slot-2.second-wind true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "bone-plating":
+                                execute console command "lp user %player% permission set runes.slot-2.bone-plating true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"  
+
+                        else if arg-4 is "font-of-life":
+                            execute console command "lp user %player% permission set runes.slot-1.font-of-life true"
+                            if arg-5 is "conditioning":
+                                execute console command "lp user %player% permission set runes.slot-2.conditioning true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "second-wind":
+                                execute console command "lp user %player% permission set runes.slot-2.second-wind true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "bone-plating":
+                                execute console command "lp user %player% permission set runes.slot-2.bone-plating true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"          
+
+                        else if arg-4 is "shiled-bash":
+                            execute console command "lp user %player% permission set runes.slot-1.shiled-bash true"
+                            if arg-5 is "conditioning":
+                                execute console command "lp user %player% permission set runes.slot-2.conditioning true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "second-wind":
+                                execute console command "lp user %player% permission set runes.slot-2.second-wind true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"
+                            else if arg-5 is "bone-plating":
+                                execute console command "lp user %player% permission set runes.slot-2.bone-plating true"
+                                if arg-6 is "overgrowth":
+                                    execute console command "lp user %player% permission set runes.slot-3.overgrowth true"
+                                else if arg-6 is "revitalize":
+                                    execute console command "lp user %player% permission set runes.slot-3.revitalize true"
+                                else if arg-6 is "unflinching":
+                                    execute console command "lp user %player% permission set runes.slot-3.unflinching true"                                                                                                                                                                                                                            
+
+                                        
+
+                
+            else:
+                send "&cinvalid use of command" to player
+
+        else if arg-1 is "clear":
+            set {_current-path} to ""
+            set {_current-keystone} to ""
+            set {_current-slot-1} to ""
+            set {_current-slot-2} to ""
+            set {_current-slot-3} to ""
+
+            loop {rune-paths::*}:
+                if player has permission "runes.path.%loop-value%":
+                    set {_current-path} to loop-value
+                    stop loop
+
+            if {_current-path} is "precision":
+                loop {precision-keystone::*}:
+                    if player has permission "runes.keystone.%loop-value%":
+                        set {_current-keystone} to loop-value
+                        stop loop
+                wait 10 ticks
+                loop {precision-slot-1::*}:
+                    if player has permission "runes.slot-1.%loop-value%":
+                        set {_current-slot-1} to loop-value
+                        stop loop
+                wait 10 ticks
+                loop {precision-slot-2::*}:
+                    if player has permission "runes.slot-2.%loop-value%":
+                        set {_current-slot-2} to loop-value
+                        stop loop
+                wait 10 ticks
+                loop {precision-slot-3::*}:
+                    if player has permission "runes.slot-3.%loop-value%":
+                        set {_current-slot-3} to loop-value
+                        stop loop
+
+                send "Runes To Clear:"
+                send "&fPath: %{_current-path}%" to player
+                send "&fKeystone: %{_current-keystone}%" to player
+                send "&fSlot 1: %{_current-slot-1}%" to player
+                send "&fSlot 2: %{_current-slot-2}%" to player
+                send "&fSlot 3: %{_current-slot-3}%" to player
+
+                wait 2 seconds
+
+                execute console command "lp user %player% permission unset runes.path.%{_current-path}%"
+                execute console command "lp user %player% permission unset runes.keystone.%{_current-keystone}%"
+                execute console command "lp user %player% permission unset runes.slot-1.%{_current-slot-1}%"
+                execute console command "lp user %player% permission unset runes.slot-2.%{_current-slot-2}%"
+                execute console command "lp user %player% permission unset runes.slot-3.%{_current-slot-3}%"                                                                
+
+            else if {_current-path} is "domination":
+                loop {domination-keystone::*}:
+                    if player has permission "runes.keystone.%loop-value%":
+                        set {_current-keystone} to loop-value
+                        stop loop
+                wait 10 ticks
+                loop {domination-slot-1::*}:
+                    if player has permission "runes.slot-1.%loop-value%":
+                        set {_current-slot-1} to loop-value
+                        stop loop
+                wait 10 ticks
+                loop {domination-slot-2::*}:
+                    if player has permission "runes.slot-2.%loop-value%":
+                        set {_current-slot-2} to loop-value
+                        stop loop
+                wait 10 ticks
+                loop {domination-slot-3::*}:
+                    if player has permission "runes.slot-3.%loop-value%":
+                        set {_current-slot-3} to loop-value
+                        stop loop
+
+                send "Runes To Clear:"
+                send "&fPath: %{_current-path}%" to player
+                send "&fKeystone: %{_current-keystone}%" to player
+                send "&fSlot 1: %{_current-slot-1}%" to player
+                send "&fSlot 2: %{_current-slot-2}%" to player
+                send "&fSlot 3: %{_current-slot-3}%" to player
+
+                wait 2 seconds
+
+                execute console command "lp user %player% permission unset runes.path.%{_current-path}%"
+                execute console command "lp user %player% permission unset runes.keystone.%{_current-keystone}%"
+                execute console command "lp user %player% permission unset runes.slot-1.%{_current-slot-1}%"
+                execute console command "lp user %player% permission unset runes.slot-2.%{_current-slot-2}%"
+                execute console command "lp user %player% permission unset runes.slot-3.%{_current-slot-3}%"     
+
+            else if {_current-path} is "resolve":
+                loop {resolve-keystone::*}:
+                    if player has permission "runes.keystone.%loop-value%":
+                        set {_current-keystone} to loop-value
+                        stop loop
+                wait 10 ticks
+                loop {resolve-slot-1::*}:
+                    if player has permission "runes.slot-1.%loop-value%":
+                        set {_current-slot-1} to loop-value
+                        stop loop
+                wait 10 ticks
+                loop {resolve-slot-2::*}:
+                    if player has permission "runes.slot-2.%loop-value%":
+                        set {_current-slot-2} to loop-value
+                        stop loop
+                wait 10 ticks
+                loop {resolve-slot-3::*}:
+                    if player has permission "runes.slot-3.%loop-value%":
+                        set {_current-slot-3} to loop-value
+                        stop loop
+
+                send "Runes To Clear:"
+                send "&fPath: %{_current-path}%" to player
+                send "&fKeystone: %{_current-keystone}%" to player
+                send "&fSlot 1: %{_current-slot-1}%" to player
+                send "&fSlot 2: %{_current-slot-2}%" to player
+                send "&fSlot 3: %{_current-slot-3}%" to player
+
+                wait 2 seconds
+
+                execute console command "lp user %player% permission unset runes.path.%{_current-path}%"
+                execute console command "lp user %player% permission unset runes.keystone.%{_current-keystone}%"
+                execute console command "lp user %player% permission unset runes.slot-1.%{_current-slot-1}%"
+                execute console command "lp user %player% permission unset runes.slot-2.%{_current-slot-2}%"
+                execute console command "lp user %player% permission unset runes.slot-3.%{_current-slot-3}%"     
+
+                        
+                 
