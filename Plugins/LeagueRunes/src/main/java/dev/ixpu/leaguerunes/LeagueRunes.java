@@ -7,6 +7,8 @@ import dev.ixpu.leaguerunes.listener.PlayerEventListener;
 import dev.ixpu.leaguerunes.listener.RuneListener;
 import dev.ixpu.leaguerunes.rune.BaseRune;
 import dev.ixpu.leaguerunes.rune.RuneRegistry;
+import dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror;
+import dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork;
 import dev.ixpu.leaguerunes.rune.keystones.precision.LethalTempo;
 import dev.ixpu.leaguerunes.rune.keystones.precision.PressTheAttack;
 
@@ -56,7 +58,7 @@ public class LeagueRunes extends JavaPlugin {
             if (runeManager != null) {
                 runeManager.tickAllPlayerRunes();
             }
-        }, 0L, 1L); 
+        }, 0L, 1L); // Runs every tick
     }
 
     public static LeagueRunes getInstance() {
@@ -81,11 +83,20 @@ public class LeagueRunes extends JavaPlugin {
         loadRuneCooldown(lethalTempo, "keystones.precision.lethal-tempo");
         runeRegistry.registerRune(lethalTempo);
 
+        Conqueror conqueror = new Conqueror();
+        loadRuneCooldown(conqueror, "keystones.precision.conqueror");
+        runeRegistry.registerRune(conqueror);
+
+        FleetFootwork fleetFootwork = new FleetFootwork();
+        loadRuneCooldown(fleetFootwork, "keystones.precision.fleet-footwork");
+        runeRegistry.registerRune(fleetFootwork);
+
         // TODO: Register other keystones
         // TODO: Register slot runes
 
         getLogger().info(() -> "Registered " + runeRegistry.getAllRunes().size() + " runes");
     }
+
 
     // Load cooldown from config for a rune
     private void loadRuneCooldown(BaseRune rune, String configPath) {
