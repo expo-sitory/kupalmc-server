@@ -1,15 +1,16 @@
 package dev.ixpu.leaguerunes;
 
-import dev.ixpu.leaguerunes.player.PlayerRuneData;
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.util.RuneDetector;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import dev.ixpu.leaguerunes.player.PlayerRuneData;
+import dev.ixpu.leaguerunes.rune.BaseRune;
+import dev.ixpu.leaguerunes.util.RuneDetector;
 
 public class RuneManager {
     private final JavaPlugin plugin;
@@ -32,8 +33,6 @@ public class RuneManager {
                 rune.onEnable(player);
             }
         }
-
-        plugin.getLogger().info("Loaded runes for player: " + player.getName());
     }
 
     public void reloadPlayerRunes(Player player) {
@@ -56,7 +55,6 @@ public class RuneManager {
 
         playerRuneData.remove(uuid);
         playerRunesActive.remove(uuid);
-        plugin.getLogger().info("Unloaded runes for player: " + player.getName());
     }
 
     public void tickAllPlayerRunes() {
@@ -99,5 +97,9 @@ public class RuneManager {
     public void clearAll() {
         playerRuneData.clear();
         playerRunesActive.clear();
+    }
+
+    public JavaPlugin getPlugin() {
+        return plugin;
     }
 }
