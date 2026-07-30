@@ -1,6 +1,8 @@
 package dev.ixpu.leaguerunes.rune.keystones.precision;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -11,20 +13,22 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import dev.ixpu.leaguerunes.rune.BaseRune;
 import dev.ixpu.leaguerunes.rune.RunePath;
 import dev.ixpu.leaguerunes.rune.RuneSlot;
+import net.kyori.adventure.text.Component;
 
 
 public class PressTheAttack extends BaseRune {
-    private static final int MAX_STACKS = 5;
+    private static final int MAX_STACKS = 3;
     private static final int STACK_DURATION_TICKS = 40;
-    private static final int DAMAGE_PER_HEART = 2;
+    private static final int DAMAGE_PER_HEART = 2; 
 
     private final Map<UUID, Map<UUID, Integer>> playerStacks = new HashMap<>();
     private final Map<UUID, UUID> lastTarget = new HashMap<>();
     private final Map<UUID, Map<UUID, Integer>> stackTimers = new HashMap<>();
 
     public PressTheAttack() {
-        super("press_the_attack", RunePath.PRECISION, RuneSlot.KEYSTONE);
+        super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE);
         this.hasStacking = false;
+        this.setCooldownSeconds(6.0);
     }
 
     @Override
@@ -41,6 +45,7 @@ public class PressTheAttack extends BaseRune {
         playerStacks.remove(playerUUID);
         lastTarget.remove(playerUUID);
         stackTimers.remove(playerUUID);
+        clearPlayerCooldown(player);
     }
 
     @Override
@@ -48,7 +53,11 @@ public class PressTheAttack extends BaseRune {
         UUID playerUUID = attacker.getUniqueId();
         UUID targetUUID = target.getUniqueId();
 
-        // Check if this is a different target 
+        if (isOnCooldown(attacker)) {
+            return;
+        }        
+
+        // Check if this is a different target - reset stacks
         UUID previousTarget = lastTarget.get(playerUUID);
         if (previousTarget != null && !previousTarget.equals(targetUUID)) {
             playerStacks.get(playerUUID).clear();
@@ -62,8 +71,8 @@ public class PressTheAttack extends BaseRune {
         Map<UUID, Integer> stacks = playerStacks.get(playerUUID);
         int currentStacks = stacks.getOrDefault(targetUUID, 0);
 
-        // Check if we're about to trigger the effect (5th stack)
-        if (currentStacks == 4) {
+        // Check if we're about to trigger the effect (3rd stack)
+        if (currentStacks == 2) {
             // Consume all stacks and deal bonus damage
             dealBonusDamage(attacker, target, event);
             stacks.remove(targetUUID);
@@ -87,16 +96,23 @@ public class PressTheAttack extends BaseRune {
 
         if (timers == null || stacks == null) return;
 
-        // Decrease all timers and remove expired stacks
-        timers.entrySet().removeIf(entry -> {
+        // Safely iterate and collect expired entries
+        List<UUID> expiredTargets = new ArrayList<>();
+        
+        for (Map.Entry<UUID, Integer> entry : timers.entrySet()) {
             int newTime = entry.getValue() - 1;
             if (newTime <= 0) {
-                stacks.remove(entry.getKey());
-                return true;
+                expiredTargets.add(entry.getKey());
+            } else {
+                entry.setValue(newTime);
             }
-            entry.setValue(newTime);
-            return false;
-        });
+        }
+
+        // Remove expired entries after iteration
+        for (UUID targetUUID : expiredTargets) {
+            timers.remove(targetUUID);
+            stacks.remove(targetUUID);
+        }
 
         // Clear last target if no stacks remain
         if (stacks.isEmpty()) {
@@ -105,6 +121,11 @@ public class PressTheAttack extends BaseRune {
     }
 
     private void dealBonusDamage(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+        // Check cooldown
+        if (isOnCooldown(attacker)) {
+            return;
+        }
+
         // Calculate bonus damage based on XP level
         int playerLevel = attacker.getLevel();
         double bonusDamage = getBonusDamageByLevel(playerLevel);
@@ -115,6 +136,9 @@ public class PressTheAttack extends BaseRune {
 
         // Visual/audio feedback
         displayActivationFeedback(attacker, target);
+
+        // Reset cooldown
+        resetCooldown(attacker);
     }
 
     private double getBonusDamageByLevel(int totalLevel) {
@@ -132,11 +156,15 @@ public class PressTheAttack extends BaseRune {
     }
 
     private void displayStackFeedback(Player player, int stacks) {
-        String stackBar = "█".repeat(stacks) + "░".repeat(MAX_STACKS - stacks);
-        player.sendActionBar("§e§lPress the Attack §r[" + stackBar + "] §7" + stacks + "/" + MAX_STACKS);
+        String stackBar = "§e✇".repeat(stacks) + "§7〇".repeat(MAX_STACKS - stacks);
+        player.sendActionBar(Component.text()
+                .append(Component.text(stackBar))
+                .build());
     }
 
     private void displayActivationFeedback(Player player, Entity target) {
-        player.sendActionBar("§c§lPress the Attack ACTIVATED!");
+        player.sendActionBar(Component.text("✇")
+                .color(net.kyori.adventure.text.format.NamedTextColor.RED)
+                .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD));
     }
 }
