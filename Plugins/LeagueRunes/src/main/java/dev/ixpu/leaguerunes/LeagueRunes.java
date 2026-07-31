@@ -1,16 +1,16 @@
 package dev.ixpu.leaguerunes;
 
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import dev.ixpu.leaguerunes.listener.PlayerEventListener;
 import dev.ixpu.leaguerunes.listener.RuneListener;
-import dev.ixpu.leaguerunes.rune.BaseRune;
+import dev.ixpu.leaguerunes.listener.PlayerEventListener;
 import dev.ixpu.leaguerunes.rune.RuneRegistry;
+import dev.ixpu.leaguerunes.rune.BaseRune;
+import dev.ixpu.leaguerunes.rune.keystones.precision.PressTheAttack;
+import dev.ixpu.leaguerunes.rune.keystones.precision.LethalTempo;
 import dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror;
 import dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork;
-import dev.ixpu.leaguerunes.rune.keystones.precision.LethalTempo;
-import dev.ixpu.leaguerunes.rune.keystones.precision.PressTheAttack;
+import dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class LeagueRunes extends JavaPlugin {
     private static LeagueRunes instance;
@@ -90,6 +90,11 @@ public class LeagueRunes extends JavaPlugin {
         FleetFootwork fleetFootwork = new FleetFootwork();
         loadRuneCooldown(fleetFootwork, "keystones.precision.fleet-footwork");
         runeRegistry.registerRune(fleetFootwork);
+
+        // Register Keystones - Domination
+        Electrocute electrocute = new Electrocute();
+        loadRuneCooldown(electrocute, "keystones.domination.electrocute");
+        runeRegistry.registerRune(electrocute);
 
         // TODO: Register other keystones
         // TODO: Register slot runes
