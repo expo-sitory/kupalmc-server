@@ -77,12 +77,13 @@ public class PressTheAttack extends BaseRune {
             dealBonusDamage(attacker, target, event);
             stacks.remove(targetUUID);
             stackTimers.get(playerUUID).remove(targetUUID);
+            displayStackFeedback(attacker, currentStacks);
+            attacker.playSound(attacker.getLocation(), org.bukkit.Sound.BLOCK_GLASS_HIT, 1.0f, 1.2f);
         } else if (currentStacks < MAX_STACKS) {
             // Add a new stack
             currentStacks++;
             stacks.put(targetUUID, currentStacks);
             stackTimers.get(playerUUID).put(targetUUID, STACK_DURATION_TICKS);
-
             // Send action bar feedback
             displayStackFeedback(attacker, currentStacks);
         }
@@ -134,9 +135,6 @@ public class PressTheAttack extends BaseRune {
         // Add to existing damage
         event.setDamage(event.getDamage() + bonusDamageHearts);
 
-        // Visual/audio feedback
-        displayActivationFeedback(attacker, target);
-
         // Reset cooldown
         resetCooldown(attacker);
     }
@@ -156,15 +154,9 @@ public class PressTheAttack extends BaseRune {
     }
 
     private void displayStackFeedback(Player player, int stacks) {
-        String stackBar = "§e✇".repeat(stacks) + "§7〇".repeat(MAX_STACKS - stacks);
-        player.sendActionBar(Component.text()
-                .append(Component.text(stackBar))
-                .build());
-    }
 
-    private void displayActivationFeedback(Player player, Entity target) {
-        player.sendActionBar(Component.text("✇")
-                .color(net.kyori.adventure.text.format.NamedTextColor.RED)
-                .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD));
+        player.sendActionBar(Component.text()
+                .append(Component.text("§e✇ " + stacks + "/3 ", net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .build());
     }
 }
