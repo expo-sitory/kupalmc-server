@@ -23,7 +23,7 @@ public class Conqueror extends BaseRune {
     private final Map<UUID, Integer> stackExpiryTicks = new HashMap<>();
 
     public Conqueror(org.bukkit.configuration.ConfigurationSection config) {
-        super("lethal-tempo", RunePath.PRECISION, RuneSlot.KEYSTONE);
+        super("conqueror", RunePath.PRECISION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.lethal-tempo");
         if (section != null) {
             this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
