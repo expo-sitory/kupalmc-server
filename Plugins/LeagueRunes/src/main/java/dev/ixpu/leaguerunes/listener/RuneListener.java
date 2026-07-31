@@ -1,18 +1,18 @@
 package dev.ixpu.leaguerunes.listener;
 
+import dev.ixpu.leaguerunes.LeagueRunes;
+import dev.ixpu.leaguerunes.RuneManager;
+import dev.ixpu.leaguerunes.player.PlayerRuneData;
+import dev.ixpu.leaguerunes.rune.BaseRune;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-
-import dev.ixpu.leaguerunes.LeagueRunes;
-import dev.ixpu.leaguerunes.RuneManager;
-import dev.ixpu.leaguerunes.player.PlayerRuneData;
-import dev.ixpu.leaguerunes.rune.BaseRune;
 
 public class RuneListener implements Listener {
     private final LeagueRunes plugin;
@@ -123,7 +123,7 @@ public class RuneListener implements Listener {
         Entity hitEntity = event.getHitEntity();
 
         if (hitEntity == null) {
-            return; 
+            return;  // Hit a block, not an entity
         }
 
         if (!runeManager.hasActiveRunes(shooter)) {
@@ -137,21 +137,63 @@ public class RuneListener implements Listener {
 
         // Call onProjectileHit 
         BaseRune keystoneRune = runeData.getKeystoneRune();
-        if (keystoneRune != null && keystoneRune.getId().equals("conqueror")) {
-            try {
-                dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror conqueror = 
-                    (dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror) keystoneRune;
-                conqueror.onProjectileHit(shooter, hitEntity);
-            } catch (ClassCastException e) {
-                // debug
-            }
-        }
-
         if (keystoneRune != null && keystoneRune.getId().equals("fleet-footwork")) {
             try {
                 dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork fleetFootwork = 
                     (dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork) keystoneRune;
                 fleetFootwork.onProjectileHit(shooter, hitEntity);
+            } catch (ClassCastException e) {
+                // skip
+            }
+        }
+
+        if (keystoneRune != null && keystoneRune.getId().equals("electrocute")) {
+            try {
+                dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute electrocute = 
+                    (dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute) keystoneRune;
+                electrocute.onProjectileHit(shooter, hitEntity);
+            } catch (ClassCastException e) {
+                // skip
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerCausesDamage(EntityDamageByEntityEvent event) {
+        Player attacker = null;
+
+        // Check if direct player damage (melee)
+        if (event.getDamager() instanceof Player) {
+            attacker = (Player) event.getDamager();
+        }
+        // Check if projectile damage (bow/crossbow)
+        else if (event.getDamager() instanceof Projectile) {
+            Projectile projectile = (Projectile) event.getDamager();
+            if (projectile.getShooter() instanceof Player) {
+                attacker = (Player) projectile.getShooter();
+            }
+        }
+
+        if (attacker == null) {
+            return;
+        }
+
+        if (!runeManager.hasActiveRunes(attacker)) {
+            return;
+        }
+
+        PlayerRuneData runeData = runeManager.getPlayerRuneData(attacker);
+        if (runeData == null) {
+            return;
+        }
+
+        // Call onPlayerDamage
+        BaseRune keystoneRune = runeData.getKeystoneRune();
+        if (keystoneRune != null && keystoneRune.getId().equals("conqueror")) {
+            try {
+                dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror conqueror = 
+                    (dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror) keystoneRune;
+                conqueror.onPlayerDamage(attacker, event);
             } catch (ClassCastException e) {
                 // skip
             }
