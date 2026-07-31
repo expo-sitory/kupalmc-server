@@ -1,17 +1,16 @@
 package dev.ixpu.leaguerunes.rune.keystones.precision;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-
 import dev.ixpu.leaguerunes.rune.BaseRune;
 import dev.ixpu.leaguerunes.rune.RunePath;
 import dev.ixpu.leaguerunes.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class Conqueror extends BaseRune {
     private static final int MAX_STACKS = 5;
@@ -45,6 +44,12 @@ public class Conqueror extends BaseRune {
 
     @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+        // Unused 
+    }
+
+
+    // Handle player damage events (melee and projectiles)
+    public void onPlayerDamage(Player attacker, EntityDamageByEntityEvent event) {
         UUID playerUUID = attacker.getUniqueId();
 
         // Add stack
@@ -56,26 +61,6 @@ public class Conqueror extends BaseRune {
         event.setDamage(event.getDamage() + bonusDamage);
 
         displayStackInfo(attacker, stacks);
-    }
-
-
-    // Handle projectile hits for bow/crossbow
-    public void onProjectileHit(Player shooter, Entity target) {
-        UUID playerUUID = shooter.getUniqueId();
-
-        // Add stack
-        addStack(shooter);
-
-        // Apply damage bonus via entity damage 
-        int stacks = playerStacks.getOrDefault(playerUUID, 0);
-        double bonusDamage = stacks * DAMAGE_PER_STACK;
-
-        // Try to apply knockback or visual effect to indicate damage
-        if (target instanceof Player) {
-            ((Player) target).damage(bonusDamage);
-        }
-
-        displayStackInfo(shooter, stacks);
     }
 
     @Override
