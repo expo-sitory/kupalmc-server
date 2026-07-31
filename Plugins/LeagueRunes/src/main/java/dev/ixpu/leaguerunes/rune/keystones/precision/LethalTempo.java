@@ -20,7 +20,7 @@ import net.kyori.adventure.text.Component;
 public class LethalTempo extends BaseRune {
     private static final int MAX_STACKS = 6;
     private static final int STACK_DURATION_TICKS = 120;
-    private static final int ACTIVE_DURATION_TICKS = 120;  
+    private static final int ACTIVE_DURATION_TICKS = 60;  
     private static final int COOLDOWN_DURATION_TICKS = 600;
     private static final double ATTACK_SPEED_BONUS = 0.8;  
 
@@ -146,9 +146,6 @@ public class LethalTempo extends BaseRune {
         playerState.put(playerUUID, RuneState.ACTIVE);
         activeTimers.put(playerUUID, ACTIVE_DURATION_TICKS);
         applyAttackSpeedBonus(player);
-        player.sendActionBar(Component.text("Lethal Tempo ACTIVE! +20.0% Attack Speed")
-                .color(net.kyori.adventure.text.format.NamedTextColor.GREEN)
-                .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD));
     }
 
     private void refreshActiveTimer(Player player) {
@@ -199,11 +196,9 @@ public class LethalTempo extends BaseRune {
             // Display active time indicator
             if (activeTime > 0) {
                 double remainingSeconds = activeTime / 10.0;
-                String timeBar = "§6⚚".repeat((int)(activeTime / 20)) + "§7⚚".repeat(6 - (int)(activeTime / 20));
-                
+            
                 player.sendActionBar(Component.text()
-                        .append(Component.text(timeBar + " ", net.kyori.adventure.text.format.NamedTextColor.GRAY))
-                        .append(Component.text(String.format("%.1fs", remainingSeconds), net.kyori.adventure.text.format.NamedTextColor.GOLD))
+                        .append(Component.text(String.format("§6⚚ " + "%.1fs " + "§f(+20%% ats)", remainingSeconds), net.kyori.adventure.text.format.NamedTextColor.WHITE))
                         .build());
             }
 
@@ -228,11 +223,11 @@ public class LethalTempo extends BaseRune {
         }
     }
 
-    private void displayStackInfo(Player player, int stacks) {
-        String bar = "§6⚚".repeat(stacks) + "§7⚚".repeat(6 - stacks);
-        
+    private void displayStackInfo(Player player, int stacks) {        
+        double percent = (stacks / 6.0) * 20.0;
         player.sendActionBar(Component.text()
-                .append(Component.text(bar))
+                .append(Component.text("§6⚚ " + stacks + "/6 ", net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text(String.format("(+%.1f%% ats)", percent), net.kyori.adventure.text.format.NamedTextColor.WHITE))
                 .build());
     }
 }
