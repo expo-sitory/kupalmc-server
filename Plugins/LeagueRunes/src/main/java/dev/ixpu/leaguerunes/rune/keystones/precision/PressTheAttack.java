@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -17,18 +18,26 @@ import net.kyori.adventure.text.Component;
 
 
 public class PressTheAttack extends BaseRune {
-    private static final int MAX_STACKS = 3;
-    private static final int STACK_DURATION_TICKS = 40;
-    private static final int DAMAGE_PER_HEART = 2; 
+    private int MAX_STACKS = 3;
+    private int STACK_DURATION_TICKS = 60;
+    private int DAMAGE_PER_HEART = 2;
 
     private final Map<UUID, Map<UUID, Integer>> playerStacks = new HashMap<>();
     private final Map<UUID, UUID> lastTarget = new HashMap<>();
     private final Map<UUID, Map<UUID, Integer>> stackTimers = new HashMap<>();
 
+    public PressTheAttack(org.bukkit.configuration.ConfigurationSection config) {
+        super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE);
+        ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.press-the-attack");
+        this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
+        this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
+        this.DAMAGE_PER_HEART = section.getInt("base-damage", this.DAMAGE_PER_HEART);
+    }
+
     public PressTheAttack() {
         super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE);
         this.hasStacking = false;
-        this.setCooldownSeconds(6.0);
+        this.setCooldownSeconds(15.0);
     }
 
     @Override
@@ -77,7 +86,7 @@ public class PressTheAttack extends BaseRune {
             dealBonusDamage(attacker, target, event);
             stacks.remove(targetUUID);
             stackTimers.get(playerUUID).remove(targetUUID);
-            displayStackFeedback(attacker, currentStacks);
+            displayActivationFeedback(attacker, target);
             attacker.playSound(attacker.getLocation(), org.bukkit.Sound.BLOCK_GLASS_HIT, 1.0f, 1.2f);
         } else if (currentStacks < MAX_STACKS) {
             // Add a new stack
@@ -141,9 +150,9 @@ public class PressTheAttack extends BaseRune {
 
     private double getBonusDamageByLevel(int totalLevel) {
         if (totalLevel >= 100) {
-            return 3.5;
+            return 3.8;
         } else if (totalLevel >= 71) {
-            return 3.0;
+            return 3.3;
         } else if (totalLevel >= 51) {
             return 2.5;
         } else if (totalLevel >= 30) {
@@ -154,9 +163,12 @@ public class PressTheAttack extends BaseRune {
     }
 
     private void displayStackFeedback(Player player, int stacks) {
-
         player.sendActionBar(Component.text()
                 .append(Component.text("§e✇ " + stacks + "/3 ", net.kyori.adventure.text.format.NamedTextColor.WHITE))
                 .build());
+    }
+    @SuppressWarnings("deprecation")
+    private void displayActivationFeedback(Player player, Entity target) {
+        player.sendActionBar("§e✇ 3/3");
     }
 }

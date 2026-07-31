@@ -1,25 +1,34 @@
 package dev.ixpu.leaguerunes.rune.keystones.domination;
 
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
-import net.kyori.adventure.text.Component;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class Electrocute extends BaseRune {
-    private static final int MAX_STACKS = 3;
-    private static final int STACK_DURATION_TICKS = 60; 
-    private static final int COOLDOWN_DURATION_TICKS = 400; 
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-    private final Map<UUID, Map<UUID, Integer>> playerEntityStacks = new HashMap<>();  // player -> entity -> stacks
-    private final Map<UUID, Map<UUID, Integer>> stackExpiryTicks = new HashMap<>();      // player -> entity -> expiry
+import dev.ixpu.leaguerunes.rune.BaseRune;
+import dev.ixpu.leaguerunes.rune.RunePath;
+import dev.ixpu.leaguerunes.rune.RuneSlot;
+import net.kyori.adventure.text.Component;
+
+public class Electrocute extends BaseRune {
+    private static final int COOLDOWN_DURATION_TICKS = 400; 
+    private int MAX_STACKS = 3;
+    private int STACK_DURATION_TICKS = 60; 
+
+    private final Map<UUID, Map<UUID, Integer>> playerEntityStacks = new HashMap<>(); 
+    private final Map<UUID, Map<UUID, Integer>> stackExpiryTicks = new HashMap<>();      
     private final Map<UUID, Integer> cooldownTimers = new HashMap<>();
+
+    public Electrocute(org.bukkit.configuration.ConfigurationSection config) {
+        super("electrocute", RunePath.DOMINATION, RuneSlot.KEYSTONE);
+        ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.electrocute");
+        this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
+        this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
+    }
 
     public Electrocute() {
         super(

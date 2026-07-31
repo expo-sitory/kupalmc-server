@@ -1,16 +1,19 @@
 package dev.ixpu.leaguerunes;
 
-import dev.ixpu.leaguerunes.listener.RuneListener;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import dev.ixpu.leaguerunes.listener.PlayerEventListener;
-import dev.ixpu.leaguerunes.rune.RuneRegistry;
+import dev.ixpu.leaguerunes.listener.RuneListener;
 import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.keystones.precision.PressTheAttack;
-import dev.ixpu.leaguerunes.rune.keystones.precision.LethalTempo;
+import dev.ixpu.leaguerunes.rune.RuneRegistry;
+import dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest;
+import dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute;
 import dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror;
 import dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork;
-import dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
+import dev.ixpu.leaguerunes.rune.keystones.precision.LethalTempo;
+import dev.ixpu.leaguerunes.rune.keystones.precision.PressTheAttack;
 
 public class LeagueRunes extends JavaPlugin {
     private static LeagueRunes instance;
@@ -74,13 +77,14 @@ public class LeagueRunes extends JavaPlugin {
     }
 
     private void registerRunes() {
-        // Register Keystones - Precision
-        PressTheAttack pressTheAttack = new PressTheAttack();
-        loadRuneCooldown(pressTheAttack, "keystones.precision.press-the-attack");
+        FileConfiguration config = getConfig();
+
+        PressTheAttack pressTheAttack = new PressTheAttack(config);
+        loadRuneCooldown(pressTheAttack, "runes.keystones.precision.press-the-attack.cooldown");
         runeRegistry.registerRune(pressTheAttack);
 
         LethalTempo lethalTempo = new LethalTempo();
-        loadRuneCooldown(lethalTempo, "keystones.precision.lethal-tempo");
+        loadRuneCooldown(lethalTempo, "runes.keystones.precision.lethal-tempo");
         runeRegistry.registerRune(lethalTempo);
 
         Conqueror conqueror = new Conqueror();
@@ -95,6 +99,11 @@ public class LeagueRunes extends JavaPlugin {
         Electrocute electrocute = new Electrocute();
         loadRuneCooldown(electrocute, "keystones.domination.electrocute");
         runeRegistry.registerRune(electrocute);
+
+        DarkHarvest darkHarvest = new DarkHarvest();
+        darkHarvest.setPlugin(this);
+        loadRuneCooldown(darkHarvest, "keystones.domination.dark-harvest");
+        runeRegistry.registerRune(darkHarvest);
 
         // TODO: Register other keystones
         // TODO: Register slot runes

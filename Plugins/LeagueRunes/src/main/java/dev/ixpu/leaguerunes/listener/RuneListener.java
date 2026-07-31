@@ -1,18 +1,21 @@
 package dev.ixpu.leaguerunes.listener;
 
-import dev.ixpu.leaguerunes.LeagueRunes;
-import dev.ixpu.leaguerunes.RuneManager;
-import dev.ixpu.leaguerunes.player.PlayerRuneData;
-import dev.ixpu.leaguerunes.rune.BaseRune;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+
+import dev.ixpu.leaguerunes.LeagueRunes;
+import dev.ixpu.leaguerunes.RuneManager;
+import dev.ixpu.leaguerunes.player.PlayerRuneData;
+import dev.ixpu.leaguerunes.rune.BaseRune;
 
 public class RuneListener implements Listener {
     private final LeagueRunes plugin;
@@ -26,8 +29,7 @@ public class RuneListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         // Handle player as attacker
-        if (event.getDamager() instanceof Player) {
-            Player attacker = (Player) event.getDamager();
+        if (event.getDamager() instanceof Player attacker) {
             Entity target = event.getEntity();
 
             if (!runeManager.hasActiveRunes(attacker)) {
@@ -135,7 +137,7 @@ public class RuneListener implements Listener {
             return;
         }
 
-        // Call onProjectileHit 
+        // Call onProjectileHit
         BaseRune keystoneRune = runeData.getKeystoneRune();
         if (keystoneRune != null && keystoneRune.getId().equals("fleet-footwork")) {
             try {
@@ -163,14 +165,13 @@ public class RuneListener implements Listener {
         Player attacker = null;
 
         // Check if direct player damage (melee)
-        if (event.getDamager() instanceof Player) {
-            attacker = (Player) event.getDamager();
+        if (event.getDamager() instanceof Player player) {
+            attacker = player;
         }
         // Check if projectile damage (bow/crossbow)
-        else if (event.getDamager() instanceof Projectile) {
-            Projectile projectile = (Projectile) event.getDamager();
-            if (projectile.getShooter() instanceof Player) {
-                attacker = (Player) projectile.getShooter();
+        else if (event.getDamager() instanceof Projectile projectile) {
+            if (projectile.getShooter() instanceof Player player) {
+                attacker = player;
             }
         }
 
@@ -187,13 +188,59 @@ public class RuneListener implements Listener {
             return;
         }
 
-        // Call onPlayerDamage
+        // Call onPlayerDamage 
         BaseRune keystoneRune = runeData.getKeystoneRune();
         if (keystoneRune != null && keystoneRune.getId().equals("conqueror")) {
             try {
                 dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror conqueror = 
                     (dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror) keystoneRune;
                 conqueror.onPlayerDamage(attacker, event);
+            } catch (ClassCastException e) {
+                // skip
+            }
+        }
+
+        if (keystoneRune != null && keystoneRune.getId().equals("dark-harvest")) {
+            try {
+                dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest darkHarvest = 
+                    (dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest) keystoneRune;
+                darkHarvest.onPlayerDamage(attacker, event);
+            } catch (ClassCastException e) {
+                // Not DarkHarvest, skip
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onEntityDeath(EntityDeathEvent event) {
+        LivingEntity deadEntity = event.getEntity();
+        
+        if (!(deadEntity instanceof Player)) {
+            return;
+        }
+
+        Player killer = deadEntity.getKiller();
+
+        if (killer == null) {
+            return;
+        }
+
+        if (!runeManager.hasActiveRunes(killer)) {
+            return;
+        }
+
+        PlayerRuneData runeData = runeManager.getPlayerRuneData(killer);
+        if (runeData == null) {
+            return;
+        }
+
+        // Call onEntityKill 
+        BaseRune keystoneRune = runeData.getKeystoneRune();
+        if (keystoneRune != null && keystoneRune.getId().equals("dark-harvest")) {
+            try {
+                dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest darkHarvest = 
+                    (dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest) keystoneRune;
+                darkHarvest.onEntityKill(killer, deadEntity);
             } catch (ClassCastException e) {
                 // skip
             }

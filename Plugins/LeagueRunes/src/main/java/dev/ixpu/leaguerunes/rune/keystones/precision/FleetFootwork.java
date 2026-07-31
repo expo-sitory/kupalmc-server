@@ -6,6 +6,7 @@ import dev.ixpu.leaguerunes.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -17,18 +18,29 @@ import java.util.Map;
 import java.util.UUID;
 
 public class FleetFootwork extends BaseRune {
-    private static final int MAX_STACKS = 100;
-    private static final double BLOCKS_PER_STACK = 10.0;
-    private static final int PROJECTILE_STACK_GAIN = 5;
-    private static final double HEAL_PERCENT = 0.40; 
-    private static final double MOVEMENT_SPEED_BONUS = 0.20;  
-    private static final int SPEED_BUFF_DURATION_TICKS = 100; 
+    private int MAX_STACKS = 100;
+    private double BLOCKS_PER_STACK = 10.0;
+    private int PROJECTILE_STACK_GAIN = 5;
+    private double HEAL_PERCENT = 0.60; 
+    private double MOVEMENT_SPEED_BONUS = 0.20;  
+    private int SPEED_BUFF_DURATION_TICKS = 100; 
 
     private final Map<UUID, Integer> playerStacks = new HashMap<>();
     private final Map<UUID, org.bukkit.Location> lastLocation = new HashMap<>();
     private final Map<UUID, Double> distanceAccumulator = new HashMap<>();
     private final Map<UUID, Integer> speedBuffTicks = new HashMap<>();
     private final Map<UUID, List<AttributeModifier>> activeModifiers = new HashMap<>();
+
+    public FleetFootwork(org.bukkit.configuration.ConfigurationSection config) {
+        super("fleet-footwork", RunePath.PRECISION, RuneSlot.KEYSTONE);
+        ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.fleet-footwork");
+        this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
+        this.BLOCKS_PER_STACK = section.getDouble("blocks-per-stack", this.BLOCKS_PER_STACK);
+        this.PROJECTILE_STACK_GAIN = section.getInt("projectile-stack-gain", this.PROJECTILE_STACK_GAIN);
+        this.HEAL_PERCENT = section.getDouble("heal-percent", this.HEAL_PERCENT);
+        this.MOVEMENT_SPEED_BONUS = section.getDouble("movement-speed-bonus", this.MOVEMENT_SPEED_BONUS);
+        this.SPEED_BUFF_DURATION_TICKS = section.getInt("speed-duration-ticks", this.SPEED_BUFF_DURATION_TICKS);
+    }
 
     public FleetFootwork() {
         super(

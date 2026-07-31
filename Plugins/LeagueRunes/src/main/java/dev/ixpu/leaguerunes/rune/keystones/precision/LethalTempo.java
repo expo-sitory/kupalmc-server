@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -18,15 +19,11 @@ import dev.ixpu.leaguerunes.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class LethalTempo extends BaseRune {
-    private static final int MAX_STACKS = 6;
-    private static final int STACK_DURATION_TICKS = 120;
-    private static final int ACTIVE_DURATION_TICKS = 60;  
     private static final int COOLDOWN_DURATION_TICKS = 600;
-    private static final double ATTACK_SPEED_BONUS = 0.8;  
-
-    private enum RuneState {
-        STACKING, ACTIVE, COOLDOWN
-    }
+    private int MAX_STACKS = 6;
+    private int STACK_DURATION_TICKS = 120;
+    private int ACTIVE_DURATION_TICKS = 100;  
+    private double ATTACK_SPEED_BONUS = 0.8;  
 
     private final Map<UUID, Map<UUID, Integer>> playerStacks = new HashMap<>();
     private final Map<UUID, UUID> lastTarget = new HashMap<>();
@@ -35,6 +32,21 @@ public class LethalTempo extends BaseRune {
     private final Map<UUID, Integer> cooldownTimers = new HashMap<>();
     private final Map<UUID, Integer> stackExpiryTicks = new HashMap<>();
     private final Map<UUID, List<AttributeModifier>> activeModifiers = new HashMap<>();
+
+    public LethalTempo(org.bukkit.configuration.ConfigurationSection config) {
+        super("lethal-tempo", RunePath.PRECISION, RuneSlot.KEYSTONE);
+        ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.lethal-tempo");
+        if (section != null) {
+            this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
+            this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
+            this.ACTIVE_DURATION_TICKS = section.getInt("active-duration", this.ACTIVE_DURATION_TICKS);
+            this.ATTACK_SPEED_BONUS = section.getDouble("attack-speed-bonus", this.ATTACK_SPEED_BONUS);
+        }
+    }
+
+    private enum RuneState {
+        STACKING, ACTIVE, COOLDOWN
+    }
 
     public LethalTempo() {
         super("lethal-tempo", RunePath.PRECISION, RuneSlot.KEYSTONE);

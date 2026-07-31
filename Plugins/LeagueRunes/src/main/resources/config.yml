@@ -1,0 +1,39 @@
+
+runes:
+  keystones:
+    precision:
+      press-the-attack:
+        max-stacks: 3
+        stack-duration: 60
+        base-damage: 2
+
+      lethal-tempo:
+        max-stacks: 6
+        stack-duration: 120 
+        active-duration: 100
+        attack-speed-bonus: 0.8
+      
+      conqueror:
+        max-stacks: 12
+        stack-duration: 100  
+        damage-per-stack: 0.5  
+      
+      fleet-footwork:
+        max-stacks: 100
+        blocks-per-stack: 5.0
+        projectile-stack-gain: 5
+        heal-percent: 0.60 
+        movement-speed-bonus: 0.20
+        speed-duration-ticks: 200
+    
+    domination:
+      electrocute:
+        max-stacks: 3
+        stack-duration: 60 
+      
+      dark-harvest:
+        max-souls: 9
+        health-threshold: 0.50  
+        base-bonus-damage: 0.5 
+        damage-per-soul: 0.1  
+        level-cost-per-soul: 5 

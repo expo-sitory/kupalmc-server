@@ -1,6 +1,6 @@
 name: LeagueRunes
 version: 1.0.0
-main: com.leaguerunes.LeagueRunes
+main: dev.ixpu.leaguerunes.LeagueRunes
 api-version: 1.21
 description: League of Legends Runes System
 authors:

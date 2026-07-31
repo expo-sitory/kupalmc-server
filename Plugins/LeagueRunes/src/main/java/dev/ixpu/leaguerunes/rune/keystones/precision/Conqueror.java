@@ -1,24 +1,36 @@
 package dev.ixpu.leaguerunes.rune.keystones.precision;
 
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
-import net.kyori.adventure.text.Component;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+
+import dev.ixpu.leaguerunes.rune.BaseRune;
+import dev.ixpu.leaguerunes.rune.RunePath;
+import dev.ixpu.leaguerunes.rune.RuneSlot;
+import net.kyori.adventure.text.Component;
+
 public class Conqueror extends BaseRune {
-    private static final int MAX_STACKS = 5;
-    private static final int STACK_DURATION_TICKS = 100; 
-    private static final double DAMAGE_PER_STACK = 0.5;
+    private int MAX_STACKS = 12;
+    private int STACK_DURATION_TICKS = 100; 
+    private double DAMAGE_PER_STACK = 0.2;
 
     private final Map<UUID, Integer> playerStacks = new HashMap<>();
     private final Map<UUID, Integer> stackExpiryTicks = new HashMap<>();
+
+    public Conqueror(org.bukkit.configuration.ConfigurationSection config) {
+        super("lethal-tempo", RunePath.PRECISION, RuneSlot.KEYSTONE);
+        ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.lethal-tempo");
+        if (section != null) {
+            this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
+            this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
+            this.DAMAGE_PER_STACK = section.getDouble("damage-per-stack", this.DAMAGE_PER_STACK);
+        }
+    }
 
     public Conqueror() {
         super(
@@ -96,7 +108,7 @@ public class Conqueror extends BaseRune {
         double totalDamage = stacks * DAMAGE_PER_STACK;
 
         player.sendActionBar(Component.text()
-                .append(Component.text("§6☭ " + stacks + "/5 ", net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text("§6☭ " + stacks + "/12 ", net.kyori.adventure.text.format.NamedTextColor.WHITE))
                 .append(Component.text(String.format("(+%.1f dmg)", totalDamage), net.kyori.adventure.text.format.NamedTextColor.WHITE))
                 .build());
     }
