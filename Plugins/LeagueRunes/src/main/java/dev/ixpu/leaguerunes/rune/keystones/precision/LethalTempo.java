@@ -19,10 +19,10 @@ import dev.ixpu.leaguerunes.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class LethalTempo extends BaseRune {
-    private static final int COOLDOWN_DURATION_TICKS = 600;
+    private int COOLDOWN_DURATION_TICKS = 600;
     private int MAX_STACKS = 6;
     private int STACK_DURATION_TICKS = 120;
-    private int ACTIVE_DURATION_TICKS = 100;  
+    private int ACTIVE_DURATION_TICKS = 60;  
     private double ATTACK_SPEED_BONUS = 0.8;  
 
     private final Map<UUID, Map<UUID, Integer>> playerStacks = new HashMap<>();
@@ -41,6 +41,7 @@ public class LethalTempo extends BaseRune {
             this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
             this.ACTIVE_DURATION_TICKS = section.getInt("active-duration", this.ACTIVE_DURATION_TICKS);
             this.ATTACK_SPEED_BONUS = section.getDouble("attack-speed-bonus", this.ATTACK_SPEED_BONUS);
+            this.COOLDOWN_DURATION_TICKS = section.getInt("cooldown", this.COOLDOWN_DURATION_TICKS);
         }
     }
 
@@ -158,6 +159,7 @@ public class LethalTempo extends BaseRune {
         playerState.put(playerUUID, RuneState.ACTIVE);
         activeTimers.put(playerUUID, ACTIVE_DURATION_TICKS);
         applyAttackSpeedBonus(player);
+        player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.2f);
     }
 
     private void refreshActiveTimer(Player player) {
@@ -220,6 +222,7 @@ public class LethalTempo extends BaseRune {
                 removeAllModifiers(player);
                 playerStacks.get(playerUUID).clear();
                 lastTarget.put(playerUUID, null);
+                player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.2f);
                 player.sendActionBar(Component.text("ʟᴇᴛʜᴀʟ ᴛᴇᴍᴘᴏ ᴄᴏᴏʟᴅᴏᴡɴ - 30s")
                         .color(net.kyori.adventure.text.format.NamedTextColor.DARK_GRAY));
             }
@@ -238,8 +241,8 @@ public class LethalTempo extends BaseRune {
     private void displayStackInfo(Player player, int stacks) {        
         double percent = (stacks / 6.0) * 20.0;
         player.sendActionBar(Component.text()
-                .append(Component.text("§6⚚ " + stacks + "/6 ", net.kyori.adventure.text.format.NamedTextColor.WHITE))
-                .append(Component.text(String.format("(+%.1f%% ats)", percent), net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text("§6⚚ " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text(String.format(" (+%.1f%% ats)", percent), net.kyori.adventure.text.format.NamedTextColor.WHITE))
                 .build());
     }
 }

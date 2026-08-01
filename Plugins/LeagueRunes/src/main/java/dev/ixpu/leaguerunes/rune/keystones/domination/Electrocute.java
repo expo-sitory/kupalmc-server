@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -15,27 +16,22 @@ import dev.ixpu.leaguerunes.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class Electrocute extends BaseRune {
-    private static final int COOLDOWN_DURATION_TICKS = 400; 
     private int MAX_STACKS = 3;
-    private int STACK_DURATION_TICKS = 60; 
+    private int STACK_DURATION_TICKS = 60;
+    private int COOLDOWN_DURATION_TICKS = 400;
 
-    private final Map<UUID, Map<UUID, Integer>> playerEntityStacks = new HashMap<>(); 
-    private final Map<UUID, Map<UUID, Integer>> stackExpiryTicks = new HashMap<>();      
+    private final Map<UUID, Map<UUID, Integer>> playerEntityStacks = new HashMap<>();
+    private final Map<UUID, Map<UUID, Integer>> stackExpiryTicks = new HashMap<>();
     private final Map<UUID, Integer> cooldownTimers = new HashMap<>();
 
     public Electrocute(org.bukkit.configuration.ConfigurationSection config) {
         super("electrocute", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.electrocute");
-        this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
-        this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
-    }
-
-    public Electrocute() {
-        super(
-                "electrocute",
-                RunePath.DOMINATION,
-                RuneSlot.KEYSTONE
-        );
+        if (section != null) {
+            this.MAX_STACKS = section.getInt("max-stacks", 3);
+            this.STACK_DURATION_TICKS = section.getInt("stack-duration", 60);
+            this.COOLDOWN_DURATION_TICKS = section.getInt("cooldown", 400);
+        }
     }
 
     @Override
@@ -97,6 +93,7 @@ public class Electrocute extends BaseRune {
         int stacks = playerEntityStacks.get(playerUUID).getOrDefault(targetUUID, 0);
         if (stacks >= MAX_STACKS) {
             triggerLightning(shooter, target);
+            shooter.playSound(shooter.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
             cooldownTimers.put(playerUUID, COOLDOWN_DURATION_TICKS);
             playerEntityStacks.get(playerUUID).remove(targetUUID);
             stackExpiryTicks.get(playerUUID).remove(targetUUID);
@@ -177,7 +174,7 @@ public class Electrocute extends BaseRune {
 
     private void displayStackInfo(Player player, int stacks) {
         player.sendActionBar(Component.text()
-                .append(Component.text("§c⚡ " + stacks + "/3", net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text("§c⚡ " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
                 .build());
     }
 }

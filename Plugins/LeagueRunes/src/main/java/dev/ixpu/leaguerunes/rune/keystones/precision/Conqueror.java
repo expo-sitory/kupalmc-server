@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -23,8 +24,8 @@ public class Conqueror extends BaseRune {
     private final Map<UUID, Integer> stackExpiryTicks = new HashMap<>();
 
     public Conqueror(org.bukkit.configuration.ConfigurationSection config) {
-        super("lethal-tempo", RunePath.PRECISION, RuneSlot.KEYSTONE);
-        ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.lethal-tempo");
+        super("conqueror", RunePath.PRECISION, RuneSlot.KEYSTONE);
+        ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.conqueror");
         if (section != null) {
             this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
             this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
@@ -98,9 +99,11 @@ public class Conqueror extends BaseRune {
             current++;
             playerStacks.put(playerUUID, current);
             stackExpiryTicks.put(playerUUID, STACK_DURATION_TICKS);
+            player.playSound(player.getLocation(), Sound.ITEM_WOLF_ARMOR_CRACK, 1.0f, 1.2f);
         } else {
             // Refresh timer on max stacks
             stackExpiryTicks.put(playerUUID, STACK_DURATION_TICKS);
+            player.playSound(player.getLocation(), Sound.ITEM_WOLF_ARMOR_BREAK, 1.0f, 1.2f);
         }
     }
 
@@ -108,8 +111,8 @@ public class Conqueror extends BaseRune {
         double totalDamage = stacks * DAMAGE_PER_STACK;
 
         player.sendActionBar(Component.text()
-                .append(Component.text("§6☭ " + stacks + "/12 ", net.kyori.adventure.text.format.NamedTextColor.WHITE))
-                .append(Component.text(String.format("(+%.1f dmg)", totalDamage), net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text("§6☭ " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text(String.format(" (+%.1f dmg)", totalDamage), net.kyori.adventure.text.format.NamedTextColor.WHITE))
                 .build());
     }
 }

@@ -10,6 +10,7 @@ import dev.ixpu.leaguerunes.rune.BaseRune;
 import dev.ixpu.leaguerunes.rune.RuneRegistry;
 import dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest;
 import dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute;
+import dev.ixpu.leaguerunes.rune.keystones.domination.HailOfBlades;
 import dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror;
 import dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork;
 import dev.ixpu.leaguerunes.rune.keystones.precision.LethalTempo;
@@ -28,18 +29,14 @@ public class LeagueRunes extends JavaPlugin {
 
         getLogger().info("LeagueRunes is starting...");
 
-        // Load configuration
         saveDefaultConfig();
         reloadConfig();
 
-        // Register all runes
         registerRunes();
 
-        // Register listeners
         Bukkit.getPluginManager().registerEvents(new RuneListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this), this);
 
-        // Start the main rune tick task
         startRuneTicker();
 
         getLogger().info("LeagueRunes has been enabled!");
@@ -61,7 +58,7 @@ public class LeagueRunes extends JavaPlugin {
             if (runeManager != null) {
                 runeManager.tickAllPlayerRunes();
             }
-        }, 0L, 1L); // Runs every tick
+        }, 0L, 1L);
     }
 
     public static LeagueRunes getInstance() {
@@ -83,36 +80,34 @@ public class LeagueRunes extends JavaPlugin {
         loadRuneCooldown(pressTheAttack, "runes.keystones.precision.press-the-attack.cooldown");
         runeRegistry.registerRune(pressTheAttack);
 
-        LethalTempo lethalTempo = new LethalTempo();
-        loadRuneCooldown(lethalTempo, "runes.keystones.precision.lethal-tempo");
+        LethalTempo lethalTempo = new LethalTempo(config);
+        loadRuneCooldown(lethalTempo, "runes.keystones.precision.lethal-tempo.cooldown");
         runeRegistry.registerRune(lethalTempo);
 
-        Conqueror conqueror = new Conqueror();
-        loadRuneCooldown(conqueror, "keystones.precision.conqueror");
+        Conqueror conqueror = new Conqueror(config);
+        loadRuneCooldown(conqueror, "runes.keystones.precision.conqueror.cooldown");
         runeRegistry.registerRune(conqueror);
 
-        FleetFootwork fleetFootwork = new FleetFootwork();
-        loadRuneCooldown(fleetFootwork, "keystones.precision.fleet-footwork");
+        FleetFootwork fleetFootwork = new FleetFootwork(config);
+        loadRuneCooldown(fleetFootwork, "runes.keystones.precision.fleet-footwork.cooldown");
         runeRegistry.registerRune(fleetFootwork);
 
-        // Register Keystones - Domination
-        Electrocute electrocute = new Electrocute();
-        loadRuneCooldown(electrocute, "keystones.domination.electrocute");
+        Electrocute electrocute = new Electrocute(config);
+        loadRuneCooldown(electrocute, "runes.keystones.domination.electrocute.cooldown");
         runeRegistry.registerRune(electrocute);
 
-        DarkHarvest darkHarvest = new DarkHarvest();
+        DarkHarvest darkHarvest = new DarkHarvest(config);
         darkHarvest.setPlugin(this);
-        loadRuneCooldown(darkHarvest, "keystones.domination.dark-harvest");
+        loadRuneCooldown(darkHarvest, "runes.keystones.domination.dark-harvest.cooldown");
         runeRegistry.registerRune(darkHarvest);
 
-        // TODO: Register other keystones
-        // TODO: Register slot runes
+        HailOfBlades hailOfBlades = new HailOfBlades(config);
+        loadRuneCooldown(hailOfBlades, "runes.keystones.domination.hail-of-blades.cooldown");
+        runeRegistry.registerRune(hailOfBlades);
 
         getLogger().info(() -> "Registered " + runeRegistry.getAllRunes().size() + " runes");
     }
 
-
-    // Load cooldown from config for a rune
     private void loadRuneCooldown(BaseRune rune, String configPath) {
         if (getConfig().contains(configPath)) {
             double cooldown = getConfig().getDouble(configPath);

@@ -4,6 +4,7 @@ import dev.ixpu.leaguerunes.rune.BaseRune;
 import dev.ixpu.leaguerunes.rune.RunePath;
 import dev.ixpu.leaguerunes.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
+
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
@@ -119,7 +120,7 @@ public class FleetFootwork extends BaseRune {
             double missingHealth = maxHealth - currentHealth;
             double healAmount = missingHealth * HEAL_PERCENT;
 
-            attacker.setHealth(Math.min(maxHealth, currentHealth + healAmount));
+            attacker.setHealth(Math.min(maxHealth, currentHealth + healAmount));            
 
             // Consume stacks and apply speed buff
             playerStacks.put(playerUUID, 0);
@@ -155,6 +156,8 @@ public class FleetFootwork extends BaseRune {
             playerStacks.put(playerUUID, 0);
             applySpeedBuff(shooter);
             distanceAccumulator.put(playerUUID, 0.0);
+        } else if (speedBuffTicks.getOrDefault(playerUUID, 0) > 0) {
+            refreshSpeedBuff(shooter);
         }
     }
 
@@ -185,6 +188,12 @@ public class FleetFootwork extends BaseRune {
         }
 
         speedBuffTicks.put(playerUUID, SPEED_BUFF_DURATION_TICKS);
+        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_BREEZE_IDLE_AIR, 1.0f, 1.2f);
+    }
+
+    private void refreshSpeedBuff(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        speedBuffTicks.put(playerUUID, SPEED_BUFF_DURATION_TICKS);
     }
 
     private void removeAllModifiers(Player player) {
@@ -193,6 +202,7 @@ public class FleetFootwork extends BaseRune {
         for (AttributeModifier mod : mods) {
             try {
                 player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(mod);
+                player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_BREEZE_LAND, 1.0f, 1.2f );
             } catch (Exception e) {
                 // Modifier already removed
             }
@@ -214,7 +224,7 @@ public class FleetFootwork extends BaseRune {
         } else {
 
             player.sendActionBar(Component.text()
-                    .append(Component.text("§e👣 " + stacks + "/100", net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                    .append(Component.text("§e👣 " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
                     .build());
         }
     }

@@ -188,7 +188,7 @@ public class RuneListener implements Listener {
             return;
         }
 
-        // Call onPlayerDamage 
+        // Call onPlayerDamage for Conqueror only
         BaseRune keystoneRune = runeData.getKeystoneRune();
         if (keystoneRune != null && keystoneRune.getId().equals("conqueror")) {
             try {
@@ -197,16 +197,6 @@ public class RuneListener implements Listener {
                 conqueror.onPlayerDamage(attacker, event);
             } catch (ClassCastException e) {
                 // skip
-            }
-        }
-
-        if (keystoneRune != null && keystoneRune.getId().equals("dark-harvest")) {
-            try {
-                dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest darkHarvest = 
-                    (dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest) keystoneRune;
-                darkHarvest.onPlayerDamage(attacker, event);
-            } catch (ClassCastException e) {
-                // Not DarkHarvest, skip
             }
         }
     }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -20,7 +21,7 @@ import net.kyori.adventure.text.Component;
 public class PressTheAttack extends BaseRune {
     private int MAX_STACKS = 3;
     private int STACK_DURATION_TICKS = 60;
-    private int DAMAGE_PER_HEART = 2;
+    private double DAMAGE_PER_HEART = 1.5;
 
     private final Map<UUID, Map<UUID, Integer>> playerStacks = new HashMap<>();
     private final Map<UUID, UUID> lastTarget = new HashMap<>();
@@ -31,7 +32,7 @@ public class PressTheAttack extends BaseRune {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.press-the-attack");
         this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
         this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
-        this.DAMAGE_PER_HEART = section.getInt("base-damage", this.DAMAGE_PER_HEART);
+        this.DAMAGE_PER_HEART = section.getDouble("base-damage", this.DAMAGE_PER_HEART);
     }
 
     public PressTheAttack() {
@@ -87,7 +88,7 @@ public class PressTheAttack extends BaseRune {
             stacks.remove(targetUUID);
             stackTimers.get(playerUUID).remove(targetUUID);
             displayActivationFeedback(attacker, target);
-            attacker.playSound(attacker.getLocation(), org.bukkit.Sound.BLOCK_GLASS_HIT, 1.0f, 1.2f);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound-3 " + attacker.getName());
         } else if (currentStacks < MAX_STACKS) {
             // Add a new stack
             currentStacks++;
@@ -95,6 +96,11 @@ public class PressTheAttack extends BaseRune {
             stackTimers.get(playerUUID).put(targetUUID, STACK_DURATION_TICKS);
             // Send action bar feedback
             displayStackFeedback(attacker, currentStacks);
+            if (currentStacks == 1) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound-1 " + attacker.getName());
+            } else if (currentStacks == 2) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound-2 " + attacker.getName());
+            }
         }
     }
 
@@ -150,21 +156,21 @@ public class PressTheAttack extends BaseRune {
 
     private double getBonusDamageByLevel(int totalLevel) {
         if (totalLevel >= 100) {
-            return 3.8;
+            return 2.6;
         } else if (totalLevel >= 71) {
-            return 3.3;
+            return 2.3;
         } else if (totalLevel >= 51) {
-            return 2.5;
+            return 1.8;
         } else if (totalLevel >= 30) {
-            return 2.0;
+            return 1.3;
         } else {
-            return 1.5;
+            return 0.5;
         }
     }
 
     private void displayStackFeedback(Player player, int stacks) {
         player.sendActionBar(Component.text()
-                .append(Component.text("§e✇ " + stacks + "/3 ", net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text("§e✇ " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
                 .build());
     }
     @SuppressWarnings("deprecation")
