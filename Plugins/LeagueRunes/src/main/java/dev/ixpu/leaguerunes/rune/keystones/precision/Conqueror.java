@@ -25,7 +25,11 @@ public class Conqueror extends BaseRune {
 
     public Conqueror(org.bukkit.configuration.ConfigurationSection config) {
         super("conqueror", RunePath.PRECISION, RuneSlot.KEYSTONE);
+<<<<<<< HEAD
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.conqueror");
+=======
+        ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.lethal-tempo");
+>>>>>>> 87f6dcf62ac7990354dcef85cb2c12776c9fa559
         if (section != null) {
             this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
             this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
