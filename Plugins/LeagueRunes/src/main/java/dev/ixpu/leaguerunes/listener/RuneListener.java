@@ -158,6 +158,17 @@ public class RuneListener implements Listener {
                 // skip
             }
         }
+
+        if (keystoneRune != null && keystoneRune.getId().equals("dark-harvest")) {
+            try {
+                dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest darkHarvest = 
+                    (dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest) keystoneRune;
+                darkHarvest.onEntityKill(shooter, hitEntity);
+            } catch (ClassCastException e) {
+                // skip
+            }
+        }
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -217,23 +228,6 @@ public class RuneListener implements Listener {
 
         if (!runeManager.hasActiveRunes(killer)) {
             return;
-        }
-
-        PlayerRuneData runeData = runeManager.getPlayerRuneData(killer);
-        if (runeData == null) {
-            return;
-        }
-
-        // Call onEntityKill 
-        BaseRune keystoneRune = runeData.getKeystoneRune();
-        if (keystoneRune != null && keystoneRune.getId().equals("dark-harvest")) {
-            try {
-                dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest darkHarvest = 
-                    (dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest) keystoneRune;
-                darkHarvest.onEntityKill(killer, deadEntity);
-            } catch (ClassCastException e) {
-                // skip
-            }
         }
     }
 }
