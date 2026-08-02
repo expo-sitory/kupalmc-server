@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.bukkit.Sound;
+import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
@@ -25,11 +27,7 @@ public class Conqueror extends BaseRune {
 
     public Conqueror(org.bukkit.configuration.ConfigurationSection config) {
         super("conqueror", RunePath.PRECISION, RuneSlot.KEYSTONE);
-<<<<<<< HEAD
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.conqueror");
-=======
-        ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.lethal-tempo");
->>>>>>> 87f6dcf62ac7990354dcef85cb2c12776c9fa559
         if (section != null) {
             this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
             this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
@@ -61,18 +59,21 @@ public class Conqueror extends BaseRune {
 
     @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        // Unused 
-    }
-
-
-    // Handle player damage events (melee and projectiles)
-    public void onPlayerDamage(Player attacker, EntityDamageByEntityEvent event) {
         UUID playerUUID = attacker.getUniqueId();
 
-        // Add stack
+        if (!(target instanceof LivingEntity)) {
+            return;
+        }
+        
+        LivingEntity livingTarget = (LivingEntity) target;
+        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        
+        if (maxHealth < 20) {
+            return;
+        }
+
         addStack(attacker);
 
-        // Apply damage bonus based on current stacks
         int stacks = playerStacks.getOrDefault(playerUUID, 0);
         double bonusDamage = stacks * DAMAGE_PER_STACK;
         event.setDamage(event.getDamage() + bonusDamage);
@@ -91,8 +92,12 @@ public class Conqueror extends BaseRune {
 
             if (expiry == 0) {
                 playerStacks.put(playerUUID, 0);
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "conqueror-expired-sound " + player.getName());
             }
         }
+
+        int stacks = playerStacks.getOrDefault(playerUUID, 0);
+        displayStackInfo(player, stacks);
     }
 
     private void addStack(Player player) {
@@ -103,20 +108,24 @@ public class Conqueror extends BaseRune {
             current++;
             playerStacks.put(playerUUID, current);
             stackExpiryTicks.put(playerUUID, STACK_DURATION_TICKS);
-            player.playSound(player.getLocation(), Sound.ITEM_WOLF_ARMOR_CRACK, 1.0f, 1.2f);
+            if (current == 1) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "conqueror-stack-sound " + player.getName());
+            }
         } else {
-            // Refresh timer on max stacks
             stackExpiryTicks.put(playerUUID, STACK_DURATION_TICKS);
-            player.playSound(player.getLocation(), Sound.ITEM_WOLF_ARMOR_BREAK, 1.0f, 1.2f);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "conqueror-max-stack-sound " + player.getName());
+            player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_CHIME, 1.0f, 0.5f);
         }
     }
 
     private void displayStackInfo(Player player, int stacks) {
-        double totalDamage = stacks * DAMAGE_PER_STACK;
-
-        player.sendActionBar(Component.text()
-                .append(Component.text("§6☭ " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
-                .append(Component.text(String.format(" (+%.1f dmg)", totalDamage), net.kyori.adventure.text.format.NamedTextColor.WHITE))
-                .build());
+        if (stacks == 0) {
+            player.sendActionBar(Component.text("§6🪓"));
+            return;
+        } else {
+            player.sendActionBar(Component.text()
+                    .append(Component.text("§e🪓 " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                    .build());
+        }
     }
 }

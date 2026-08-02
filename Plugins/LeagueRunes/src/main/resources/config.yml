@@ -3,13 +3,12 @@ runes:
   keystones:
     precision:
       press-the-attack:
-        cooldown: 15
-        max-stacks: 3
+        cooldown: 20
         stack-duration: 60
         base-damage: 2
 
       lethal-tempo:
-        cooldown: 600
+        cooldown: 30
         max-stacks: 6
         stack-duration: 120 
         active-duration: 60
@@ -18,7 +17,7 @@ runes:
       conqueror:
         max-stacks: 12
         stack-duration: 100  
-        damage-per-stack: 0.2 
+        damage-per-stack: 0.1
       
       fleet-footwork:
         max-stacks: 100
@@ -30,12 +29,12 @@ runes:
     
     domination:
       electrocute:
-        cooldown: 400
+        cooldown: 20
         max-stacks: 3
         stack-duration: 60 
       
       dark-harvest:
-        cooldown: 1200
+        cooldown: 60
         max-souls-stack: 12
         health-threshold: 0.50  
         base-bonus-damage: 0.8
@@ -43,7 +42,7 @@ runes:
         level-cost-per-soul: 5
 
       hail-of-blades:
-        cooldown: 300
+        cooldown: 60
         stack-duration: 60     
         attack-speed-bonus: 0.10
         true-damage-multiplier: 0.20
@@ -51,3 +50,12 @@ runes:
         effect-duration: 60
         inactivity-timeout: 60
         initial-stacks: 2
+
+    resolve:
+      grasp-of-the-undying:
+        cooldown: 60
+        attack-window: 100 
+        damage-percent: 0.05 
+        heal-percent: 0.15 
+        bonus-hearts: 1
+        max-bonus-hearts: 10

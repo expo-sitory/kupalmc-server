@@ -24,18 +24,17 @@ public class HailOfBlades extends BaseRune {
     private double ATTACK_SPEED_BONUS = 0.10; 
     private double TRUE_DAMAGE_MULTIPLIER = 0.20;
     private int WINDUP_TICKS = 200; 
-    private int STACK_DURATION_TICKS = 60; 
+    private int STACK_DURATION_TICKS = 10; 
     private int INACTIVITY_TIMEOUT_TICKS = 60; 
     private int INITIAL_STACKS = 2;
-    private int WINDUP_COOLDOWN_TICKS = 300;
+    private int WINDUP_COOLDOWN_SECONDS = 300;
 
     private final Map<UUID, Boolean> windupActive = new HashMap<>();
     private final Map<UUID, Integer> windupTicks = new HashMap<>();
-    private final Map<UUID, Integer> windupCooldownTicks = new HashMap<>();
-    private final Map<UUID, Integer> lastWindupStage = new HashMap<>(); // Track stage to detect changes
+    private final Map<UUID, Integer> lastWindupStage = new HashMap<>(); 
     private final Map<UUID, Boolean> effectActive = new HashMap<>();
-    private final Map<UUID, List<Integer>> stackDurationTicks = new HashMap<>(); // Per-stack duration tracking
-    private final Map<UUID, Integer> lastAttackTick = new HashMap<>(); // Global inactivity timer
+    private final Map<UUID, List<Integer>> stackDurationTicks = new HashMap<>(); 
+    private final Map<UUID, Integer> lastAttackTick = new HashMap<>(); 
     private final Map<UUID, Integer> currentStacks = new HashMap<>();
     private final Map<UUID, List<AttributeModifier>> activeModifiers = new HashMap<>();
 
@@ -49,8 +48,14 @@ public class HailOfBlades extends BaseRune {
             this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
             this.INACTIVITY_TIMEOUT_TICKS = section.getInt("inactivity-timeout", this.INACTIVITY_TIMEOUT_TICKS);
             this.INITIAL_STACKS = section.getInt("initial-stacks", this.INITIAL_STACKS);
-            this.WINDUP_COOLDOWN_TICKS = section.getInt("cooldown", this.WINDUP_COOLDOWN_TICKS);
+            this.WINDUP_COOLDOWN_SECONDS = section.getInt("cooldown", this.WINDUP_COOLDOWN_SECONDS);
         }
+        this.setCooldownSeconds(WINDUP_COOLDOWN_SECONDS);
+    }
+
+    public HailOfBlades() {
+        super("hail-of-blades", RunePath.DOMINATION, RuneSlot.KEYSTONE);
+        this.setCooldownSeconds(WINDUP_COOLDOWN_SECONDS);
     }
 
     @Override
@@ -58,7 +63,6 @@ public class HailOfBlades extends BaseRune {
         UUID uuid = player.getUniqueId();
         windupActive.put(uuid, false);
         windupTicks.put(uuid, 0);
-        windupCooldownTicks.put(uuid, 0);
         lastWindupStage.put(uuid, 0);
         effectActive.put(uuid, false);
         stackDurationTicks.put(uuid, new ArrayList<>());
@@ -71,9 +75,9 @@ public class HailOfBlades extends BaseRune {
     public void onDisable(Player player) {
         UUID uuid = player.getUniqueId();
         removeAllModifiers(player);
+        clearPlayerCooldown(player);
         windupActive.remove(uuid);
         windupTicks.remove(uuid);
-        windupCooldownTicks.remove(uuid);
         lastWindupStage.remove(uuid);
         effectActive.remove(uuid);
         stackDurationTicks.remove(uuid);
@@ -89,16 +93,20 @@ public class HailOfBlades extends BaseRune {
         if (!(target instanceof LivingEntity)) {
             return;
         }
+        
+        LivingEntity livingTarget = (LivingEntity) target;
+        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        
+        if (maxHealth < 20) {
+            return;
+        }
 
         if (effectActive.getOrDefault(playerUUID, false)) {
-            // Reset global inactivity timer
             lastAttackTick.put(playerUUID, 0);
 
-            // Apply true damage bonus
             double trueDamageBonus = event.getDamage() * TRUE_DAMAGE_MULTIPLIER;
             event.setDamage(event.getDamage() + trueDamageBonus);
 
-            // Refresh the duration of all stacks
             List<Integer> durations = stackDurationTicks.getOrDefault(playerUUID, new ArrayList<>());
             for (int i = 0; i < durations.size(); i++) {
                 durations.set(i, STACK_DURATION_TICKS);
@@ -108,11 +116,10 @@ public class HailOfBlades extends BaseRune {
             return;
         }
 
-        if (windupActive.getOrDefault(playerUUID, false) || windupCooldownTicks.getOrDefault(playerUUID, 0) > 0) {
+        if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(attacker)) {
             return;
         }
 
-        // Start windup
         windupActive.put(playerUUID, true);
         windupTicks.put(playerUUID, WINDUP_TICKS);
         lastWindupStage.put(playerUUID, 0); 
@@ -123,14 +130,11 @@ public class HailOfBlades extends BaseRune {
     public void tick(Player player) {
         UUID playerUUID = player.getUniqueId();
 
-        // Handle windup cooldown
-        int cooldownTicks = windupCooldownTicks.getOrDefault(playerUUID, 0);
-        if (cooldownTicks > 0) {
-            cooldownTicks--;
-            windupCooldownTicks.put(playerUUID, cooldownTicks);
+        if (isOnCooldown(player)) {
+            displayCooldownInfo(player);
+            return;
         }
 
-        // Handle windup
         if (windupActive.getOrDefault(playerUUID, false)) {
             int windupCount = windupTicks.getOrDefault(playerUUID, 0);
             windupCount--;
@@ -140,28 +144,23 @@ public class HailOfBlades extends BaseRune {
 
             if (windupCount <= 0) {
                 windupActive.put(playerUUID, false);
-                windupCooldownTicks.put(playerUUID, WINDUP_COOLDOWN_TICKS);
                 activateEffect(player);
             }
             return;
         }
 
-        // Handle active effect
         if (effectActive.getOrDefault(playerUUID, false)) {
             List<Integer> durations = stackDurationTicks.getOrDefault(playerUUID, new ArrayList<>());
 
-            // Tick global inactivity timer
             int inactivityCount = lastAttackTick.getOrDefault(playerUUID, 0);
             inactivityCount++;
             lastAttackTick.put(playerUUID, inactivityCount);
 
-            // If 3 seconds of inactivity, consume one stack and reset timer
             if (inactivityCount >= INACTIVITY_TIMEOUT_TICKS) {
                 if (!durations.isEmpty()) {
-                    durations.remove(0); // Remove first stack
+                    durations.remove(0); 
                     currentStacks.put(playerUUID, currentStacks.getOrDefault(playerUUID, 0) - 1);
                     
-                    // Refresh remaining stacks' durations
                     for (int i = 0; i < durations.size(); i++) {
                         durations.set(i, STACK_DURATION_TICKS);
                     }
@@ -171,7 +170,6 @@ public class HailOfBlades extends BaseRune {
                 lastAttackTick.put(playerUUID, 0);
             }
 
-            // Tick all stack durations independently
             List<Integer> expiredIndices = new ArrayList<>();
             for (int i = 0; i < durations.size(); i++) {
                 int duration = durations.get(i);
@@ -183,21 +181,22 @@ public class HailOfBlades extends BaseRune {
                 }
             }
 
-            // Remove expired stacks in reverse order to maintain indices
             for (int i = expiredIndices.size() - 1; i >= 0; i--) {
                 durations.remove((int) expiredIndices.get(i));
                 currentStacks.put(playerUUID, currentStacks.getOrDefault(playerUUID, 0) - 1);
                 player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_HIT_GROUND, 1.0f, 0.5f);
             }
 
-            // If all stacks are gone, deactivate effect
             if (currentStacks.getOrDefault(playerUUID, 0) <= 0) {
                 deactivateEffect(player);
                 return;
             }
 
             displayEffectInfo(player, currentStacks.getOrDefault(playerUUID, 0), true);
+            return;
         }
+
+        displayIdleState(player);
     }
 
     private void activateEffect(Player player) {
@@ -206,14 +205,12 @@ public class HailOfBlades extends BaseRune {
         lastAttackTick.put(playerUUID, 0);
         currentStacks.put(playerUUID, INITIAL_STACKS);
 
-        // Create duration trackers for each stack
         List<Integer> durations = new ArrayList<>();
         for (int i = 0; i < INITIAL_STACKS; i++) {
             durations.add(STACK_DURATION_TICKS);
         }
         stackDurationTicks.put(playerUUID, durations);
 
-        // Apply attack speed bonus
         applyAttackSpeedBonus(player);
 
         player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_THROW, 1.0f, 2.0f);
@@ -230,9 +227,8 @@ public class HailOfBlades extends BaseRune {
         lastAttackTick.put(playerUUID, 0);
         stackDurationTicks.put(playerUUID, new ArrayList<>());
 
-        windupCooldownTicks.put(playerUUID, WINDUP_COOLDOWN_TICKS);
+        resetCooldown(player);
         removeAllModifiers(player);
-        player.sendActionBar(Component.empty());
     }
 
     private void applyAttackSpeedBonus(Player player) {
@@ -266,10 +262,10 @@ public class HailOfBlades extends BaseRune {
 
         if (remainingTicks > (WINDUP_TICKS * 2 / 3)) {
             currentStage = 1;
-            message = "§c❛§7❟❛";
+            message = "§c❛§4❟❛";
         } else if (remainingTicks > (WINDUP_TICKS / 3)) {
             currentStage = 2;
-            message = "§c❛❟§7❛";
+            message = "§c❛❟§4❛";
         } else {
             currentStage = 3;
             message = "§c❛❟❛";
@@ -286,15 +282,21 @@ public class HailOfBlades extends BaseRune {
 
     private void displayEffectInfo(Player player, int stacks, boolean active) {
         if (!active) {
-            player.sendActionBar(Component.empty());
             return;
         }
         double damageBonus = TRUE_DAMAGE_MULTIPLIER * 100;
 
         player.sendActionBar(Component.text()
             .append(Component.text("§c❛❟❛ " + stacks + "/" + INITIAL_STACKS, NamedTextColor.RED))
-            .append(Component.text(String.format(" (+%d%% ats / +%.0f%% t-dmg)", 
-                (int)(ATTACK_SPEED_BONUS * 100), damageBonus), NamedTextColor.WHITE))
             .build());
+    }
+
+    private void displayCooldownInfo(Player player) {
+        String cooldownDisplay = getCooldownDisplay(player);
+        player.sendActionBar(Component.text("§7❛❟❛ " + cooldownDisplay));
+    }
+
+    private void displayIdleState(Player player) {
+        player.sendActionBar(Component.text("§4❛❟❛"));
     }
 }

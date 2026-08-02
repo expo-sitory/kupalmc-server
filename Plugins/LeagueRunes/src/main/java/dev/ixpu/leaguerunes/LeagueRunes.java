@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import dev.ixpu.leaguerunes.command.LeagueRunesCommand;
 import dev.ixpu.leaguerunes.listener.PlayerEventListener;
 import dev.ixpu.leaguerunes.listener.RuneListener;
 import dev.ixpu.leaguerunes.rune.BaseRune;
@@ -15,6 +16,7 @@ import dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror;
 import dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork;
 import dev.ixpu.leaguerunes.rune.keystones.precision.LethalTempo;
 import dev.ixpu.leaguerunes.rune.keystones.precision.PressTheAttack;
+import dev.ixpu.leaguerunes.rune.keystones.resolve.GraspOfTheUndying;
 
 public class LeagueRunes extends JavaPlugin {
     private static LeagueRunes instance;
@@ -33,6 +35,8 @@ public class LeagueRunes extends JavaPlugin {
         reloadConfig();
 
         registerRunes();
+
+        getCommand("leaguerunes").setExecutor(new LeagueRunesCommand(this));
 
         Bukkit.getPluginManager().registerEvents(new RuneListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this), this);
@@ -104,6 +108,10 @@ public class LeagueRunes extends JavaPlugin {
         HailOfBlades hailOfBlades = new HailOfBlades(config);
         loadRuneCooldown(hailOfBlades, "runes.keystones.domination.hail-of-blades.cooldown");
         runeRegistry.registerRune(hailOfBlades);
+
+        GraspOfTheUndying grasp = new GraspOfTheUndying(config);
+        loadRuneCooldown(grasp, "runes.keystones.resolve.grasp-of-the-undying.cooldown");
+        runeRegistry.registerRune(grasp);
 
         getLogger().info(() -> "Registered " + runeRegistry.getAllRunes().size() + " runes");
     }

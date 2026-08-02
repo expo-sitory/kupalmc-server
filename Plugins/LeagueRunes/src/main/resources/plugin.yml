@@ -4,9 +4,19 @@ main: dev.ixpu.leaguerunes.LeagueRunes
 api-version: 1.21
 description: League of Legends Runes System
 authors:
-  - Zel
+  - Ixpu
+
+commands:
+  leaguerunes:
+    description: LeagueRunes admin commands
+    aliases: [lr]
+    usage: /<command> reload
+    permission: leaguerunes.admin
 
 permissions:
+  leaguerunes.admin:
+    description: Allow access to LeagueRunes admin commands
+    default: op
   # Primary Rune Path Permissions
   primary-rune-path.precision:
     default: false

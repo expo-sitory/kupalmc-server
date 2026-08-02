@@ -9,6 +9,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 
 public class FleetFootwork extends BaseRune {
     private int MAX_STACKS = 100;
@@ -74,7 +76,6 @@ public class FleetFootwork extends BaseRune {
     public void tick(Player player) {
         UUID playerUUID = player.getUniqueId();
 
-        // Handle movement stacking
         org.bukkit.Location currentLoc = player.getLocation();
         org.bukkit.Location prevLoc = lastLocation.get(playerUUID);
 
@@ -83,7 +84,6 @@ public class FleetFootwork extends BaseRune {
             double accumulated = distanceAccumulator.getOrDefault(playerUUID, 0.0);
             accumulated += distance;
 
-            // Grant stacks per 5 blocks
             while (accumulated >= BLOCKS_PER_STACK) {
                 addStack(player);
                 accumulated -= BLOCKS_PER_STACK;
@@ -94,7 +94,6 @@ public class FleetFootwork extends BaseRune {
 
         lastLocation.put(playerUUID, currentLoc.clone());
 
-        // Handle speed buff countdown
         int buffTicks = speedBuffTicks.getOrDefault(playerUUID, 0);
         if (buffTicks > 0) {
             buffTicks--;
@@ -113,8 +112,18 @@ public class FleetFootwork extends BaseRune {
         UUID playerUUID = attacker.getUniqueId();
         int stacks = playerStacks.getOrDefault(playerUUID, 0);
 
+        if (!(target instanceof LivingEntity)) {
+            return;
+        }
+        
+        LivingEntity livingTarget = (LivingEntity) target;
+        double maxHp = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        
+        if (maxHp < 20) {
+            return;
+        }
+
         if (stacks >= MAX_STACKS) {
-            // Heal player for 30% missing HP
             double maxHealth = attacker.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
             double currentHealth = attacker.getHealth();
             double missingHealth = maxHealth - currentHealth;
@@ -122,19 +131,27 @@ public class FleetFootwork extends BaseRune {
 
             attacker.setHealth(Math.min(maxHealth, currentHealth + healAmount));            
 
-            // Consume stacks and apply speed buff
             playerStacks.put(playerUUID, 0);
             applySpeedBuff(attacker);
             distanceAccumulator.put(playerUUID, 0.0);
         }
     }
 
-    // Handle projectile hits for bow/crossbow
     public void onProjectileHit(Player shooter, Entity target) {
         UUID playerUUID = shooter.getUniqueId();
         int stacks = playerStacks.getOrDefault(playerUUID, 0);
 
-        // Add stacks from projectile
+        if (!(target instanceof LivingEntity)) {
+            return;
+        }
+        
+        LivingEntity livingTarget = (LivingEntity) target;
+        double maxHp = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        
+        if (maxHp < 20) {
+            return;
+        }
+
         for (int i = 0; i < PROJECTILE_STACK_GAIN; i++) {
             if (stacks < MAX_STACKS) {
                 addStack(shooter);
@@ -142,17 +159,13 @@ public class FleetFootwork extends BaseRune {
             }
         }
 
-        // Check if reached max stacks after projectile
         if (stacks >= MAX_STACKS) {
-            // Heal player for 30% missing HP
             double maxHealth = shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
             double currentHealth = shooter.getHealth();
             double missingHealth = maxHealth - currentHealth;
             double healAmount = missingHealth * HEAL_PERCENT;
 
             shooter.setHealth(Math.min(maxHealth, currentHealth + healAmount));
-
-            // Consume stacks and apply speed buff
             playerStacks.put(playerUUID, 0);
             applySpeedBuff(shooter);
             distanceAccumulator.put(playerUUID, 0.0);
@@ -164,6 +177,11 @@ public class FleetFootwork extends BaseRune {
     private void addStack(Player player) {
         UUID playerUUID = player.getUniqueId();
         int current = playerStacks.getOrDefault(playerUUID, 0);
+        int buffTicks = speedBuffTicks.getOrDefault(playerUUID, 0);
+
+        if (buffTicks > 0) {
+            return;
+        }
 
         if (current < MAX_STACKS) {
             playerStacks.put(playerUUID, current + 1);
@@ -204,7 +222,7 @@ public class FleetFootwork extends BaseRune {
                 player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(mod);
                 player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_BREEZE_LAND, 1.0f, 1.2f );
             } catch (Exception e) {
-                // Modifier already removed
+
             }
         }
         activeModifiers.put(playerUUID, new ArrayList<>());
@@ -216,10 +234,9 @@ public class FleetFootwork extends BaseRune {
         int buffTicks = speedBuffTicks.getOrDefault(playerUUID, 0);
 
         if (buffTicks > 0) {
-            // Show speed buff timer
             double remainingSeconds = buffTicks / 20.0;
             player.sendActionBar(Component.text()
-                    .append(Component.text(String.format("§e👣 " + "%.1fs " + "§f(+20%% mvs)", remainingSeconds), net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                    .append(Component.text(String.format("§e👣 " + "(%.1fs) ", remainingSeconds), net.kyori.adventure.text.format.NamedTextColor.WHITE))
                     .build());
         } else {
 

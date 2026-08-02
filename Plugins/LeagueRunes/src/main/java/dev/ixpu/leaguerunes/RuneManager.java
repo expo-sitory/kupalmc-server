@@ -27,7 +27,6 @@ public class RuneManager {
         playerRuneData.put(uuid, runeData);
         playerRunesActive.put(uuid, true);
 
-        // Enable all runes for the player
         for (BaseRune rune : runeData.getAllRunes()) {
             if (rune != null) {
                 rune.onEnable(player);
@@ -45,7 +44,6 @@ public class RuneManager {
         PlayerRuneData runeData = playerRuneData.get(uuid);
 
         if (runeData != null) {
-            // Disable all runes for the player
             for (BaseRune rune : runeData.getAllRunes()) {
                 if (rune != null) {
                     rune.onDisable(player);

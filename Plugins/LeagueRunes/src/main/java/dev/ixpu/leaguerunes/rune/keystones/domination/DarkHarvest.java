@@ -24,13 +24,12 @@ public class DarkHarvest extends BaseRune {
     private double BASE_BONUS_DAMAGE = 0.8;
     private double DAMAGE_PER_SOUL = 0.3;
     private int REAP_DELAY_TICKS = 35;
-    private int SOUL_COOLDOWN_TICKS = 1200;
+    private int SOUL_COOLDOWN_SECONDS = 60;
     private int KILL_RESET_COOLDOWN_TICKS = 200;
     private int MAX_SOULS = 12;
     private int LEVEL_COST_PER_SOUL = 5;
 
     private final Map<UUID, Integer> playerSouls = new HashMap<>();
-    private final Map<UUID, Integer> globalSoulCooldown = new HashMap<>();
     private LeagueRunes plugin;
 
     public DarkHarvest(ConfigurationSection config) {
@@ -41,11 +40,17 @@ public class DarkHarvest extends BaseRune {
             this.BASE_BONUS_DAMAGE = section.getDouble("base-bonus-damage", this.BASE_BONUS_DAMAGE);
             this.DAMAGE_PER_SOUL = section.getDouble("damage-per-soul", this.DAMAGE_PER_SOUL);
             this.REAP_DELAY_TICKS = section.getInt("reap-delay", this.REAP_DELAY_TICKS);
-            this.SOUL_COOLDOWN_TICKS = section.getInt("cooldown", this.SOUL_COOLDOWN_TICKS);
+            this.SOUL_COOLDOWN_SECONDS = section.getInt("cooldown", this.SOUL_COOLDOWN_SECONDS);
             this.KILL_RESET_COOLDOWN_TICKS = section.getInt("kill-reset-cooldown", this.KILL_RESET_COOLDOWN_TICKS);
             this.MAX_SOULS = section.getInt("max-souls-stack", this.MAX_SOULS);
             this.LEVEL_COST_PER_SOUL = section.getInt("level-cost-per-soul", this.LEVEL_COST_PER_SOUL);
         }
+        this.setCooldownSeconds(SOUL_COOLDOWN_SECONDS);
+    }
+
+    public DarkHarvest() {
+        super("dark-harvest", RunePath.DOMINATION, RuneSlot.KEYSTONE);
+        this.setCooldownSeconds(SOUL_COOLDOWN_SECONDS);
     }
 
     public void setPlugin(LeagueRunes plugin) {
@@ -56,21 +61,18 @@ public class DarkHarvest extends BaseRune {
     public void onEnable(Player player) {
         UUID uuid = player.getUniqueId();
         playerSouls.put(uuid, 0);
-        globalSoulCooldown.put(uuid, 0);
     }
 
     @Override
     public void onDisable(Player player) {
         UUID uuid = player.getUniqueId();
+        clearPlayerCooldown(player);
         playerSouls.remove(uuid);
-        globalSoulCooldown.remove(uuid);
     }
 
     @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = attacker.getUniqueId();
-
-
 
         if (!(target instanceof LivingEntity)) {
             return;
@@ -81,7 +83,10 @@ public class DarkHarvest extends BaseRune {
         double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
         double healthPercent = targetHealth / maxHealth;
 
-        // Check if target is below 50% health
+        if (maxHealth < 20) {
+            return;
+        }
+
         if (healthPercent >= HEALTH_THRESHOLD) {
             return;
         }
@@ -90,36 +95,60 @@ public class DarkHarvest extends BaseRune {
         double bonusDamage = BASE_BONUS_DAMAGE + (souls * DAMAGE_PER_SOUL);
         event.setDamage(event.getDamage() + bonusDamage);
 
-        // Check global soul cooldown
-        int globalCooldown = globalSoulCooldown.getOrDefault(playerUUID, 0);
-        if (globalCooldown > 0) {
+        if (isOnCooldown(attacker)) {
+            return;
+        }
+
+        if (attacker.getLevel() < LEVEL_COST_PER_SOUL) {
             return;
         }
 
         scheduleReapSoul(attacker);
-        globalSoulCooldown.put(playerUUID, SOUL_COOLDOWN_TICKS);
+        resetCooldown(attacker);
+    }
+
+    public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity)) {
+            return;
+        }
+
+        LivingEntity livingTarget = (LivingEntity) target;
+        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+
+        if (maxHealth < 20) {
+            return;
+        }
+
+        double targetHealth = livingTarget.getHealth();
+        double healthPercent = targetHealth / maxHealth;
+
+        if (healthPercent >= HEALTH_THRESHOLD) {
+            return;
+        }
+
+        if (isOnCooldown(shooter)) {
+            return;
+        }
+
+        if (shooter.getLevel() < LEVEL_COST_PER_SOUL) {
+            return;
+        }
+
+        scheduleReapSoul(shooter);
+        resetCooldown(shooter);
     }
 
     @Override
     public void tick(Player player) {
         UUID playerUUID = player.getUniqueId();
+        int souls = playerSouls.getOrDefault(playerUUID, 0);
 
-        // Tick down global cooldown
-        int cooldown = globalSoulCooldown.getOrDefault(playerUUID, 0);
-        if (cooldown > 0) {
-            cooldown--;
-            globalSoulCooldown.put(playerUUID, cooldown);
+        if (isOnCooldown(player)) {
+            displayCooldown(player, souls);
+            return;
         }
 
-        // Display soul info
-        int souls = playerSouls.getOrDefault(playerUUID, 0);
         displaySoulInfo(player, souls);
-    }
-
-    // Handle entity death to reset cooldown
-    public void onEntityKill(Player killer, Entity deadEntity) {
-        UUID playerUUID = killer.getUniqueId();
-        globalSoulCooldown.put(playerUUID, KILL_RESET_COOLDOWN_TICKS);
     }
 
     private void scheduleReapSoul(Player attacker) {
@@ -132,20 +161,13 @@ public class DarkHarvest extends BaseRune {
     }
 
     private void reapSoul(Player player) {
-        // Check if player has enough levels
-        if (player.getLevel() < LEVEL_COST_PER_SOUL) {
-            return;
-        }
-
         UUID playerUUID = player.getUniqueId();
         int current = playerSouls.getOrDefault(playerUUID, 0);
 
-        // Cap at max stacks
         if (current >= MAX_SOULS) {
             return;
         }
 
-        // Consume levels and gain soul
         player.setLevel(player.getLevel() - LEVEL_COST_PER_SOUL);
         current++;
         playerSouls.put(playerUUID, current);
@@ -153,12 +175,20 @@ public class DarkHarvest extends BaseRune {
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_SHOOT, 1.0f, 1.5f);
     }
 
+    private void displayCooldown(Player player, int souls) {
+        String cooldownDisplay = getCooldownDisplay(player);
+        player.sendActionBar(Component.text("§7👻 " + souls + "/" + MAX_SOULS + " | " + cooldownDisplay, NamedTextColor.RED));
+    }
+
     private void displaySoulInfo(Player player, int souls) {
-        double totalDamage = BASE_BONUS_DAMAGE + (souls * DAMAGE_PER_SOUL);
-        
-        player.sendActionBar(Component.text()
-                .append(Component.text("👻 " + souls + "/" + MAX_SOULS, NamedTextColor.RED))
-                .append(Component.text(String.format(" (+%.1f dmg)", totalDamage), NamedTextColor.WHITE))
-                .build());
+        if (souls >= 1) {
+                player.sendActionBar(Component.text()
+                        .append(Component.text("§c👻 " + souls + "/" + MAX_SOULS, NamedTextColor.RED))
+                        .build());
+        } else {
+                player.sendActionBar(Component.text()
+                        .append(Component.text("§c👻", NamedTextColor.RED))
+                        .build());
+        }
     }
 }

@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.attribute.Attribute;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
@@ -19,7 +21,8 @@ import net.kyori.adventure.text.Component;
 
 
 public class PressTheAttack extends BaseRune {
-    private int MAX_STACKS = 3;
+    private static final int MAX_STACKS = 3;
+    private int COOLDOWN_DURATION_SECONDS = 200;
     private int STACK_DURATION_TICKS = 60;
     private double DAMAGE_PER_HEART = 1.5;
 
@@ -30,20 +33,22 @@ public class PressTheAttack extends BaseRune {
     public PressTheAttack(org.bukkit.configuration.ConfigurationSection config) {
         super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.press-the-attack");
-        this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
-        this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
-        this.DAMAGE_PER_HEART = section.getDouble("base-damage", this.DAMAGE_PER_HEART);
+        if (section != null) {
+            this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
+            this.DAMAGE_PER_HEART = section.getDouble("base-damage", this.DAMAGE_PER_HEART);
+            this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", this.COOLDOWN_DURATION_SECONDS);
+        }
+        this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
     }
 
     public PressTheAttack() {
         super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE);
         this.hasStacking = false;
-        this.setCooldownSeconds(15.0);
+        this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
     }
 
     @Override
     public void onEnable(Player player) {
-        // Initialize player data
         playerStacks.putIfAbsent(player.getUniqueId(), new HashMap<>());
         lastTarget.putIfAbsent(player.getUniqueId(), null);
         stackTimers.putIfAbsent(player.getUniqueId(), new HashMap<>());
@@ -63,44 +68,43 @@ public class PressTheAttack extends BaseRune {
         UUID playerUUID = attacker.getUniqueId();
         UUID targetUUID = target.getUniqueId();
 
+        if (!(target instanceof LivingEntity)) {
+            return;
+        }
+        
+        LivingEntity livingTarget = (LivingEntity) target;
+        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        
+        if (maxHealth < 20) {
+            return;
+        }
+
         if (isOnCooldown(attacker)) {
             return;
         }        
 
-        // Check if this is a different target - reset stacks
         UUID previousTarget = lastTarget.get(playerUUID);
         if (previousTarget != null && !previousTarget.equals(targetUUID)) {
             playerStacks.get(playerUUID).clear();
             stackTimers.get(playerUUID).clear();
         }
 
-        // Update last target
         lastTarget.put(playerUUID, targetUUID);
 
-        // Get current stacks
         Map<UUID, Integer> stacks = playerStacks.get(playerUUID);
         int currentStacks = stacks.getOrDefault(targetUUID, 0);
 
-        // Check if we're about to trigger the effect (3rd stack)
+
         if (currentStacks == 2) {
-            // Consume all stacks and deal bonus damage
             dealBonusDamage(attacker, target, event);
             stacks.remove(targetUUID);
             stackTimers.get(playerUUID).remove(targetUUID);
-            displayActivationFeedback(attacker, target);
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound-3 " + attacker.getName());
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + attacker.getName());
+            attacker.playSound(attacker.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_CHIME, 1.0f, 0.5f);
         } else if (currentStacks < MAX_STACKS) {
-            // Add a new stack
             currentStacks++;
             stacks.put(targetUUID, currentStacks);
             stackTimers.get(playerUUID).put(targetUUID, STACK_DURATION_TICKS);
-            // Send action bar feedback
-            displayStackFeedback(attacker, currentStacks);
-            if (currentStacks == 1) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound-1 " + attacker.getName());
-            } else if (currentStacks == 2) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound-2 " + attacker.getName());
-            }
         }
     }
 
@@ -112,7 +116,6 @@ public class PressTheAttack extends BaseRune {
 
         if (timers == null || stacks == null) return;
 
-        // Safely iterate and collect expired entries
         List<UUID> expiredTargets = new ArrayList<>();
         
         for (Map.Entry<UUID, Integer> entry : timers.entrySet()) {
@@ -124,33 +127,29 @@ public class PressTheAttack extends BaseRune {
             }
         }
 
-        // Remove expired entries after iteration
         for (UUID targetUUID : expiredTargets) {
             timers.remove(targetUUID);
             stacks.remove(targetUUID);
         }
 
-        // Clear last target if no stacks remain
         if (stacks.isEmpty()) {
             lastTarget.put(playerUUID, null);
         }
+        
+        displayStackInfo(player);
     }
 
     private void dealBonusDamage(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        // Check cooldown
         if (isOnCooldown(attacker)) {
             return;
         }
 
-        // Calculate bonus damage based on XP level
         int playerLevel = attacker.getLevel();
         double bonusDamage = getBonusDamageByLevel(playerLevel);
         double bonusDamageHearts = bonusDamage * DAMAGE_PER_HEART;
 
-        // Add to existing damage
         event.setDamage(event.getDamage() + bonusDamageHearts);
 
-        // Reset cooldown
         resetCooldown(attacker);
     }
 
@@ -167,14 +166,30 @@ public class PressTheAttack extends BaseRune {
             return 0.5;
         }
     }
+    
+    private void displayStackInfo(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        Map<UUID, Integer> stacks = playerStacks.get(playerUUID);
 
-    private void displayStackFeedback(Player player, int stacks) {
+        String cooldownDisplay = getCooldownDisplay(player);
+        if (!cooldownDisplay.isEmpty()) {
+            player.sendActionBar(Component.text("§7✽ " + cooldownDisplay));
+            return;
+        }
+        
+        if (stacks == null || stacks.isEmpty()) {
+            player.sendActionBar(Component.text("§6✽"));
+            return;
+        }
+        
+        UUID lastTargetUUID = lastTarget.getOrDefault(playerUUID, null);
+        int currentStacks = 0;
+        if (lastTargetUUID != null) {
+            currentStacks = stacks.getOrDefault(lastTargetUUID, 0);
+        }
+        
         player.sendActionBar(Component.text()
-                .append(Component.text("§e✇ " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text("§e✽ " + currentStacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
                 .build());
-    }
-    @SuppressWarnings("deprecation")
-    private void displayActivationFeedback(Player player, Entity target) {
-        player.sendActionBar("§e✇ 3/3");
     }
 }

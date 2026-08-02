@@ -14,9 +14,8 @@ public abstract class BaseRune {
     protected final RuneSlot slot;
     protected boolean hasStacking;
     protected int maxStacks;
-    protected double cooldownSeconds = 0.0; // Cooldown in seconds (0 = no cooldown)
+    protected double cooldownSeconds = 0.0; 
     
-    // Track cooldowns per player: playerUUID -> lastActivationTime (ms)
     protected final Map<UUID, Long> playerCooldowns = new HashMap<>();
 
     public BaseRune(String id, RunePath path, RuneSlot slot) {
@@ -60,19 +59,16 @@ public abstract class BaseRune {
         this.cooldownSeconds = seconds;
     }
 
-    /**
-     * Check if the rune is on cooldown for the player
-     */
     public boolean isOnCooldown(Player player) {
         if (cooldownSeconds <= 0) {
-            return false; // No cooldown
+            return false; 
         }
 
         UUID uuid = player.getUniqueId();
         Long lastActivation = playerCooldowns.get(uuid);
 
         if (lastActivation == null) {
-            return false; // Never activated
+            return false; 
         }
 
         long currentTime = System.currentTimeMillis();
@@ -80,9 +76,6 @@ public abstract class BaseRune {
         return (currentTime - lastActivation) < cooldownMs;
     }
 
-    /**
-     * Get remaining cooldown time in seconds
-     */
     public double getRemainingCooldown(Player player) {
         if (cooldownSeconds <= 0) {
             return 0;
@@ -103,18 +96,20 @@ public abstract class BaseRune {
         return Math.max(0, remaining / 1000.0);
     }
 
-    /**
-     * Reset the cooldown for the player (call when rune activates)
-     */
     public void resetCooldown(Player player) {
         playerCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
     }
 
-    /**
-     * Clear cooldowns for a player (call on logout)
-     */
     public void clearPlayerCooldown(Player player) {
         playerCooldowns.remove(player.getUniqueId());
+    }
+
+    public String getCooldownDisplay(Player player) {
+        double remaining = getRemainingCooldown(player);
+        if (remaining <= 0) {
+            return "";
+        }
+        return String.format("§7%.1fs", remaining);
     }
 
     public abstract void onEnable(Player player);
