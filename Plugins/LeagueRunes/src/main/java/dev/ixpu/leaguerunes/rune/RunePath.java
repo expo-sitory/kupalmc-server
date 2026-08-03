@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes.rune;
+package dev.ixpu.leaguemechanics.rune;
 
 public enum RunePath {
     PRECISION("precision"),

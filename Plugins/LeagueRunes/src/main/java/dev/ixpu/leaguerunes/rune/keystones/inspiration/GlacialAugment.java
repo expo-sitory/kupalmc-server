@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes.rune.keystones.inspiration;
+package dev.ixpu.leaguemechanics.rune.keystones.inspiration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -16,10 +17,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import dev.ixpu.leaguerunes.LeagueRunes;
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class GlacialAugment extends BaseRune {
@@ -29,7 +29,7 @@ public class GlacialAugment extends BaseRune {
 
     private final Map<UUID, Map<UUID, Integer>> frozenTargets = new HashMap<>();
     private final Map<UUID, Map<UUID, List<AttributeModifier>>> targetModifiers = new HashMap<>();
-    private LeagueRunes plugin;
+    private LeagueMechanics plugin;
 
     public GlacialAugment(ConfigurationSection config) {
         super("glacial-augment", RunePath.INSPIRATION, RuneSlot.KEYSTONE);
@@ -44,7 +44,7 @@ public class GlacialAugment extends BaseRune {
         this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
     }
 
-    public void setPlugin(LeagueRunes plugin) {
+    public void setPlugin(LeagueMechanics plugin) {
         this.plugin = plugin;
     }
 

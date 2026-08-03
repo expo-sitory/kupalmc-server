@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes.rune;
+package dev.ixpu.leaguemechanics.rune;
 
 import org.bukkit.entity.Player;
 import java.util.HashMap;

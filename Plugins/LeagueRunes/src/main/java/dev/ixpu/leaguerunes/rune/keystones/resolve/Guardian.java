@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes.rune.keystones.resolve;
+package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +14,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 

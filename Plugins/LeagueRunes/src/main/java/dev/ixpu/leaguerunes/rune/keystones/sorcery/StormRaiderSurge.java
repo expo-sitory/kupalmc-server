@@ -1,9 +1,10 @@
-package dev.ixpu.leaguerunes.rune.keystones.sorcery;
+package dev.ixpu.leaguemechanics.rune.keystones.sorcery;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -12,10 +13,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import dev.ixpu.leaguerunes.LeagueRunes;
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class StormRaiderSurge extends BaseRune {
@@ -27,7 +27,7 @@ public class StormRaiderSurge extends BaseRune {
     private final Map<UUID, Double> damageTracker = new HashMap<>();
     private final Map<UUID, Long> windowStartTime = new HashMap<>();
     private final Map<UUID, Long> lastActivationTime = new HashMap<>();
-    private LeagueRunes plugin;
+    private LeagueMechanics plugin;
 
     public StormRaiderSurge(ConfigurationSection config) {
         super("storm-raider-surge", RunePath.SORCERY, RuneSlot.KEYSTONE);
@@ -43,7 +43,7 @@ public class StormRaiderSurge extends BaseRune {
         this.setCooldownSeconds(COOLDOWN_SECONDS);
     }
 
-    public void setPlugin(LeagueRunes plugin) {
+    public void setPlugin(LeagueMechanics plugin) {
         this.plugin = plugin;
     }
 

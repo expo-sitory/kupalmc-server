@@ -1,8 +1,8 @@
-package dev.ixpu.leaguerunes.rune.keystones.resolve;
+package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -97,9 +97,7 @@ public class GraspOfTheUndying extends BaseRune {
             return;
         }
 
-        double maxHealth = Objects.requireNonNull(livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
-
-        if (maxHealth < 20) {
+        if (livingTarget.getMaxHealth() < 20) {
             return;
         }
         

@@ -1,10 +1,11 @@
-package dev.ixpu.leaguerunes.rune.keystones.domination;
+package dev.ixpu.leaguemechanics.rune.keystones.domination;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -12,12 +13,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import dev.ixpu.leaguerunes.LeagueRunes;
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 
 public class DarkHarvest extends BaseRune {
@@ -29,7 +28,7 @@ public class DarkHarvest extends BaseRune {
     private int LEVEL_COST_PER_SOUL = 5;
 
     private final Map<UUID, Integer> playerSouls = new HashMap<>();
-    private LeagueRunes plugin;
+    private LeagueMechanics plugin;
 
     public DarkHarvest(ConfigurationSection config) {
         super("dark-harvest", RunePath.DOMINATION, RuneSlot.KEYSTONE);
@@ -47,7 +46,7 @@ public class DarkHarvest extends BaseRune {
         this.setCooldownSeconds(SOUL_COOLDOWN_SECONDS);
     }
 
-    public void setPlugin(LeagueRunes plugin) {
+    public void setPlugin(LeagueMechanics plugin) {
         this.plugin = plugin;
     }
 
@@ -72,13 +71,13 @@ public class DarkHarvest extends BaseRune {
             return;
         }
 
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+
         double targetHealth = livingTarget.getHealth();
         double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
         double healthPercent = targetHealth / maxHealth;
-
-        if (maxHealth < 20) {
-            return;
-        }
 
         if (healthPercent >= HEALTH_THRESHOLD) {
             return;

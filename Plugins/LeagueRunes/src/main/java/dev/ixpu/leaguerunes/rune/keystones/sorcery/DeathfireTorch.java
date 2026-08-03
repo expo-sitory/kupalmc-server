@@ -1,9 +1,10 @@
-package dev.ixpu.leaguerunes.rune.keystones.sorcery;
+package dev.ixpu.leaguemechanics.rune.keystones.sorcery;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -15,10 +16,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import dev.ixpu.leaguerunes.LeagueRunes;
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class DeathfireTorch extends BaseRune {
@@ -28,7 +28,7 @@ public class DeathfireTorch extends BaseRune {
     private final Map<UUID, Map<UUID, Integer>> burnedPlayers = new HashMap<>();
     private final Map<UUID, Map<UUID, Double>> burnDamage = new HashMap<>();
     private final Map<UUID, Map<UUID, LivingEntity>> burnedTargets = new HashMap<>();
-    private LeagueRunes plugin;
+    private LeagueMechanics plugin;
 
     public DeathfireTorch(ConfigurationSection config) {
         super("deathfire-torch", RunePath.SORCERY, RuneSlot.KEYSTONE);
@@ -39,7 +39,7 @@ public class DeathfireTorch extends BaseRune {
         }
     }
 
-    public void setPlugin(LeagueRunes plugin) {
+    public void setPlugin(LeagueMechanics plugin) {
         this.plugin = plugin;
     }
 

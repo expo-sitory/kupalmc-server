@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes.rune.keystones.resolve;
+package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +17,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
@@ -66,9 +66,7 @@ public class AfterShock extends BaseRune {
             return;
         }
 
-        double maxHealth = Objects.requireNonNull(livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
-
-        if (maxHealth < 20) {
+        if (livingTarget.getMaxHealth() < 20) {
             return;
         }
 
@@ -88,7 +86,7 @@ public class AfterShock extends BaseRune {
         applyAfterShockEffect(attacker);
 
         org.bukkit.Bukkit.getScheduler().scheduleSyncDelayedTask(
-                dev.ixpu.leaguerunes.LeagueRunes.getInstance(),
+                dev.ixpu.leaguemechanics.LeagueMechanics.getInstance(),
                 () -> resetCooldown(attacker),
                 EFFECT_DURATION_TICKS
         );

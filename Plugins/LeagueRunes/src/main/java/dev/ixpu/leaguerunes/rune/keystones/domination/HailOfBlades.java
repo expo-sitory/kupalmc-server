@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes.rune.keystones.domination;
+package dev.ixpu.leaguemechanics.rune.keystones.domination;
 
 import java.util.*;
 
@@ -10,11 +10,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 public class HailOfBlades extends BaseRune {
     private double ATTACK_SPEED_BONUS = 0.10; 
@@ -85,9 +84,7 @@ public class HailOfBlades extends BaseRune {
             return;
         }
 
-        double maxHealth = Objects.requireNonNull(livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
-
-        if (maxHealth < 20) {
+        if (livingTarget.getMaxHealth() < 20) {
             return;
         }
 

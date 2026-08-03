@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes.rune;
+package dev.ixpu.leaguemechanics.rune;
 
 import java.util.HashMap;
 import java.util.Map;

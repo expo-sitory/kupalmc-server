@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes.rune;
+package dev.ixpu.leaguemechanics.rune;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -28,22 +28,6 @@ public abstract class BaseRune {
 
     public String getId() {
         return id;
-    }
-
-    public RunePath getPath() {
-        return path;
-    }
-
-    public RuneSlot getSlot() {
-        return slot;
-    }
-
-    public boolean hasStacking() {
-        return hasStacking;
-    }
-
-    public int getMaxStacks() {
-        return maxStacks;
     }
 
     protected void setStacking(int maxStacks) {
@@ -121,8 +105,6 @@ public abstract class BaseRune {
     public void onPlayerDamage(Player player, double damage) {}
 
     public void onPlayerDealDamage(Player player, double damage) {}
-
-    public void onPlayerAttack(Player player) {}
 
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {}
 
