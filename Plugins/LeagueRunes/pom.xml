@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.leaguerunes</groupId>
-    <artifactId>LeagueRunes</artifactId>
-    <version>1.0.0</version>
+    <groupId>dev.ixpu</groupId>
+    <artifactId>LeagueMechanics</artifactId>
+    <version>v2</version>
     <packaging>jar</packaging>
 
-    <name>LeagueRunes</name>
+    <name>LeagueMechanics</name>
     <description>League of Legends Runes System for Minecraft</description>
 
     <properties>
