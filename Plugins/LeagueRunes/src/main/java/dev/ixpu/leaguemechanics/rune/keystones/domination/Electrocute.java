@@ -1,8 +1,7 @@
-package dev.ixpu.leaguerunes.rune.keystones.domination;
+package dev.ixpu.leaguemechanics.rune.keystones.domination;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 import org.bukkit.Sound;
@@ -13,9 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.attribute.Attribute;
 
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class Electrocute extends BaseRune {
