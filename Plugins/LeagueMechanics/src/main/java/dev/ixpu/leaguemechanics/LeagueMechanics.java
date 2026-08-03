@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import dev.ixpu.leaguemechanics.command.LeagueRunesCommand;
+import dev.ixpu.leaguemechanics.command.CommandManager;
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.listener.RuneListener;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
@@ -41,32 +41,32 @@ public class LeagueMechanics extends JavaPlugin {
         runeRegistry = RuneRegistry.getInstance();
         runeManager = new RuneManager(this);
 
-        getLogger().info("LeagueRunes is starting...");
+        getLogger().info("League Mechanics is starting...");
 
         saveDefaultConfig();
         reloadConfig();
 
         registerRunes();
 
-        getCommand("leaguerunes").setExecutor(new LeagueRunesCommand(this));
+        getCommand("leaguemechanics").setExecutor(new CommandManager(this));
 
         Bukkit.getPluginManager().registerEvents(new RuneListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this), this);
 
         startRuneTicker();
 
-        getLogger().info("LeagueRunes has been enabled!");
+        getLogger().info("League Mechanics has been enabled!");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("LeagueRunes is shutting down...");
+        getLogger().info("League Mechanics is shutting down...");
 
         if (runeRegistry != null) {
             runeRegistry.clearRegistry();
         }
 
-        getLogger().info("LeagueRunes has been disabled!");
+        getLogger().info("League Mechanics has been disabled!");
     }
 
     private void startRuneTicker() {
