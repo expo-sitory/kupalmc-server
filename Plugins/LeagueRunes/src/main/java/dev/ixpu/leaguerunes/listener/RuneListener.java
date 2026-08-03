@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes.listener;
+package dev.ixpu.leaguemechanics.listener;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -11,17 +11,15 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
-import dev.ixpu.leaguerunes.LeagueRunes;
-import dev.ixpu.leaguerunes.RuneManager;
-import dev.ixpu.leaguerunes.player.PlayerRuneData;
-import dev.ixpu.leaguerunes.rune.BaseRune;
+import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.RuneManager;
+import dev.ixpu.leaguemechanics.player.PlayerRuneData;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
 
 public class RuneListener implements Listener {
-    private final LeagueRunes plugin;
     private final RuneManager runeManager;
 
-    public RuneListener(LeagueRunes plugin) {
-        this.plugin = plugin;
+    public RuneListener(LeagueMechanics plugin) {
         this.runeManager = plugin.getRuneManager();
     }
 
@@ -30,6 +28,7 @@ public class RuneListener implements Listener {
         if (event.getDamager() instanceof Player attacker) {
             Entity target = event.getEntity();
             if (!runeManager.hasActiveRunes(attacker)) {
+
             } else {
                 PlayerRuneData attackerRuneData = runeManager.getPlayerRuneData(attacker);
                 if (attackerRuneData != null) {
@@ -48,11 +47,10 @@ public class RuneListener implements Listener {
             }
         }
 
-        if (!(event.getEntity() instanceof Player)) {
+        if (!(event.getEntity() instanceof Player victim)) {
             return;
         }
 
-        Player victim = (Player) event.getEntity();
         double damage = event.getFinalDamage();
 
         if (!runeManager.hasActiveRunes(victim)) {
@@ -72,52 +70,21 @@ public class RuneListener implements Listener {
         BaseRune victimKeystone = runeData.getKeystoneRune();
         if (victimKeystone != null && victimKeystone.getId().equals("grasp-of-the-undying")) {
             try {
-                dev.ixpu.leaguerunes.rune.keystones.resolve.GraspOfTheUndying grasp = 
-                    (dev.ixpu.leaguerunes.rune.keystones.resolve.GraspOfTheUndying) victimKeystone;
+                dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying grasp = 
+                    (dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying) victimKeystone;
                 grasp.onCombat(victim);
-            } catch (ClassCastException e) {}
-        }
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player victim = event.getEntity();
-
-        if (!runeManager.hasActiveRunes(victim)) {
-            return;
-        }
-
-        PlayerRuneData runeData = runeManager.getPlayerRuneData(victim);
-        if (runeData == null) {
-            return;
-        }
-
-        for (BaseRune rune : runeData.getAllRunes()) {
-            if (rune != null) {
-                rune.onPlayerDeath(victim);
-            }
-        }
-
-        Player killer = victim.getKiller();
-        if (killer != null && runeManager.hasActiveRunes(killer)) {
-            PlayerRuneData killerRuneData = runeManager.getPlayerRuneData(killer);
-            if (killerRuneData != null) {
-                for (BaseRune rune : killerRuneData.getAllRunes()) {
-                    if (rune != null) {
-                        rune.onPlayerKill(killer, victim);
-                    }
-                }
+            } catch (ClassCastException e) {
+                //debug
             }
         }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onProjectileHit(ProjectileHitEvent event) {
-        if (!(event.getEntity().getShooter() instanceof Player)) {
+        if (!(event.getEntity().getShooter() instanceof Player shooter)) {
             return;
         }
 
-        Player shooter = (Player) event.getEntity().getShooter();
         Entity hitEntity = event.getHitEntity();
 
         if (hitEntity == null) {
@@ -137,91 +104,73 @@ public class RuneListener implements Listener {
 
         if (keystoneRune != null && keystoneRune.getId().equals("fleet-footwork")) {
             try {
-                dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork fleetFootwork = 
-                    (dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork) keystoneRune;
+                dev.ixpu.leaguemechanics.rune.keystones.precision.FleetFootwork fleetFootwork = 
+                    (dev.ixpu.leaguemechanics.rune.keystones.precision.FleetFootwork) keystoneRune;
                 fleetFootwork.onProjectileHit(shooter, hitEntity);
             } catch (ClassCastException e) {
-                
+                //debug
             }
         }
 
         if (keystoneRune != null && keystoneRune.getId().equals("electrocute")) {
             try {
-                dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute electrocute = 
-                    (dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute) keystoneRune;
+                dev.ixpu.leaguemechanics.rune.keystones.domination.Electrocute electrocute = 
+                    (dev.ixpu.leaguemechanics.rune.keystones.domination.Electrocute) keystoneRune;
                 electrocute.onProjectileHit(shooter, hitEntity);
             } catch (ClassCastException e) {
-                
+                //debug
             }
         }
         
         if (keystoneRune != null && keystoneRune.getId().equals("dark-harvest")) {
             try {
-                dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest darkHarvest = 
-                    (dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest) keystoneRune;
+                dev.ixpu.leaguemechanics.rune.keystones.domination.DarkHarvest darkHarvest = 
+                    (dev.ixpu.leaguemechanics.rune.keystones.domination.DarkHarvest) keystoneRune;
                 darkHarvest.onProjectileHit(shooter, hitEntity);
-            } catch (ClassCastException e) {}
+            } catch (ClassCastException e) {
+                //debug
+            }
         }
 
         if (keystoneRune != null && keystoneRune.getId().equals("arcane-comet")) {
             try {
-                dev.ixpu.leaguerunes.rune.keystones.sorcery.ArcaneComet arcaneComet =
-                        (dev.ixpu.leaguerunes.rune.keystones.sorcery.ArcaneComet) keystoneRune;
+                dev.ixpu.leaguemechanics.rune.keystones.sorcery.ArcaneComet arcaneComet =
+                        (dev.ixpu.leaguemechanics.rune.keystones.sorcery.ArcaneComet) keystoneRune;
                 arcaneComet.onProjectileHit(shooter, hitEntity);
-            } catch (ClassCastException e) {}
+            } catch (ClassCastException e) {
+                //debug
+            }
         }
 
         if (keystoneRune != null && keystoneRune.getId().equals("storm-raider-surge")) {
             try {
-                dev.ixpu.leaguerunes.rune.keystones.sorcery.StormRaiderSurge stormRaider =
-                        (dev.ixpu.leaguerunes.rune.keystones.sorcery.StormRaiderSurge) keystoneRune;
+                dev.ixpu.leaguemechanics.rune.keystones.sorcery.StormRaiderSurge stormRaider =
+                        (dev.ixpu.leaguemechanics.rune.keystones.sorcery.StormRaiderSurge) keystoneRune;
                 stormRaider.onProjectileHit(shooter, hitEntity);
-            } catch (ClassCastException e) {}
+            } catch (ClassCastException e) {
+                //debug
+            }
         }
 
         if (keystoneRune != null && keystoneRune.getId().equals("deathfire-torch")) {
             try {
-                dev.ixpu.leaguerunes.rune.keystones.sorcery.DeathfireTorch deathfire =
-                        (dev.ixpu.leaguerunes.rune.keystones.sorcery.DeathfireTorch) keystoneRune;
+                dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch deathfire =
+                        (dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch) keystoneRune;
                 deathfire.onProjectileHit(shooter, hitEntity);
-            } catch (ClassCastException e) {}
+            } catch (ClassCastException e) {
+                //debug
+            }
         }
 
         if (keystoneRune != null && keystoneRune.getId().equals("glacial-augment")) {
             try {
-                dev.ixpu.leaguerunes.rune.keystones.inspiration.GlacialAugment glacialAugment =
-                        (dev.ixpu.leaguerunes.rune.keystones.inspiration.GlacialAugment) keystoneRune;
+                dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment glacialAugment =
+                        (dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment) keystoneRune;
                 glacialAugment.onProjectileHit(shooter, hitEntity);
-            } catch (ClassCastException e) {}
-        }
-
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onEntityDeath(EntityDeathEvent event) {
-        LivingEntity deadEntity = event.getEntity();
-        
-        if (!(deadEntity instanceof Player)) {
-            return;
-        }
-
-        Player killer = deadEntity.getKiller();
-
-        if (killer == null) {
-            return;
-        }
-
-        if (!runeManager.hasActiveRunes(killer)) {
-            return;
-        }
-
-        PlayerRuneData runeData = runeManager.getPlayerRuneData(killer);
-        if (runeData != null) {
-            for (BaseRune rune : runeData.getAllRunes()) {
-                if (rune != null) {
-                    rune.onPlayerKill(killer, (Player) deadEntity);
-                }
+            } catch (ClassCastException e) {
+                //debug
             }
         }
+
     }
 }
