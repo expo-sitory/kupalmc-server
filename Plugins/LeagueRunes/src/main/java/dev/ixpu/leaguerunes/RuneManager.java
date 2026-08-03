@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes;
+package dev.ixpu.leaguemechanics;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,9 +8,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import dev.ixpu.leaguerunes.player.PlayerRuneData;
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.util.RuneDetector;
+import dev.ixpu.leaguemechanics.player.PlayerRuneData;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.util.RuneDetector;
 
 public class RuneManager {
     private final JavaPlugin plugin;
