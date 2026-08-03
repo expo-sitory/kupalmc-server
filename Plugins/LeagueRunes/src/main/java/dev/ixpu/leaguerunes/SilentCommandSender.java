@@ -1,4 +1,4 @@
-package dev.ixpu.leaguerunes;
+package dev.ixpu.leaguemechanics;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
