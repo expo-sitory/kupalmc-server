@@ -1,17 +1,17 @@
-package dev.ixpu.leaguerunes.command;
+package dev.ixpu.leaguemechanics.command;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import dev.ixpu.leaguerunes.LeagueRunes;
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 public class LeagueRunesCommand implements CommandExecutor {
-    private final LeagueRunes plugin;
+    private final LeagueMechanics plugin;
 
-    public LeagueRunesCommand(LeagueRunes plugin) {
+    public LeagueRunesCommand(LeagueMechanics plugin) {
         this.plugin = plugin;
     }
 
