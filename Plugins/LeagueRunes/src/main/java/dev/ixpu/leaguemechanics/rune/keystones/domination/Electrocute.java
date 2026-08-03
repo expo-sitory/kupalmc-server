@@ -1,7 +1,8 @@
-package dev.ixpu.leaguemechanics.rune.keystones.domination;
+package dev.ixpu.leaguerunes.rune.keystones.domination;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.bukkit.Sound;
@@ -12,9 +13,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.attribute.Attribute;
 
-import dev.ixpu.leaguemechanics.rune.BaseRune;
-import dev.ixpu.leaguemechanics.rune.RunePath;
-import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import dev.ixpu.leaguerunes.rune.BaseRune;
+import dev.ixpu.leaguerunes.rune.RunePath;
+import dev.ixpu.leaguerunes.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class Electrocute extends BaseRune {
@@ -56,11 +57,14 @@ public class Electrocute extends BaseRune {
         UUID playerUUID = attacker.getUniqueId();
         UUID targetUUID = target.getUniqueId();
 
-        if (!(target instanceof LivingEntity livingTarget)) {
+        if (!(target instanceof LivingEntity)) {
             return;
         }
-
-        if (livingTarget.getMaxHealth() < 20) {
+        
+        LivingEntity livingTarget = (LivingEntity) target;
+        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        
+        if (maxHealth < 20) {
             return;
         }
 

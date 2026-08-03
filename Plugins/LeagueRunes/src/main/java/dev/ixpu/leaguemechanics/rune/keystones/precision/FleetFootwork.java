@@ -1,8 +1,8 @@
-package dev.ixpu.leaguemechanics.rune.keystones.precision;
+package dev.ixpu.leaguerunes.rune.keystones.precision;
 
-import dev.ixpu.leaguemechanics.rune.BaseRune;
-import dev.ixpu.leaguemechanics.rune.RunePath;
-import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import dev.ixpu.leaguerunes.rune.BaseRune;
+import dev.ixpu.leaguerunes.rune.RunePath;
+import dev.ixpu.leaguerunes.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 import org.bukkit.attribute.Attribute;
