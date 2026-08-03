@@ -1,7 +1,7 @@
-package dev.ixpu.leaguerunes.player;
+package dev.ixpu.leaguemechanics.player;
 
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
 import org.bukkit.entity.Player;
 
 public class PlayerRuneData {
