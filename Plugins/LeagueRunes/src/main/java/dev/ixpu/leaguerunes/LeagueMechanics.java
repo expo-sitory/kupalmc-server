@@ -1,37 +1,37 @@
-package dev.ixpu.leaguerunes;
+package dev.ixpu.leaguemechanics;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import dev.ixpu.leaguerunes.command.LeagueRunesCommand;
-import dev.ixpu.leaguerunes.listener.PlayerEventListener;
-import dev.ixpu.leaguerunes.listener.RuneListener;
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RuneRegistry;
+import dev.ixpu.leaguemechanics.command.LeagueRunesCommand;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
+import dev.ixpu.leaguemechanics.listener.RuneListener;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 
-import dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror;
-import dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork;
-import dev.ixpu.leaguerunes.rune.keystones.precision.LethalTempo;
-import dev.ixpu.leaguerunes.rune.keystones.precision.PressTheAttack;
+import dev.ixpu.leaguemechanics.rune.keystones.precision.Conqueror;
+import dev.ixpu.leaguemechanics.rune.keystones.precision.FleetFootwork;
+import dev.ixpu.leaguemechanics.rune.keystones.precision.LethalTempo;
+import dev.ixpu.leaguemechanics.rune.keystones.precision.PressTheAttack;
 
-import dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest;
-import dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute;
-import dev.ixpu.leaguerunes.rune.keystones.domination.HailOfBlades;
+import dev.ixpu.leaguemechanics.rune.keystones.domination.DarkHarvest;
+import dev.ixpu.leaguemechanics.rune.keystones.domination.Electrocute;
+import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
 
-import dev.ixpu.leaguerunes.rune.keystones.resolve.GraspOfTheUndying;
-import dev.ixpu.leaguerunes.rune.keystones.resolve.AfterShock;
-import dev.ixpu.leaguerunes.rune.keystones.resolve.Guardian;
+import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
+import dev.ixpu.leaguemechanics.rune.keystones.resolve.AfterShock;
+import dev.ixpu.leaguemechanics.rune.keystones.resolve.Guardian;
 
-import dev.ixpu.leaguerunes.rune.keystones.sorcery.ArcaneComet;
-import dev.ixpu.leaguerunes.rune.keystones.sorcery.StormRaiderSurge;
-import dev.ixpu.leaguerunes.rune.keystones.sorcery.DeathfireTorch;
+import dev.ixpu.leaguemechanics.rune.keystones.sorcery.ArcaneComet;
+import dev.ixpu.leaguemechanics.rune.keystones.sorcery.StormRaiderSurge;
+import dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch;
 
-import dev.ixpu.leaguerunes.rune.keystones.inspiration.GlacialAugment;
+import dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment;
 
 
-public class LeagueRunes extends JavaPlugin {
-    private static LeagueRunes instance;
+public class LeagueMechanics extends JavaPlugin {
+    private static LeagueMechanics instance;
     private RuneRegistry runeRegistry;
     private RuneManager runeManager;
 
@@ -77,7 +77,7 @@ public class LeagueRunes extends JavaPlugin {
         }, 0L, 1L);
     }
 
-    public static LeagueRunes getInstance() {
+    public static LeagueMechanics getInstance() {
         return instance;
     }
 
