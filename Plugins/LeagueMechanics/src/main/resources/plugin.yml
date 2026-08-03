@@ -7,14 +7,14 @@ authors:
   - Ixpu
 
 commands:
-  leaguerunes:
+  leaguemechanics:
     description: League mechanics admin commands
     aliases: [lr]
     usage: /<command> reload
-    permission: leaguerunes.admin
+    permission: leaguemechanics.admin
 
 permissions:
-  leaguerunes.admin:
+  leaguemechanics.admin:
     description: Reload config and all runes
     default: op
   # Primary Rune Path Permissions
