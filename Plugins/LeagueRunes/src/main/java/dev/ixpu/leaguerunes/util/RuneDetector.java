@@ -1,9 +1,9 @@
-package dev.ixpu.leaguerunes.util;
+package dev.ixpu.leaguemechanics.util;
 
-import dev.ixpu.leaguerunes.player.PlayerRuneData;
-import dev.ixpu.leaguerunes.rune.BaseRune;
-import dev.ixpu.leaguerunes.rune.RunePath;
-import dev.ixpu.leaguerunes.rune.RuneRegistry;
+import dev.ixpu.leaguemechanics.player.PlayerRuneData;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import org.bukkit.entity.Player;
 
 public class RuneDetector {
