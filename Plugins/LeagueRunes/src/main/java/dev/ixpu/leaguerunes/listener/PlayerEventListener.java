@@ -1,9 +1,9 @@
-package dev.ixpu.leaguerunes.listener;
+package dev.ixpu.leaguemechanics.listener;
 
-import dev.ixpu.leaguerunes.LeagueRunes;
-import dev.ixpu.leaguerunes.RuneManager;
-import dev.ixpu.leaguerunes.rune.RuneRegistry;
-import dev.ixpu.leaguerunes.rune.keystones.resolve.GraspOfTheUndying;
+import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.RuneManager;
+import dev.ixpu.leaguemechanics.rune.RuneRegistry;
+import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,11 +13,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerEventListener implements Listener {
-    private final LeagueRunes plugin;
+    private final LeagueMechanics plugin;
     private final RuneManager runeManager;
     private final RuneRegistry runeRegistry;
 
-    public PlayerEventListener(LeagueRunes plugin) {
+    public PlayerEventListener(LeagueMechanics plugin) {
         this.plugin = plugin;
         this.runeManager = plugin.getRuneManager();
         this.runeRegistry = plugin.getRuneRegistry();
