@@ -217,7 +217,7 @@ public class HailOfBlades extends BaseRune {
         resetCooldown(player);
         removeAllModifiers(player);
     }
-
+    @SuppressWarnings("removal")
     private void applyAttackSpeedBonus(Player player) {
         removeAllModifiers(player);
         UUID modifierUUID = UUID.nameUUIDFromBytes(("hail-of-blades-" + player.getUniqueId()).getBytes());

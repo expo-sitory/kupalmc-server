@@ -6,11 +6,11 @@
 
     <groupId>dev.ixpu</groupId>
     <artifactId>LeagueMechanics</artifactId>
-    <version>v2</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <name>LeagueMechanics</name>
-    <description>League of Legends Runes System for Minecraft</description>
+    <description>League of Legends Gameplay Mechanics</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
