@@ -1,21 +1,20 @@
-name: LeagueRunes
-version: 1.0.0
-main: dev.ixpu.leaguerunes.LeagueRunes
+name: LeagueMechanics
+main: dev.ixpu.leaguemechanics.LeagueMechanics
 api-version: 1.21
-description: League of Legends Runes System
+description: League of Legends Mechanics
 authors:
   - Ixpu
 
 commands:
   leaguerunes:
-    description: LeagueRunes admin commands
+    description: League mechanics admin commands
     aliases: [lr]
     usage: /<command> reload
     permission: leaguerunes.admin
 
 permissions:
   leaguerunes.admin:
-    description: Allow access to LeagueRunes admin commands
+    description: Reload config and all runes
     default: op
   # Primary Rune Path Permissions
   primary-rune-path.precision:

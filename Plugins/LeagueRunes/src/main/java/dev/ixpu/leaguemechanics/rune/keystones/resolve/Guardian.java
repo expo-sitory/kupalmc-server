@@ -1,0 +1,235 @@
+package dev.ixpu.leaguemechanics.rune.keystones.resolve;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
+public class Guardian extends BaseRune {
+    private double DETECTION_RANGE = 10.0;
+    private int PEACE_DURATION_TICKS = 200;
+    private int MAX_PLAYERS = 5;
+    private int GUARD_RAISE_DURATION_TICKS = 200;
+    private double ABSORPTION_PERCENTAGE = 0.80;
+    private int ABSORPTION_DURATION_TICKS = 1000;
+    private int COOLDOWN_SECONDS = 60;
+
+    private final Map<UUID, List<UUID>> trackedPlayers = new HashMap<>();
+    private final Map<UUID, Integer> windupCounter = new HashMap<>();
+    private final Map<UUID, Long> lastShieldTime = new HashMap<>();
+    private final Map<UUID, Long> lastCombatTime = new HashMap<>();
+
+    public Guardian(ConfigurationSection config) {
+        super("guardian", RunePath.RESOLVE, RuneSlot.KEYSTONE);
+        ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.guardian");
+        if (section != null) {
+            this.DETECTION_RANGE = section.getDouble("detection-range", this.DETECTION_RANGE);
+            this.PEACE_DURATION_TICKS = section.getInt("peace-duration", this.PEACE_DURATION_TICKS);
+            this.MAX_PLAYERS = section.getInt("max-players", this.MAX_PLAYERS);
+            this.GUARD_RAISE_DURATION_TICKS = section.getInt("guard-raise-duration", this.GUARD_RAISE_DURATION_TICKS);
+            this.ABSORPTION_PERCENTAGE = section.getDouble("absorption-percentage", this.ABSORPTION_PERCENTAGE);
+            this.ABSORPTION_DURATION_TICKS = section.getInt("absorption-duration", this.ABSORPTION_DURATION_TICKS);
+            this.COOLDOWN_SECONDS = section.getInt("cooldown", this.COOLDOWN_SECONDS);
+        }
+        this.setCooldownSeconds(COOLDOWN_SECONDS);
+    }
+
+    public Guardian() {
+        super("guardian", RunePath.RESOLVE, RuneSlot.KEYSTONE);
+        this.setCooldownSeconds(COOLDOWN_SECONDS);
+    }
+
+    @Override
+    public void onEnable(Player player) {
+        UUID uuid = player.getUniqueId();
+        trackedPlayers.put(uuid, new ArrayList<>());
+        windupCounter.put(uuid, 0);
+        lastShieldTime.put(uuid, 0L);
+        lastCombatTime.put(uuid, 0L);
+    }
+
+    @Override
+    public void onDisable(Player player) {
+        UUID uuid = player.getUniqueId();
+        clearPlayerCooldown(player);
+        trackedPlayers.remove(uuid);
+        windupCounter.remove(uuid);
+        lastShieldTime.remove(uuid);
+        lastCombatTime.remove(uuid);
+    }
+
+    @Override
+    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+        UUID uuid = attacker.getUniqueId();
+        lastCombatTime.put(uuid, System.currentTimeMillis());
+
+        if (windupCounter.getOrDefault(uuid, 0) > 0) {
+            windupCounter.put(uuid, 0);
+            trackedPlayers.put(uuid, new ArrayList<>());
+        }
+    }
+
+    @Override
+    public void onPlayerDamage(Player victim, double damage) {
+        UUID uuid = victim.getUniqueId();
+        lastCombatTime.put(uuid, System.currentTimeMillis());
+
+        if (windupCounter.getOrDefault(uuid, 0) > 0) {
+            windupCounter.put(uuid, 0);
+            trackedPlayers.put(uuid, new ArrayList<>());
+        }
+    }
+
+    @Override
+    public void tick(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        List<UUID> nearbyPlayers = getNearbyPeacefulPlayers(player);
+
+        int windupCount = windupCounter.getOrDefault(playerUUID, 0);
+
+        if (windupCount > 0) {
+            displayGuardUpProgress(player, windupCount, nearbyPlayers.size());
+            windupCounter.put(playerUUID, windupCount - 1);
+            if (windupCount == 1) {
+                applyShield(player);
+            }
+            return;
+        }
+
+        trackedPlayers.put(playerUUID, nearbyPlayers);
+
+        long lastCombat = lastCombatTime.getOrDefault(playerUUID, 0L);
+        long currentTime = System.currentTimeMillis();
+        long peaceDurationMs = PEACE_DURATION_TICKS * 50L;
+        boolean playerIsPeaceful = (currentTime - lastCombat) >= peaceDurationMs;
+
+        if (!nearbyPlayers.isEmpty() && playerIsPeaceful && !isOnCooldown(player)) {
+            startGuardRaise(player);
+            return;
+        }
+
+        if (isOnCooldown(player)) {
+            displayCooldownInfo(player);
+            return;
+        }
+
+        displayIdleState(player);
+    }
+
+    private List<UUID> getNearbyPeacefulPlayers(Player player) {
+        List<UUID> peaceful = new ArrayList<>();
+        long currentTime = System.currentTimeMillis();
+
+        for (Player nearby : player.getWorld().getPlayers()) {
+            if (nearby.getUniqueId().equals(player.getUniqueId())) {
+                continue;
+            }
+
+            if (nearby.getLocation().distance(player.getLocation()) > DETECTION_RANGE) {
+                continue;
+            }
+
+            long lastCombat = lastCombatTime.getOrDefault(nearby.getUniqueId(), 0L);
+            long peaceDurationMs = PEACE_DURATION_TICKS * 50L;
+
+            if ((currentTime - lastCombat) >= peaceDurationMs) {
+                peaceful.add(nearby.getUniqueId());
+                if (peaceful.size() >= MAX_PLAYERS) {
+                    break;
+                }
+            }
+        }
+
+        return peaceful;
+    }
+
+    private void startGuardRaise(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        List<UUID> nearbyPlayers = getNearbyPeacefulPlayers(player);
+        trackedPlayers.put(playerUUID, nearbyPlayers);
+        windupCounter.put(playerUUID, GUARD_RAISE_DURATION_TICKS);
+        lastShieldTime.put(playerUUID, System.currentTimeMillis());
+        player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.2f);
+    }
+
+    private void applyShield(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        List<UUID> shields = trackedPlayers.getOrDefault(playerUUID, new ArrayList<>());
+
+        applyAbsorption(player);
+        player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_RETURN, 1.0f, 1.5f);
+
+        int count = 0;
+        for (UUID trackedUUID : shields) {
+            if (count >= MAX_PLAYERS) break;
+
+            Player trackedPlayer = player.getServer().getPlayer(trackedUUID);
+            if (trackedPlayer != null && trackedPlayer.isOnline()) {
+                applyAbsorption(trackedPlayer);
+                trackedPlayer.playSound(trackedPlayer.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_RETURN, 1.0f, 0.5f);
+                count++;
+            }
+        }
+        resetCooldown(player);
+    }
+
+    private void applyAbsorption(Player player) {
+
+        int maxHealth = (int) Math.ceil(player.getMaxHealth());
+        int absorbAmount = (int) Math.ceil(maxHealth * ABSORPTION_PERCENTAGE / 4.0);
+
+        player.addPotionEffect(new PotionEffect(
+                PotionEffectType.ABSORPTION,
+                ABSORPTION_DURATION_TICKS,
+                Math.min(absorbAmount, 255),
+                false,
+                false
+        ));
+    }
+
+    private void displayGuardUpProgress(Player player, int remaining, int nearbyCount) {
+        int iconIndex = (GUARD_RAISE_DURATION_TICKS - remaining) % 3;
+        String message;
+        if (remaining > GUARD_RAISE_DURATION_TICKS * 2 / 3) {
+            message = "§a《§2⦿》 " + nearbyCount + "/" + MAX_PLAYERS;
+        } else if (remaining > GUARD_RAISE_DURATION_TICKS / 3) {
+            message = "§a《⦿§2》 " + nearbyCount + "/" + MAX_PLAYERS;
+        } else {
+            message = "§a《⦿》 " + nearbyCount + "/" + MAX_PLAYERS;
+        }
+
+        player.sendActionBar(Component.text()
+                .append(Component.text(message, NamedTextColor.WHITE))
+                .build());
+    }
+
+    private void displayIdleState(Player player) {
+
+        player.sendActionBar(Component.text()
+                .append(Component.text("§2《⦿》"))
+                .build());
+    }
+
+    private void displayCooldownInfo(Player player) {
+        String cooldownDisplay = getCooldownDisplay(player);
+
+        player.sendActionBar(Component.text()
+                .append(Component.text("§7《⦿》 " + cooldownDisplay))
+                .build());
+    }
+}
