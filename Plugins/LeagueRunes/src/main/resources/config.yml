@@ -59,3 +59,41 @@ runes:
         heal-percent: 0.15 
         bonus-hearts: 1
         max-bonus-hearts: 10
+
+      aftershock:
+        cooldown: 40
+        effect-duration: 300
+        absorption-level: 3
+        resistance-level: 3
+
+      guardian:
+        cooldown: 60
+        detection-range: 10.0
+        peace-duration: 200
+        max-players: 5
+        guard-raise-duration: 200
+        absorption-percentage: 0.80
+        absorption-duration: 1000
+
+    sorcery:
+      arcane-comet:
+        cooldown: 30
+        comet-fall-ticks: 30
+
+      storm-raider-surge:
+        cooldown: 15
+        damage-threshold: 0.60
+        tracking-window: 60
+        movement-speed-bonus: 0.40
+        speed-duration: 120
+
+      deathfire-torch:
+        burn-duration: 100
+        damage-interval: 10
+
+    inspiration:
+      glacial-augment:
+        cooldown: 45
+        freeze-duration: 120
+        speed-reduction: -0.40
+        damage-reduction: -0.20

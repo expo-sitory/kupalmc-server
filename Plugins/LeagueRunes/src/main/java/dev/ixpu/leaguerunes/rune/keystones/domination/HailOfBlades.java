@@ -1,10 +1,6 @@
 package dev.ixpu.leaguerunes.rune.keystones.domination;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -27,7 +23,6 @@ public class HailOfBlades extends BaseRune {
     private int STACK_DURATION_TICKS = 10; 
     private int INACTIVITY_TIMEOUT_TICKS = 60; 
     private int INITIAL_STACKS = 2;
-    private int WINDUP_COOLDOWN_SECONDS = 300;
 
     private final Map<UUID, Boolean> windupActive = new HashMap<>();
     private final Map<UUID, Integer> windupTicks = new HashMap<>();
@@ -41,6 +36,7 @@ public class HailOfBlades extends BaseRune {
     public HailOfBlades(ConfigurationSection config) {
         super("hail-of-blades", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.hail-of-blades");
+        int WINDUP_COOLDOWN_SECONDS = 300;
         if (section != null) {
             this.ATTACK_SPEED_BONUS = section.getDouble("attack-speed-bonus", this.ATTACK_SPEED_BONUS);
             this.TRUE_DAMAGE_MULTIPLIER = section.getDouble("true-damage-multiplier", this.TRUE_DAMAGE_MULTIPLIER);
@@ -48,13 +44,8 @@ public class HailOfBlades extends BaseRune {
             this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
             this.INACTIVITY_TIMEOUT_TICKS = section.getInt("inactivity-timeout", this.INACTIVITY_TIMEOUT_TICKS);
             this.INITIAL_STACKS = section.getInt("initial-stacks", this.INITIAL_STACKS);
-            this.WINDUP_COOLDOWN_SECONDS = section.getInt("cooldown", this.WINDUP_COOLDOWN_SECONDS);
+            WINDUP_COOLDOWN_SECONDS = section.getInt("cooldown", WINDUP_COOLDOWN_SECONDS);
         }
-        this.setCooldownSeconds(WINDUP_COOLDOWN_SECONDS);
-    }
-
-    public HailOfBlades() {
-        super("hail-of-blades", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         this.setCooldownSeconds(WINDUP_COOLDOWN_SECONDS);
     }
 
@@ -90,13 +81,12 @@ public class HailOfBlades extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = attacker.getUniqueId();
 
-        if (!(target instanceof LivingEntity)) {
+        if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        
-        LivingEntity livingTarget = (LivingEntity) target;
-        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        
+
+        double maxHealth = Objects.requireNonNull(livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
+
         if (maxHealth < 20) {
             return;
         }
@@ -234,7 +224,7 @@ public class HailOfBlades extends BaseRune {
     private void applyAttackSpeedBonus(Player player) {
         removeAllModifiers(player);
         UUID modifierUUID = UUID.nameUUIDFromBytes(("hail-of-blades-" + player.getUniqueId()).getBytes());
-        
+
         AttributeModifier modifier = new AttributeModifier(
             modifierUUID,
             "Hail of Blades Attack Speed",
@@ -287,7 +277,7 @@ public class HailOfBlades extends BaseRune {
         double damageBonus = TRUE_DAMAGE_MULTIPLIER * 100;
 
         player.sendActionBar(Component.text()
-            .append(Component.text("§c❛❟❛ " + stacks + "/" + INITIAL_STACKS, NamedTextColor.RED))
+            .append(Component.text("§c❛❟❛ " + stacks + "/" + INITIAL_STACKS))
             .build());
     }
 

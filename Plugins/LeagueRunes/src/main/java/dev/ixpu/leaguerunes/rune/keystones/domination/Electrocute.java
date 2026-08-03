@@ -2,6 +2,7 @@ package dev.ixpu.leaguerunes.rune.keystones.domination;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.bukkit.Sound;
@@ -20,7 +21,6 @@ import net.kyori.adventure.text.Component;
 public class Electrocute extends BaseRune {
     private int MAX_STACKS = 3;
     private int STACK_DURATION_TICKS = 60;
-    private int COOLDOWN_DURATION_SECONDS = 400;
 
     private final Map<UUID, Map<UUID, Integer>> playerEntityStacks = new HashMap<>();
     private final Map<UUID, Map<UUID, Integer>> stackExpiryTicks = new HashMap<>();
@@ -28,16 +28,12 @@ public class Electrocute extends BaseRune {
     public Electrocute(org.bukkit.configuration.ConfigurationSection config) {
         super("electrocute", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.electrocute");
+        int COOLDOWN_DURATION_SECONDS = 25;
         if (section != null) {
             this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
             this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
-            this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", this.COOLDOWN_DURATION_SECONDS);
+            COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
         }
-        this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
-    }
-
-    public Electrocute() {
-        super("electrocute", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
     }
 
@@ -91,14 +87,11 @@ public class Electrocute extends BaseRune {
         UUID playerUUID = shooter.getUniqueId();
         UUID targetUUID = target.getUniqueId();
 
-        if (!(target instanceof LivingEntity)) {
+        if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        
-        LivingEntity livingTarget = (LivingEntity) target;
-        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        
-        if (maxHealth < 20) {
+
+        if (livingTarget.getMaxHealth() < 20) {
             return;
         }
 
@@ -192,7 +185,7 @@ public class Electrocute extends BaseRune {
 
     private void displayStackInfo(Player player, int stacks) {
         player.sendActionBar(Component.text()
-                .append(Component.text("§c⚡ " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text("§c⚡ " + stacks + "/" + MAX_STACKS))
                 .build());
     }
 

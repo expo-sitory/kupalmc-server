@@ -11,13 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 public class FleetFootwork extends BaseRune {
@@ -45,14 +39,6 @@ public class FleetFootwork extends BaseRune {
         this.SPEED_BUFF_DURATION_TICKS = section.getInt("speed-duration-ticks", this.SPEED_BUFF_DURATION_TICKS);
     }
 
-    public FleetFootwork() {
-        super(
-                "fleet-footwork",
-                RunePath.PRECISION,
-                RuneSlot.KEYSTONE
-        );
-    }
-
     @Override
     public void onEnable(Player player) {
         UUID uuid = player.getUniqueId();
@@ -70,6 +56,40 @@ public class FleetFootwork extends BaseRune {
         distanceAccumulator.remove(uuid);
         speedBuffTicks.remove(uuid);
         removeAllModifiers(player);
+    }
+
+    public void onProjectileHit(Player shooter, Entity target) {
+        UUID playerUUID = shooter.getUniqueId();
+        int stacks = playerStacks.getOrDefault(playerUUID, 0);
+
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+
+        for (int i = 0; i < PROJECTILE_STACK_GAIN; i++) {
+            if (stacks < MAX_STACKS) {
+                addStack(shooter);
+                stacks++;
+            }
+        }
+
+        if (stacks >= MAX_STACKS) {
+            double maxHealth = shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+            double currentHealth = shooter.getHealth();
+            double missingHealth = maxHealth - currentHealth;
+            double healAmount = missingHealth * HEAL_PERCENT;
+
+            shooter.setHealth(Math.min(maxHealth, currentHealth + healAmount));
+            playerStacks.put(playerUUID, 0);
+            applySpeedBuff(shooter);
+            distanceAccumulator.put(playerUUID, 0.0);
+        } else if (speedBuffTicks.getOrDefault(playerUUID, 0) > 0) {
+            refreshSpeedBuff(shooter);
+        }
     }
 
     @Override
@@ -107,73 +127,6 @@ public class FleetFootwork extends BaseRune {
         displayStackInfo(player);
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        UUID playerUUID = attacker.getUniqueId();
-        int stacks = playerStacks.getOrDefault(playerUUID, 0);
-
-        if (!(target instanceof LivingEntity)) {
-            return;
-        }
-        
-        LivingEntity livingTarget = (LivingEntity) target;
-        double maxHp = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        
-        if (maxHp < 20) {
-            return;
-        }
-
-        if (stacks >= MAX_STACKS) {
-            double maxHealth = attacker.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-            double currentHealth = attacker.getHealth();
-            double missingHealth = maxHealth - currentHealth;
-            double healAmount = missingHealth * HEAL_PERCENT;
-
-            attacker.setHealth(Math.min(maxHealth, currentHealth + healAmount));            
-
-            playerStacks.put(playerUUID, 0);
-            applySpeedBuff(attacker);
-            distanceAccumulator.put(playerUUID, 0.0);
-        }
-    }
-
-    public void onProjectileHit(Player shooter, Entity target) {
-        UUID playerUUID = shooter.getUniqueId();
-        int stacks = playerStacks.getOrDefault(playerUUID, 0);
-
-        if (!(target instanceof LivingEntity)) {
-            return;
-        }
-        
-        LivingEntity livingTarget = (LivingEntity) target;
-        double maxHp = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        
-        if (maxHp < 20) {
-            return;
-        }
-
-        for (int i = 0; i < PROJECTILE_STACK_GAIN; i++) {
-            if (stacks < MAX_STACKS) {
-                addStack(shooter);
-                stacks++;
-            }
-        }
-
-        if (stacks >= MAX_STACKS) {
-            double maxHealth = shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-            double currentHealth = shooter.getHealth();
-            double missingHealth = maxHealth - currentHealth;
-            double healAmount = missingHealth * HEAL_PERCENT;
-
-            shooter.setHealth(Math.min(maxHealth, currentHealth + healAmount));
-            playerStacks.put(playerUUID, 0);
-            applySpeedBuff(shooter);
-            distanceAccumulator.put(playerUUID, 0.0);
-        } else if (speedBuffTicks.getOrDefault(playerUUID, 0) > 0) {
-            refreshSpeedBuff(shooter);
-        }
-    }
-
     private void addStack(Player player) {
         UUID playerUUID = player.getUniqueId();
         int current = playerStacks.getOrDefault(playerUUID, 0);
@@ -188,6 +141,7 @@ public class FleetFootwork extends BaseRune {
         }
     }
 
+    @SuppressWarnings("removal")
     private void applySpeedBuff(Player player) {
         UUID playerUUID = player.getUniqueId();
         removeAllModifiers(player);
@@ -236,12 +190,12 @@ public class FleetFootwork extends BaseRune {
         if (buffTicks > 0) {
             double remainingSeconds = buffTicks / 20.0;
             player.sendActionBar(Component.text()
-                    .append(Component.text(String.format("§e👣 " + "(%.1fs) ", remainingSeconds), net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                    .append(Component.text(String.format("§e👣 " + "(%.1fs) ", remainingSeconds)))
                     .build());
         } else {
 
             player.sendActionBar(Component.text()
-                    .append(Component.text("§e👣 " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                    .append(Component.text("§e👣 " + stacks + "/" + MAX_STACKS))
                     .build());
         }
     }

@@ -67,7 +67,7 @@ public class RuneDetector {
             "press-the-attack", "lethal-tempo", "fleet-footwork", "conqueror",
             "electrocute", "dark-harvest", "hail-of-blades",
             "grasp-of-the-undying", "aftershock", "guardian",
-            "summon-aery", "arcane-comet", "storm-raider-surge", "hell-fire-torch",
+            "summon-aery", "arcane-comet", "storm-raider-surge", "deathfire-torch",
             "glacial-augment", "unsealed-spellbook", "first-strike"
         };
 

@@ -1,12 +1,7 @@
 package dev.ixpu.leaguerunes.rune.keystones.precision;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-import org.bukkit.attribute.Attribute;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -22,7 +17,6 @@ import net.kyori.adventure.text.Component;
 
 public class PressTheAttack extends BaseRune {
     private static final int MAX_STACKS = 3;
-    private int COOLDOWN_DURATION_SECONDS = 200;
     private int STACK_DURATION_TICKS = 60;
     private double DAMAGE_PER_HEART = 1.5;
 
@@ -33,17 +27,12 @@ public class PressTheAttack extends BaseRune {
     public PressTheAttack(org.bukkit.configuration.ConfigurationSection config) {
         super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.press-the-attack");
+        int COOLDOWN_DURATION_SECONDS = 200;
         if (section != null) {
             this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
             this.DAMAGE_PER_HEART = section.getDouble("base-damage", this.DAMAGE_PER_HEART);
-            this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", this.COOLDOWN_DURATION_SECONDS);
+            COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
         }
-        this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
-    }
-
-    public PressTheAttack() {
-        super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE);
-        this.hasStacking = false;
         this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
     }
 
@@ -68,20 +57,13 @@ public class PressTheAttack extends BaseRune {
         UUID playerUUID = attacker.getUniqueId();
         UUID targetUUID = target.getUniqueId();
 
-        if (!(target instanceof LivingEntity)) {
-            return;
-        }
-        
-        LivingEntity livingTarget = (LivingEntity) target;
-        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        
-        if (maxHealth < 20) {
+        if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
 
-        if (isOnCooldown(attacker)) {
+        if (livingTarget.getMaxHealth() < 20) {
             return;
-        }        
+        }
 
         UUID previousTarget = lastTarget.get(playerUUID);
         if (previousTarget != null && !previousTarget.equals(targetUUID)) {
@@ -189,7 +171,7 @@ public class PressTheAttack extends BaseRune {
         }
         
         player.sendActionBar(Component.text()
-                .append(Component.text("§e✽ " + currentStacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(Component.text("§e✽ " + currentStacks + "/" + MAX_STACKS))
                 .build());
     }
 }

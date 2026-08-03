@@ -12,18 +12,13 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 public class GraspOfTheUndying extends BaseRune {
     private int MAX_STACKS = 4;
     private int COMBAT_DURATION_TICKS = 60;
     private int ATTACK_WINDOW_TICKS = 100;
-    private int COOLDOWN_DURATION_TICKS = 600;
     private double DAMAGE_PERCENT = 0.05;
     private double HEAL_PERCENT = 0.15;
     private int BONUS_HEARTS = 1;
@@ -38,22 +33,18 @@ public class GraspOfTheUndying extends BaseRune {
     public GraspOfTheUndying(org.bukkit.configuration.ConfigurationSection config) {
         super("grasp-of-the-undying", RunePath.RESOLVE, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.grasp-of-the-undying");
+        int COOLDOWN_DURATION_SECONDS = 60;
         if (section != null) {
-            this.MAX_STACKS = section.getInt("max-stacks", 4);
-            this.COMBAT_DURATION_TICKS = section.getInt("combat-duration", 60);
-            this.ATTACK_WINDOW_TICKS = section.getInt("attack-window", 100);
-            this.COOLDOWN_DURATION_TICKS = section.getInt("cooldown-duration", 600);
-            this.DAMAGE_PERCENT = section.getDouble("damage-percent", 0.05);
-            this.HEAL_PERCENT = section.getDouble("heal-percent", 0.15);
-            this.BONUS_HEARTS = section.getInt("bonus-hearts", 1);
-            this.MAX_BONUS_HEARTS = section.getInt("max-bonus-hearts", 10);
+            this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
+            this.COMBAT_DURATION_TICKS = section.getInt("combat-duration", this.COMBAT_DURATION_TICKS);
+            this.ATTACK_WINDOW_TICKS = section.getInt("attack-window", this.ATTACK_WINDOW_TICKS);
+            COOLDOWN_DURATION_SECONDS = section.getInt("cooldown-duration", COOLDOWN_DURATION_SECONDS);
+            this.DAMAGE_PERCENT = section.getDouble("damage-percent", this.DAMAGE_PERCENT);
+            this.HEAL_PERCENT = section.getDouble("heal-percent", this.HEAL_PERCENT);
+            this.BONUS_HEARTS = section.getInt("bonus-hearts", this.BONUS_HEARTS);
+            this.MAX_BONUS_HEARTS = section.getInt("max-bonus-hearts", this.MAX_BONUS_HEARTS);
         }
-        this.setCooldownSeconds(COOLDOWN_DURATION_TICKS / 20.0);
-    }
-
-    public GraspOfTheUndying() {
-        super("grasp-of-the-undying", RunePath.RESOLVE, RuneSlot.KEYSTONE);
-        this.setCooldownSeconds(COOLDOWN_DURATION_TICKS / 20.0);
+        this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
     }
 
     @Override
@@ -102,13 +93,12 @@ public class GraspOfTheUndying extends BaseRune {
         int stacks = playerStacks.getOrDefault(playerUUID, 0);
         int attackWindow = attackWindowTicks.getOrDefault(playerUUID, 0);
 
-        if (!(target instanceof LivingEntity)) {
+        if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        
-        LivingEntity livingTarget = (LivingEntity) target;
-        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        
+
+        double maxHealth = Objects.requireNonNull(livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
+
         if (maxHealth < 20) {
             return;
         }
@@ -175,27 +165,28 @@ public class GraspOfTheUndying extends BaseRune {
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_AMBIENT, 1.0f, 1.0f);
     }
 
+    @SuppressWarnings("removal")
     private void applyBonusHealth(Player player) {
         UUID playerUUID = player.getUniqueId();
-        
+
         var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (maxHealthAttr == null) return;
-        
+
         int currentBonusHearts = totalBonusHearts.getOrDefault(playerUUID, 0);
-        
+
         if (currentBonusHearts < MAX_BONUS_HEARTS) {
             currentBonusHearts++;
             totalBonusHearts.put(playerUUID, currentBonusHearts);
-            
+
             removeAllModifiers(player);
-            
+
             var modifier = new AttributeModifier(
                     java.util.UUID.randomUUID(),
                     "grasp-bonus-health",
                     currentBonusHearts * 2.0,
                     AttributeModifier.Operation.ADD_NUMBER
             );
-            
+
             maxHealthAttr.addModifier(modifier);
             activeModifiers.computeIfAbsent(playerUUID, k -> new ArrayList<>()).add(modifier);
         }
@@ -204,15 +195,20 @@ public class GraspOfTheUndying extends BaseRune {
     private void removeAllModifiers(Player player) {
         UUID playerUUID = player.getUniqueId();
         List<AttributeModifier> mods = activeModifiers.getOrDefault(playerUUID, new ArrayList<>());
-        var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        
-        if (maxHealthAttr != null) {
-            for (AttributeModifier mod : mods) {
-                try {
-                    maxHealthAttr.removeModifier(mod);
-                } catch (Exception e) {}
+
+        try {
+            var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+            if (maxHealthAttr != null) {
+                for (AttributeModifier mod : mods) {
+                    try {
+                        maxHealthAttr.removeModifier(mod);
+                    } catch (Exception e) {}
+                }
             }
+        } catch (NoSuchFieldError e) {
+
         }
+
         activeModifiers.put(playerUUID, new ArrayList<>());
     }
 

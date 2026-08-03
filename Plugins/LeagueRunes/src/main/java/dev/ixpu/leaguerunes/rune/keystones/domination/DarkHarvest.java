@@ -2,6 +2,7 @@ package dev.ixpu.leaguerunes.rune.keystones.domination;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.bukkit.attribute.Attribute;
@@ -24,8 +25,6 @@ public class DarkHarvest extends BaseRune {
     private double BASE_BONUS_DAMAGE = 0.8;
     private double DAMAGE_PER_SOUL = 0.3;
     private int REAP_DELAY_TICKS = 35;
-    private int SOUL_COOLDOWN_SECONDS = 60;
-    private int KILL_RESET_COOLDOWN_TICKS = 200;
     private int MAX_SOULS = 12;
     private int LEVEL_COST_PER_SOUL = 5;
 
@@ -35,21 +34,16 @@ public class DarkHarvest extends BaseRune {
     public DarkHarvest(ConfigurationSection config) {
         super("dark-harvest", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.dark-harvest");
+        int SOUL_COOLDOWN_SECONDS = 60;
         if (section != null) {
             this.HEALTH_THRESHOLD = section.getDouble("health-threshold", this.HEALTH_THRESHOLD);
             this.BASE_BONUS_DAMAGE = section.getDouble("base-bonus-damage", this.BASE_BONUS_DAMAGE);
             this.DAMAGE_PER_SOUL = section.getDouble("damage-per-soul", this.DAMAGE_PER_SOUL);
             this.REAP_DELAY_TICKS = section.getInt("reap-delay", this.REAP_DELAY_TICKS);
-            this.SOUL_COOLDOWN_SECONDS = section.getInt("cooldown", this.SOUL_COOLDOWN_SECONDS);
-            this.KILL_RESET_COOLDOWN_TICKS = section.getInt("kill-reset-cooldown", this.KILL_RESET_COOLDOWN_TICKS);
+            SOUL_COOLDOWN_SECONDS = section.getInt("cooldown", SOUL_COOLDOWN_SECONDS);
             this.MAX_SOULS = section.getInt("max-souls-stack", this.MAX_SOULS);
             this.LEVEL_COST_PER_SOUL = section.getInt("level-cost-per-soul", this.LEVEL_COST_PER_SOUL);
         }
-        this.setCooldownSeconds(SOUL_COOLDOWN_SECONDS);
-    }
-
-    public DarkHarvest() {
-        super("dark-harvest", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         this.setCooldownSeconds(SOUL_COOLDOWN_SECONDS);
     }
 
@@ -74,11 +68,10 @@ public class DarkHarvest extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = attacker.getUniqueId();
 
-        if (!(target instanceof LivingEntity)) {
+        if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
 
-        LivingEntity livingTarget = (LivingEntity) target;
         double targetHealth = livingTarget.getHealth();
         double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
         double healthPercent = targetHealth / maxHealth;
@@ -108,12 +101,11 @@ public class DarkHarvest extends BaseRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity)) {
+        if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
 
-        LivingEntity livingTarget = (LivingEntity) target;
-        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+        double maxHealth = Objects.requireNonNull(livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
 
         if (maxHealth < 20) {
             return;
@@ -177,17 +169,17 @@ public class DarkHarvest extends BaseRune {
 
     private void displayCooldown(Player player, int souls) {
         String cooldownDisplay = getCooldownDisplay(player);
-        player.sendActionBar(Component.text("§7👻 " + souls + "/" + MAX_SOULS + " | " + cooldownDisplay, NamedTextColor.RED));
+        player.sendActionBar(Component.text("§7👻 " + souls + "/" + MAX_SOULS + " | " + cooldownDisplay));
     }
 
     private void displaySoulInfo(Player player, int souls) {
         if (souls >= 1) {
                 player.sendActionBar(Component.text()
-                        .append(Component.text("§c👻 " + souls + "/" + MAX_SOULS, NamedTextColor.RED))
+                        .append(Component.text("§c👻 " + souls + "/" + MAX_SOULS))
                         .build());
         } else {
                 player.sendActionBar(Component.text()
-                        .append(Component.text("§c👻", NamedTextColor.RED))
+                        .append(Component.text("§c👻"))
                         .build());
         }
     }

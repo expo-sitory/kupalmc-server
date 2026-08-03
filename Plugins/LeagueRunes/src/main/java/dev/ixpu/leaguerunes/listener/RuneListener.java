@@ -162,6 +162,39 @@ public class RuneListener implements Listener {
                 darkHarvest.onProjectileHit(shooter, hitEntity);
             } catch (ClassCastException e) {}
         }
+
+        if (keystoneRune != null && keystoneRune.getId().equals("arcane-comet")) {
+            try {
+                dev.ixpu.leaguerunes.rune.keystones.sorcery.ArcaneComet arcaneComet =
+                        (dev.ixpu.leaguerunes.rune.keystones.sorcery.ArcaneComet) keystoneRune;
+                arcaneComet.onProjectileHit(shooter, hitEntity);
+            } catch (ClassCastException e) {}
+        }
+
+        if (keystoneRune != null && keystoneRune.getId().equals("storm-raider-surge")) {
+            try {
+                dev.ixpu.leaguerunes.rune.keystones.sorcery.StormRaiderSurge stormRaider =
+                        (dev.ixpu.leaguerunes.rune.keystones.sorcery.StormRaiderSurge) keystoneRune;
+                stormRaider.onProjectileHit(shooter, hitEntity);
+            } catch (ClassCastException e) {}
+        }
+
+        if (keystoneRune != null && keystoneRune.getId().equals("deathfire-torch")) {
+            try {
+                dev.ixpu.leaguerunes.rune.keystones.sorcery.DeathfireTorch deathfire =
+                        (dev.ixpu.leaguerunes.rune.keystones.sorcery.DeathfireTorch) keystoneRune;
+                deathfire.onProjectileHit(shooter, hitEntity);
+            } catch (ClassCastException e) {}
+        }
+
+        if (keystoneRune != null && keystoneRune.getId().equals("glacial-augment")) {
+            try {
+                dev.ixpu.leaguerunes.rune.keystones.inspiration.GlacialAugment glacialAugment =
+                        (dev.ixpu.leaguerunes.rune.keystones.inspiration.GlacialAugment) keystoneRune;
+                glacialAugment.onProjectileHit(shooter, hitEntity);
+            } catch (ClassCastException e) {}
+        }
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

@@ -1,10 +1,6 @@
 package dev.ixpu.leaguerunes.rune.keystones.precision;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -20,7 +16,6 @@ import dev.ixpu.leaguerunes.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class LethalTempo extends BaseRune {
-    private int COOLDOWN_DURATION_SECONDS = 30;
     private int MAX_STACKS = 6;
     private int STACK_DURATION_TICKS = 120;
     private int ACTIVE_DURATION_TICKS = 60;  
@@ -36,12 +31,13 @@ public class LethalTempo extends BaseRune {
     public LethalTempo(org.bukkit.configuration.ConfigurationSection config) {
         super("lethal-tempo", RunePath.PRECISION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.lethal-tempo");
+        int COOLDOWN_DURATION_SECONDS = 30;
         if (section != null) {
             this.MAX_STACKS = section.getInt("max-stacks", this.MAX_STACKS);
             this.STACK_DURATION_TICKS = section.getInt("stack-duration", this.STACK_DURATION_TICKS);
             this.ACTIVE_DURATION_TICKS = section.getInt("active-duration", this.ACTIVE_DURATION_TICKS);
             this.ATTACK_SPEED_BONUS = section.getDouble("attack-speed-bonus", this.ATTACK_SPEED_BONUS);
-            this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", this.COOLDOWN_DURATION_SECONDS);
+            COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
         }
         this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
     }
@@ -50,11 +46,6 @@ public class LethalTempo extends BaseRune {
         STACKING, ACTIVE
     }
 
-    public LethalTempo() {
-        super("lethal-tempo", RunePath.PRECISION, RuneSlot.KEYSTONE);
-        this.hasStacking = false;
-        this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
-    }
 
     @Override
     public void onEnable(Player player) {
@@ -83,14 +74,11 @@ public class LethalTempo extends BaseRune {
         UUID targetUUID = target.getUniqueId();
         RuneState state = playerState.getOrDefault(playerUUID, RuneState.STACKING);
 
-        if (!(target instanceof LivingEntity)) {
+        if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        
-        LivingEntity livingTarget = (LivingEntity) target;
-        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        
-        if (maxHealth < 20) {
+
+        if (livingTarget.getMaxHealth() < 20) {
             return;
         }
 
@@ -104,6 +92,50 @@ public class LethalTempo extends BaseRune {
             addStack(attacker, targetUUID);
         } else if (state == RuneState.ACTIVE) {
             refreshActiveTimer(attacker);
+        }
+    }
+
+
+    @Override
+    public void tick(Player player) {
+        UUID playerUUID = player.getUniqueId();
+
+        if (isOnCooldown(player)) {
+            displayCooldownInfo(player);
+            return;
+        }
+
+        RuneState state = playerState.getOrDefault(playerUUID, RuneState.STACKING);
+
+        if (state == RuneState.STACKING) {
+            int expiry = stackExpiryTicks.getOrDefault(playerUUID, 0);
+
+            if (expiry > 0) {
+                expiry--;
+                stackExpiryTicks.put(playerUUID, expiry);
+
+                if (expiry == 0) {
+                    playerStacks.get(playerUUID).clear();
+                    lastTarget.put(playerUUID, null);
+                }
+            }
+            displayStackInfo(player);
+
+        } else if (state == RuneState.ACTIVE) {
+            int activeTime = activeTimers.get(playerUUID);
+            activeTime--;
+            activeTimers.put(playerUUID, activeTime);
+
+            displayActiveInfo(player, activeTime);
+
+            if (activeTime == 0) {
+                resetCooldown(player);
+                playerState.put(playerUUID, RuneState.STACKING);
+                removeAllModifiers(player);
+                playerStacks.get(playerUUID).clear();
+                lastTarget.put(playerUUID, null);
+                player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.2f);
+            }
         }
     }
 
@@ -191,49 +223,6 @@ public class LethalTempo extends BaseRune {
         activeModifiers.computeIfAbsent(player.getUniqueId(), k -> new ArrayList<>()).add(modifier);
     }
 
-    @Override
-    public void tick(Player player) {
-        UUID playerUUID = player.getUniqueId();
-
-        if (isOnCooldown(player)) {
-            displayCooldownInfo(player);
-            return;
-        }
-
-        RuneState state = playerState.getOrDefault(playerUUID, RuneState.STACKING);
-
-        if (state == RuneState.STACKING) {
-            int expiry = stackExpiryTicks.getOrDefault(playerUUID, 0);
-
-            if (expiry > 0) {
-                expiry--;
-                stackExpiryTicks.put(playerUUID, expiry);
-
-                if (expiry == 0) {
-                    playerStacks.get(playerUUID).clear();
-                    lastTarget.put(playerUUID, null);
-                }
-            }
-            displayStackInfo(player);
-
-        } else if (state == RuneState.ACTIVE) {
-            int activeTime = activeTimers.get(playerUUID);
-            activeTime--;
-            activeTimers.put(playerUUID, activeTime);
-
-            displayActiveInfo(player, activeTime);
-
-            if (activeTime == 0) {
-                resetCooldown(player);
-                playerState.put(playerUUID, RuneState.STACKING);
-                removeAllModifiers(player);
-                playerStacks.get(playerUUID).clear();
-                lastTarget.put(playerUUID, null);
-                player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.2f);
-            }
-        }
-    }
-
     private void displayActiveInfo(Player player, int activeTime) {
         double remainingSeconds = activeTime / 20.0;
         
@@ -252,8 +241,7 @@ public class LethalTempo extends BaseRune {
         Map<UUID, Integer> stacks = playerStacks.get(playerUUID);
         
         if (stacks == null || stacks.isEmpty()) {
-            player.sendActionBar(Component.text("§6⚚")
-                    .color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
+            player.sendActionBar(Component.text("§6⚚"));
             return;
         }
         
@@ -264,7 +252,7 @@ public class LethalTempo extends BaseRune {
         }
 
         player.sendActionBar(Component.text()
-                .append(Component.text("§6⚚ " + currentStacks + "/6", net.kyori.adventure.text.format.NamedTextColor.GRAY))
+                .append(Component.text("§6⚚ " + currentStacks + "/6"))
                 .build());
     }
 

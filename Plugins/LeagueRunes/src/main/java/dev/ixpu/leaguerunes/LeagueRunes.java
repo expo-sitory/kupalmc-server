@@ -9,14 +9,26 @@ import dev.ixpu.leaguerunes.listener.PlayerEventListener;
 import dev.ixpu.leaguerunes.listener.RuneListener;
 import dev.ixpu.leaguerunes.rune.BaseRune;
 import dev.ixpu.leaguerunes.rune.RuneRegistry;
-import dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest;
-import dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute;
-import dev.ixpu.leaguerunes.rune.keystones.domination.HailOfBlades;
+
 import dev.ixpu.leaguerunes.rune.keystones.precision.Conqueror;
 import dev.ixpu.leaguerunes.rune.keystones.precision.FleetFootwork;
 import dev.ixpu.leaguerunes.rune.keystones.precision.LethalTempo;
 import dev.ixpu.leaguerunes.rune.keystones.precision.PressTheAttack;
+
+import dev.ixpu.leaguerunes.rune.keystones.domination.DarkHarvest;
+import dev.ixpu.leaguerunes.rune.keystones.domination.Electrocute;
+import dev.ixpu.leaguerunes.rune.keystones.domination.HailOfBlades;
+
 import dev.ixpu.leaguerunes.rune.keystones.resolve.GraspOfTheUndying;
+import dev.ixpu.leaguerunes.rune.keystones.resolve.AfterShock;
+import dev.ixpu.leaguerunes.rune.keystones.resolve.Guardian;
+
+import dev.ixpu.leaguerunes.rune.keystones.sorcery.ArcaneComet;
+import dev.ixpu.leaguerunes.rune.keystones.sorcery.StormRaiderSurge;
+import dev.ixpu.leaguerunes.rune.keystones.sorcery.DeathfireTorch;
+
+import dev.ixpu.leaguerunes.rune.keystones.inspiration.GlacialAugment;
+
 
 public class LeagueRunes extends JavaPlugin {
     private static LeagueRunes instance;
@@ -112,6 +124,33 @@ public class LeagueRunes extends JavaPlugin {
         GraspOfTheUndying grasp = new GraspOfTheUndying(config);
         loadRuneCooldown(grasp, "runes.keystones.resolve.grasp-of-the-undying.cooldown");
         runeRegistry.registerRune(grasp);
+
+        AfterShock aftershock = new AfterShock(config);
+        loadRuneCooldown(aftershock, "runes.keystones.resolve.aftershock.cooldown");
+        runeRegistry.registerRune(aftershock);
+
+        Guardian guardian = new Guardian(config);
+        loadRuneCooldown(guardian, "runes.keystones.resolve.guardian.cooldown");
+        runeRegistry.registerRune(guardian);
+
+        ArcaneComet arcaneComet = new ArcaneComet(config);
+        arcaneComet.setPlugin(this);
+        loadRuneCooldown(arcaneComet, "runes.keystones.sorcery.arcane-comet.cooldown");
+        runeRegistry.registerRune(arcaneComet);
+
+        StormRaiderSurge stormRaiderSurge = new StormRaiderSurge(config);
+        stormRaiderSurge.setPlugin(this);
+        loadRuneCooldown(stormRaiderSurge, "runes.keystones.sorcery.storm-raider-surge.cooldown");
+        runeRegistry.registerRune(stormRaiderSurge);
+
+        DeathfireTorch deathfireTorch = new DeathfireTorch(config);
+        deathfireTorch.setPlugin(this);
+        runeRegistry.registerRune(deathfireTorch);
+
+        GlacialAugment glacialAugment = new GlacialAugment(config);
+        glacialAugment.setPlugin(this);
+        loadRuneCooldown(glacialAugment, "runes.keystones.inspiration.glacial-augment.cooldown");
+        runeRegistry.registerRune(glacialAugment);
 
         getLogger().info(() -> "Registered " + runeRegistry.getAllRunes().size() + " runes");
     }

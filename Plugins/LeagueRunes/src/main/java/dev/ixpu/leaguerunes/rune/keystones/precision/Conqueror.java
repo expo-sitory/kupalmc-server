@@ -2,6 +2,7 @@ package dev.ixpu.leaguerunes.rune.keystones.precision;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -61,14 +62,11 @@ public class Conqueror extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = attacker.getUniqueId();
 
-        if (!(target instanceof LivingEntity)) {
+        if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        
-        LivingEntity livingTarget = (LivingEntity) target;
-        double maxHealth = livingTarget.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        
-        if (maxHealth < 20) {
+
+        if (livingTarget.getMaxHealth() < 20) {
             return;
         }
 
@@ -124,7 +122,7 @@ public class Conqueror extends BaseRune {
             return;
         } else {
             player.sendActionBar(Component.text()
-                    .append(Component.text("§e🪓 " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                    .append(Component.text("§e🪓 " + stacks + "/" + MAX_STACKS))
                     .build());
         }
     }
