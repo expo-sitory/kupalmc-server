@@ -1,0 +1,44 @@
+# LEAGUE MECHANICS CONFIGURATION
+# https://github.com/expo-sitory
+
+# ================================== #
+#              RUNES                 #
+# ================================== #
+
+# CONVERSION:
+# Converted Damage = The AD and AP damage conveted to 1 is to 0.5 (1 AD/ 1AP = 0.5 Heart)
+# Event Damage = The damage of the player, this includes weapon/weapon w enchant, strength pots
+
+# DAMAGE OUTPUT FORMULA FOR PER-STACK-BASED OUTPUT RUNES:
+# totalAbilityPower = BASE-AP + (STACKS * AP-PER-STACKS)
+# totalAttackDamage = BASE-AD + (STACKS * AD-PER-STACKS)
+# ConvertedDamage = (totalAbilityPower + totalAttackDamage) / 2
+# totalBonusDamage = (PlayerArmor + PlayerMagicResist) - ConvertedDamage
+# totalOutput = EventDamage + totalBonusDamage
+
+# DAMAGE OUTPUT FORMULA FOR NON-PER-STACK-BASED & LEVEL-BASED BONUS DAMAGE RUNES:
+# BONUS-AP = IF LEVEL 0-29: 1.5, IF LEVEL 30-49: 2.0, IF LEVEL 50-69: 2.5, IF LEVEL 70-99+: 3.0, IF LEVEL 100+: 3.5
+# BONUS-AD = IF LEVEL 0-29: 1.5, IF LEVEL 30-49: 2.5, IF LEVEL 50-69: 3.5, IF LEVEL 70-99+: 4.5, IF LEVEL 100+: 5.5
+# totalAbilityPower = Player-AP + (BASE-AP + BONUS-AP)
+# totalAttackDamage = Player-AD + (BASE-AD + BONUS-AD)
+# ConvertedDamage = (totalAbilityPower + totalAttackDamage) / 2
+# totalBonusDamage (PlayerArnor + PlayerMagicResist) - ConvertedDamage
+# totalOutput = EventDamage + totalBonusDamage
+
+runes:
+  keystones:
+    domination:
+      dark-harvest:
+        cooldown: 60 # seconds
+        maximum-stacks: 20
+        base-attack-damage: 3.5
+        attack-damage-per-stack: 2.5
+        base-ability-power: 2.5
+        ability-power-per-stack: 1.5
+        level-cost-per-stack: 5
+
+      electrocute:
+        cooldown: 25 # seconds
+        maximum-stacks: 3
+        base-attack-damage: 5.5
+        base-ability-power: 3.5
