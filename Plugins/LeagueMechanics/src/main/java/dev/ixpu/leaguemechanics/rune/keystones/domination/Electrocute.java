@@ -58,8 +58,8 @@ public class Electrocute extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerElectrocute(attacker, target, event);
     }
-    public void onProjectileHit(Player shooter, Entity target) {
-        triggerElectrocute(shooter, target, null);
+    public void onProjectileHit(Player shooter, Entity target, EntityDamageByEntityEvent event) {
+        triggerElectrocute(shooter, target, event);
     }
     private void triggerElectrocute(Player player, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = player.getUniqueId();
