@@ -129,7 +129,7 @@ public class LeagueMechanics extends JavaPlugin {
         loadRuneCooldown(guardian, "runes.keystones.resolve.guardian.cooldown");
         runeRegistry.registerRune(guardian);
 
-        ArcaneComet arcaneComet = new ArcaneComet(config);
+        ArcaneComet arcaneComet = new ArcaneComet(config, this);
         loadRuneCooldown(arcaneComet, "runes.keystones.sorcery.arcane-comet.cooldown");
         runeRegistry.registerRune(arcaneComet);
 
@@ -140,7 +140,7 @@ public class LeagueMechanics extends JavaPlugin {
         DeathfireTorch deathfireTorch = new DeathfireTorch(config);
         runeRegistry.registerRune(deathfireTorch);
 
-        GlacialAugment glacialAugment = new GlacialAugment(config);
+        GlacialAugment glacialAugment = new GlacialAugment(config, this);
         loadRuneCooldown(glacialAugment, "runes.keystones.inspiration.glacial-augment.cooldown");
         runeRegistry.registerRune(glacialAugment);
 

@@ -8,12 +8,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class LethalTempo extends BaseRune {
     private int MAXIMUM_STACKS = 6;
@@ -69,9 +69,12 @@ public class LethalTempo extends BaseRune {
         removeAllModifiers(player);
     }
 
-    @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        UUID playerUUID = attacker.getUniqueId();
+        triggerLethalTempo(attacker, target, event);
+    }
+
+    private void triggerLethalTempo(Player player, Entity target, EntityDamageByEntityEvent event) {
+        UUID playerUUID = player.getUniqueId();
         UUID targetUUID = target.getUniqueId();
         RuneState state = playerState.getOrDefault(playerUUID, RuneState.STACKING);
 
@@ -90,9 +93,9 @@ public class LethalTempo extends BaseRune {
         lastTarget.put(playerUUID, targetUUID);
 
         if (state == RuneState.STACKING) {
-            addStack(attacker, targetUUID);
+            addStack(player, targetUUID);
         } else if (state == RuneState.ACTIVE) {
-            refreshActiveTimer(attacker);
+            refreshActiveTimer(player);
         }
     }
 
@@ -163,9 +166,9 @@ public class LethalTempo extends BaseRune {
         List<AttributeModifier> mods = activeModifiers.getOrDefault(playerUUID, new ArrayList<>());
         for (AttributeModifier mod : mods) {
             try {
-                player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).removeModifier(mod);
+                Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED)).removeModifier(mod);
             } catch (Exception e) {
-   
+                //
             }
         }
         activeModifiers.put(playerUUID, new ArrayList<>());
@@ -183,7 +186,7 @@ public class LethalTempo extends BaseRune {
                 bonusAmount,
                 AttributeModifier.Operation.ADD_SCALAR
         );
-        
+
         var attackSpeedAttr = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
         if (attackSpeedAttr != null) {
             attackSpeedAttr.addModifier(modifier);

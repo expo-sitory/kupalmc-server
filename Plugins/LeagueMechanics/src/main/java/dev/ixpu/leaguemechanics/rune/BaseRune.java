@@ -14,8 +14,8 @@ public abstract class BaseRune {
     protected final RuneSlot slot;
     protected boolean hasStacking;
     protected int maxStacks;
-    protected double cooldownSeconds = 0.0; 
-    
+    protected double cooldownSeconds = 0.0;
+
     protected final Map<UUID, Long> playerCooldowns = new HashMap<>();
 
     public BaseRune(String id, RunePath path, RuneSlot slot) {
@@ -41,14 +41,14 @@ public abstract class BaseRune {
 
     public boolean isOnCooldown(Player player) {
         if (cooldownSeconds <= 0) {
-            return false; 
+            return false;
         }
 
         UUID uuid = player.getUniqueId();
         Long lastActivation = playerCooldowns.get(uuid);
 
         if (lastActivation == null) {
-            return false; 
+            return false;
         }
 
         long currentTime = System.currentTimeMillis();
@@ -100,8 +100,8 @@ public abstract class BaseRune {
 
     public void onPlayerDamage(Player player, double damage) {}
 
-    public void onPlayerDealDamage(Player player, double damage) {}
-
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {}
+
+    public void onProjectileHit(Player shooter, Entity hitEntity) {}
 
 }

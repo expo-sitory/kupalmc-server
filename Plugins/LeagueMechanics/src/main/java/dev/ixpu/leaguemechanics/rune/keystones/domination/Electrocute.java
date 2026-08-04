@@ -58,8 +58,9 @@ public class Electrocute extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerElectrocute(attacker, target, event);
     }
-    public void onProjectileHit(Player shooter, Entity target, EntityDamageByEntityEvent event) {
-        triggerElectrocute(shooter, target, event);
+
+    public void onProjectileHit(Player shooter, Entity target) {
+        triggerElectrocute(shooter, target, null);
     }
     private void triggerElectrocute(Player player, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = player.getUniqueId();
@@ -83,9 +84,15 @@ public class Electrocute extends BaseRune {
             resetCooldown(player);
             playerEntityStacks.get(playerUUID).remove(targetUUID);
             stackExpiryTicks.get(playerUUID).remove(targetUUID);
+
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
             double totalOutput = BASE_PHYSICAL_DAMAGE / 2;
-            event.setDamage(event.getDamage() + totalOutput);
+
+            if (event != null) {
+                event.setDamage(event.getDamage() + totalOutput);
+            } else {
+                livingTarget.damage(totalOutput, player);
+            }
         }
     }
 

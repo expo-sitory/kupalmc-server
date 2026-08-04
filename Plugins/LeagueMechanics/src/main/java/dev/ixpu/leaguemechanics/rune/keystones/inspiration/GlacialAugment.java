@@ -29,8 +29,9 @@ public class GlacialAugment extends BaseRune {
     private final Map<UUID, Map<UUID, List<AttributeModifier>>> targetModifiers = new HashMap<>();
     private LeagueMechanics plugin;
 
-    public GlacialAugment(ConfigurationSection config) {
+    public GlacialAugment(ConfigurationSection config, LeagueMechanics plugin) {
         super("glacial-augment", RunePath.INSPIRATION, RuneSlot.KEYSTONE);
+        this.plugin = plugin;
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.inspiration.glacial-augment");
 
         if (section != null) {
@@ -56,11 +57,12 @@ public class GlacialAugment extends BaseRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-
-        if (isOnCooldown(shooter)) {
+        triggerGlacialAugment(shooter, target);
+    }
+    private void triggerGlacialAugment(Player player, Entity target) {
+        if (isOnCooldown(player)) {
             return;
         }
-
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -68,8 +70,8 @@ public class GlacialAugment extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        applyFreeze(shooter, livingTarget);
-        resetCooldown(shooter);
+        applyFreeze(player, livingTarget);
+        resetCooldown(player);
     }
 
     @Override
@@ -124,20 +126,21 @@ public class GlacialAugment extends BaseRune {
         frozen.put(targetUUID, FREEZE_DURATION_TICKS);
 
         org.bukkit.Location loc = target.getLocation();
-        org.bukkit.block.Block[] snowBlocks = new org.bukkit.block.Block[9];
-        snowBlocks[0] = loc.getBlock();
-        snowBlocks[1] = loc.clone().add(1, 0, 0).getBlock();
-        snowBlocks[2] = loc.clone().add(2, 0, 0).getBlock();
-        snowBlocks[3] = loc.clone().add(-1, 0, 0).getBlock();
-        snowBlocks[4] = loc.clone().add(-2, 0, 0).getBlock();
-        snowBlocks[5] = loc.clone().add(0, 0, 1).getBlock();
-        snowBlocks[6] = loc.clone().add(0, 0, 2).getBlock();
-        snowBlocks[7] = loc.clone().add(0, 0, -1).getBlock();
-        snowBlocks[8] = loc.clone().add(0, 0, -2).getBlock();
 
-        for (int i = 0; i < 9; i++) {
-            if (snowBlocks[i].getType() == org.bukkit.Material.AIR) {
-                snowBlocks[i].setType(org.bukkit.Material.POWDER_SNOW);
+        List<org.bukkit.Location> snowLocations = new ArrayList<>();
+        snowLocations.add(loc.clone());
+        snowLocations.add(loc.clone().add(1, 0, 0));
+        snowLocations.add(loc.clone().add(2, 0, 0));
+        snowLocations.add(loc.clone().add(-1, 0, 0));
+        snowLocations.add(loc.clone().add(-2, 0, 0));
+        snowLocations.add(loc.clone().add(0, 0, 1));
+        snowLocations.add(loc.clone().add(0, 0, 2));
+        snowLocations.add(loc.clone().add(0, 0, -1));
+        snowLocations.add(loc.clone().add(0, 0, -2));
+
+        for (org.bukkit.Location snowLoc : snowLocations) {
+            if (snowLoc.getBlock().getType() == org.bukkit.Material.AIR) {
+                snowLoc.getBlock().setType(org.bukkit.Material.POWDER_SNOW);
             }
         }
 
@@ -155,9 +158,9 @@ public class GlacialAugment extends BaseRune {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                 target.removePotionEffect(PotionEffectType.SLOWNESS);
 
-                for (int i = 0; i < 9; i++) {
-                    if (snowBlocks[i].getType() == org.bukkit.Material.POWDER_SNOW) {
-                        snowBlocks[i].setType(org.bukkit.Material.AIR);
+                for (org.bukkit.Location snowLoc : snowLocations) {
+                    if (snowLoc.getBlock().getType() == org.bukkit.Material.POWDER_SNOW) {
+                        snowLoc.getBlock().setType(org.bukkit.Material.AIR);
                     }
                 }
             }, FREEZE_DURATION_TICKS);

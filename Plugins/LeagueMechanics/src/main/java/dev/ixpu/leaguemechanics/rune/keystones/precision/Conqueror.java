@@ -50,17 +50,20 @@ public class Conqueror extends BaseRune {
     }
 
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        UUID playerUUID = attacker.getUniqueId();
+        triggerConqueror(attacker, target, event);
+    }
+
+    private  void triggerConqueror(Player player, Entity target, EntityDamageByEntityEvent event) {
+        UUID playerUUID = player.getUniqueId();
 
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
 
-        addStack(attacker);
+        addStack(player);
 
         int CURRENT_STACKS = playerStacks.getOrDefault(playerUUID, 0);
 
@@ -68,7 +71,7 @@ public class Conqueror extends BaseRune {
 
         event.setDamage(event.getDamage() + totalOutput);
 
-        displayStackInfo(attacker, CURRENT_STACKS);
+        displayStackInfo(player, CURRENT_STACKS);
     }
 
     @Override

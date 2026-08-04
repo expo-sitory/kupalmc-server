@@ -61,8 +61,8 @@ public class DarkHarvest extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerDarkHarvest(attacker, target, event);
     }
-    public void onProjectileHit(Player shooter, Entity target, EntityDamageByEntityEvent event) {
-        triggerDarkHarvest(shooter, target, event);
+    public void onProjectileHit(Player shooter, Entity target) {
+        triggerDarkHarvest(shooter, target, null);
     }
     private void triggerDarkHarvest(Player player, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = player.getUniqueId();
@@ -85,14 +85,18 @@ public class DarkHarvest extends BaseRune {
         int CURRENT_STACKS = playerStacks.getOrDefault(playerUUID, 0);
         double totalOutput = (CURRENT_STACKS * BASE_PHYSICAL_DAMAGE_PER_STACK) / 2;
 
-        event.setDamage(event.getDamage() + totalOutput);
+        if (event != null) {
+            event.setDamage(event.getDamage() + totalOutput);
+        } else {
+            livingTarget.damage(totalOutput, player);
+        }
 
 
         if (isOnCooldown(player) || player.getLevel() < LEVEL_COST_PER_STACK) {
             return;
         }
 
-        scheduleReapSoul(player);
+        scheduleAddStack(player);
         resetCooldown(player);
     }
 
@@ -109,15 +113,15 @@ public class DarkHarvest extends BaseRune {
         displaySoulInfo(player, CURRENT_STACKS);
     }
 
-    private void scheduleReapSoul(Player attacker) {
+    private void scheduleAddStack(Player attacker) {
         if (plugin == null) {
-            reapSoul(attacker);
+            addStack(attacker);
             return;
         }
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> reapSoul(attacker), REAP_DELAY_TICKS);
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> addStack(attacker), REAP_DELAY_TICKS);
     }
 
-    private void reapSoul(Player player) {
+    private void addStack(Player player) {
         UUID playerUUID = player.getUniqueId();
         int current = playerStacks.getOrDefault(playerUUID, 0);
 
@@ -138,13 +142,13 @@ public class DarkHarvest extends BaseRune {
 
     private void displaySoulInfo(Player player, int CURRENT_STACKS) {
         if (CURRENT_STACKS >= 1) {
-                player.sendActionBar(Component.text()
-                        .append(Component.text("§c👻 " + CURRENT_STACKS + "/" + MAXIMUM_STACKS))
-                        .build());
+            player.sendActionBar(Component.text()
+                    .append(Component.text("§c👻 " + CURRENT_STACKS + "/" + MAXIMUM_STACKS))
+                    .build());
         } else {
-                player.sendActionBar(Component.text()
-                        .append(Component.text("§c👻"))
-                        .build());
+            player.sendActionBar(Component.text()
+                    .append(Component.text("§c👻"))
+                    .build());
         }
     }
 }

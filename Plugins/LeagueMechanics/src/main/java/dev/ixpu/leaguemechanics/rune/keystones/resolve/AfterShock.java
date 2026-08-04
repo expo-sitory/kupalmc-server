@@ -2,10 +2,12 @@ package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -56,9 +58,12 @@ public class AfterShock extends BaseRune {
         effectStartTime.remove(uuid);
     }
 
-    @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        if (!isWindBurstMace(attacker.getInventory().getItemInMainHand())) {
+        triggerAfterShock(attacker, target, event);
+    }
+
+    private void triggerAfterShock(Player player, Entity target, EntityDamageByEntityEvent event) {
+        if (!isWindBurstMace(player.getInventory().getItemInMainHand())) {
             return;
         }
         if (!(target instanceof LivingEntity livingTarget)) {
@@ -67,11 +72,11 @@ public class AfterShock extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (isOnCooldown(attacker)) {
+        if (isOnCooldown(player)) {
             return;
         }
-        
-        UUID playerUUID = attacker.getUniqueId();
+
+        UUID playerUUID = player.getUniqueId();
         long effectStart = effectStartTime.getOrDefault(playerUUID, 0L);
         long currentTime = System.currentTimeMillis();
         long effectDurationMs = EFFECT_DURATION_TICKS * 50L;
@@ -79,17 +84,17 @@ public class AfterShock extends BaseRune {
         if (effectStart > 0 && (currentTime - effectStart) < effectDurationMs) {
             return;
         }
-        
-        trigerAfterShock(attacker);
+
+        activateEffects(player);
 
         org.bukkit.Bukkit.getScheduler().scheduleSyncDelayedTask(
                 dev.ixpu.leaguemechanics.LeagueMechanics.getInstance(),
-                () -> resetCooldown(attacker),
+                () -> resetCooldown(player),
                 EFFECT_DURATION_TICKS
         );
     }
 
-    private void trigerAfterShock(Player player) {
+    private void activateEffects(Player player) {
         UUID playerUUID = player.getUniqueId();
         effectStartTime.put(playerUUID, System.currentTimeMillis());
 
@@ -146,7 +151,7 @@ public class AfterShock extends BaseRune {
             return false;
         }
 
-        return meta.hasEnchant(org.bukkit.enchantments.Enchantment.getByName("wind_burst"));
+        return meta.hasEnchant(Objects.requireNonNull(Enchantment.getByName("wind_burst")));
     }
 
 

@@ -57,13 +57,13 @@ public class DeathfireTorch extends BaseRune {
 
     @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        triggerDeathFireTorch(attacker, (LivingEntity) target, event);
+        triggerDeathFireTorch(attacker, target, event);
     }
-    public void onProjectileHit(Player shooter, Entity target, EntityDamageByEntityEvent event) {
-        triggerDeathFireTorch(shooter, (LivingEntity) target, event);
+    public void onProjectileHit(Player shooter, Entity target) {
+        triggerDeathFireTorch(shooter, target, null);
     }
 
-    public void triggerDeathFireTorch(Player player, LivingEntity target, EntityDamageByEntityEvent event) {
+    public void triggerDeathFireTorch(Player player, Entity target, EntityDamageByEntityEvent event) {
         ItemStack weapon = player.getInventory().getItemInMainHand();
 
         if (!(target instanceof LivingEntity livingTarget)) {
@@ -76,8 +76,12 @@ public class DeathfireTorch extends BaseRune {
             return;
         }
 
-        double burnDamagePerTick = BASE_MAGIC_DAMAGE / 4;
-        applyBurn(player, livingTarget, burnDamagePerTick);
+        double totalOutput = BASE_MAGIC_DAMAGE / 4;
+        if (event != null) {
+            applyBurn(player, livingTarget, totalOutput);
+        }
+        applyBurn(player, livingTarget, totalOutput);
+
     }
 
     @Override

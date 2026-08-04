@@ -8,9 +8,7 @@ import java.util.UUID;
 
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -24,6 +22,7 @@ public class Guardian extends BaseRune {
 
     private int MAX_PLAYERS = 5;
     private double ABSORPTION_PERCENTAGE = 0.80;
+    
     private int COOLDOWN_SECONDS = 60;
 
     private static final double DETECTION_RANGE = 10.0;
@@ -41,14 +40,9 @@ public class Guardian extends BaseRune {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.guardian");
         if (section != null) {
             this.MAX_PLAYERS = section.getInt("max-players", this.MAX_PLAYERS);
-            this.ABSORPTION_PERCENTAGE = section.getDouble("absorption-percentage", this.ABSORPTION_PERCENTAGE);;
+            this.ABSORPTION_PERCENTAGE = section.getDouble("absorption-percentage", this.ABSORPTION_PERCENTAGE);
             this.COOLDOWN_SECONDS = section.getInt("cooldown", this.COOLDOWN_SECONDS);
         }
-        this.setCooldownSeconds(COOLDOWN_SECONDS);
-    }
-
-    public Guardian() {
-        super("guardian", RunePath.RESOLVE, RuneSlot.KEYSTONE);
         this.setCooldownSeconds(COOLDOWN_SECONDS);
     }
 
@@ -71,20 +65,12 @@ public class Guardian extends BaseRune {
         lastCombatTime.remove(uuid);
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        UUID uuid = attacker.getUniqueId();
-        lastCombatTime.put(uuid, System.currentTimeMillis());
-
-        if (windupCounter.getOrDefault(uuid, 0) > 0) {
-            windupCounter.put(uuid, 0);
-            trackedPlayers.put(uuid, new ArrayList<>());
-        }
+    public void onPlayerDamage(Player victim, double damage) {
+        triggerGuardian(victim, damage);
     }
 
-    @Override
-    public void onPlayerDamage(Player victim, double damage) {
-        UUID uuid = victim.getUniqueId();
+    private void triggerGuardian(Player player, Double damage) {
+        UUID uuid = player.getUniqueId();
         lastCombatTime.put(uuid, System.currentTimeMillis());
 
         if (windupCounter.getOrDefault(uuid, 0) > 0) {
@@ -104,7 +90,7 @@ public class Guardian extends BaseRune {
             displayGuardUpProgress(player, windupCount, nearbyPlayers.size());
             windupCounter.put(playerUUID, windupCount - 1);
             if (windupCount == 1) {
-                applyShield(player);
+                activateEffects(player);
             }
             return;
         }
@@ -165,11 +151,11 @@ public class Guardian extends BaseRune {
         player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.2f);
     }
 
-    private void applyShield(Player player) {
+    private void activateEffects(Player player) {
         UUID playerUUID = player.getUniqueId();
         List<UUID> shields = trackedPlayers.getOrDefault(playerUUID, new ArrayList<>());
 
-        applyAbsorption(player);
+        applyShield(player);
         player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_RETURN, 1.0f, 1.5f);
 
         int count = 0;
@@ -178,7 +164,7 @@ public class Guardian extends BaseRune {
 
             Player trackedPlayer = player.getServer().getPlayer(trackedUUID);
             if (trackedPlayer != null && trackedPlayer.isOnline()) {
-                applyAbsorption(trackedPlayer);
+                applyShield(trackedPlayer);
                 trackedPlayer.playSound(trackedPlayer.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_RETURN, 1.0f, 0.5f);
                 count++;
             }
@@ -186,7 +172,7 @@ public class Guardian extends BaseRune {
         resetCooldown(player);
     }
 
-    private void applyAbsorption(Player player) {
+    private void applyShield(Player player) {
 
         int maxHealth = (int) Math.ceil(player.getMaxHealth());
         int absorbAmount = (int) Math.ceil(maxHealth * ABSORPTION_PERCENTAGE / 4.0);
@@ -201,7 +187,7 @@ public class Guardian extends BaseRune {
     }
 
     private void displayGuardUpProgress(Player player, int remaining, int nearbyCount) {
-        int iconIndex = (GUARD_RAISE_DURATION_TICKS - remaining) % 3;
+        
         String message;
         if (remaining > GUARD_RAISE_DURATION_TICKS * 2 / 3) {
             message = "§a《§2⦿》 " + nearbyCount + "/" + MAX_PLAYERS;

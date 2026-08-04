@@ -24,21 +24,13 @@ public class RuneListener implements Listener {
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player attacker) {
             Entity target = event.getEntity();
-            if (!runeManager.hasActiveRunes(attacker)) {
-
-            } else {
+            if (runeManager.hasActiveRunes(attacker)) {
                 PlayerRuneData attackerRuneData = runeManager.getPlayerRuneData(attacker);
                 if (attackerRuneData != null) {
                     for (BaseRune rune : attackerRuneData.getAllRunes()) {
                         if (rune != null) {
                             rune.onAttack(attacker, target, event);
                         }
-                    }
-                }
-                double damage = event.getFinalDamage();
-                for (BaseRune rune : attackerRuneData.getAllRunes()) {
-                    if (rune != null) {
-                        rune.onPlayerDealDamage(attacker, damage);
                     }
                 }
             }
@@ -64,16 +56,6 @@ public class RuneListener implements Listener {
                 rune.onPlayerDamage(victim, damage);
             }
         }
-        BaseRune victimKeystone = runeData.getKeystoneRune();
-        if (victimKeystone != null && victimKeystone.getId().equals("grasp-of-the-undying")) {
-            try {
-                dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying grasp = 
-                    (dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying) victimKeystone;
-                grasp.onCombat(victim);
-            } catch (ClassCastException e) {
-                //
-            }
-        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -83,9 +65,8 @@ public class RuneListener implements Listener {
         }
 
         Entity hitEntity = event.getHitEntity();
-
         if (hitEntity == null) {
-            return;  
+            return;
         }
 
         if (!runeManager.hasActiveRunes(shooter)) {
@@ -98,76 +79,8 @@ public class RuneListener implements Listener {
         }
 
         BaseRune keystoneRune = runeData.getKeystoneRune();
-
-        if (keystoneRune != null && keystoneRune.getId().equals("fleet-footwork")) {
-            try {
-                dev.ixpu.leaguemechanics.rune.keystones.precision.FleetFootwork fleetFootwork = 
-                    (dev.ixpu.leaguemechanics.rune.keystones.precision.FleetFootwork) keystoneRune;
-                fleetFootwork.onProjectileHit(shooter, hitEntity);
-            } catch (ClassCastException e) {
-                //
-            }
+        if (keystoneRune != null) {
+            keystoneRune.onProjectileHit(shooter, hitEntity);
         }
-
-        if (keystoneRune != null && keystoneRune.getId().equals("press-the-attack")) {
-            try {
-                dev.ixpu.leaguemechanics.rune.keystones.precision.PressTheAttack pressTheAttack =
-                        (dev.ixpu.leaguemechanics.rune.keystones.precision.PressTheAttack) keystoneRune;
-                pressTheAttack.onProjectileHit(shooter, hitEntity, null);
-            } catch (ClassCastException e) {
-                //
-            }
-        }
-
-        if (keystoneRune != null && keystoneRune.getId().equals("electrocute")) {
-            try {
-                dev.ixpu.leaguemechanics.rune.keystones.domination.Electrocute electrocute = 
-                    (dev.ixpu.leaguemechanics.rune.keystones.domination.Electrocute) keystoneRune;
-                electrocute.onProjectileHit(shooter, hitEntity, null);
-            } catch (ClassCastException e) {
-                //
-            }
-        }
-        
-        if (keystoneRune != null && keystoneRune.getId().equals("dark-harvest")) {
-            try {
-                dev.ixpu.leaguemechanics.rune.keystones.domination.DarkHarvest darkHarvest = 
-                    (dev.ixpu.leaguemechanics.rune.keystones.domination.DarkHarvest) keystoneRune;
-                darkHarvest.onProjectileHit(shooter, hitEntity, null);
-            } catch (ClassCastException e) {
-                //
-            }
-        }
-
-        if (keystoneRune != null && keystoneRune.getId().equals("arcane-comet")) {
-            try {
-                dev.ixpu.leaguemechanics.rune.keystones.sorcery.ArcaneComet arcaneComet =
-                        (dev.ixpu.leaguemechanics.rune.keystones.sorcery.ArcaneComet) keystoneRune;
-                arcaneComet.onProjectileHit(shooter, hitEntity);
-            } catch (ClassCastException e) {
-                //
-            }
-        }
-
-        if (keystoneRune != null && keystoneRune.getId().equals("deathfire-torch")) {
-            try {
-                dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch deathfire =
-                        (dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch) keystoneRune;
-                deathfire.onProjectileHit(shooter, hitEntity, null);
-            } catch (ClassCastException e) {
-                //
-            }
-        }
-
-        if (keystoneRune != null && keystoneRune.getId().equals("glacial-augment")) {
-            try {
-                dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment glacialAugment =
-                        (dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment) keystoneRune;
-                glacialAugment.onProjectileHit(shooter, hitEntity);
-            } catch (ClassCastException e) {
-                //
-            }
-        }
-
     }
 }

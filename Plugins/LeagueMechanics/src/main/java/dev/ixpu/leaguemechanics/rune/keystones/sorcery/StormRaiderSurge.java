@@ -70,7 +70,13 @@ public class StormRaiderSurge extends BaseRune {
             return;
         }
         double estimatedDamage = event.getDamage();
-        trackDamage(attacker, estimatedDamage);
+        triggerStormRaiderSurge(attacker, estimatedDamage);
+    }
+
+    private void triggerStormRaiderSurge(Player player, double damage) {
+        UUID playerUUID = player.getUniqueId();
+        double currentDamage = damageTracker.getOrDefault(playerUUID, 0.0);
+        damageTracker.put(playerUUID, currentDamage + damage);
     }
 
     @Override
@@ -103,19 +109,13 @@ public class StormRaiderSurge extends BaseRune {
         double currentDamage = damageTracker.getOrDefault(playerUUID, 0.0);
 
         if (currentDamage >= damageThreshold) {
-            activateSurge(player);
+            enterActiveState(player);
             return;
         }
         displayIdleState(player);
     }
 
-    private void trackDamage(Player player, double damage) {
-        UUID playerUUID = player.getUniqueId();
-        double currentDamage = damageTracker.getOrDefault(playerUUID, 0.0);
-        damageTracker.put(playerUUID, currentDamage + damage);
-    }
-
-    private void activateSurge(Player player) {
+    private void enterActiveState(Player player) {
         UUID playerUUID = player.getUniqueId();
         speedActiveDuration.put(playerUUID, SPEED_DURATION_TICKS);
         damageTracker.put(playerUUID, 0.0);

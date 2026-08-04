@@ -58,36 +58,39 @@ public class FleetFootwork extends BaseRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        UUID playerUUID = shooter.getUniqueId();
+        triggerFleetFootwork(shooter, target);
+    }
+    
+    private void triggerFleetFootwork(Player player, Entity target) {
+        UUID playerUUID = player.getUniqueId();
         int stacks = playerStacks.getOrDefault(playerUUID, 0);
 
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
 
         for (int i = 0; i < PROJECTILE_STACK_GAIN; i++) {
             if (stacks < MAXIMUM_STACKS) {
-                addStack(shooter);
+                addStack(player);
                 stacks++;
             }
         }
 
         if (stacks >= MAXIMUM_STACKS) {
-            double maxHealth = Objects.requireNonNull(shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
-            double currentHealth = shooter.getHealth();
+            double maxHealth = Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
+            double currentHealth = player.getHealth();
             double missingHealth = maxHealth - currentHealth;
             double healAmount = missingHealth * HEAL_PERCENT;
 
-            shooter.setHealth(Math.min(maxHealth, currentHealth + healAmount));
+            player.setHealth(Math.min(maxHealth, currentHealth + healAmount));
             playerStacks.put(playerUUID, 0);
-            applySpeedBuff(shooter);
+            activateEffects(player);
             distanceAccumulator.put(playerUUID, 0.0);
         } else if (speedBuffTicks.getOrDefault(playerUUID, 0) > 0) {
-            refreshSpeedBuff(shooter);
+            refreshSpeedBuff(player);
         }
     }
 
@@ -141,7 +144,7 @@ public class FleetFootwork extends BaseRune {
     }
 
     @SuppressWarnings("removal")
-    private void applySpeedBuff(Player player) {
+    private void activateEffects(Player player) {
         UUID playerUUID = player.getUniqueId();
         removeAllModifiers(player);
 

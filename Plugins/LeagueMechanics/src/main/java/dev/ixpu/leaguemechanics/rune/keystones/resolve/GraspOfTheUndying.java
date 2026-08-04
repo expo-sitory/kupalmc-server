@@ -87,7 +87,11 @@ public class GraspOfTheUndying extends BaseRune {
 
     @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        UUID playerUUID = attacker.getUniqueId();
+        triggerGraspOfTheUndying(attacker, target, event);
+    }
+
+    private void triggerGraspOfTheUndying(Player player, Entity target, EntityDamageByEntityEvent event) {
+        UUID playerUUID = player.getUniqueId();
         int stacks = playerStacks.getOrDefault(playerUUID, 0);
         int attackWindow = attackWindowTicks.getOrDefault(playerUUID, 0);
 
@@ -97,19 +101,19 @@ public class GraspOfTheUndying extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        
+
         if (stacks >= MAX_STACKS && attackWindow > 0) {
-            triggerGraspOfTheUndying(attacker, event);
+            enterActiveState(player, event);
             playerStacks.put(playerUUID, 0);
             attackWindowTicks.put(playerUUID, 0);
             combatTimers.put(playerUUID, 0);
-            resetCooldown(attacker);
+            resetCooldown(player);
         } else {
-            onCombat(attacker);
+            onCombat(player);
         }
     }
 
-    private void triggerGraspOfTheUndying(Player player, EntityDamageByEntityEvent event) {
+    private void enterActiveState(Player player, EntityDamageByEntityEvent event) {
         var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (maxHealthAttr == null) return;
 
@@ -123,7 +127,7 @@ public class GraspOfTheUndying extends BaseRune {
         double currentHealth = player.getHealth();
         player.setHealth(Math.min(maxHealth, currentHealth + healAmount));
 
-        applyBonusHealth(player);
+        activateEffects(player);
 
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_AMBIENT, 1.0f, 1.0f);
     }
@@ -162,7 +166,7 @@ public class GraspOfTheUndying extends BaseRune {
     }
 
     @SuppressWarnings("removal")
-    private void applyBonusHealth(Player player) {
+    private void activateEffects(Player player) {
         UUID playerUUID = player.getUniqueId();
 
         var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);

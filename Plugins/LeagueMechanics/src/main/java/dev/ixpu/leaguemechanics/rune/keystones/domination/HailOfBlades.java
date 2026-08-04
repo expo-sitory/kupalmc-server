@@ -21,7 +21,7 @@ public class HailOfBlades extends BaseRune {
     int COOLDOWN_DURATION_SECONDS = 60;
 
     private static final int WINDUP_TICKS = 200;
-    private static final int STACK_DURATION_TICKS = 10;
+    private static final int STACK_DURATION_TICKS = 60;
     private static final int INACTIVITY_TIMEOUT_TICKS = 60;
     private static final int INITIAL_STACKS = 2;
 
@@ -75,7 +75,10 @@ public class HailOfBlades extends BaseRune {
 
     @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        UUID playerUUID = attacker.getUniqueId();
+        triggerHailofBlades(attacker, target, event);
+    }
+    private void triggerHailofBlades(Player player, Entity target, EntityDamageByEntityEvent event) {
+        UUID playerUUID = player.getUniqueId();
 
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
@@ -83,7 +86,7 @@ public class HailOfBlades extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(attacker)) {
+        if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(player)) {
             return;
         }
         if (effectActive.getOrDefault(playerUUID, false)) {
@@ -96,13 +99,13 @@ public class HailOfBlades extends BaseRune {
                 durations.set(i, STACK_DURATION_TICKS);
             }
 
-            displayEffectInfo(attacker, currentStacks.getOrDefault(playerUUID, 0));
+            displayEffectInfo(player, currentStacks.getOrDefault(playerUUID, 0));
             return;
         }
         windupActive.put(playerUUID, true);
         windupTicks.put(playerUUID, WINDUP_TICKS);
-        lastWindupStage.put(playerUUID, 0); 
-        displayWindupMessage(attacker, WINDUP_TICKS);
+        lastWindupStage.put(playerUUID, 0);
+        displayWindupMessage(player, WINDUP_TICKS);
     }
 
     @Override
@@ -143,7 +146,7 @@ public class HailOfBlades extends BaseRune {
                     for (int i = 0; i < durations.size(); i++) {
                         durations.set(i, STACK_DURATION_TICKS);
                     }
-                    
+
                     player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_HIT_GROUND, 1.0f, 0.5f);
                 }
                 lastAttackTick.put(playerUUID, 0);
@@ -220,14 +223,14 @@ public class HailOfBlades extends BaseRune {
             AttributeModifier.Operation.ADD_SCALAR
         );
 
-        player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).addModifier(modifier);
+        Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED)).addModifier(modifier);
         activeModifiers.get(player.getUniqueId()).add(modifier);
     }
 
     private void removeAllModifiers(Player player) {
         List<AttributeModifier> modifiers = activeModifiers.getOrDefault(player.getUniqueId(), new ArrayList<>());
         for (AttributeModifier modifier : modifiers) {
-            player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).removeModifier(modifier);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED)).removeModifier(modifier);
         }
         modifiers.clear();
     }

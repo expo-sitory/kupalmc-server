@@ -58,11 +58,11 @@ public class PressTheAttack extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerPressTheAttack(attacker, target, event);
     }
-    public void onProjectileHit(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        triggerPressTheAttack(attacker, target, event);
+    public void onProjectileHit(Player shooter, Entity target) {
+        triggerPressTheAttack(shooter, target, null);
     }
-    private void triggerPressTheAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        UUID playerUUID = attacker.getUniqueId();
+    private void triggerPressTheAttack(Player player, Entity target, EntityDamageByEntityEvent event) {
+        UUID playerUUID = player.getUniqueId();
         UUID targetUUID = target.getUniqueId();
         UUID previousTarget = lastTarget.get(playerUUID);
 
@@ -73,7 +73,7 @@ public class PressTheAttack extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (isOnCooldown(attacker)) {
+        if (isOnCooldown(player)) {
             return;
         }
         if (previousTarget != null && !previousTarget.equals(targetUUID)) {
@@ -87,17 +87,23 @@ public class PressTheAttack extends BaseRune {
 
         if (currentStacks == 2) {
             double totalOutput = BASE_PHYSICAL_DAMAGE / 2;
-            event.setDamage(event.getDamage() + totalOutput);
+
+            if (event != null) {
+                event.setDamage(event.getDamage() + totalOutput);
+            } else {
+                livingTarget.damage(totalOutput, player);
+            }
+
             stacks.remove(targetUUID);
             stackTimers.get(playerUUID).remove(targetUUID);
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + attacker.getName());
-            attacker.playSound(attacker.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_CHIME, 1.0f, 0.5f);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + player.getName());
+            player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_CHIME, 1.0f, 0.5f);
+            resetCooldown(player);
         } else {
             currentStacks++;
             stacks.put(targetUUID, currentStacks);
             stackTimers.get(playerUUID).put(targetUUID, STACK_DURATION_TICKS);
         }
-        resetCooldown(attacker);
     }
 
     @Override
