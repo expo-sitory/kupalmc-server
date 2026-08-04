@@ -115,7 +115,8 @@ public class GraspOfTheUndying extends BaseRune {
 
         double maxHealth = maxHealthAttr.getValue();
 
-        double bonusDamage = maxHealth * BASE_PHYSICAL_DAMAGE_PERCENT;
+        double bonusDamage = maxHealth * (BASE_PHYSICAL_DAMAGE_PERCENT / 2);
+
         event.setDamage(event.getDamage() + bonusDamage);
 
         double healAmount = maxHealth * HEAL_PERCENT;

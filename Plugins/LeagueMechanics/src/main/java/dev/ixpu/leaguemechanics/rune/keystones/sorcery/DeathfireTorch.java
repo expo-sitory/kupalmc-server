@@ -22,7 +22,7 @@ import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class DeathfireTorch extends BaseRune {
-    private int BASE_MAGIC_DAMAGE_INTERVAL = 10;
+    private double BASE_MAGIC_DAMAGE = 10.5;
 
     private static final int BURN_DURATION_TICKS = 100;
 
@@ -35,7 +35,7 @@ public class DeathfireTorch extends BaseRune {
         super("deathfire-torch", RunePath.SORCERY, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.sorcery.deathfire-torch");
         if (section != null) {
-            this.BASE_MAGIC_DAMAGE_INTERVAL = section.getInt("damage-interval", this.BASE_MAGIC_DAMAGE_INTERVAL);
+            this.BASE_MAGIC_DAMAGE = section.getDouble("damage-interval", this.BASE_MAGIC_DAMAGE);
         }
     }
 
@@ -76,7 +76,7 @@ public class DeathfireTorch extends BaseRune {
             return;
         }
 
-        double burnDamagePerTick = BASE_MAGIC_DAMAGE_INTERVAL / 2.0;
+        double burnDamagePerTick = BASE_MAGIC_DAMAGE / 4;
         applyBurn(player, livingTarget, burnDamagePerTick);
     }
 
@@ -101,7 +101,7 @@ public class DeathfireTorch extends BaseRune {
                 duration--;
                 burned.put(targetUUID, duration);
 
-                if (duration % BASE_MAGIC_DAMAGE_INTERVAL == 0) {
+                if (duration % BASE_MAGIC_DAMAGE == 0) {
                     LivingEntity target = targets.get(targetUUID);
                     if (target != null && target.isValid()) {
                         double damagePerTick = damages.getOrDefault(targetUUID, 0.0);

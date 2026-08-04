@@ -63,7 +63,8 @@ public class Conqueror extends BaseRune {
         addStack(attacker);
 
         int CURRENT_STACKS = playerStacks.getOrDefault(playerUUID, 0);
-        double totalOutput = CURRENT_STACKS * BASE_PHYSICAL_DAMAGE_PER_STACK;
+
+        double totalOutput = (CURRENT_STACKS * BASE_PHYSICAL_DAMAGE_PER_STACK) / 2;
 
         event.setDamage(event.getDamage() + totalOutput);
 

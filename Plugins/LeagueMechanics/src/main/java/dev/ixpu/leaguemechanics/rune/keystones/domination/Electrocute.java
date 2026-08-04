@@ -32,7 +32,7 @@ public class Electrocute extends BaseRune {
         super("electrocute", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.electrocute");
         if (section != null) {
-            this.BASE_PHYSICAL_DAMAGE = section.getDouble("base-attack-damage", this.BASE_PHYSICAL_DAMAGE);
+            this.BASE_PHYSICAL_DAMAGE = section.getDouble("base-physical-damage", this.BASE_PHYSICAL_DAMAGE);
             this.MAXIMUM_STACKS = section.getInt("maximum-stacks", this.MAXIMUM_STACKS);
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
         }
@@ -84,7 +84,8 @@ public class Electrocute extends BaseRune {
             playerEntityStacks.get(playerUUID).remove(targetUUID);
             stackExpiryTicks.get(playerUUID).remove(targetUUID);
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
-            event.setDamage(event.getDamage() + BASE_PHYSICAL_DAMAGE);
+            double totalOutput = BASE_PHYSICAL_DAMAGE / 2;
+            event.setDamage(event.getDamage() + totalOutput);
         }
     }
 

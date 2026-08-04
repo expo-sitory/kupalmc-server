@@ -32,7 +32,7 @@ public class PressTheAttack extends BaseRune {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.press-the-attack");
 
         if (section != null) {
-            this.BASE_PHYSICAL_DAMAGE = section.getDouble("base-attack-damage", this.BASE_PHYSICAL_DAMAGE);
+            this.BASE_PHYSICAL_DAMAGE = section.getDouble("base-physical-damage", this.BASE_PHYSICAL_DAMAGE);
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
         }
         this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
@@ -86,7 +86,8 @@ public class PressTheAttack extends BaseRune {
         int currentStacks = stacks.getOrDefault(targetUUID, 0);
 
         if (currentStacks == 2) {
-            triggerPressTheAttack(attacker, target, event);
+            double totalOutput = BASE_PHYSICAL_DAMAGE / 2;
+            event.setDamage(event.getDamage() + totalOutput);
             stacks.remove(targetUUID);
             stackTimers.get(playerUUID).remove(targetUUID);
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + attacker.getName());
@@ -96,9 +97,6 @@ public class PressTheAttack extends BaseRune {
             stacks.put(targetUUID, currentStacks);
             stackTimers.get(playerUUID).put(targetUUID, STACK_DURATION_TICKS);
         }
-
-        event.setDamage(event.getDamage() + BASE_PHYSICAL_DAMAGE);
-
         resetCooldown(attacker);
     }
 

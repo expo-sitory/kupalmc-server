@@ -19,7 +19,7 @@ import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 public class ArcaneComet extends BaseRune {
-    double BASE_MAGIC_DAMAGE = 4.5;
+    double BASE_MAGIC_DAMAGE = 20.5;
 
     int COOLDOWN_SECONDS = 20;
 
@@ -33,7 +33,8 @@ public class ArcaneComet extends BaseRune {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.sorcery.arcane-comet");
         
         if (section != null) {
-            this.COOLDOWN_SECONDS = section.getInt("cooldown", COOLDOWN_SECONDS);
+            this.BASE_MAGIC_DAMAGE = section.getDouble("base-magic-damage", this.BASE_MAGIC_DAMAGE);
+            this.COOLDOWN_SECONDS = section.getInt("cooldown", this.COOLDOWN_SECONDS);
         }
         this.setCooldownSeconds(COOLDOWN_SECONDS);
     }
@@ -64,8 +65,8 @@ public class ArcaneComet extends BaseRune {
             return;
         }
 
-        double totalOutput = BASE_MAGIC_DAMAGE;
-        triggerArcaneComet(shooter, (LivingEntity) target, totalOutput);
+        double totalOutput = BASE_MAGIC_DAMAGE / 4;
+        triggerArcaneComet(shooter, livingTarget, totalOutput);
         resetCooldown(shooter);
     }
 

@@ -73,9 +73,6 @@ public class DarkHarvest extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (isOnCooldown(player) || player.getLevel() < LEVEL_COST_PER_STACK) {
-            return;
-        }
 
         double targetHealth = livingTarget.getHealth();
         double maxHealth = livingTarget.getMaxHealth();
@@ -86,9 +83,14 @@ public class DarkHarvest extends BaseRune {
         }
 
         int CURRENT_STACKS = playerStacks.getOrDefault(playerUUID, 0);
-        double totalOutput = CURRENT_STACKS * BASE_PHYSICAL_DAMAGE_PER_STACK;
+        double totalOutput = (CURRENT_STACKS * BASE_PHYSICAL_DAMAGE_PER_STACK) / 2;
 
         event.setDamage(event.getDamage() + totalOutput);
+
+
+        if (isOnCooldown(player) || player.getLevel() < LEVEL_COST_PER_STACK) {
+            return;
+        }
 
         scheduleReapSoul(player);
         resetCooldown(player);
