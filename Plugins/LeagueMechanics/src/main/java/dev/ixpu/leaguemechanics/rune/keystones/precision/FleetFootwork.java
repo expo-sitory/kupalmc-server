@@ -77,7 +77,7 @@ public class FleetFootwork extends BaseRune {
         }
 
         if (stacks >= MAXIMUM_STACKS) {
-            double maxHealth = shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+            double maxHealth = Objects.requireNonNull(shooter.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
             double currentHealth = shooter.getHealth();
             double missingHealth = maxHealth - currentHealth;
             double healAmount = missingHealth * HEAL_PERCENT;

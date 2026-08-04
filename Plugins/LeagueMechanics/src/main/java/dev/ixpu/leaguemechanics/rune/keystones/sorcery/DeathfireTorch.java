@@ -59,8 +59,8 @@ public class DeathfireTorch extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerDeathFireTorch(attacker, (LivingEntity) target, event);
     }
-    public void onProjectileHit(Player shooter, Entity target, EntityDamageByEntityEvent event) {
-        triggerDeathFireTorch(shooter, (LivingEntity) target, event);
+    public void onProjectileHit(Player shooter, Entity target) {
+        triggerDeathFireTorch(shooter, (LivingEntity) target, null);
     }
 
     public void triggerDeathFireTorch(Player player, LivingEntity target, EntityDamageByEntityEvent event) {

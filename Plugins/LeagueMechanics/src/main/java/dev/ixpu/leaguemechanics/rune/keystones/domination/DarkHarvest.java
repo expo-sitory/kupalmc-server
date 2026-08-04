@@ -61,8 +61,8 @@ public class DarkHarvest extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerDarkHarvest(attacker, target, event);
     }
-    public void onProjectileHit(Player shooter, Entity target, EntityDamageByEntityEvent event) {
-        triggerDarkHarvest(shooter, target, event);
+    public void onProjectileHit(Player shooter, Entity target) {
+        triggerDarkHarvest(shooter, target, null);
     }
     private void triggerDarkHarvest(Player player, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = player.getUniqueId();

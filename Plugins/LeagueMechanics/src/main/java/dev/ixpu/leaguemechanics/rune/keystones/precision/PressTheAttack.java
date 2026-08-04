@@ -58,8 +58,8 @@ public class PressTheAttack extends BaseRune {
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerPressTheAttack(attacker, target, event);
     }
-    public void onProjectileHit(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        triggerPressTheAttack(attacker, target, event);
+    public void onProjectileHit(Player attacker, Entity target) {
+        triggerPressTheAttack(attacker, target, null);
     }
     private void triggerPressTheAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = attacker.getUniqueId();

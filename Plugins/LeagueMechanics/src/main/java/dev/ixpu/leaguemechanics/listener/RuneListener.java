@@ -113,7 +113,7 @@ public class RuneListener implements Listener {
             try {
                 dev.ixpu.leaguemechanics.rune.keystones.precision.PressTheAttack pressTheAttack =
                         (dev.ixpu.leaguemechanics.rune.keystones.precision.PressTheAttack) keystoneRune;
-                pressTheAttack.onProjectileHit(shooter, hitEntity, null);
+                pressTheAttack.onProjectileHit(shooter, hitEntity);
             } catch (ClassCastException e) {
                 //
             }
@@ -123,7 +123,7 @@ public class RuneListener implements Listener {
             try {
                 dev.ixpu.leaguemechanics.rune.keystones.domination.Electrocute electrocute = 
                     (dev.ixpu.leaguemechanics.rune.keystones.domination.Electrocute) keystoneRune;
-                electrocute.onProjectileHit(shooter, hitEntity, null);
+                electrocute.onProjectileHit(shooter, hitEntity);
             } catch (ClassCastException e) {
                 //
             }
@@ -133,7 +133,7 @@ public class RuneListener implements Listener {
             try {
                 dev.ixpu.leaguemechanics.rune.keystones.domination.DarkHarvest darkHarvest = 
                     (dev.ixpu.leaguemechanics.rune.keystones.domination.DarkHarvest) keystoneRune;
-                darkHarvest.onProjectileHit(shooter, hitEntity, null);
+                darkHarvest.onProjectileHit(shooter, hitEntity);
             } catch (ClassCastException e) {
                 //
             }
@@ -153,7 +153,7 @@ public class RuneListener implements Listener {
             try {
                 dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch deathfire =
                         (dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch) keystoneRune;
-                deathfire.onProjectileHit(shooter, hitEntity, null);
+                deathfire.onProjectileHit(shooter, hitEntity);
             } catch (ClassCastException e) {
                 //
             }
