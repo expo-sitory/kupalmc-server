@@ -4,6 +4,8 @@ import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
@@ -22,6 +24,7 @@ public class Conqueror extends StackingRune {
 
     public Conqueror(ConfigurationSection config) {
         super("conqueror", RunePath.PRECISION, RuneSlot.KEYSTONE, 12, 100);
+        enablePerTargetStacking();
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.conqueror");
         if (section != null) {
             this.BASE_PHYSICAL_DAMAGE_PER_STACK = section.getDouble("attack-damage-per-stack", this.BASE_PHYSICAL_DAMAGE_PER_STACK);
@@ -42,7 +45,8 @@ public class Conqueror extends StackingRune {
             return;
         }
 
-        addStack(attacker);
+        switchTarget(attacker, target.getUniqueId());
+        addStack(attacker, target.getUniqueId());
 
         int currentStacks = getStacks(attacker);
         double totalOutput = (currentStacks * BASE_PHYSICAL_DAMAGE_PER_STACK) / 2;
@@ -51,10 +55,13 @@ public class Conqueror extends StackingRune {
 
     @Override
     public void tick(Player player) {
-
         tickStackExpiry(player);
 
-        int currentStacks = getStacks(player);
+        int currentStacks = 0;
+        UUID lastTargetUUID = lastTarget.getOrDefault(player.getUniqueId(), null);
+        if (lastTargetUUID != null) {
+            currentStacks = getStacks(player, lastTargetUUID);
+        }
         displayStackInfo(player, currentStacks);
     }
 
