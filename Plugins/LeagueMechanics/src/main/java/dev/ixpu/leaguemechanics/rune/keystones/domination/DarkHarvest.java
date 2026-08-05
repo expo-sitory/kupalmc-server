@@ -1,27 +1,23 @@
 package dev.ixpu.leaguemechanics.rune.keystones.domination;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import dev.ixpu.leaguemechanics.LeagueMechanics;
-import org.bukkit.Sound;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-
-import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
-import net.kyori.adventure.text.Component;
+import dev.ixpu.leaguemechanics.rune.StackingRune;
+
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+import net.kyori.adventure.text.Component;
 
-public class DarkHarvest extends BaseRune {
+
+public class DarkHarvest extends StackingRune {
 
     private double BASE_PHYSICAL_DAMAGE_PER_STACK = 2.5;
-    private int MAXIMUM_STACKS = 20;
     private int LEVEL_COST_PER_STACK = 5;
 
     int COOLDOWN_DURATION_SECONDS = 60;
@@ -29,15 +25,13 @@ public class DarkHarvest extends BaseRune {
     private static final double HEALTH_THRESHOLD = 0.50;
     private static final int REAP_DELAY_TICKS = 45;
 
-    private final Map<UUID, Integer> playerStacks = new HashMap<>();
     private LeagueMechanics plugin;
 
     public DarkHarvest(ConfigurationSection config) {
-        super("dark-harvest", RunePath.DOMINATION, RuneSlot.KEYSTONE);
+        super("dark-harvest", RunePath.DOMINATION, RuneSlot.KEYSTONE, 20);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.dark-harvest");
         if (section != null) {
             this.BASE_PHYSICAL_DAMAGE_PER_STACK = section.getDouble("attack-damage-per-stack", this.BASE_PHYSICAL_DAMAGE_PER_STACK);
-            this.MAXIMUM_STACKS = section.getInt("maximum-stacks", this.MAXIMUM_STACKS);
             this.LEVEL_COST_PER_STACK = section.getInt("level-cost-per-stack", this.LEVEL_COST_PER_STACK);
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
         }
@@ -46,27 +40,19 @@ public class DarkHarvest extends BaseRune {
 
     @Override
     public void onEnable(Player player) {
-        UUID uuid = player.getUniqueId();
-        playerStacks.put(uuid, 0);
-    }
-
-    @Override
-    public void onDisable(Player player) {
-        UUID uuid = player.getUniqueId();
-        clearPlayerCooldown(player);
-        playerStacks.remove(uuid);
+        //
     }
 
     @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerDarkHarvest(attacker, target, event);
     }
-    public void onProjectileHit(Player shooter, Entity target, EntityDamageByEntityEvent event) {
-        triggerDarkHarvest(shooter, target, event);
-    }
-    private void triggerDarkHarvest(Player player, Entity target, EntityDamageByEntityEvent event) {
-        UUID playerUUID = player.getUniqueId();
 
+    public void onProjectileHit(Player shooter, Entity target) {
+        triggerDarkHarvest(shooter, target, null);
+    }
+
+    private void triggerDarkHarvest(Player player, Entity target, EntityDamageByEntityEvent event) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -82,15 +68,14 @@ public class DarkHarvest extends BaseRune {
             return;
         }
 
-        int CURRENT_STACKS = playerStacks.getOrDefault(playerUUID, 0);
-        double totalOutput = (CURRENT_STACKS * BASE_PHYSICAL_DAMAGE_PER_STACK) / 2;
+        int currentStacks = getStacks(player);
+        double totalOutput = (currentStacks * BASE_PHYSICAL_DAMAGE_PER_STACK) / 2;
 
         if (event != null) {
             event.setDamage(event.getDamage() + totalOutput);
         } else {
             livingTarget.damage(totalOutput, player);
         }
-
 
         if (isOnCooldown(player) || player.getLevel() < LEVEL_COST_PER_STACK) {
             return;
@@ -100,50 +85,44 @@ public class DarkHarvest extends BaseRune {
         resetCooldown(player);
     }
 
-
     @Override
     public void tick(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        int CURRENT_STACKS = playerStacks.getOrDefault(playerUUID, 0);
+        int currentStacks = getStacks(player);
 
         if (isOnCooldown(player)) {
-            displayCooldown(player, CURRENT_STACKS);
+            displayCooldown(player, currentStacks);
             return;
         }
-        displaySoulInfo(player, CURRENT_STACKS);
+        displaySoulInfo(player, currentStacks);
     }
 
     private void scheduleAddStack(Player attacker) {
         if (plugin == null) {
-            addStack(attacker);
+            addStackWithCost(attacker);
             return;
         }
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> addStack(attacker), REAP_DELAY_TICKS);
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> addStackWithCost(attacker), REAP_DELAY_TICKS);
     }
 
-    private void addStack(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        int current = playerStacks.getOrDefault(playerUUID, 0);
-
-        if (current >= MAXIMUM_STACKS) {
+    private void addStackWithCost(Player player) {
+        if (getStacks(player) >= maxStacks) {
             return;
         }
 
         player.setLevel(player.getLevel() - LEVEL_COST_PER_STACK);
-        current++;
-        playerStacks.put(playerUUID, current);
+        addStack(player);
         player.playSound(player.getLocation(), Sound.ENTITY_WITHER_HURT, 1.0f, 1.0f);
     }
 
-    private void displayCooldown(Player player, int CURRENT_STACKS) {
+    private void displayCooldown(Player player, int currentStacks) {
         String cooldownDisplay = getCooldownDisplay(player);
-        player.sendActionBar(Component.text("§7👻 " + CURRENT_STACKS + "/" + MAXIMUM_STACKS + " | " + cooldownDisplay));
+        player.sendActionBar(Component.text("§7👻 " + currentStacks + "/" + maxStacks + " | " + cooldownDisplay));
     }
 
-    private void displaySoulInfo(Player player, int CURRENT_STACKS) {
-        if (CURRENT_STACKS >= 1) {
+    private void displaySoulInfo(Player player, int currentStacks) {
+        if (currentStacks >= 1) {
             player.sendActionBar(Component.text()
-                    .append(Component.text("§c👻 " + CURRENT_STACKS + "/" + MAXIMUM_STACKS))
+                    .append(Component.text("§c👻 " + currentStacks + "/" + maxStacks))
                     .build());
         } else {
             player.sendActionBar(Component.text()

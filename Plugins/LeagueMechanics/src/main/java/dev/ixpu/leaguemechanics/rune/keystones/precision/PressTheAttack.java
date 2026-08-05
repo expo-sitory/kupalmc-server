@@ -1,34 +1,34 @@
 package dev.ixpu.leaguemechanics.rune.keystones.precision;
 
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.rune.StackingRune;
+
 import java.util.*;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import dev.ixpu.leaguemechanics.rune.BaseRune;
-import dev.ixpu.leaguemechanics.rune.RunePath;
-import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import net.kyori.adventure.text.Component;
 
 
-public class PressTheAttack extends BaseRune {
-    private static final int MAX_STACKS = 3;
+public class PressTheAttack extends StackingRune {
+
     private double BASE_PHYSICAL_DAMAGE = 4.5;
+
+    private static final int MAX_STACKS = 3;
 
     int COOLDOWN_DURATION_SECONDS = 200;
 
-    private static final int STACK_DURATION_TICKS = 60;
-
-    private final Map<UUID, Map<UUID, Integer>> playerStacks = new HashMap<>();
-    private final Map<UUID, UUID> lastTarget = new HashMap<>();
-    private final Map<UUID, Map<UUID, Integer>> stackTimers = new HashMap<>();
-
     public PressTheAttack(org.bukkit.configuration.ConfigurationSection config) {
-        super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE);
+        super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE, 3, 60);
+        enablePerTargetStacking();
+        enablePerTargetExpiry();
+
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.press-the-attack");
 
         if (section != null) {
@@ -39,32 +39,16 @@ public class PressTheAttack extends BaseRune {
     }
 
     @Override
-    public void onEnable(Player player) {
-        playerStacks.putIfAbsent(player.getUniqueId(), new HashMap<>());
-        lastTarget.putIfAbsent(player.getUniqueId(), null);
-        stackTimers.putIfAbsent(player.getUniqueId(), new HashMap<>());
-    }
-
-    @Override
-    public void onDisable(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        playerStacks.remove(playerUUID);
-        lastTarget.remove(playerUUID);
-        stackTimers.remove(playerUUID);
-        clearPlayerCooldown(player);
-    }
-
-    @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerPressTheAttack(attacker, target, event);
     }
+
     public void onProjectileHit(Player shooter, Entity target) {
         triggerPressTheAttack(shooter, target, null);
     }
+
     private void triggerPressTheAttack(Player player, Entity target, EntityDamageByEntityEvent event) {
-        UUID playerUUID = player.getUniqueId();
         UUID targetUUID = target.getUniqueId();
-        UUID previousTarget = lastTarget.get(playerUUID);
 
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
@@ -73,17 +57,14 @@ public class PressTheAttack extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+
         if (isOnCooldown(player)) {
             return;
         }
-        if (previousTarget != null && !previousTarget.equals(targetUUID)) {
-            playerStacks.get(playerUUID).clear();
-            stackTimers.get(playerUUID).clear();
-        }
-        lastTarget.put(playerUUID, targetUUID);
 
-        Map<UUID, Integer> stacks = playerStacks.get(playerUUID);
-        int currentStacks = stacks.getOrDefault(targetUUID, 0);
+        switchTarget(player, targetUUID);
+
+        int currentStacks = getStacks(player, targetUUID);
 
         if (currentStacks == 2) {
             double totalOutput = BASE_PHYSICAL_DAMAGE / 2;
@@ -94,72 +75,45 @@ public class PressTheAttack extends BaseRune {
                 livingTarget.damage(totalOutput, player);
             }
 
-            stacks.remove(targetUUID);
-            stackTimers.get(playerUUID).remove(targetUUID);
+            resetStacksForTarget(player, targetUUID);
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + player.getName());
             player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_CHIME, 1.0f, 0.5f);
             resetCooldown(player);
         } else {
-            currentStacks++;
-            stacks.put(targetUUID, currentStacks);
-            stackTimers.get(playerUUID).put(targetUUID, STACK_DURATION_TICKS);
+            addStack(player, targetUUID);
         }
     }
 
     @Override
+    public void onEnable(Player player) {
+        //
+    }
+
+    @Override
     public void tick(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        Map<UUID, Integer> timers = stackTimers.get(playerUUID);
-        Map<UUID, Integer> stacks = playerStacks.get(playerUUID);
-
-        if (timers == null || stacks == null) return;
-
-        List<UUID> expiredTargets = new ArrayList<>();
-        
-        for (Map.Entry<UUID, Integer> entry : timers.entrySet()) {
-            int newTime = entry.getValue() - 1;
-            if (newTime <= 0) {
-                expiredTargets.add(entry.getKey());
-            } else {
-                entry.setValue(newTime);
-            }
-        }
-
-        for (UUID targetUUID : expiredTargets) {
-            timers.remove(targetUUID);
-            stacks.remove(targetUUID);
-        }
-
-        if (stacks.isEmpty()) {
-            lastTarget.put(playerUUID, null);
-        }
-        
+        tickStackExpiry(player);
         displayStackInfo(player);
     }
-    
-    private void displayStackInfo(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        Map<UUID, Integer> stacks = playerStacks.get(playerUUID);
 
+    private void displayStackInfo(Player player) {
         String cooldownDisplay = getCooldownDisplay(player);
         if (!cooldownDisplay.isEmpty()) {
             player.sendActionBar(Component.text("§7✽ " + cooldownDisplay));
             return;
         }
-        
-        if (stacks == null || stacks.isEmpty()) {
-            player.sendActionBar(Component.text("§6✽"));
-            return;
-        }
-        
-        UUID lastTargetUUID = lastTarget.getOrDefault(playerUUID, null);
+
+        UUID lastTargetUUID = lastTarget.getOrDefault(player.getUniqueId(), null);
         int currentStacks = 0;
         if (lastTargetUUID != null) {
-            currentStacks = stacks.getOrDefault(lastTargetUUID, 0);
+            currentStacks = getStacks(player, lastTargetUUID);
         }
-        
-        player.sendActionBar(Component.text()
-                .append(Component.text("§e✽ " + currentStacks + "/" + MAX_STACKS))
-                .build());
+
+        if (currentStacks == 0) {
+            player.sendActionBar(Component.text("§6✽"));
+        } else {
+            player.sendActionBar(Component.text()
+                    .append(Component.text("§e✽ " + currentStacks + "/" + MAX_STACKS))
+                    .build());
+        }
     }
 }

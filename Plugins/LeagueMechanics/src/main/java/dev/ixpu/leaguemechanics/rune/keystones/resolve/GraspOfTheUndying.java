@@ -1,43 +1,40 @@
 package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 
-import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
-import net.kyori.adventure.text.Component;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import dev.ixpu.leaguemechanics.rune.StackingRune;
 
 import java.util.*;
 
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-public class GraspOfTheUndying extends BaseRune {
-    private int MAX_STACKS = 4;
+import net.kyori.adventure.text.Component;
+
+
+public class GraspOfTheUndying extends StackingRune {
     private double BASE_PHYSICAL_DAMAGE_PERCENT = 0.05;
     private double HEAL_PERCENT = 0.15;
 
     int COOLDOWN_DURATION_SECONDS = 60;
-    
-    private static final int COMBAT_DURATION_TICKS = 60;
+
     private static final int ATTACK_WINDOW_TICKS = 100;
     private static final int MAX_BONUS_HEARTS = 10;
-    
-    private final Map<UUID, Integer> playerStacks = new HashMap<>();
-    private final Map<UUID, Integer> combatTimers = new HashMap<>();
-    private final Map<UUID, Integer> attackWindowTicks = new HashMap<>();
+
+    private final Map<UUID, Integer> activationState = new HashMap<>();
     private final Map<UUID, Integer> totalBonusHearts = new HashMap<>();
     private final Map<UUID, List<AttributeModifier>> activeModifiers = new HashMap<>();
 
     public GraspOfTheUndying(org.bukkit.configuration.ConfigurationSection config) {
-        super("grasp-of-the-undying", RunePath.RESOLVE, RuneSlot.KEYSTONE);
+        super("grasp-of-the-undying", RunePath.RESOLVE, RuneSlot.KEYSTONE, 4, 60);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.grasp-of-the-undying");
-        
+
         if (section != null) {
-            this.MAX_STACKS = section.getInt("maximum-stacks", this.MAX_STACKS);
             this.BASE_PHYSICAL_DAMAGE_PERCENT = section.getDouble("damage-percent", this.BASE_PHYSICAL_DAMAGE_PERCENT);
             this.HEAL_PERCENT = section.getDouble("heal-percent", this.HEAL_PERCENT);
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
@@ -48,40 +45,28 @@ public class GraspOfTheUndying extends BaseRune {
     @Override
     public void onEnable(Player player) {
         UUID uuid = player.getUniqueId();
-        playerStacks.put(uuid, 0);
-        combatTimers.put(uuid, 0);
-        attackWindowTicks.put(uuid, 0);
+        activationState.put(uuid, 0);
         totalBonusHearts.put(uuid, 0);
     }
 
     @Override
     public void onDisable(Player player) {
         UUID uuid = player.getUniqueId();
-        clearPlayerCooldown(player);
-        playerStacks.remove(uuid);
-        combatTimers.remove(uuid);
-        attackWindowTicks.remove(uuid);
+        super.onDisable(player);
+        activationState.remove(uuid);
         totalBonusHearts.remove(uuid);
         removeAllModifiers(player);
     }
 
     public void onCombat(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        
         if (isOnCooldown(player)) {
             return;
         }
-        
-        combatTimers.put(playerUUID, COMBAT_DURATION_TICKS);
-        
-        int stacks = playerStacks.getOrDefault(playerUUID, 0);
-        if (stacks < MAX_STACKS) {
-            stacks++;
-            playerStacks.put(playerUUID, stacks);
-            
-            if (stacks == MAX_STACKS) {
-                attackWindowTicks.put(playerUUID, ATTACK_WINDOW_TICKS);
-            }
+
+        addStack(player);
+
+        if (getStacks(player) == maxStacks) {
+            activationState.put(player.getUniqueId(), ATTACK_WINDOW_TICKS);
         }
     }
 
@@ -92,8 +77,8 @@ public class GraspOfTheUndying extends BaseRune {
 
     private void triggerGraspOfTheUndying(Player player, Entity target, EntityDamageByEntityEvent event) {
         UUID playerUUID = player.getUniqueId();
-        int stacks = playerStacks.getOrDefault(playerUUID, 0);
-        int attackWindow = attackWindowTicks.getOrDefault(playerUUID, 0);
+        int stacks = getStacks(player);
+        int attackWindow = activationState.getOrDefault(playerUUID, 0);
 
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
@@ -102,11 +87,10 @@ public class GraspOfTheUndying extends BaseRune {
             return;
         }
 
-        if (stacks >= MAX_STACKS && attackWindow > 0) {
+        if (stacks >= maxStacks && attackWindow > 0) {
             enterActiveState(player, event);
-            playerStacks.put(playerUUID, 0);
-            attackWindowTicks.put(playerUUID, 0);
-            combatTimers.put(playerUUID, 0);
+            resetStacks(player);
+            activationState.put(playerUUID, 0);
             resetCooldown(player);
         } else {
             onCombat(player);
@@ -140,28 +124,19 @@ public class GraspOfTheUndying extends BaseRune {
             displayCooldown(player);
             return;
         }
-        
-        int combatTimer = combatTimers.getOrDefault(playerUUID, 0);
-        if (combatTimer > 0) {
-            combatTimer--;
-            combatTimers.put(playerUUID, combatTimer);
-            
-            if (combatTimer == 0) {
-                playerStacks.put(playerUUID, 0);
-                attackWindowTicks.put(playerUUID, 0);
+
+        tickStackExpiry(player);
+
+        int attackWindow = activationState.getOrDefault(playerUUID, 0);
+        if (attackWindow > 0) {
+            attackWindow--;
+            activationState.put(playerUUID, attackWindow);
+
+            if (attackWindow == 0) {
+                resetStacks(player);
             }
         }
 
-        int attackWindow = attackWindowTicks.getOrDefault(playerUUID, 0);
-        if (attackWindow > 0) {
-            attackWindow--;
-            attackWindowTicks.put(playerUUID, attackWindow);
-            
-            if (attackWindow == 0) {
-                playerStacks.put(playerUUID, 0);
-            }
-        }
-        
         displayStackInfo(player);
     }
 
@@ -228,18 +203,18 @@ public class GraspOfTheUndying extends BaseRune {
 
     private void displayStackInfo(Player player) {
         UUID playerUUID = player.getUniqueId();
-        int stacks = playerStacks.getOrDefault(playerUUID, 0);
-        int attackWindow = attackWindowTicks.getOrDefault(playerUUID, 0);
-        
-        if (stacks >= MAX_STACKS && attackWindow > 0) {
+        int stacks = getStacks(player);
+        int attackWindow = activationState.getOrDefault(playerUUID, 0);
+
+        if (stacks >= maxStacks && attackWindow > 0) {
             displayReadyInfo(player, attackWindow);
         }
         else if (stacks > 0) {
             player.sendActionBar(Component.text()
-                    .append(Component.text("§2🥊 " + stacks + "/" + MAX_STACKS, net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                    .append(Component.text("§2🥊 " + stacks + "/" + maxStacks, net.kyori.adventure.text.format.NamedTextColor.WHITE))
                     .build());
         } else {
-              player.sendActionBar(Component.text()
+            player.sendActionBar(Component.text()
                     .append(Component.text("§2🥊", net.kyori.adventure.text.format.NamedTextColor.WHITE))
                     .build());
         }

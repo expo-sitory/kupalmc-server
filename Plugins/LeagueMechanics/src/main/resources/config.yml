@@ -35,13 +35,11 @@ runes:
 
       dark-harvest:
         attack-damage-per-stack: 2.5
-        maximum-stacks: 20
         level-cost-per-stack: 5
         cooldown: 60
 
       electrocute:
         base-physical-damage: 3.5
-        maximum-stacks: 3
         cooldown: 25
 
       hail-of-blades:
@@ -57,7 +55,6 @@ runes:
 
       conqueror:
         attack-damage-per-stack: 2.5
-        maximum-stacks: 12
 
       fleet-footwork:
         maximum-stacks: 100
@@ -66,7 +63,6 @@ runes:
         heal-percent: 0.60
 
       lethal-tempo:
-        maximum-stacks: 6
         attack-speed-bonus: 0.80
         cooldown: 30
 
@@ -97,7 +93,6 @@ runes:
         cooldown: 45
 
       grasp-of-the-undying:
-        maximum-stacks: 4
         damage-percent: 0.05
         heal-percent: 0.15
         cooldown: 45

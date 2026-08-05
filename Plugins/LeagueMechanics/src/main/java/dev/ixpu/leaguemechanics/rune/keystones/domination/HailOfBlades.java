@@ -1,18 +1,22 @@
 package dev.ixpu.leaguemechanics.rune.keystones.domination;
 
+import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
+
 import java.util.*;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.configuration.ConfigurationSection;
+
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import dev.ixpu.leaguemechanics.rune.BaseRune;
-import dev.ixpu.leaguemechanics.rune.RunePath;
-import dev.ixpu.leaguemechanics.rune.RuneSlot;
-import net.kyori.adventure.text.Component;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+
+import net.kyori.adventure.text.Component;
+
 
 public class HailOfBlades extends BaseRune {
     private double BASE_ATTACK_SPEED = 0.10; 
@@ -28,7 +32,7 @@ public class HailOfBlades extends BaseRune {
     private final Map<UUID, Boolean> windupActive = new HashMap<>();
     private final Map<UUID, Integer> windupTicks = new HashMap<>();
     private final Map<UUID, Integer> lastWindupStage = new HashMap<>(); 
-    private final Map<UUID, Boolean> effectActive = new HashMap<>();
+    private final Map<UUID, Boolean> activeState = new HashMap<>();
     private final Map<UUID, List<Integer>> stackDurationTicks = new HashMap<>(); 
     private final Map<UUID, Integer> lastAttackTick = new HashMap<>(); 
     private final Map<UUID, Integer> currentStacks = new HashMap<>();
@@ -51,7 +55,7 @@ public class HailOfBlades extends BaseRune {
         windupActive.put(uuid, false);
         windupTicks.put(uuid, 0);
         lastWindupStage.put(uuid, 0);
-        effectActive.put(uuid, false);
+        activeState.put(uuid, false);
         stackDurationTicks.put(uuid, new ArrayList<>());
         lastAttackTick.put(uuid, 0);
         currentStacks.put(uuid, 0);
@@ -66,7 +70,7 @@ public class HailOfBlades extends BaseRune {
         windupActive.remove(uuid);
         windupTicks.remove(uuid);
         lastWindupStage.remove(uuid);
-        effectActive.remove(uuid);
+        activeState.remove(uuid);
         stackDurationTicks.remove(uuid);
         lastAttackTick.remove(uuid);
         currentStacks.remove(uuid);
@@ -89,7 +93,7 @@ public class HailOfBlades extends BaseRune {
         if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(player)) {
             return;
         }
-        if (effectActive.getOrDefault(playerUUID, false)) {
+        if (activeState.getOrDefault(playerUUID, false)) {
             lastAttackTick.put(playerUUID, 0);
 
             event.setDamage(event.getDamage() * BASE_TRUE_DAMAGE);
@@ -131,7 +135,7 @@ public class HailOfBlades extends BaseRune {
             return;
         }
 
-        if (effectActive.getOrDefault(playerUUID, false)) {
+        if (activeState.getOrDefault(playerUUID, false)) {
             List<Integer> durations = stackDurationTicks.getOrDefault(playerUUID, new ArrayList<>());
 
             int inactivityCount = lastAttackTick.getOrDefault(playerUUID, 0);
@@ -182,7 +186,7 @@ public class HailOfBlades extends BaseRune {
 
     private void activateEffect(Player player) {
         UUID playerUUID = player.getUniqueId();
-        effectActive.put(playerUUID, true);
+        activeState.put(playerUUID, true);
         lastAttackTick.put(playerUUID, 0);
         currentStacks.put(playerUUID, INITIAL_STACKS);
 
@@ -200,7 +204,7 @@ public class HailOfBlades extends BaseRune {
 
     private void deactivateEffect(Player player) {
         UUID playerUUID = player.getUniqueId();
-        effectActive.put(playerUUID, false);
+        activeState.put(playerUUID, false);
         currentStacks.put(playerUUID, 0);
         windupTicks.put(playerUUID, 0);
         windupActive.put(playerUUID, false);
