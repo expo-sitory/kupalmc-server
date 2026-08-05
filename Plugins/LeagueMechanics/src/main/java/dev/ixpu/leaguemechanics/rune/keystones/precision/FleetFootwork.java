@@ -123,6 +123,7 @@ public class FleetFootwork extends StackingRune {
 
             if (buffTicks == 0) {
                 removeAllModifiers(player);
+                resetStacks(player);
             }
         }
 

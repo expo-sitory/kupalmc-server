@@ -96,7 +96,8 @@ public class HailOfBlades extends BaseRune {
         if (activeState.getOrDefault(playerUUID, false)) {
             lastAttackTick.put(playerUUID, 0);
 
-            event.setDamage(event.getDamage() * BASE_TRUE_DAMAGE);
+            double totalOutput = (BASE_TRUE_DAMAGE * 10) / 1.5;
+            event.setDamage(event.getDamage() * totalOutput);
 
             List<Integer> durations = stackDurationTicks.getOrDefault(playerUUID, new ArrayList<>());
             for (int i = 0; i < durations.size(); i++) {

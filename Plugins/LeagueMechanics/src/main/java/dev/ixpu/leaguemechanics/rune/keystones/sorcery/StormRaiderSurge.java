@@ -97,6 +97,9 @@ public class StormRaiderSurge extends BaseRune {
             speedDuration--;
             speedActiveDuration.put(playerUUID, speedDuration);
             displayActiveState(player, speedDuration);
+            if (speedDuration == 0) {
+                resetCooldown(player);
+            }
             return;
         }
 

@@ -25,6 +25,8 @@ public class Conqueror extends StackingRune {
     public Conqueror(ConfigurationSection config) {
         super("conqueror", RunePath.PRECISION, RuneSlot.KEYSTONE, 12, 100);
         enablePerTargetStacking();
+        enablePerTargetExpiry();
+
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.conqueror");
         if (section != null) {
             this.BASE_PHYSICAL_DAMAGE_PER_STACK = section.getDouble("attack-damage-per-stack", this.BASE_PHYSICAL_DAMAGE_PER_STACK);
@@ -45,10 +47,11 @@ public class Conqueror extends StackingRune {
             return;
         }
 
-        switchTarget(attacker, target.getUniqueId());
-        addStack(attacker, target.getUniqueId());
+        UUID targetUUID = target.getUniqueId();
+        switchTarget(attacker, targetUUID);
+        addStack(attacker, targetUUID);
 
-        int currentStacks = getStacks(attacker);
+        int currentStacks = getStacks(attacker, targetUUID);
         double totalOutput = (currentStacks * BASE_PHYSICAL_DAMAGE_PER_STACK) / 2;
         event.setDamage(event.getDamage() + totalOutput);
     }
@@ -57,14 +60,13 @@ public class Conqueror extends StackingRune {
     public void tick(Player player) {
         tickStackExpiry(player);
 
-        int currentStacks = 0;
         UUID lastTargetUUID = lastTarget.getOrDefault(player.getUniqueId(), null);
+        int currentStacks = 0;
         if (lastTargetUUID != null) {
             currentStacks = getStacks(player, lastTargetUUID);
         }
         displayStackInfo(player, currentStacks);
     }
-
     @Override
     protected void onStackAdded(Player player, int newStackCount) {
         if (newStackCount == 1) {

@@ -43,10 +43,6 @@ public class PressTheAttack extends StackingRune {
         triggerPressTheAttack(attacker, target, event);
     }
 
-    public void onProjectileHit(Player shooter, Entity target) {
-        triggerPressTheAttack(shooter, target, null);
-    }
-
     private void triggerPressTheAttack(Player player, Entity target, EntityDamageByEntityEvent event) {
         UUID targetUUID = target.getUniqueId();
 
@@ -69,13 +65,9 @@ public class PressTheAttack extends StackingRune {
         if (currentStacks == 2) {
             double totalOutput = BASE_PHYSICAL_DAMAGE / 2;
 
-            if (event != null) {
-                event.setDamage(event.getDamage() + totalOutput);
-            } else {
-                livingTarget.damage(totalOutput, player);
-            }
-
+            event.setDamage(event.getDamage() + totalOutput);
             resetStacksForTarget(player, targetUUID);
+
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + player.getName());
             player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_CHIME, 1.0f, 0.5f);
             resetCooldown(player);

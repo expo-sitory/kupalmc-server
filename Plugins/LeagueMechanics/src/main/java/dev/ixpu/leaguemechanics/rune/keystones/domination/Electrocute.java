@@ -65,6 +65,7 @@ public class Electrocute extends StackingRune {
             return;
         }
 
+        switchTarget(player, targetUUID);
         addStack(player, targetUUID);
 
         int stacks = getStacks(player, targetUUID);
@@ -82,6 +83,7 @@ public class Electrocute extends StackingRune {
                 livingTarget.damage(totalOutput, player);
             }
         }
+
     }
 
     @Override
