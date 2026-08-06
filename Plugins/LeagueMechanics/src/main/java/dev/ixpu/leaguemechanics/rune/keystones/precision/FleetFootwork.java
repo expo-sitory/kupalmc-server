@@ -176,8 +176,19 @@ public class FleetFootwork extends StackingRune {
         int stacks = getStacks(player);
         int buffTicks = speedBuffTicks.getOrDefault(player.getUniqueId(), 0);
 
-        RuneState state = stacks > 0 ? RuneState.STACKING : RuneState.ACTIVE;
-        String runeDisplay = getRuneDisplay(state, stacks, buffTicks);
+        if (buffTicks > 0) {
+            String runeDisplay = getRuneDisplay(RuneState.ACTIVE, stacks, buffTicks);
+            setPlayerDisplay(player, runeDisplay);
+            return;
+        }
+
+        if (stacks > 0) {
+            String runeDisplay = getRuneDisplay(RuneState.STACKING, stacks, buffTicks);
+            setPlayerDisplay(player, runeDisplay);
+            return;
+        }
+
+        String runeDisplay = getRuneDisplay(RuneState.IDLE, stacks, buffTicks);
         setPlayerDisplay(player, runeDisplay);
     }
 
@@ -190,14 +201,19 @@ public class FleetFootwork extends StackingRune {
     }
 
     enum RuneState {
-        STACKING, ACTIVE
+        STACKING, ACTIVE, IDLE
     }
 
     private String getRuneDisplay(RuneState state, int stacks, int buffTicks) {
-        double remainingSeconds = buffTicks / 20.0;
+
+
         return switch (state) {
             case STACKING -> "§e👣 " + stacks + "/" + MAXIMUM_STACKS;
-            case ACTIVE -> String.format("§e👣 (%.1fs)", remainingSeconds);
+            case ACTIVE -> {
+                double remainingSeconds = buffTicks / 20.0;
+                yield String.format("§e👣 §f(%.1f)", remainingSeconds);
+            }
+            case IDLE -> "§e👣";
         };
     }
 }

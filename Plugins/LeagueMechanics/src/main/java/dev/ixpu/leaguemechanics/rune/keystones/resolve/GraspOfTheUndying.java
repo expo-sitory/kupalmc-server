@@ -179,7 +179,7 @@ public class GraspOfTheUndying extends StackingRune {
 
         if (isOnCooldown(player)) {
             String runeDisplay = getRuneDisplay(RuneState.COOLDOWN, player, 0, 0);
-            player.sendActionBar(Component.text(runeDisplay));
+            setPlayerDisplay(player, runeDisplay);
             return;
         }
 

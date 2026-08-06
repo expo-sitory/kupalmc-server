@@ -106,20 +106,21 @@ public class Electrocute extends StackingRune {
 
     @Override
     public void tick(Player player) {
-        int currentStacks = getStacks(player);
+        int currentStacks = trackPerTargetStacks(player);
 
         if (isOnCooldown(player)) {
-            String runeDisplay = getRuneDisplay(player, RuneState.COOLDOWN, trackPerTargetStacks(player));
+            String runeDisplay = getRuneDisplay(player, RuneState.COOLDOWN, currentStacks);
             setPlayerDisplay(player, runeDisplay);
             return;
         }
-        if (currentStacks > 0) {
-            String runeDisplay = getRuneDisplay(player, RuneState.STACKING, trackPerTargetStacks(player));
-            setPlayerDisplay(player, runeDisplay);
-        }
-        trackPerTargetStacks(player);
 
-        String runeDisplay = getRuneDisplay(player, RuneState.IDLE, trackPerTargetStacks(player));
+        if (currentStacks > 0) {
+            String runeDisplay = getRuneDisplay(player, RuneState.STACKING, currentStacks);
+            setPlayerDisplay(player, runeDisplay);
+            return;
+        }
+
+        String runeDisplay = getRuneDisplay(player, RuneState.IDLE, currentStacks);
         setPlayerDisplay(player, runeDisplay);
     }
 
