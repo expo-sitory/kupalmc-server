@@ -3,6 +3,7 @@ package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 public class AfterShock extends BaseRune {
     private int EFFECT_DURATION_TICKS = 300;
@@ -61,10 +61,10 @@ public class AfterShock extends BaseRune {
     }
 
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        triggerAfterShock(attacker, target, event);
+        triggerAfterShock(attacker, target);
     }
 
-    private void triggerAfterShock(Player player, Entity target, EntityDamageByEntityEvent event) {
+    private void triggerAfterShock(Player player, Entity target) {
         if (!isWindBurstMace(player.getInventory().getItemInMainHand())) {
             return;
         }
@@ -119,26 +119,6 @@ public class AfterShock extends BaseRune {
         player.playSound(player.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.0f);
     }
 
-    @Override
-    public void tick(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        long effectStart = effectStartTime.getOrDefault(playerUUID, 0L);
-        long currentTime = System.currentTimeMillis();
-        long effectDurationMs = EFFECT_DURATION_TICKS * 50L;
-
-        if (effectStart > 0 && (currentTime - effectStart) < effectDurationMs) {
-            displayActiveEffectInfo(player);
-            return;
-        }
-
-        if (isOnCooldown(player)) {
-            displayCooldownInfo(player);
-            return;
-        }
-
-        displayIdleState(player);
-    }
-
     private boolean isWindBurstMace(ItemStack item) {
         if (item == null || item.getType().isAir()) {
             return false;
@@ -156,29 +136,50 @@ public class AfterShock extends BaseRune {
         return meta.hasEnchant(Objects.requireNonNull(Enchantment.getByName("wind_burst")));
     }
 
-
-    private void displayActiveEffectInfo(Player player) {
+    @Override
+    public void tick(Player player) {
         UUID playerUUID = player.getUniqueId();
         long effectStart = effectStartTime.getOrDefault(playerUUID, 0L);
         long currentTime = System.currentTimeMillis();
         long effectDurationMs = EFFECT_DURATION_TICKS * 50L;
 
-        long remainingMs = effectDurationMs - (currentTime - effectStart);
-        double remainingSeconds = remainingMs / 1000.0;
+        RuneState state;
+        long remainingMs = 0;
 
-        player.sendActionBar(Component.text()
-                .append(Component.text(String.format("§a💢 (%.1fs)", remainingSeconds), NamedTextColor.WHITE))
-                .build());
+        if (effectStart > 0 && (currentTime - effectStart) < effectDurationMs) {
+            state = RuneState.ACTIVE;
+            remainingMs = effectDurationMs - (currentTime - effectStart);
+        } else if (isOnCooldown(player)) {
+            state = RuneState.COOLDOWN;
+        } else {
+            state = RuneState.IDLE;
+        }
+
+        String runeDisplay = getRuneDisplay(state, player, remainingMs);
+        setPlayerDisplay(player, runeDisplay);
     }
 
-    private void displayCooldownInfo(Player player) {
-        String cooldownDisplay = getCooldownDisplay(player);
-        player.sendActionBar(Component.text()
-                .append(Component.text("§7💢 " + cooldownDisplay, NamedTextColor.WHITE))
-                .build());
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+        
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
     }
 
-    private void displayIdleState(Player player) {
-        player.sendActionBar(Component.text("§2💢", NamedTextColor.WHITE));
+    enum RuneState {
+        ACTIVE, COOLDOWN, IDLE
     }
+
+    private String getRuneDisplay(RuneState state, Player player, long remainingMs) {
+        return switch (state) {
+            case ACTIVE -> {
+                double remainingSeconds = remainingMs / 1000.0;
+                yield String.format("§a💢 (%.1fs)", remainingSeconds);
+            }
+            case COOLDOWN -> "§7💢 " + getCooldownDisplay(player);
+            case IDLE -> "§a💢";
+        };
+    }
+
 }

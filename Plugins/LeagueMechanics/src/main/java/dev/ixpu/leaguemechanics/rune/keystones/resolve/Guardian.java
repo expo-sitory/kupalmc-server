@@ -3,6 +3,7 @@ package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +18,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 public class Guardian extends BaseRune {
 
@@ -88,7 +88,9 @@ public class Guardian extends BaseRune {
         int windupCount = windupCounter.getOrDefault(playerUUID, 0);
 
         if (windupCount > 0) {
-            displayGuardUpProgress(player, windupCount, nearbyPlayers.size());
+            String runeDisplay = getRuneDisplay(RuneState.WINDUP, player, windupCount, nearbyPlayers.size());
+            setPlayerDisplay(player, runeDisplay);
+
             windupCounter.put(playerUUID, windupCount - 1);
             if (windupCount == 1) {
                 activateEffects(player);
@@ -109,11 +111,13 @@ public class Guardian extends BaseRune {
         }
 
         if (isOnCooldown(player)) {
-            displayCooldownInfo(player);
+            String runeDisplay = getRuneDisplay(RuneState.COOLDOWN, player, 0, 0);
+            setPlayerDisplay(player, runeDisplay);
             return;
         }
 
-        displayIdleState(player);
+        String runeDisplay = getRuneDisplay(RuneState.IDLE, player, 0, 0);
+        setPlayerDisplay(player, runeDisplay);
     }
 
     private List<UUID> getNearbyPeacefulPlayers(Player player) {
@@ -187,34 +191,33 @@ public class Guardian extends BaseRune {
         ));
     }
 
-    private void displayGuardUpProgress(Player player, int remaining, int nearbyCount) {
-        
-        String message;
-        if (remaining > GUARD_RAISE_DURATION_TICKS * 2 / 3) {
-            message = "§a《§2⦿》 " + nearbyCount + "/" + MAX_PLAYERS;
-        } else if (remaining > GUARD_RAISE_DURATION_TICKS / 3) {
-            message = "§a《⦿§2》 " + nearbyCount + "/" + MAX_PLAYERS;
-        } else {
-            message = "§a《⦿》 " + nearbyCount + "/" + MAX_PLAYERS;
-        }
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
 
-        player.sendActionBar(Component.text()
-                .append(Component.text(message, NamedTextColor.WHITE))
-                .build());
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
     }
 
-    private void displayIdleState(Player player) {
-
-        player.sendActionBar(Component.text()
-                .append(Component.text("§2《⦿》"))
-                .build());
+    enum RuneState {
+        WINDUP, COOLDOWN, IDLE
     }
 
-    private void displayCooldownInfo(Player player) {
-        String cooldownDisplay = getCooldownDisplay(player);
-
-        player.sendActionBar(Component.text()
-                .append(Component.text("§7《⦿》 " + cooldownDisplay))
-                .build());
+    private String getRuneDisplay(RuneState state, Player player, int remaining, int nearbyCount) {
+        return switch (state) {
+            case WINDUP -> {
+                String message;
+                if (remaining > GUARD_RAISE_DURATION_TICKS * 2 / 3) {
+                    message = "§a《§2❖》 " + nearbyCount + "/" + MAX_PLAYERS;
+                } else if (remaining > GUARD_RAISE_DURATION_TICKS / 3) {
+                    message = "§a《❖§2》 " + nearbyCount + "/" + MAX_PLAYERS;
+                } else {
+                    message = "§a《❖》 " + nearbyCount + "/" + MAX_PLAYERS;
+                }
+                yield message;
+            }
+            case COOLDOWN -> "§7《❖》 " + getCooldownDisplay(player);
+            case IDLE -> "§2《❖》";
+        };
     }
 }

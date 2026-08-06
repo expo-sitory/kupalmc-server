@@ -3,6 +3,7 @@ package dev.ixpu.leaguemechanics.rune.keystones.precision;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.*;
 
@@ -49,11 +50,9 @@ public class PressTheAttack extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-
         if (isOnCooldown(player)) {
             return;
         }
@@ -81,31 +80,48 @@ public class PressTheAttack extends StackingRune {
         //
     }
 
-    @Override
-    public void tick(Player player) {
+    private int trackActiveStacks(Player player) {
         tickStackExpiry(player);
-        displayStackInfo(player);
-    }
-
-    private void displayStackInfo(Player player) {
-        String cooldownDisplay = getCooldownDisplay(player);
-        if (!cooldownDisplay.isEmpty()) {
-            player.sendActionBar(Component.text("§7✽ " + cooldownDisplay));
-            return;
-        }
-
         UUID lastTargetUUID = lastTarget.getOrDefault(player.getUniqueId(), null);
         int currentStacks = 0;
         if (lastTargetUUID != null) {
             currentStacks = getStacks(player, lastTargetUUID);
         }
+        return currentStacks;
+    }
 
-        if (currentStacks == 0) {
-            player.sendActionBar(Component.text("§6✽"));
-        } else {
-            player.sendActionBar(Component.text()
-                    .append(Component.text("§e✽ " + currentStacks + "/" + MAX_STACKS))
-                    .build());
+    @Override
+    public void tick(Player player) {
+        String cooldownDisplay = getCooldownDisplay(player);
+        if (!cooldownDisplay.isEmpty()) {
+            String runeDisplay = getRuneDisplay(RuneState.COOLDOWN, player, 0, cooldownDisplay);
+            setPlayerDisplay(player, runeDisplay);
+            return;
         }
+
+        int currentStacks = trackActiveStacks(player);
+        RuneState state = currentStacks == 0 ? RuneState.IDLE : RuneState.ACTIVE;
+        String runeDisplay = getRuneDisplay(state, player, currentStacks, "");
+        setPlayerDisplay(player, runeDisplay);
+    }
+
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
+    }
+
+    enum RuneState {
+        COOLDOWN, IDLE, ACTIVE
+    }
+
+    private String getRuneDisplay(RuneState state, Player player, int stacks, String cooldown) {
+        return switch (state) {
+            case COOLDOWN -> "§7✽ " + cooldown;
+            case IDLE -> "§e✽";
+            case ACTIVE -> "§e✽ " + stacks + "/" + MAX_STACKS;
+        };
     }
 }

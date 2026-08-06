@@ -3,6 +3,7 @@ package dev.ixpu.leaguemechanics.rune.keystones.precision;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.*;
 
@@ -43,10 +44,6 @@ public class LethalTempo extends StackingRune {
         this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
     }
 
-    private enum RuneState {
-        STACKING, ACTIVE
-    }
-
     @Override
     public void onEnable(Player player) {
         UUID uuid = player.getUniqueId();
@@ -65,10 +62,10 @@ public class LethalTempo extends StackingRune {
     }
 
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        triggerLethalTempo(attacker, target, event);
+        activateLethalTempo(attacker, target);
     }
 
-    private void triggerLethalTempo(Player player, Entity target, EntityDamageByEntityEvent event) {
+    private void activateLethalTempo(Player player, Entity target) {
         UUID playerUUID = player.getUniqueId();
         UUID targetUUID = target.getUniqueId();
         RuneState state = playerState.getOrDefault(playerUUID, RuneState.STACKING);
@@ -87,38 +84,6 @@ public class LethalTempo extends StackingRune {
             addStackForTarget(player, targetUUID);
         } else if (state == RuneState.ACTIVE) {
             refreshActiveTimer(player);
-        }
-    }
-
-    @Override
-    public void tick(Player player) {
-        UUID playerUUID = player.getUniqueId();
-
-        if (isOnCooldown(player)) {
-            displayCooldownInfo(player);
-            return;
-        }
-
-        RuneState state = playerState.getOrDefault(playerUUID, RuneState.STACKING);
-
-        if (state == RuneState.STACKING) {
-            tickStackExpiry(player);
-            displayStackInfo(player);
-
-        } else if (state == RuneState.ACTIVE) {
-            int activeTime = activeState.get(playerUUID);
-            activeTime--;
-            activeState.put(playerUUID, activeTime);
-
-            displayActiveInfo(player, activeTime);
-
-            if (activeTime == 0) {
-                resetCooldown(player);
-                playerState.put(playerUUID, RuneState.STACKING);
-                removeAllModifiers(player);
-                resetStacks(player);
-                player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.2f);
-            }
         }
     }
 
@@ -199,34 +164,79 @@ public class LethalTempo extends StackingRune {
         activeModifiers.computeIfAbsent(player.getUniqueId(), k -> new ArrayList<>()).add(modifier);
     }
 
-    private void displayActiveInfo(Player player, int activeTime) {
-        double remainingSeconds = activeTime / 20.0;
-
-        player.sendActionBar(Component.text()
-                .append(Component.text(String.format("§e⚚ " + "(%.1fs)", remainingSeconds), net.kyori.adventure.text.format.NamedTextColor.WHITE))
-                .build());
-    }
-
-    private void displayCooldownInfo(Player player) {
-        String cooldownDisplay = getCooldownDisplay(player);
-        player.sendActionBar(Component.text("§7⚚ " + cooldownDisplay));
-    }
-
-    private void displayStackInfo(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        UUID lastTargetUUID = lastTarget.getOrDefault(playerUUID, null);
-
+    private int trackActiveStacks(Player player) {
+        tickStackExpiry(player);
+        UUID lastTargetUUID = lastTarget.getOrDefault(player.getUniqueId(), null);
         int currentStacks = 0;
         if (lastTargetUUID != null) {
             currentStacks = getStacks(player, lastTargetUUID);
         }
+        return currentStacks;
+    }
 
-        if (currentStacks == 0) {
-            player.sendActionBar(Component.text("§6⚚"));
-        } else {
-            player.sendActionBar(Component.text()
-                    .append(Component.text("§6⚚ " + currentStacks + "/6"))
-                    .build());
+    @Override
+    public void tick(Player player) {
+        UUID playerUUID = player.getUniqueId();
+
+        if (isOnCooldown(player)) {
+            String runeDisplay = getRuneDisplay(RuneState.COOLDOWN, player, 0);
+            setPlayerDisplay(player, runeDisplay);
+            return;
         }
+
+        RuneState state = playerState.getOrDefault(playerUUID, RuneState.STACKING);
+
+        if (state == RuneState.STACKING) {
+            int currentStacks = trackActiveStacks(player);
+            String runeDisplay = getRuneDisplay(RuneState.STACKING, player, currentStacks);
+            setPlayerDisplay(player, runeDisplay);
+
+        } else if (state == RuneState.ACTIVE) {
+            int activeTime = activeState.get(playerUUID);
+            activeTime--;
+            activeState.put(playerUUID, activeTime);
+
+            String runeDisplay = getRuneDisplay(RuneState.ACTIVE, player, activeTime);
+            setPlayerDisplay(player, runeDisplay);
+
+            if (activeTime == 0) {
+                resetCooldown(player);
+                playerState.put(playerUUID, RuneState.STACKING);
+                removeAllModifiers(player);
+                resetStacks(player);
+                player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.2f);
+            }
+        }
+    }
+
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
+    }
+
+    enum RuneState {
+        COOLDOWN, STACKING, ACTIVE
+    }
+
+    private String getRuneDisplay(RuneState state, Player player, int value) {
+        return switch (state) {
+            case COOLDOWN -> "§7⚚ " + getCooldownDisplay(player);
+
+            case STACKING -> {
+                if (value == 0) {
+                    yield "§e⚚";
+                } else {
+                    yield "§e⚚ " + value + "/6";
+                }
+            }
+
+            case ACTIVE -> {
+                double remainingSeconds = value / 20.0;
+                yield String.format("§e⚚ (%.1fs)", remainingSeconds);
+            }
+        };
     }
 }

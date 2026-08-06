@@ -3,6 +3,7 @@ package dev.ixpu.leaguemechanics.rune.keystones.precision;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.*;
 
@@ -62,10 +63,10 @@ public class FleetFootwork extends StackingRune {
 
     @Override
     public void onProjectileHit(Player shooter, Entity target) {
-        triggerFleetFootwork(shooter, target);
+        activateFleetFootwork(shooter, target);
     }
 
-    private void triggerFleetFootwork(Player player, Entity target) {
+    private void activateFleetFootwork(Player player, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -94,8 +95,7 @@ public class FleetFootwork extends StackingRune {
         }
     }
 
-    @Override
-    public void tick(Player player) {
+    private void trackActiveTimer(Player player) {
         UUID playerUUID = player.getUniqueId();
 
         org.bukkit.Location currentLoc = player.getLocation();
@@ -126,8 +126,6 @@ public class FleetFootwork extends StackingRune {
                 resetStacks(player);
             }
         }
-
-        displayStackInfo(player);
     }
 
     @SuppressWarnings("removal")
@@ -171,20 +169,35 @@ public class FleetFootwork extends StackingRune {
         activeState.put(playerUUID, new ArrayList<>());
     }
 
-    private void displayStackInfo(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        int stacks = getStacks(player);
-        int buffTicks = speedBuffTicks.getOrDefault(playerUUID, 0);
+    @Override
+    public void tick(Player player) {
+        trackActiveTimer(player);
 
-        if (buffTicks > 0) {
-            double remainingSeconds = buffTicks / 20.0;
-            player.sendActionBar(Component.text()
-                    .append(Component.text(String.format("§e👣 " + "(%.1fs) ", remainingSeconds)))
-                    .build());
-        } else {
-            player.sendActionBar(Component.text()
-                    .append(Component.text("§e👣 " + stacks + "/" + MAXIMUM_STACKS))
-                    .build());
-        }
+        int stacks = getStacks(player);
+        int buffTicks = speedBuffTicks.getOrDefault(player.getUniqueId(), 0);
+
+        RuneState state = stacks > 0 ? RuneState.STACKING : RuneState.ACTIVE;
+        String runeDisplay = getRuneDisplay(state, stacks, buffTicks);
+        setPlayerDisplay(player, runeDisplay);
+    }
+
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
+    }
+
+    enum RuneState {
+        STACKING, ACTIVE
+    }
+
+    private String getRuneDisplay(RuneState state, int stacks, int buffTicks) {
+        double remainingSeconds = buffTicks / 20.0;
+        return switch (state) {
+            case STACKING -> "§e👣 " + stacks + "/" + MAXIMUM_STACKS;
+            case ACTIVE -> String.format("§e👣 (%.1fs)", remainingSeconds);
+        };
     }
 }

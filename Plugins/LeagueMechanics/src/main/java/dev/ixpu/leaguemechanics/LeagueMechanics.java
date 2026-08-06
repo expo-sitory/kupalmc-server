@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics;
 
+import dev.ixpu.leaguemechanics.manager.RuneManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,7 +33,7 @@ import dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment;
 public class LeagueMechanics extends JavaPlugin {
     private static LeagueMechanics instance;
     private RuneRegistry runeRegistry;
-    private dev.ixpu.leaguemechanics.RuneManager runeManager;
+    private RuneManager runeManager;
 
     @Override
     public void onEnable() {

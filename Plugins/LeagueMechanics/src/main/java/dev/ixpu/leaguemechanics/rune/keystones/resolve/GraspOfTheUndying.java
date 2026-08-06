@@ -3,6 +3,7 @@ package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.*;
 
@@ -116,30 +117,6 @@ public class GraspOfTheUndying extends StackingRune {
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_AMBIENT, 1.0f, 1.0f);
     }
 
-    @Override
-    public void tick(Player player) {
-        UUID playerUUID = player.getUniqueId();
-
-        if (isOnCooldown(player)) {
-            displayCooldown(player);
-            return;
-        }
-
-        tickStackExpiry(player);
-
-        int attackWindow = activationState.getOrDefault(playerUUID, 0);
-        if (attackWindow > 0) {
-            attackWindow--;
-            activationState.put(playerUUID, attackWindow);
-
-            if (attackWindow == 0) {
-                resetStacks(player);
-            }
-        }
-
-        displayStackInfo(player);
-    }
-
     @SuppressWarnings("removal")
     private void activateEffects(Player player) {
         UUID playerUUID = player.getUniqueId();
@@ -189,40 +166,72 @@ public class GraspOfTheUndying extends StackingRune {
         activeModifiers.put(playerUUID, new ArrayList<>());
     }
 
-    private void displayCooldown(Player player) {
-        String cooldownDisplay = getCooldownDisplay(player);
-        player.sendActionBar(Component.text("§7🥊 " + cooldownDisplay));
-    }
-
-    private void displayReadyInfo(Player player, int attackWindow) {
-        double remainingSeconds = attackWindow / 20.0;
-        player.sendActionBar(Component.text()
-                .append(Component.text(String.format("§a🥊 " + "(%.1fs)", remainingSeconds), net.kyori.adventure.text.format.NamedTextColor.WHITE))
-                .build());
-    }
-
-    private void displayStackInfo(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        int stacks = getStacks(player);
-        int attackWindow = activationState.getOrDefault(playerUUID, 0);
-
-        if (stacks >= maxStacks && attackWindow > 0) {
-            displayReadyInfo(player, attackWindow);
-        }
-        else if (stacks > 0) {
-            player.sendActionBar(Component.text()
-                    .append(Component.text("§2🥊 " + stacks + "/" + maxStacks, net.kyori.adventure.text.format.NamedTextColor.WHITE))
-                    .build());
-        } else {
-            player.sendActionBar(Component.text()
-                    .append(Component.text("§2🥊", net.kyori.adventure.text.format.NamedTextColor.WHITE))
-                    .build());
-        }
-    }
-
     public void resetBonusHearts(Player player) {
         UUID playerUUID = player.getUniqueId();
         totalBonusHearts.put(playerUUID, 0);
         removeAllModifiers(player);
     }
+
+
+    @Override
+    public void tick(Player player) {
+        UUID playerUUID = player.getUniqueId();
+
+        if (isOnCooldown(player)) {
+            String runeDisplay = getRuneDisplay(RuneState.COOLDOWN, player, 0, 0);
+            player.sendActionBar(Component.text(runeDisplay));
+            return;
+        }
+
+        tickStackExpiry(player);
+
+        int attackWindow = activationState.getOrDefault(playerUUID, 0);
+        if (attackWindow > 0) {
+            attackWindow--;
+            activationState.put(playerUUID, attackWindow);
+
+            if (attackWindow == 0) {
+                resetStacks(player);
+            }
+        }
+
+        int stacks = getStacks(player);
+
+        RuneState state;
+        if (stacks >= maxStacks && attackWindow > 0) {
+            state = RuneState.STACKING;
+        } else if (stacks > 0) {
+            state = RuneState.ACTIVE;
+        } else {
+            state = RuneState.IDLE;
+        }
+
+        String runeDisplay = getRuneDisplay(state, player, stacks, attackWindow);
+        setPlayerDisplay(player, runeDisplay);
+    }
+
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+        
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
+    }
+
+    enum RuneState {
+        COOLDOWN, STACKING, ACTIVE, IDLE
+    }
+
+    private String getRuneDisplay(RuneState state, Player player, int stacks, int attackWindow) {
+        return switch (state) {
+            case COOLDOWN -> "§7🥊 " + getCooldownDisplay(player);
+            case STACKING -> {
+                double remainingSeconds = attackWindow / 20.0;
+                yield String.format("§a🥊 (%.1fs)", remainingSeconds);
+            }
+            case ACTIVE -> "§a🥊 " + stacks + "/" + maxStacks;
+            case IDLE -> "§a🥊";
+        };
+    }
+
 }

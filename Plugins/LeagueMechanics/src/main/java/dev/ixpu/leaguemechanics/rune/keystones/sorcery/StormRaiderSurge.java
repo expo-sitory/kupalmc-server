@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,45 +81,6 @@ public class StormRaiderSurge extends BaseRune {
         damageTracker.put(playerUUID, currentDamage + damage);
     }
 
-    @Override
-    public void tick(Player player) {
-        UUID playerUUID = player.getUniqueId();
-
-        int windowTicks = windowTickCounter.getOrDefault(playerUUID, 0);
-        windowTicks++;
-        if (windowTicks >= TRACKING_WINDOW_TICKS) {
-            damageTracker.put(playerUUID, 0.0);
-            windowTicks = 0;
-        }
-        windowTickCounter.put(playerUUID, windowTicks);
-
-        int speedDuration = speedActiveDuration.getOrDefault(playerUUID, 0);
-        if (speedDuration > 0) {
-            speedDuration--;
-            speedActiveDuration.put(playerUUID, speedDuration);
-            displayActiveState(player, speedDuration);
-            if (speedDuration == 0) {
-                resetCooldown(player);
-            }
-            return;
-        }
-
-        if (isOnCooldown(player)) {
-            displayCooldownInfo(player);
-            return;
-        }
-
-        double maxHp = player.getMaxHealth();
-        double damageThreshold = maxHp * DAMAGE_THRESHOLD_PERCENTAGE;
-        double currentDamage = damageTracker.getOrDefault(playerUUID, 0.0);
-
-        if (currentDamage >= damageThreshold) {
-            enterActiveState(player);
-            return;
-        }
-        displayIdleState(player);
-    }
-
     private void enterActiveState(Player player) {
         UUID playerUUID = player.getUniqueId();
         speedActiveDuration.put(playerUUID, SPEED_DURATION_TICKS);
@@ -153,23 +115,70 @@ public class StormRaiderSurge extends BaseRune {
         }
     }
 
-    private void displayIdleState(Player player) {
-        player.sendActionBar(Component.text()
-                .append(Component.text("§1👾"))
-                .build());
+    @Override
+    public void tick(Player player) {
+        UUID playerUUID = player.getUniqueId();
+
+        int windowTicks = windowTickCounter.getOrDefault(playerUUID, 0);
+        windowTicks++;
+        if (windowTicks >= TRACKING_WINDOW_TICKS) {
+            damageTracker.put(playerUUID, 0.0);
+            windowTicks = 0;
+        }
+        windowTickCounter.put(playerUUID, windowTicks);
+
+        int speedDuration = speedActiveDuration.getOrDefault(playerUUID, 0);
+        if (speedDuration > 0) {
+            speedDuration--;
+            speedActiveDuration.put(playerUUID, speedDuration);
+            String runeDisplay = getRuneDisplay(RuneState.ACTIVE, player, speedDuration);
+            setPlayerDisplay(player, runeDisplay);
+            if (speedDuration == 0) {
+                resetCooldown(player);
+            }
+            return;
+        }
+
+        if (isOnCooldown(player)) {
+            String runeDisplay = getRuneDisplay(RuneState.COOLDOWN, player, 0);
+            setPlayerDisplay(player, runeDisplay);
+            return;
+        }
+
+        double maxHp = player.getMaxHealth();
+        double damageThreshold = maxHp * DAMAGE_THRESHOLD_PERCENTAGE;
+        double currentDamage = damageTracker.getOrDefault(playerUUID, 0.0);
+
+        if (currentDamage >= damageThreshold) {
+            enterActiveState(player);
+            return;
+        }
+
+        String runeDisplay = getRuneDisplay(RuneState.IDLE, player, 0);
+        setPlayerDisplay(player, runeDisplay);
     }
 
-    private void displayActiveState(Player player, int remainingTicks) {
-        double remainingSeconds = remainingTicks / 20.0;
-        player.sendActionBar(Component.text()
-                .append(Component.text(String.format("§9👾 (%.1fs)", remainingSeconds)))
-                .build());
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
     }
 
-    private void displayCooldownInfo(Player player) {
-        String cooldownDisplay = getCooldownDisplay(player);
-        player.sendActionBar(Component.text()
-                .append(Component.text("§7👾 " + cooldownDisplay))
-                .build());
+    enum RuneState {
+        ACTIVE, COOLDOWN, IDLE
     }
+
+    private String getRuneDisplay(RuneState state, Player player, int remainingTicks) {
+        return switch (state) {
+            case ACTIVE -> {
+                double remainingSeconds = remainingTicks / 20.0;
+                yield String.format("§9👾 (%.1fs)", remainingSeconds);
+            }
+            case COOLDOWN -> "§9👾 " + getCooldownDisplay(player);
+            case IDLE -> "§9👾";
+        };
+    }
+
 }

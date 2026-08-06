@@ -3,6 +3,8 @@ package dev.ixpu.leaguemechanics.rune.keystones.precision;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.UUID;
 
@@ -40,6 +42,11 @@ public class Conqueror extends StackingRune {
 
     @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+        activateConqueror(attacker, target, event);
+    }
+
+    private void activateConqueror(Player player, Entity target, EntityDamageByEntityEvent event) {
+
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -48,25 +55,33 @@ public class Conqueror extends StackingRune {
         }
 
         UUID targetUUID = target.getUniqueId();
-        switchTarget(attacker, targetUUID);
-        addStack(attacker, targetUUID);
+        switchTarget(player, targetUUID);
+        addStack(player, targetUUID);
 
-        int currentStacks = getStacks(attacker, targetUUID);
-        double totalOutput = (currentStacks * BASE_PHYSICAL_DAMAGE_PER_STACK) / 2;
-        event.setDamage(event.getDamage() + totalOutput);
+        double damageOutput = bonusDamage(player, target);
+        event.setDamage(event.getDamage() + damageOutput);
+
     }
 
-    @Override
-    public void tick(Player player) {
+    private int trackActiveStacks(Player player) {
         tickStackExpiry(player);
-
         UUID lastTargetUUID = lastTarget.getOrDefault(player.getUniqueId(), null);
         int currentStacks = 0;
+
         if (lastTargetUUID != null) {
             currentStacks = getStacks(player, lastTargetUUID);
         }
-        displayStackInfo(player, currentStacks);
+        return currentStacks;
     }
+
+    private double bonusDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enablePerStackScaling();
+
+        int currentStacks = getStacks(player);
+        return damageManager.totalBonusDamage(player, target, currentStacks);
+    }
+
     @Override
     protected void onStackAdded(Player player, int newStackCount) {
         if (newStackCount == 1) {
@@ -82,13 +97,36 @@ public class Conqueror extends StackingRune {
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "conqueror-expired-sound " + player.getName());
     }
 
-    private void displayStackInfo(Player player, int currentStacks) {
-        if (currentStacks == 0) {
-            player.sendActionBar(Component.text("§6🪓"));
-        } else {
-            player.sendActionBar(Component.text()
-                    .append(Component.text("§e🪓 " + currentStacks + "/" + MAXIMUM_STACKS))
-                    .build());
+    @Override
+    public void tick(Player player) {
+        int stacks = trackActiveStacks(player);
+
+        if (stacks > 0) {
+            String runeDisplay = getRuneDisplay(RuneState.STACKING, stacks);
+            setPlayerDisplay(player, runeDisplay);
+            return;
         }
+
+        String runeDisplay = getRuneDisplay(RuneState.IDLE, stacks);
+        setPlayerDisplay(player, runeDisplay);
+    }
+
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
+    }
+
+    enum RuneState {
+        STACKING, IDLE
+    }
+
+    private String getRuneDisplay(RuneState state, int currentStacks) {
+        return switch (state) {
+            case STACKING -> "§e🪓 " + currentStacks + "/" + MAXIMUM_STACKS;
+            case IDLE -> "§e🪓";
+        };
     }
 }

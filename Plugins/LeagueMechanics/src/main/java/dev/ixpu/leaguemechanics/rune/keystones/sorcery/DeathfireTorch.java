@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 
 import java.util.HashMap;
@@ -87,58 +88,6 @@ public class DeathfireTorch extends BaseRune {
 
     }
 
-    @Override
-    public void tick(Player player) {
-        UUID playerUUID = player.getUniqueId();
-
-        Map<UUID, Integer> burned = burnedPlayers.get(playerUUID);
-        Map<UUID, Double> damages = burnDamage.get(playerUUID);
-        Map<UUID, LivingEntity> targets = burnedTargets.get(playerUUID);
-
-        if (burned == null || damages == null || targets == null) {
-            displayIdleState(player);
-            return;
-        }
-
-        java.util.ArrayList<UUID> toRemove = new java.util.ArrayList<>();
-        for (UUID targetUUID : new java.util.ArrayList<>(burned.keySet())) {
-            int duration = burned.getOrDefault(targetUUID, 0);
-
-            if (duration > 0) {
-                duration--;
-                burned.put(targetUUID, duration);
-
-                if (duration % BASE_MAGIC_DAMAGE == 0) {
-                    LivingEntity target = targets.get(targetUUID);
-                    if (target != null && target.isValid()) {
-                        double damagePerTick = damages.getOrDefault(targetUUID, 0.0);
-                        target.damage(damagePerTick);
-                        spawnBurnParticles(target);
-                    }
-                }
-
-                if (duration <= 0) {
-                    toRemove.add(targetUUID);
-                }
-            } else {
-                toRemove.add(targetUUID);
-            }
-        }
-
-        for (UUID targetUUID : toRemove) {
-            burned.remove(targetUUID);
-            damages.remove(targetUUID);
-            targets.remove(targetUUID);
-        }
-
-        int burnCount = burned.size();
-        if (burnCount > 0) {
-            displayBurnState(player, burnCount);
-        } else {
-            displayIdleState(player);
-        }
-    }
-
     private void applyBurn(Player attacker, LivingEntity victim, double burnDamagePerTick) {
         UUID attackerUUID = attacker.getUniqueId();
         UUID victimUUID = victim.getUniqueId();
@@ -186,13 +135,75 @@ public class DeathfireTorch extends BaseRune {
         );
     }
 
-    private void displayBurnState(Player player, int victimCount) {
-        player.sendActionBar(Component.text()
-                .append(Component.text("§9🔥 (" + victimCount + ")"))
-                .build());
+
+    @Override
+    public void tick(Player player) {
+        UUID playerUUID = player.getUniqueId();
+
+        Map<UUID, Integer> burned = burnedPlayers.get(playerUUID);
+        Map<UUID, Double> damages = burnDamage.get(playerUUID);
+        Map<UUID, LivingEntity> targets = burnedTargets.get(playerUUID);
+
+        if (burned == null || damages == null || targets == null) {
+            String runeDisplay = getRuneDisplay(RuneState.IDLE, 0);
+            setPlayerDisplay(player, runeDisplay);
+            return;
+        }
+
+        java.util.ArrayList<UUID> toRemove = new java.util.ArrayList<>();
+        for (UUID targetUUID : new java.util.ArrayList<>(burned.keySet())) {
+            int duration = burned.getOrDefault(targetUUID, 0);
+
+            if (duration > 0) {
+                duration--;
+                burned.put(targetUUID, duration);
+
+                if (duration % BASE_MAGIC_DAMAGE == 0) {
+                    LivingEntity target = targets.get(targetUUID);
+                    if (target != null && target.isValid()) {
+                        double damagePerTick = damages.getOrDefault(targetUUID, 0.0);
+                        target.damage(damagePerTick);
+                        spawnBurnParticles(target);
+                    }
+                }
+
+                if (duration <= 0) {
+                    toRemove.add(targetUUID);
+                }
+            } else {
+                toRemove.add(targetUUID);
+            }
+        }
+
+        for (UUID targetUUID : toRemove) {
+            burned.remove(targetUUID);
+            damages.remove(targetUUID);
+            targets.remove(targetUUID);
+        }
+
+        int burnCount = burned.size();
+        RuneState state = burnCount > 0 ? RuneState.ACTIVE : RuneState.IDLE;
+        String runeDisplay = getRuneDisplay(state, burnCount);
+        setPlayerDisplay(player, runeDisplay);
     }
 
-    private void displayIdleState(Player player) {
-        player.sendActionBar(Component.text("§1🔥"));
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+        
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
     }
+
+    enum RuneState {
+        ACTIVE, IDLE
+    }
+
+    private String getRuneDisplay(RuneState state, int victimCount) {
+        return switch (state) {
+            case ACTIVE -> "§9🔥 (" + victimCount + ")";
+            case IDLE -> "§9🔥";
+        };
+    }
+
 }

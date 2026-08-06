@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.*;
 
@@ -29,6 +30,7 @@ public class GlacialAugment extends BaseRune {
 
     private final Map<UUID, Map<UUID, Integer>> frozenTargets = new HashMap<>();
     private final Map<UUID, Map<UUID, List<AttributeModifier>>> targetModifiers = new HashMap<>();
+
     private LeagueMechanics plugin;
 
     public GlacialAugment(ConfigurationSection config, LeagueMechanics plugin) {
@@ -59,9 +61,9 @@ public class GlacialAugment extends BaseRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        triggerGlacialAugment(shooter, target);
+        activateGlacialAugment(shooter, target);
     }
-    private void triggerGlacialAugment(Player player, Entity target) {
+    private void activateGlacialAugment(Player player, Entity target) {
         if (isOnCooldown(player)) {
             return;
         }
@@ -76,18 +78,13 @@ public class GlacialAugment extends BaseRune {
         resetCooldown(player);
     }
 
-    @Override
-    public void tick(Player player) {
+    private void trackFreeze(Player player) {
         UUID playerUUID = player.getUniqueId();
-
-        if (isOnCooldown(player)) {
-            displayCooldown(player);
-            return;
-        }
 
         Map<UUID, Integer> frozen = frozenTargets.get(playerUUID);
         if (frozen == null) {
-            displayIdleState(player);
+            String runeDisplay = getRuneDisplay(player, RuneState.IDLE);
+            setPlayerDisplay(player, runeDisplay);
             return;
         }
 
@@ -112,8 +109,6 @@ public class GlacialAugment extends BaseRune {
             removeTargetModifiers(targetUUID);
             targetModifiers.get(playerUUID).remove(targetUUID);
         }
-
-        displayIdleState(player);
     }
 
     private void applyFreeze(Player attacker, LivingEntity target) {
@@ -201,12 +196,30 @@ public class GlacialAugment extends BaseRune {
         return entities;
     }
 
-    private void displayCooldown(Player player) {
-        String cooldownDisplay = getCooldownDisplay(player);
-        player.sendActionBar(Component.text("§7❄ " + cooldownDisplay));
+    @Override
+    public void tick(Player player) {
+        RuneState state = isOnCooldown(player) ? RuneState.COOLDOWN : RuneState.IDLE;
+        String runeDisplay = getRuneDisplay(player, state);
+        setPlayerDisplay(player, runeDisplay);
+        trackFreeze(player);
     }
 
-    private void displayIdleState(Player player) {
-        player.sendActionBar(Component.text("§3❄"));
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
+    }
+
+    enum RuneState {
+        COOLDOWN, IDLE
+    }
+
+    private String getRuneDisplay(Player player, RuneState state) {
+        return switch (state) {
+            case COOLDOWN -> "§7❄ " + getCooldownDisplay(player);
+            case IDLE -> "§3❄";
+        };
     }
 }

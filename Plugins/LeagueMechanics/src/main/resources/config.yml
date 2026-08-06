@@ -44,7 +44,7 @@ runes:
 
       hail-of-blades:
         attack-speed-bonus: 0.10
-        true-damage-multiplier: 0.20
+        true-damage-multiplier: 1.25
         cooldown: 60
 
 

@@ -30,11 +30,6 @@ public abstract class BaseRune {
         return id;
     }
 
-    protected void setStacking(int maxStacks) {
-        this.hasStacking = true;
-        this.maxStacks = maxStacks;
-    }
-
     public void setCooldownSeconds(double seconds) {
         this.cooldownSeconds = seconds;
     }

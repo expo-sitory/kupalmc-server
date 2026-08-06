@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,15 +76,6 @@ public class ArcaneComet extends BaseRune {
         resetCooldown(player);
     }
 
-    @Override
-    public void tick(Player player) {
-        if (isOnCooldown(player)) {
-            displayCooldownInfo(player);
-            return;
-        }
-        displayIdleState(player);
-    }
-
     private void summonComet(Player shooter, LivingEntity target, double totalOutput) {
         if (plugin == null) {
             return;
@@ -135,14 +127,30 @@ public class ArcaneComet extends BaseRune {
         }, 0, 1);
     }
 
-    private void displayCooldownInfo(Player player) {
-        String cooldownDisplay = getCooldownDisplay(player);
-        player.sendActionBar(Component.text()
-                .append(Component.text("§7☄ " + cooldownDisplay))
-                .build());
+    @Override
+    public void tick(Player player) {
+        RuneState state = isOnCooldown(player) ? RuneState.COOLDOWN : RuneState.IDLE;
+        String runeDisplay = getRuneDisplay(state, player);
+        setPlayerDisplay(player, runeDisplay);
     }
 
-    private void displayIdleState(Player player) {
-        player.sendActionBar(Component.text("§9☄"));
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+        
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
     }
+
+    enum RuneState {
+        COOLDOWN, IDLE
+    }
+
+    private String getRuneDisplay(RuneState state, Player player) {
+        return switch (state) {
+            case COOLDOWN -> "§9💥 " + getCooldownDisplay(player);
+            case IDLE -> "§9💥";
+        };
+    }
+
 }

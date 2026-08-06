@@ -10,18 +10,33 @@ import java.util.UUID;
 
 public abstract class StackingRune extends BaseRune {
 
-    protected final Map<UUID, Integer> playerStacks = new HashMap<>();
-    protected final Map<UUID, Map<UUID, Integer>> perTargetStacks = new HashMap<>();
     protected int maxStacks;
-
-    protected final Map<UUID, Integer> stackExpiryTicks = new HashMap<>();
-    protected final Map<UUID, Map<UUID, Integer>> perTargetStackExpiryTicks = new HashMap<>();
     protected int stackResetTicks = 0;
+
     protected boolean expiryEnabled = false;
     protected boolean isPerTargetExpiry = false;
-
     protected boolean isPerTargetMode = false;
+
     protected final Map<UUID, UUID> lastTarget = new HashMap<>();
+    protected final Map<UUID, Integer> playerStacks = new HashMap<>();
+    protected final Map<UUID, Integer> stackExpiryTicks = new HashMap<>();
+    protected final Map<UUID, Map<UUID, Integer>> perTargetStackExpiryTicks = new HashMap<>();
+    protected final Map<UUID, Map<UUID, Integer>> perTargetStacks = new HashMap<>();
+
+    protected void enablePerTargetStacking() {
+        this.isPerTargetMode = true;
+    }
+    protected void enablePerTargetExpiry() {
+        this.isPerTargetExpiry = true;
+    }
+    protected void onStackAdded(Player player, int newStackCount) {}
+    protected void onStacksReset(Player player) {}
+    protected void onStacksExpired(Player player) {}
+
+    @Override
+    public void onDisable(Player player) {
+        resetStacks(player);
+    }
 
     public StackingRune(String id, RunePath path, RuneSlot slot, int maxStacks) {
         super(id, path, slot);
@@ -37,14 +52,6 @@ public abstract class StackingRune extends BaseRune {
         this.hasStacking = true;
     }
 
-    protected void enablePerTargetStacking() {
-        this.isPerTargetMode = true;
-    }
-
-    protected void enablePerTargetExpiry() {
-        this.isPerTargetExpiry = true;
-    }
-
     public int getStacks(Player player) {
         return playerStacks.getOrDefault(player.getUniqueId(), 0);
     }
@@ -56,20 +63,6 @@ public abstract class StackingRune extends BaseRune {
         UUID playerUUID = player.getUniqueId();
         Map<UUID, Integer> targetMap = perTargetStacks.getOrDefault(playerUUID, new HashMap<>());
         return targetMap.getOrDefault(targetUUID, 0);
-    }
-
-    public int getStackExpiryTicks(Player player) {
-        return stackExpiryTicks.getOrDefault(player.getUniqueId(), 0);
-    }
-
-    public int getStackExpiryTicks(Player player, UUID targetUUID) {
-        if (!isPerTargetMode || !isPerTargetExpiry) {
-            return getStackExpiryTicks(player);
-        }
-        UUID playerUUID = player.getUniqueId();
-        Map<UUID, Integer> targetExpiry = perTargetStackExpiryTicks.get(playerUUID);
-        if (targetExpiry == null) return 0;
-        return targetExpiry.getOrDefault(targetUUID, 0);
     }
 
     public void addStack(Player player) {
@@ -129,55 +122,6 @@ public abstract class StackingRune extends BaseRune {
         }
 
         lastTarget.put(playerUUID, newTargetUUID);
-    }
-
-    public void setStacks(Player player, int stacks) {
-        UUID uuid = player.getUniqueId();
-        int clamped = Math.max(0, Math.min(stacks, maxStacks));
-        playerStacks.put(uuid, clamped);
-
-        if (expiryEnabled) {
-            stackExpiryTicks.put(uuid, stackResetTicks);
-        }
-    }
-
-    public void setStacks(Player player, UUID targetUUID, int stacks) {
-        if (!isPerTargetMode) {
-            setStacks(player, stacks);
-            return;
-        }
-
-        UUID playerUUID = player.getUniqueId();
-        Map<UUID, Integer> targetMap = perTargetStacks.computeIfAbsent(playerUUID, k -> new HashMap<>());
-        int clamped = Math.max(0, Math.min(stacks, maxStacks));
-        targetMap.put(targetUUID, clamped);
-
-        if (expiryEnabled) {
-            if (isPerTargetExpiry) {
-                Map<UUID, Integer> targetExpiry = perTargetStackExpiryTicks.computeIfAbsent(playerUUID, k -> new HashMap<>());
-                targetExpiry.put(targetUUID, stackResetTicks);
-            } else {
-                stackExpiryTicks.put(playerUUID, stackResetTicks);
-            }
-        }
-    }
-
-    public void refreshStackExpiry(Player player) {
-        if (!expiryEnabled) return;
-        stackExpiryTicks.put(player.getUniqueId(), stackResetTicks);
-    }
-
-    public void refreshStackExpiry(Player player, UUID targetUUID) {
-        if (!isPerTargetMode || !expiryEnabled) return;
-        UUID playerUUID = player.getUniqueId();
-        if (isPerTargetExpiry) {
-            Map<UUID, Integer> targetExpiry = perTargetStackExpiryTicks.get(playerUUID);
-            if (targetExpiry != null) {
-                targetExpiry.put(targetUUID, stackResetTicks);
-            }
-        } else {
-            stackExpiryTicks.put(playerUUID, stackResetTicks);
-        }
     }
 
     public void resetStacks(Player player) {
@@ -291,16 +235,5 @@ public abstract class StackingRune extends BaseRune {
         if (targetMap != null && targetMap.isEmpty()) {
             lastTarget.put(playerUUID, null);
         }
-    }
-
-    protected void onStackAdded(Player player, int newStackCount) {}
-
-    protected void onStacksReset(Player player) {}
-
-    protected void onStacksExpired(Player player) {}
-
-    @Override
-    public void onDisable(Player player) {
-        resetStacks(player);
     }
 }

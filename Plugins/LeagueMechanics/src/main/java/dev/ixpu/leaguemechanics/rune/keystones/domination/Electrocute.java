@@ -3,6 +3,8 @@ package dev.ixpu.leaguemechanics.rune.keystones.domination;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import java.util.UUID;
 
@@ -45,14 +47,14 @@ public class Electrocute extends StackingRune {
 
     @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        triggerElectrocute(attacker, target, event);
+        activateElectrocute(attacker, target, event);
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        triggerElectrocute(shooter, target, null);
+        activateElectrocute(shooter, target, null);
     }
 
-    private void triggerElectrocute(Player player, Entity target, EntityDamageByEntityEvent event) {
+    private void activateElectrocute(Player player, Entity target, EntityDamageByEntityEvent event) {
         UUID targetUUID = target.getUniqueId();
 
         if (!(target instanceof LivingEntity livingTarget)) {
@@ -75,51 +77,69 @@ public class Electrocute extends StackingRune {
             resetCooldown(player);
 
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
-            double totalOutput = BASE_PHYSICAL_DAMAGE / 2;
+
+            double damageOutput = bonusDamage(player, target);
 
             if (event != null) {
-                event.setDamage(event.getDamage() + totalOutput);
+                event.setDamage(event.getDamage() + damageOutput);
             } else {
-                livingTarget.damage(totalOutput, player);
+                livingTarget.damage(damageOutput);
             }
         }
+    }
 
+    private int trackPerTargetStacks(Player player) {
+        tickStackExpiry(player);
+        UUID lastTargetUUID = lastTarget.getOrDefault(player.getUniqueId(), null);
+        int maxStacks = 0;
+
+        if (lastTargetUUID != null) {
+            maxStacks = getStacks(player, lastTargetUUID);
+        }
+        return maxStacks;
+    }
+
+    private double bonusDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     @Override
     public void tick(Player player) {
+        int currentStacks = getStacks(player);
+
         if (isOnCooldown(player)) {
-            displayCooldownInfo(player);
+            String runeDisplay = getRuneDisplay(player, RuneState.COOLDOWN, trackPerTargetStacks(player));
+            setPlayerDisplay(player, runeDisplay);
             return;
         }
-
-        tickStackExpiry(player);
-
-        UUID lastTargetUUID = lastTarget.getOrDefault(player.getUniqueId(), null);
-        int maxStacks = 0;
-        if (lastTargetUUID != null) {
-            maxStacks = getStacks(player, lastTargetUUID);
+        if (currentStacks > 0) {
+            String runeDisplay = getRuneDisplay(player, RuneState.STACKING, trackPerTargetStacks(player));
+            setPlayerDisplay(player, runeDisplay);
         }
+        trackPerTargetStacks(player);
 
-        if (maxStacks > 0) {
-            displayStackInfo(player, maxStacks);
-        } else {
-            displayIdleState(player);
-        }
+        String runeDisplay = getRuneDisplay(player, RuneState.IDLE, trackPerTargetStacks(player));
+        setPlayerDisplay(player, runeDisplay);
     }
 
-    private void displayStackInfo(Player player, int stacks) {
-        player.sendActionBar(Component.text()
-                .append(Component.text("§c⚡ " + stacks + "/" + MAXIMUM_STACKS))
-                .build());
+    private void setPlayerDisplay(Player player, String runeDisplay) {
+        PlayerStats playerStats = new PlayerStats();
+        String statsDisplay = playerStats.getActionBarSections(player);
+
+        String actionBarMessage = runeDisplay + " " + statsDisplay;
+        player.sendActionBar(Component.text(actionBarMessage));
     }
 
-    private void displayCooldownInfo(Player player) {
-        String cooldownDisplay = getCooldownDisplay(player);
-        player.sendActionBar(Component.text("§7⚡ " + cooldownDisplay));
+    enum RuneState {
+        COOLDOWN, STACKING, IDLE
     }
 
-    private void displayIdleState(Player player) {
-        player.sendActionBar(Component.text("§4⚡"));
+    private String getRuneDisplay(Player player, RuneState state, int currentStacks) {
+        return switch (state) {
+            case COOLDOWN -> "§7⚡ " + getCooldownDisplay(player);
+            case STACKING -> "§c⚡ " + currentStacks + "/" + MAXIMUM_STACKS;
+            case IDLE -> "§c⚡";
+        };
     }
 }

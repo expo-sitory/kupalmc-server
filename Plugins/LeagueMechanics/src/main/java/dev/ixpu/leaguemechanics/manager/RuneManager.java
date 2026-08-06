@@ -1,4 +1,4 @@
-package dev.ixpu.leaguemechanics;
+package dev.ixpu.leaguemechanics.manager;
 
 import java.util.HashMap;
 import java.util.Map;
