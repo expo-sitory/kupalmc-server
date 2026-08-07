@@ -76,9 +76,9 @@ public class PlayerStats {
         if (SHARPNESS > 0) {
             adDisplay = " §6🗡 §f" + + AD + "§f(+" + String.format("%.1f", SHARPNESS) + ")";
         }
-        String arDisplay = " §7🛡 §f" + AR;
+        String arDisplay = " §e🛡 §f" + AR;
         if (PROTECTION > 0) {
-            arDisplay = " §7🛡 §f" + AR + " §f(+" + String.format("%.1f", PROTECTION) + ")";
+            arDisplay = " §e🛡 §f" + AR + " §f(+" + String.format("%.1f", PROTECTION) + ")";
         }
 
         String apDisplay = " §9☄ §f" + BASE_ABILITY_POWER;

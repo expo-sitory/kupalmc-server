@@ -146,7 +146,7 @@ public class DarkHarvest extends StackingRune {
         return switch (state) {
             case COOLDOWN -> "§7👻 " + currentStacks + "/" + maxStacks + " | " + getCooldownDisplay(player);
             case STACKING -> "§c👻 " + currentStacks + "/" + maxStacks;
-            case IDLE -> "§c👻";
+            case IDLE -> "§4👻";
         };
     }
 }

@@ -15,6 +15,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -64,18 +66,40 @@ public class GlacialAugment extends BaseRune {
         activateGlacialAugment(shooter, target);
     }
     private void activateGlacialAugment(Player player, Entity target) {
+        ItemStack weapon = player.getInventory().getItemInMainHand();
+
         if (isOnCooldown(player)) {
             return;
         }
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (CheckEnchant(weapon)) {
+            return;
+        }
+
         applyFreeze(player, livingTarget);
         resetCooldown(player);
+    }
+
+    private boolean CheckEnchant(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+
+        if (item.getType().isAir()) {
+            return false;
+        }
+        if (meta == null) {
+            return false;
+        }
+
+        return meta.getEnchants().keySet().stream()
+                .anyMatch(e -> {
+                    String enchantName = e.toString().toLowerCase();
+                    return enchantName.contains("flame");
+                });
     }
 
     private void trackFreeze(Player player) {

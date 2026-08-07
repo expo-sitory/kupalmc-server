@@ -173,12 +173,12 @@ public class AfterShock extends BaseRune {
 
     private String getRuneDisplay(RuneState state, Player player, long remainingMs) {
         return switch (state) {
+            case COOLDOWN -> "§7💢 " + getCooldownDisplay(player);
             case ACTIVE -> {
                 double remainingSeconds = remainingMs / 1000.0;
                 yield String.format("§a💢 (%.1fs)", remainingSeconds);
             }
-            case COOLDOWN -> "§7💢 " + getCooldownDisplay(player);
-            case IDLE -> "§a💢";
+            case IDLE -> "§2💢";
         };
     }
 

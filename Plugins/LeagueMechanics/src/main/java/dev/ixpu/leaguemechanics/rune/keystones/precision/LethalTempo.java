@@ -224,18 +224,16 @@ public class LethalTempo extends StackingRune {
     private String getRuneDisplay(RuneState state, Player player, int value) {
         return switch (state) {
             case COOLDOWN -> "§7⚚ " + getCooldownDisplay(player);
-
-            case STACKING -> {
-                if (value == 0) {
-                    yield "§e⚚";
-                } else {
-                    yield "§e⚚ " + value + "/6";
-                }
-            }
-
             case ACTIVE -> {
                 double remainingSeconds = value / 20.0;
                 yield String.format("§e⚚ (%.1fs)", remainingSeconds);
+            }
+            case STACKING -> {
+                if (value == 0) {
+                    yield "§6⚚";
+                } else {
+                    yield "§6⚚ " + value + "/6";
+                }
             }
         };
     }

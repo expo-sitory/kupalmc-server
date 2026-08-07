@@ -271,8 +271,8 @@ public class HailOfBlades extends BaseRune {
     private String getRuneDisplay(Player player, RuneState state, int value) {
         return switch (state) {
             case COOLDOWN -> "§7❛❟❛ " + getCooldownDisplay(player);
-            case WINDUP -> getWindupDisplay(player, value);
             case ACTIVE -> "§c❛❟❛ " + value + "/" + INITIAL_STACKS;
+            case WINDUP -> getWindupDisplay(player, value);
             case IDLE -> "§4❛❟❛";
         };
     }

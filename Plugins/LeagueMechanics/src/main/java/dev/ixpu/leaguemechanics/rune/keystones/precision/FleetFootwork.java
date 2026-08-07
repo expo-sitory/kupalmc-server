@@ -208,12 +208,12 @@ public class FleetFootwork extends StackingRune {
 
 
         return switch (state) {
-            case STACKING -> "§e👣 " + stacks + "/" + MAXIMUM_STACKS;
             case ACTIVE -> {
                 double remainingSeconds = buffTicks / 20.0;
-                yield String.format("§e👣 §f(%.1f)", remainingSeconds);
+                yield String.format("§e👣 (%.1f)", remainingSeconds);
             }
-            case IDLE -> "§e👣";
+            case STACKING -> "§6👣 " + stacks + "/" + MAXIMUM_STACKS;
+            case IDLE -> "§6👣";
         };
     }
 }

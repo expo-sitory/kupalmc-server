@@ -172,12 +172,12 @@ public class StormRaiderSurge extends BaseRune {
 
     private String getRuneDisplay(RuneState state, Player player, int remainingTicks) {
         return switch (state) {
+            case COOLDOWN -> "§7👾 " + getCooldownDisplay(player);
             case ACTIVE -> {
                 double remainingSeconds = remainingTicks / 20.0;
                 yield String.format("§9👾 (%.1fs)", remainingSeconds);
             }
-            case COOLDOWN -> "§9👾 " + getCooldownDisplay(player);
-            case IDLE -> "§9👾";
+            case IDLE -> "§1👾";
         };
     }
 

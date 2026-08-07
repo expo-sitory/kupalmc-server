@@ -126,7 +126,7 @@ public class Conqueror extends StackingRune {
     private String getRuneDisplay(RuneState state, int currentStacks) {
         return switch (state) {
             case STACKING -> "§e🪓 " + currentStacks + "/" + MAXIMUM_STACKS;
-            case IDLE -> "§e🪓";
+            case IDLE -> "§6🪓";
         };
     }
 }

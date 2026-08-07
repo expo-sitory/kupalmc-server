@@ -205,6 +205,7 @@ public class Guardian extends BaseRune {
 
     private String getRuneDisplay(RuneState state, Player player, int remaining, int nearbyCount) {
         return switch (state) {
+            case COOLDOWN -> "§7《❖》 " + getCooldownDisplay(player);
             case WINDUP -> {
                 String message;
                 if (remaining > GUARD_RAISE_DURATION_TICKS * 2 / 3) {
@@ -216,7 +217,6 @@ public class Guardian extends BaseRune {
                 }
                 yield message;
             }
-            case COOLDOWN -> "§7《❖》 " + getCooldownDisplay(player);
             case IDLE -> "§2《❖》";
         };
     }

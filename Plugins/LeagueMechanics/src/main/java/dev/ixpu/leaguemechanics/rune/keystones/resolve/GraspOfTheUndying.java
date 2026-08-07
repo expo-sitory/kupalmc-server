@@ -8,14 +8,16 @@ import dev.ixpu.leaguemechanics.player.PlayerStats;
 import java.util.*;
 
 import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
+
 
 
 public class GraspOfTheUndying extends StackingRune {
@@ -25,11 +27,11 @@ public class GraspOfTheUndying extends StackingRune {
     int COOLDOWN_DURATION_SECONDS = 60;
 
     private static final int ATTACK_WINDOW_TICKS = 100;
-    private static final int MAX_BONUS_HEARTS = 10;
+    private static final int ABSORPTION_DURATION_TICKS = Integer.MAX_VALUE;
 
     private final Map<UUID, Integer> activationState = new HashMap<>();
-    private final Map<UUID, Integer> totalBonusHearts = new HashMap<>();
-    private final Map<UUID, List<AttributeModifier>> activeModifiers = new HashMap<>();
+    private final Map<UUID, Integer> totalAbsorptionHearts = new HashMap<>();
+    private final Map<UUID, Boolean> activeStateActive = new HashMap<>();
 
     public GraspOfTheUndying(org.bukkit.configuration.ConfigurationSection config) {
         super("grasp-of-the-undying", RunePath.RESOLVE, RuneSlot.KEYSTONE, 4, 60);
@@ -47,7 +49,8 @@ public class GraspOfTheUndying extends StackingRune {
     public void onEnable(Player player) {
         UUID uuid = player.getUniqueId();
         activationState.put(uuid, 0);
-        totalBonusHearts.put(uuid, 0);
+        totalAbsorptionHearts.put(uuid, 0);
+        activeStateActive.put(uuid, false);
     }
 
     @Override
@@ -55,8 +58,8 @@ public class GraspOfTheUndying extends StackingRune {
         UUID uuid = player.getUniqueId();
         super.onDisable(player);
         activationState.remove(uuid);
-        totalBonusHearts.remove(uuid);
-        removeAllModifiers(player);
+        totalAbsorptionHearts.remove(uuid);
+        activeStateActive.remove(uuid);
     }
 
     public void onCombat(Player player) {
@@ -88,7 +91,7 @@ public class GraspOfTheUndying extends StackingRune {
             return;
         }
 
-        if (stacks >= maxStacks && attackWindow > 0) {
+        if (stacks >= maxStacks && attackWindow > 0 && !activeStateActive.getOrDefault(playerUUID, false)) {
             enterActiveState(player, event);
             resetStacks(player);
             activationState.put(playerUUID, 0);
@@ -99,79 +102,46 @@ public class GraspOfTheUndying extends StackingRune {
     }
 
     private void enterActiveState(Player player, EntityDamageByEntityEvent event) {
-        var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        if (maxHealthAttr == null) return;
+        UUID playerUUID = player.getUniqueId();
+        int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0);
 
-        double maxHealth = maxHealthAttr.getValue();
-
-        double bonusDamage = maxHealth * (BASE_PHYSICAL_DAMAGE_PERCENT / 2);
+        double bonusDamage = absorptionHearts * BASE_PHYSICAL_DAMAGE_PERCENT;
 
         event.setDamage(event.getDamage() + bonusDamage);
 
-        double healAmount = maxHealth * HEAL_PERCENT;
-        double currentHealth = player.getHealth();
-        player.setHealth(Math.min(maxHealth, currentHealth + healAmount));
+        var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if (maxHealthAttr != null) {
+            double maxHealth = maxHealthAttr.getValue();
+            double healAmount = maxHealth * HEAL_PERCENT;
+            double currentHealth = player.getHealth();
+            player.setHealth(Math.min(maxHealth, currentHealth + healAmount));
+        }
 
         activateEffects(player);
 
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_AMBIENT, 1.0f, 1.0f);
     }
 
-    @SuppressWarnings("removal")
     private void activateEffects(Player player) {
         UUID playerUUID = player.getUniqueId();
+        int currentAbsorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0);
+        currentAbsorptionHearts++;
+        totalAbsorptionHearts.put(playerUUID, currentAbsorptionHearts);
 
-        var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        if (maxHealthAttr == null) return;
-
-        int currentBonusHearts = totalBonusHearts.getOrDefault(playerUUID, 0);
-
-        if (currentBonusHearts < MAX_BONUS_HEARTS) {
-            currentBonusHearts++;
-            totalBonusHearts.put(playerUUID, currentBonusHearts);
-
-            removeAllModifiers(player);
-
-            var modifier = new AttributeModifier(
-                    java.util.UUID.randomUUID(),
-                    "grasp-bonus-health",
-                    currentBonusHearts * 2.0,
-                    AttributeModifier.Operation.ADD_NUMBER
-            );
-
-            maxHealthAttr.addModifier(modifier);
-            activeModifiers.computeIfAbsent(playerUUID, k -> new ArrayList<>()).add(modifier);
-        }
+        player.addPotionEffect(new PotionEffect(
+                PotionEffectType.ABSORPTION,
+                ABSORPTION_DURATION_TICKS,
+                currentAbsorptionHearts - 1,
+                false,
+                false
+        ));
     }
 
-    private void removeAllModifiers(Player player) {
+    public void resetAbsorption(Player player) {
         UUID playerUUID = player.getUniqueId();
-        List<AttributeModifier> mods = activeModifiers.getOrDefault(playerUUID, new ArrayList<>());
-
-        try {
-            var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-            if (maxHealthAttr != null) {
-                for (AttributeModifier mod : mods) {
-                    try {
-                        maxHealthAttr.removeModifier(mod);
-                    } catch (Exception e) {
-                        //
-                    }
-                }
-            }
-        } catch (NoSuchFieldError e) {
-            //
-        }
-
-        activeModifiers.put(playerUUID, new ArrayList<>());
+        totalAbsorptionHearts.put(playerUUID, 0);
+        player.removePotionEffect(PotionEffectType.ABSORPTION);
     }
-
-    public void resetBonusHearts(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        totalBonusHearts.put(playerUUID, 0);
-        removeAllModifiers(player);
-    }
-
 
     @Override
     public void tick(Player player) {
@@ -185,6 +155,10 @@ public class GraspOfTheUndying extends StackingRune {
 
         tickStackExpiry(player);
 
+        if (player.getAbsorptionAmount() <= 0 && totalAbsorptionHearts.getOrDefault(playerUUID, 0) > 0) {
+            resetAbsorption(player);
+        }
+
         int attackWindow = activationState.getOrDefault(playerUUID, 0);
         if (attackWindow > 0) {
             attackWindow--;
@@ -192,6 +166,7 @@ public class GraspOfTheUndying extends StackingRune {
 
             if (attackWindow == 0) {
                 resetStacks(player);
+                activeStateActive.put(playerUUID, false);
             }
         }
 
@@ -199,9 +174,9 @@ public class GraspOfTheUndying extends StackingRune {
 
         RuneState state;
         if (stacks >= maxStacks && attackWindow > 0) {
-            state = RuneState.STACKING;
-        } else if (stacks > 0) {
             state = RuneState.ACTIVE;
+        } else if (stacks > 0) {
+            state = RuneState.STACKING;
         } else {
             state = RuneState.IDLE;
         }
@@ -213,7 +188,7 @@ public class GraspOfTheUndying extends StackingRune {
     private void setPlayerDisplay(Player player, String runeDisplay) {
         PlayerStats playerStats = new PlayerStats();
         String statsDisplay = playerStats.getActionBarSections(player);
-        
+
         String actionBarMessage = runeDisplay + " " + statsDisplay;
         player.sendActionBar(Component.text(actionBarMessage));
     }
@@ -225,12 +200,12 @@ public class GraspOfTheUndying extends StackingRune {
     private String getRuneDisplay(RuneState state, Player player, int stacks, int attackWindow) {
         return switch (state) {
             case COOLDOWN -> "§7🥊 " + getCooldownDisplay(player);
-            case STACKING -> {
+            case ACTIVE -> {
                 double remainingSeconds = attackWindow / 20.0;
                 yield String.format("§a🥊 (%.1fs)", remainingSeconds);
             }
-            case ACTIVE -> "§a🥊 " + stacks + "/" + maxStacks;
-            case IDLE -> "§a🥊";
+            case STACKING -> "§2🥊 " + stacks + "/" + maxStacks;
+            case IDLE -> "§2🥊";
         };
     }
 

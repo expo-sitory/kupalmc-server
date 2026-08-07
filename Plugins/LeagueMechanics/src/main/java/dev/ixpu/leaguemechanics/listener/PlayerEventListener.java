@@ -3,13 +3,13 @@ package dev.ixpu.leaguemechanics.listener;
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
+
 import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -35,16 +35,22 @@ public class PlayerEventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+
+        GraspOfTheUndying grasp = (GraspOfTheUndying) runeRegistry.getRune("grasp-of-the-undying");
+        if (grasp != null) {
+            grasp.resetAbsorption(player);
+        }
+
         runeManager.unloadPlayerRunes(player);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        GraspOfTheUndying grasp = (GraspOfTheUndying) runeRegistry.getRune("grasp-of-the-undying");
-        
-        if (grasp != null) {
-            grasp.resetBonusHearts(player);
-        }
-    }
+//    @EventHandler(priority = EventPriority.NORMAL)
+//    public void onPlayerDeath(PlayerDeathEvent event) {
+//        Player player = event.getEntity();
+//       class nick = (name) runeRegistry.getRune("id");
+//
+//        if (nick != null) {
+//           nick.event(player);
+//       }
+//    }
 }

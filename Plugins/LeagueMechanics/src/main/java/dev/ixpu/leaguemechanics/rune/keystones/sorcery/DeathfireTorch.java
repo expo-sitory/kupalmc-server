@@ -76,7 +76,7 @@ public class DeathfireTorch extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (!CheckEnchant(weapon, player)) {
+        if (!CheckEnchant(weapon)) {
             return;
         }
 
@@ -107,7 +107,7 @@ public class DeathfireTorch extends BaseRune {
         attacker.playSound(victim.getLocation(), org.bukkit.Sound.BLOCK_FIRE_AMBIENT, 0.5f, 0.8f);
     }
 
-    private boolean CheckEnchant(ItemStack item, Player player) {
+    private boolean CheckEnchant(ItemStack item) {
         if (item == null || item.getType().isAir()) {
             return false;
         }
@@ -202,7 +202,7 @@ public class DeathfireTorch extends BaseRune {
     private String getRuneDisplay(RuneState state, int victimCount) {
         return switch (state) {
             case ACTIVE -> "§9🔥 (" + victimCount + ")";
-            case IDLE -> "§9🔥";
+            case IDLE -> "§1🔥";
         };
     }
 

@@ -140,7 +140,7 @@ public class Electrocute extends StackingRune {
         return switch (state) {
             case COOLDOWN -> "§7⚡ " + getCooldownDisplay(player);
             case STACKING -> "§c⚡ " + currentStacks + "/" + MAXIMUM_STACKS;
-            case IDLE -> "§c⚡";
+            case IDLE -> "§4⚡";
         };
     }
 }

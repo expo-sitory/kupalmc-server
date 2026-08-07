@@ -92,16 +92,15 @@ public class PressTheAttack extends StackingRune {
 
     @Override
     public void tick(Player player) {
+        int currentStacks = trackActiveStacks(player);
         String cooldownDisplay = getCooldownDisplay(player);
         if (!cooldownDisplay.isEmpty()) {
-            String runeDisplay = getRuneDisplay(RuneState.COOLDOWN, player, 0, cooldownDisplay);
+            String runeDisplay = getRuneDisplay(RuneState.COOLDOWN, currentStacks, cooldownDisplay);
             setPlayerDisplay(player, runeDisplay);
             return;
         }
-
-        int currentStacks = trackActiveStacks(player);
         RuneState state = currentStacks == 0 ? RuneState.IDLE : RuneState.ACTIVE;
-        String runeDisplay = getRuneDisplay(state, player, currentStacks, "");
+        String runeDisplay = getRuneDisplay(state, currentStacks, cooldownDisplay);
         setPlayerDisplay(player, runeDisplay);
     }
 
@@ -117,11 +116,11 @@ public class PressTheAttack extends StackingRune {
         COOLDOWN, IDLE, ACTIVE
     }
 
-    private String getRuneDisplay(RuneState state, Player player, int stacks, String cooldown) {
+    private String getRuneDisplay(RuneState state, int stacks, String cooldown) {
         return switch (state) {
             case COOLDOWN -> "§7✽ " + cooldown;
-            case IDLE -> "§e✽";
             case ACTIVE -> "§e✽ " + stacks + "/" + MAX_STACKS;
+            case IDLE -> "§6✽";
         };
     }
 }
