@@ -1,6 +1,9 @@
 package dev.ixpu.leaguemechanics;
 
 import dev.ixpu.leaguemechanics.manager.RuneManager;
+import dev.ixpu.leaguemechanics.manager.StatsManager;
+import dev.ixpu.leaguemechanics.command.CommandHandler;
+import dev.ixpu.leaguemechanics.util.ItemStatHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -34,18 +37,22 @@ public class LeagueMechanics extends JavaPlugin {
     private static LeagueMechanics instance;
     private RuneRegistry runeRegistry;
     private RuneManager runeManager;
+    private StatsManager statsManager;
 
     @Override
     public void onEnable() {
         instance = this;
         runeRegistry = RuneRegistry.getInstance();
         runeManager = new RuneManager(this);
+        statsManager = new StatsManager();
 
         getLogger().info("League Mechanics is starting...");
 
         saveDefaultConfig();
         reloadConfig();
 
+        ItemStatHelper.initialize(this);
+        registerCommands();
         registerRunes();
 
         Bukkit.getPluginManager().registerEvents(new RuneListener(this), this);
@@ -85,6 +92,16 @@ public class LeagueMechanics extends JavaPlugin {
 
     public RuneManager getRuneManager() {
         return runeManager;
+    }
+
+    public StatsManager getStatsManager() {
+        return statsManager;
+    }
+
+    private void registerCommands() {
+        CommandHandler commandExecutor = new CommandHandler(this, statsManager);
+        getCommand("leaguemechanics").setExecutor(commandExecutor);
+        getLogger().info("Commands registered!");
     }
 
     private void registerRunes() {

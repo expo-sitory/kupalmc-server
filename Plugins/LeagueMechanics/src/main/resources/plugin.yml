@@ -6,6 +6,13 @@ description: League of Legends Mechanics
 authors:
   - Ixpu
 
+commands:
+  leaguemechanics:
+    description: LeagueMechanics item stats and build management
+    usage: /leaguemechanics <subcommand>
+    aliases: [lm]
+    permission: leaguemechanics.admin
+
 permissions:
   leaguemechanics.admin:
     description: Kupal Admin
