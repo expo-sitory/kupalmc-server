@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 
 import java.util.HashMap;
@@ -80,12 +81,17 @@ public class DeathfireTorch extends BaseRune {
             return;
         }
 
-        double totalOutput = BASE_MAGIC_DAMAGE / 4;
+        double totalOutput = bonusDamage(player, target);
         if (event != null) {
             applyBurn(player, livingTarget, totalOutput);
         }
         applyBurn(player, livingTarget, totalOutput);
+    }
 
+    private double bonusDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAP();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void applyBurn(Player attacker, LivingEntity victim, double burnDamagePerTick) {
@@ -189,8 +195,9 @@ public class DeathfireTorch extends BaseRune {
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
         PlayerStats playerStats = new PlayerStats();
+
+
         String statsDisplay = playerStats.getActionBarSections(player);
-        
         String actionBarMessage = runeDisplay + " " + statsDisplay;
         player.sendActionBar(Component.text(actionBarMessage));
     }

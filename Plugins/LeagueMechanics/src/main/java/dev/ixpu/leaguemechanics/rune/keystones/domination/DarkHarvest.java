@@ -89,6 +89,7 @@ public class DarkHarvest extends StackingRune {
     private double bonusDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
         damageManager.enablePerStackScaling();
+        damageManager.enableAdaptiveScaling();
 
         int currentStacks = getStacks(player);
         return damageManager.totalBonusDamage(player, target, currentStacks);

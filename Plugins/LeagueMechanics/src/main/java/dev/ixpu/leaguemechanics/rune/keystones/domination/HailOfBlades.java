@@ -155,6 +155,7 @@ public class HailOfBlades extends BaseRune {
 
     private double bonusDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
         return damageManager.totalBonusDamage(player, target, 0);
     }
 

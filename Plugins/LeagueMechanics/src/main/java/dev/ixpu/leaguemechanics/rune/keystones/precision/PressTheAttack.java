@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics.rune.keystones.precision;
 
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
@@ -40,6 +41,11 @@ public class PressTheAttack extends StackingRune {
     }
 
     @Override
+    public void onEnable(Player player) {
+        //
+    }
+
+    @Override
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         triggerPressTheAttack(attacker, target, event);
     }
@@ -62,9 +68,7 @@ public class PressTheAttack extends StackingRune {
         int currentStacks = getStacks(player, targetUUID);
 
         if (currentStacks == 2) {
-            double totalOutput = BASE_PHYSICAL_DAMAGE / 2;
-
-            event.setDamage(event.getDamage() + totalOutput);
+            event.setDamage(event.getDamage() + bonusDamage(player, target));
             resetStacksForTarget(player, targetUUID);
 
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + player.getName());
@@ -75,9 +79,11 @@ public class PressTheAttack extends StackingRune {
         }
     }
 
-    @Override
-    public void onEnable(Player player) {
-        //
+    private double bonusDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableAdaptiveScaling();
+
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private int trackActiveStacks(Player player) {

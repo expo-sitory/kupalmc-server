@@ -101,6 +101,7 @@ public class Electrocute extends StackingRune {
 
     private double bonusDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
+        damageManager.enableAdaptiveScaling();
         return damageManager.totalBonusDamage(player, target, 0);
     }
 
@@ -126,8 +127,10 @@ public class Electrocute extends StackingRune {
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
         PlayerStats playerStats = new PlayerStats();
-        String statsDisplay = playerStats.getActionBarSections(player);
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableAdaptiveScaling();
 
+        String statsDisplay = playerStats.getActionBarSections(player);
         String actionBarMessage = runeDisplay + " " + statsDisplay;
         player.sendActionBar(Component.text(actionBarMessage));
     }

@@ -69,6 +69,14 @@ public class PlayerStats {
         return totalAD;
     }
 
+    public double getBaseAP() {
+        return BASE_ABILITY_POWER;
+    }
+
+    public double getBaseMR() {
+        return BASE_ABILITY_POWER;
+    }
+
     public double getTargetAR(LivingEntity target) {
         var playerAR = target.getAttribute(Attribute.GENERIC_ARMOR);
         assert playerAR != null;
@@ -84,9 +92,12 @@ public class PlayerStats {
         return totalAR;
     }
 
+
+
     public String getActionBarSections(Player player) {
         double SHARPNESS = getPlayerWeaponSharpnessEnchant(player);
         double PROTECTION = getPlayerArmorProtectionEnchant(player);
+
         double AD = getAttackerAD(player);
         double AR = getTargetAR(player);
 

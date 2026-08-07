@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,9 +72,16 @@ public class ArcaneComet extends BaseRune {
             return;
         }
 
-        double totalOutput = BASE_MAGIC_DAMAGE / 4;
+        double totalOutput = bonusDamage(player, target);
         summonComet(player, livingTarget, totalOutput);
         resetCooldown(player);
+    }
+
+    private double bonusDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAP();
+
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void summonComet(Player shooter, LivingEntity target, double totalOutput) {
