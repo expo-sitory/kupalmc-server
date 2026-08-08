@@ -62,7 +62,28 @@ public class ArcaneComet extends BaseRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        triggerArcaneComet(shooter, target);
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+
+        if (!isOnCooldown(shooter)) {
+            triggerArcaneComet(shooter, target);
+        } else {
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+        }
+    }
+
+    public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
     }
 
     private void  triggerArcaneComet(Player player, Entity target) {
@@ -73,13 +94,10 @@ public class ArcaneComet extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        double bonusDamageAmount = bonusDamage(player, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - bonusDamageAmount);
 
-        if (isOnCooldown(player)) {
-            return;
-        }
-
-        double totalOutput = bonusDamage(player, target);
-        summonComet(player, livingTarget, totalOutput);
+        summonComet(player, livingTarget, newHealth);
         resetCooldown(player);
     }
 
@@ -93,6 +111,12 @@ public class ArcaneComet extends BaseRune {
         return baseDamage + scaledBonus;
     }
 
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
     private double getScaledBonusDamage(Player player) {
         BuffManager buffManager = new BuffManager();
         return buffManager.calculateBuffValue(
@@ -103,7 +127,7 @@ public class ArcaneComet extends BaseRune {
         );
     }
 
-    private void summonComet(Player shooter, LivingEntity target, double totalOutput) {
+    private void summonComet(Player shooter, LivingEntity target, double newHealth) {
         if (plugin == null) {
             return;
         }
@@ -119,7 +143,7 @@ public class ArcaneComet extends BaseRune {
             @Override
             public void run() {
                 if (tick >= COMET_FALL_TICKS) {
-                    target.damage(totalOutput * 2.0);
+                    target.setHealth(newHealth);
 
                     targetLoc.getWorld().spawnParticle(
                             Particle.DUST,

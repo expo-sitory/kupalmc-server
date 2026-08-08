@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
 
@@ -45,12 +44,30 @@ public class PressTheAttack extends StackingRune {
         //
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        triggerPressTheAttack(attacker, target, event);
+    public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth((Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)) / 4));
     }
 
-    private void triggerPressTheAttack(Player player, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        if (!isOnCooldown(attacker)) {
+            activatePressTheAttack(attacker, target);
+        }
+    }
+
+    private void activatePressTheAttack(Player player, Entity target) {
         UUID targetUUID = target.getUniqueId();
 
         if (!(target instanceof LivingEntity livingTarget)) {
@@ -59,16 +76,14 @@ public class PressTheAttack extends StackingRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (isOnCooldown(player)) {
-            return;
-        }
 
         switchTarget(player, targetUUID);
 
         int currentStacks = getStacks(player, targetUUID);
 
         if (currentStacks == 2) {
-            event.setDamage(event.getDamage() + bonusDamage(player, target));
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
+
             resetStacksForTarget(player, targetUUID);
 
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + player.getName());
@@ -81,8 +96,11 @@ public class PressTheAttack extends StackingRune {
 
     private double bonusDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
-        damageManager.enableAdaptiveScaling();
-
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
         return damageManager.totalBonusDamage(player, target, 0);
     }
 

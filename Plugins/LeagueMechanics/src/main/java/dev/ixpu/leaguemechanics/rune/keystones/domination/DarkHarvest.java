@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
 
@@ -44,17 +43,29 @@ public class DarkHarvest extends StackingRune {
         //
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        activateDarkHarvest(attacker, target, event);
-    }
-
-    @Override
     public void onProjectileHit(Player shooter, Entity target) {
-        activateDarkHarvest(shooter, target, null);
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(shooter, target)));
+        activateDarkHarvest(shooter, target);
     }
 
-    private void activateDarkHarvest(Player player, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(attacker, target)));
+        activateDarkHarvest(attacker, target);
+    }
+
+    private void activateDarkHarvest(Player player, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -66,17 +77,13 @@ public class DarkHarvest extends StackingRune {
         double maxHealth = livingTarget.getMaxHealth();
         double healthPercent = targetHealth / maxHealth;
 
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
+
         if (healthPercent >= HEALTH_THRESHOLD) {
             return;
         }
 
-        double damageOutput = bonusDamage(player, target);
-
-        if (event != null) {
-            event.setDamage(event.getDamage() + damageOutput);
-        } else {
-            livingTarget.damage(damageOutput);
-        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
 
         if (isOnCooldown(player) || player.getLevel() < LEVEL_COST_PER_STACK) {
             return;

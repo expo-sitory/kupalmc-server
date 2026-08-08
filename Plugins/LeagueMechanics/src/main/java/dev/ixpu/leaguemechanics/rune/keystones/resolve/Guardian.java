@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +13,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.configuration.ConfigurationSection;
@@ -23,7 +27,7 @@ public class Guardian extends BaseRune {
 
     private int MAX_PLAYERS = 5;
     private double ABSORPTION_PERCENTAGE = 0.80;
-    
+
     private int COOLDOWN_SECONDS = 60;
 
     private static final double DETECTION_RANGE = 10.0;
@@ -64,6 +68,26 @@ public class Guardian extends BaseRune {
         windupCounter.remove(uuid);
         lastShieldTime.remove(uuid);
         lastCombatTime.remove(uuid);
+    }
+
+    public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+    }
+
+    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
     }
 
     public void onPlayerDamage(Player victim, double damage) {
@@ -175,6 +199,12 @@ public class Guardian extends BaseRune {
             }
         }
         resetCooldown(player);
+    }
+
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void applyShield(Player player) {

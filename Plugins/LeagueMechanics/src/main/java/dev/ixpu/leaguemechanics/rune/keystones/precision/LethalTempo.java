@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
 
@@ -67,9 +66,32 @@ public class LethalTempo extends StackingRune {
         removeAllModifiers(player);
     }
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+    public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+    }
+
+    public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        if (!isOnCooldown(attacker)) {
+            activateLethalTempo(attacker, target);
+        }
+    }
+
+    public void activateLethalTempo(Player player, Entity target) {
         UUID targetUUID = target.getUniqueId();
-        RuneState state = playerState.getOrDefault(attacker.getUniqueId(), RuneState.STACKING);
+        RuneState state = playerState.getOrDefault(player.getUniqueId(), RuneState.STACKING);
 
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
@@ -78,17 +100,16 @@ public class LethalTempo extends StackingRune {
             return;
         }
 
-        switchTarget(attacker, targetUUID);
+        switchTarget(player, targetUUID);
 
         if (state == RuneState.ACTIVE) {
-            double damageOutput = bonusDamage(attacker, target);
-            event.setDamage(event.getDamage() + damageOutput);
-            refreshActiveTimer(attacker);
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
+            refreshActiveTimer(player);
             return;
         }
 
         if (state == RuneState.STACKING) {
-            addStackForTarget(attacker, targetUUID);
+            addStackForTarget(player, targetUUID);
         }
     }
 
@@ -156,8 +177,11 @@ public class LethalTempo extends StackingRune {
 
     private double bonusDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
-        damageManager.enableAdaptiveScaling();
-
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
         return damageManager.totalBonusDamage(player, target, 0);
     }
 

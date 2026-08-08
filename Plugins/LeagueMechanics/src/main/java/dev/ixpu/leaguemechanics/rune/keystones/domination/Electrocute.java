@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
 
@@ -45,25 +44,34 @@ public class Electrocute extends StackingRune {
         //
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        activateElectrocute(attacker, target, event);
-    }
-
     public void onProjectileHit(Player shooter, Entity target) {
-        activateElectrocute(shooter, target, null);
-    }
-
-    private void activateElectrocute(Player player, Entity target, EntityDamageByEntityEvent event) {
-        UUID targetUUID = target.getUniqueId();
-
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (isOnCooldown(player)) {
+        activateElectrocute(shooter, target);
+    }
+
+    public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        activateElectrocute(attacker, target);
+    }
+
+
+    private void activateElectrocute(Player player, Entity target) {
+        UUID targetUUID = target.getUniqueId();
+
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
             return;
         }
 
@@ -78,13 +86,9 @@ public class Electrocute extends StackingRune {
 
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
 
-            double damageOutput = bonusDamage(player, target);
-
-            if (event != null) {
-                event.setDamage(event.getDamage() + damageOutput);
-            } else {
-                livingTarget.damage(damageOutput);
-            }
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
+        } else {
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(player, target)));
         }
     }
 
@@ -102,6 +106,11 @@ public class Electrocute extends StackingRune {
     private double bonusDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
         return damageManager.totalBonusDamage(player, target, 0);
     }
 

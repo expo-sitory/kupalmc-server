@@ -2,7 +2,6 @@ package dev.ixpu.leaguemechanics.rune;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -95,7 +94,7 @@ public abstract class BaseRune {
 
     public void onPlayerDamage(Player player, double damage) {}
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {}
+    public void onAttack(Player attacker, Entity target) {}
 
     public void onProjectileHit(Player shooter, Entity hitEntity) {}
 

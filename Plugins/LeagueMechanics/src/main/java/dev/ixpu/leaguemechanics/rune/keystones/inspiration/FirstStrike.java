@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
 
@@ -70,45 +70,64 @@ public class FirstStrike extends BaseRune {
         buffEndTime.remove(uuid);
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        if (!(target instanceof LivingEntity)) {
+    public void onAttack(Player attacker, Entity target) {
+        activateFirstStrike(attacker, target);
+    }
+
+    public void onProjectileHit(Player shooter, Entity target) {
+        activateFirstStrike(shooter, target);
+    }
+
+    private void activateFirstStrike(Player player, Entity target) {
+        UUID uuid = player.getUniqueId();
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
             return;
         }
 
-        UUID attackerUUID = attacker.getUniqueId();
         long currentTime = System.currentTimeMillis();
-        long lastCombat = lastCombatTime.getOrDefault(attackerUUID, 0L);
+        long lastCombat = lastCombatTime.getOrDefault(uuid, 0L);
+        boolean isActive = firstStrikeActive.getOrDefault(uuid, false);
+        boolean isOnCd = isOnCooldown(player);
 
-        if (currentTime - lastCombat > COMBAT_WINDOW_MS && !isOnCooldown(attacker)) {
-            activateFirstStrike(attacker);
-            lastCombatTime.put(attackerUUID, currentTime);
-            resetCooldown(attacker);
+        // Case 1: First hit in new combat window
+        if (currentTime - lastCombat > COMBAT_WINDOW_MS && !isOnCd) {
+            player.giveExp((int) INITIAL_XP);
+            firstStrikeActive.put(uuid, true);
+            bonusDamageTracked.put(uuid, 0.0);
+            long buffEnd = currentTime + (long) (BUFF_DURATION_SECONDS * 1000);
+            buffEndTime.put(uuid, buffEnd);
+            lastCombatTime.put(uuid, currentTime);
+
+            // Deal AD + bonus damage
+            double bonusTrueDamage = bonusDamage(player, target) * TRUE_DAMAGE_PERCENT;
+            double newHealth = Math.max(0, livingTarget.getHealth() - bonusTrueDamage);
+            livingTarget.setHealth(newHealth);
+
+            double tracked = bonusDamageTracked.getOrDefault(uuid, 0.0);
+            bonusDamageTracked.put(uuid, tracked + bonusTrueDamage);
+            spawnXPOrbs(player, livingTarget);
         }
+        // Case 2: During active buff
+        else if (isActive && currentTime < buffEndTime.getOrDefault(uuid, 0L)) {
+            double bonusTrueDamage = bonusDamage(player, target) * TRUE_DAMAGE_PERCENT;
+            double newHealth = Math.max(0, livingTarget.getHealth() - bonusTrueDamage);
+            livingTarget.setHealth(newHealth);
 
-        boolean isActive = firstStrikeActive.getOrDefault(attackerUUID, false);
-        if (isActive && System.currentTimeMillis() < buffEndTime.getOrDefault(attackerUUID, 0L)) {
-            double bonusTrueDamage = event.getDamage() * TRUE_DAMAGE_PERCENT;
-            event.setDamage(event.getDamage() + bonusTrueDamage);
-
-            double tracked = bonusDamageTracked.getOrDefault(attackerUUID, 0.0);
-            bonusDamageTracked.put(attackerUUID, tracked + bonusTrueDamage);
-
-            spawnXPOrbs(attacker, (LivingEntity) target);
+            double tracked = bonusDamageTracked.getOrDefault(uuid, 0.0);
+            bonusDamageTracked.put(uuid, tracked + bonusTrueDamage);
+            spawnXPOrbs(player, livingTarget);
+        }
+        // Case 3: Cooldown or idle - deal AD only
+        else {
+            double adDamage = physicalDamage(player, target);
+            double newHealth = Math.max(0, livingTarget.getHealth() - adDamage);
+            livingTarget.setHealth(newHealth);
         }
     }
 
-    private void activateFirstStrike(Player player) {
-        UUID uuid = player.getUniqueId();
-        player.giveExp((int) INITIAL_XP);
-        firstStrikeActive.put(uuid, true);
-        bonusDamageTracked.put(uuid, 0.0);
-
-        long buffEnd = System.currentTimeMillis() + (long) (BUFF_DURATION_SECONDS * 1000);
-        buffEndTime.put(uuid, buffEnd);
-
-        player.sendMessage("§6FirstStrike activated!");
-    }
 
     private void spawnXPOrbs(Player attacker, LivingEntity target) {
         if (plugin == null) return;
@@ -170,6 +189,16 @@ public class FirstStrike extends BaseRune {
         }, 0, 1);
     }
 
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+    private double bonusDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
     @Override
     public void tick(Player player) {
         UUID uuid = player.getUniqueId();
@@ -211,8 +240,6 @@ public class FirstStrike extends BaseRune {
         double finalXP = totalBonusDamage * statScaling;
         int xpToGive = (int) finalXP;
 
-        player.sendMessage("§6FirstStrike bonus: " + String.format("%.2f", finalXP) + " XP (damage: " + String.format("%.2f", totalBonusDamage) + ", AD: " + String.format("%.2f", totalAD) + ", AP: " + String.format("%.2f", totalAP) + ")");
-        player.sendMessage("§6Giving " + xpToGive + " XP");
         player.giveExp(xpToGive);
     }
 

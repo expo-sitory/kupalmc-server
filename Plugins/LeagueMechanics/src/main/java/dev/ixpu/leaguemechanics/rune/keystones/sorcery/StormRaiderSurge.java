@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +63,16 @@ public class StormRaiderSurge extends BaseRune {
         speedActiveDuration.remove(uuid);
     }
 
-    @Override
+    public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+    }
+
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
@@ -71,6 +81,7 @@ public class StormRaiderSurge extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
         double estimatedDamage = event.getDamage();
         triggerStormRaiderSurge(attacker, estimatedDamage);
     }
@@ -96,6 +107,12 @@ public class StormRaiderSurge extends BaseRune {
 
         removeNegativeEffects(player);
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 2f);
+    }
+
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void removeNegativeEffects(Player player) {

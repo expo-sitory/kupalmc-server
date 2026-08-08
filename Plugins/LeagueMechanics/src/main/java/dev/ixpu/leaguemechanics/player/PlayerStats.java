@@ -7,19 +7,24 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.meta.ItemMeta;
+
 
 public class PlayerStats {
-    double BASE_ATTACK_DAMAGE = 2.0;
-    double BASE_PHYSICAL_ARMOR = 5.0;
+    double BASE_ATTACK_DAMAGE = 0.0;
+    double BASE_PHYSICAL_ARMOR = 0.0;
     double BASE_ABILITY_POWER = 12.0;
     double BASE_MAGIC_RESIST = 5.0;
 
+
     public void tick(Player player) {
         getPlayerAD(player);
-
+        getPlayerAP(player);
+        getPlayerAR(player);
+        getPlayerMR(player);
     }
 
-    public double getPlayerWeaponSharpnessEnchant(Player player) {
+    public double getPlayerWeapon(Player player) {
         ItemStack weapon = player.getInventory().getItemInMainHand();
         if (weapon.getType() == Material.AIR) {
             return 0;
@@ -31,7 +36,19 @@ public class PlayerStats {
         }
         return 0.5 + (sharpnessLevel * 0.5);
     }
-    public double getPlayerArmorProtectionEnchant(Player player) {
+
+    private boolean isWeapon(ItemStack item) {
+        if (item == null || item.getType().isAir()) {
+            return false;
+        }
+
+        String name = item.getType().toString().toLowerCase();
+        return name.contains("sword") || name.contains("axe") || name.contains("trident") ||
+                name.contains("pickaxe") || name.contains("shovel") || name.contains("hoe") ||
+                name.contains("mace") || name.contains("spear");
+    }
+
+    public double getPlayerArmor(Player player) {
         ItemStack helmet = player.getInventory().getHelmet();
         ItemStack chestplate = player.getInventory().getChestplate();
         ItemStack leggings = player.getInventory().getLeggings();
@@ -56,54 +73,55 @@ public class PlayerStats {
     }
 
     public double getPlayerAD(Player player) {
-        double totalAD = 0;
+        ItemStack weapon = player.getInventory().getItemInMainHand();
+        int baseAD = 0;
+        if (isWeapon(weapon)) {
+            baseAD++;
+        }
+        var itemHeldAD = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        double totalAD = BASE_ATTACK_DAMAGE + itemHeldAD.getValue();
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         if (itemStatsManager != null) {
-            totalAD = BASE_ATTACK_DAMAGE + itemStatsManager.getItemAD(player);
+            totalAD += itemStatsManager.getItemAD(player);
         }
-        return totalAD;
+        return totalAD + baseAD;
     }
 
     public double getPlayerAR(Player player) {
-        double totalAR = 0;
+        var itemEquipedAR = player.getAttribute(Attribute.GENERIC_ARMOR);
+        double totalAR = BASE_PHYSICAL_ARMOR + itemEquipedAR.getValue();
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         if (itemStatsManager != null) {
-            totalAR = BASE_PHYSICAL_ARMOR + itemStatsManager.getItemAR(player);
+            totalAR += itemStatsManager.getItemAR(player);
         }
         return totalAR;
     }
 
     public double getPlayerAP(Player player) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        double totalAP = 0;
+        double totalAP = BASE_ABILITY_POWER;
         if (itemStatsManager != null) {
-            totalAP = BASE_ABILITY_POWER + itemStatsManager.getItemAP(player);
+            totalAP += itemStatsManager.getItemAP(player);
         }
         return totalAP;
     }
 
     public double getPlayerMR(Player player) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        double totalMR = 0;
+        double totalMR = BASE_MAGIC_RESIST;
         if (itemStatsManager != null) {
-            totalMR = BASE_MAGIC_RESIST + itemStatsManager.getItemMR(player);
+            totalMR += itemStatsManager.getItemMR(player);
         }
         return totalMR;
     }
 
 
     public String getActionBarSections(Player player) {
-        var playerAD = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-        var playerAR = player.getAttribute(Attribute.GENERIC_ARMOR);
-        assert playerAD != null;
-        assert playerAR != null;
+        double SHARPNESS = getPlayerWeapon(player);
+        double PROTECTION = getPlayerArmor(player);
 
-        double SHARPNESS = getPlayerWeaponSharpnessEnchant(player);
-        double PROTECTION = getPlayerArmorProtectionEnchant(player);
-
-
-        double AD = getPlayerAD(player) + playerAD.getValue();
-        double AR = getPlayerAR(player) + playerAR.getValue();
+        double AD = getPlayerAD(player);
+        double AR = getPlayerAR(player);
         double AP = getPlayerAP(player);
         double MR = getPlayerMR(player);
 

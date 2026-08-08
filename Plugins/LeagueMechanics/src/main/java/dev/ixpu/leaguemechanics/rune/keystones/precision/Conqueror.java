@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
 
@@ -40,12 +39,27 @@ public class Conqueror extends StackingRune {
         //
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        activateConqueror(attacker, target, event);
+    public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        activateConqueror(shooter, target);
     }
 
-    private void activateConqueror(Player player, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        activateConqueror(attacker, target);
+    }
+
+    private void activateConqueror(Player player, Entity target) {
 
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
@@ -58,8 +72,7 @@ public class Conqueror extends StackingRune {
         switchTarget(player, targetUUID);
         addStack(player, targetUUID);
 
-        double damageOutput = bonusDamage(player, target);
-        event.setDamage(event.getDamage() + damageOutput);
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target, getStacks(player))));
 
     }
 
@@ -74,12 +87,10 @@ public class Conqueror extends StackingRune {
         return currentStacks;
     }
 
-    private double bonusDamage(Player player, Entity target) {
+    private double bonusDamage(Player player, Entity target, int currentStacks) {
         DamageManager damageManager = new DamageManager();
-        damageManager.enablePerStackScaling();
         damageManager.enableAdaptiveScaling();
-
-        int currentStacks = getStacks(player);
+        damageManager.enablePerStackScaling();
         return damageManager.totalBonusDamage(player, target, currentStacks);
     }
 

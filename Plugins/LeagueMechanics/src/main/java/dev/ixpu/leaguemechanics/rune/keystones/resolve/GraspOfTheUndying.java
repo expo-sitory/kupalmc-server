@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.*;
 
@@ -74,25 +75,36 @@ public class GraspOfTheUndying extends StackingRune {
         }
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        triggerGraspOfTheUndying(attacker, target, event);
-    }
-
-    private void triggerGraspOfTheUndying(Player player, Entity target, EntityDamageByEntityEvent event) {
-        UUID playerUUID = player.getUniqueId();
-        int stacks = getStacks(player);
-        int attackWindow = activationState.getOrDefault(playerUUID, 0);
-
+    public void onProjectileHit(Player shooter, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+    }
+
+    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        if (!isOnCooldown(attacker)) {
+            triggerGraspOfTheUndying(attacker, target);
+        }
+    }
+
+    private void triggerGraspOfTheUndying(Player player, Entity target) {
+        UUID playerUUID = player.getUniqueId();
+        int stacks = getStacks(player);
+        int attackWindow = activationState.getOrDefault(playerUUID, 0);
 
         if (stacks >= maxStacks && attackWindow > 0 && !activeStateActive.getOrDefault(playerUUID, false)) {
-            enterActiveState(player, event);
+            enterActiveState(player, target);
             resetStacks(player);
             activationState.put(playerUUID, 0);
             resetCooldown(player);
@@ -101,13 +113,14 @@ public class GraspOfTheUndying extends StackingRune {
         }
     }
 
-    private void enterActiveState(Player player, EntityDamageByEntityEvent event) {
+    private void enterActiveState(Player player, Entity target) {
         UUID playerUUID = player.getUniqueId();
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
         int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0);
 
-        double bonusDamage = absorptionHearts * BASE_PHYSICAL_DAMAGE_PERCENT;
-
-        event.setDamage(event.getDamage() + bonusDamage);
+        livingTarget.setHealth((Math.max(0, livingTarget.getHealth() - physicalDamage(player, target)) * absorptionHearts));
 
         var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (maxHealthAttr != null) {
@@ -120,6 +133,16 @@ public class GraspOfTheUndying extends StackingRune {
         activateEffects(player);
 
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_AMBIENT, 1.0f, 1.0f);
+    }
+
+    private double bonusDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void activateEffects(Player player) {

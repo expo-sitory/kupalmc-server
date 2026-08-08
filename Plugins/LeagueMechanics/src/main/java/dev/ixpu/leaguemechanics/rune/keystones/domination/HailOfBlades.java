@@ -16,7 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
 
@@ -85,12 +84,30 @@ public class HailOfBlades extends BaseRune {
         activeModifiers.remove(uuid);
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        activateHailofBlades(attacker, target, event);
+    public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
     }
 
-    private void activateHailofBlades(Player player, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        if (!isOnCooldown(attacker)) {
+            activateHailofBlades(attacker, target);
+        }
+    }
+
+    private void activateHailofBlades(Player player, Entity target) {
         UUID playerUUID = player.getUniqueId();
 
         if (!(target instanceof LivingEntity livingTarget)) {
@@ -99,15 +116,17 @@ public class HailOfBlades extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+
+        double newHealth = Math.max(0, (livingTarget.getHealth() - bonusDamage(player, target)) * getScaledTrueDamage(player));
+
         if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(player)) {
+            livingTarget.setHealth(newHealth / 4);
             return;
         }
         if (activeState.getOrDefault(playerUUID, false)) {
             lastAttackTick.put(playerUUID, 0);
 
-            double scaledTrueDamage = getScaledTrueDamage(player);
-            double damageOutput = bonusDamage(player, target) * scaledTrueDamage;
-            event.setDamage(event.getDamage() + damageOutput);
+            livingTarget.setHealth(newHealth);
 
             List<Integer> durations = stackDurationTicks.getOrDefault(playerUUID, new ArrayList<>());
             for (int i = 0; i < durations.size(); i++) {
@@ -162,6 +181,11 @@ public class HailOfBlades extends BaseRune {
 
     private double bonusDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
         return damageManager.totalBonusDamage(player, target, 0);
     }
 

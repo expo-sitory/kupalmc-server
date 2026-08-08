@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.manager.BuffManager;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.*;
 
@@ -67,8 +68,24 @@ public class FleetFootwork extends StackingRune {
         removeAllModifiers(player);
     }
 
-    @Override
+    public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+    }
+
     public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
         activateFleetFootwork(shooter, target);
     }
 
@@ -81,6 +98,8 @@ public class FleetFootwork extends StackingRune {
         }
 
         int currentStacks = getStacks(player);
+
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
 
         for (int i = 0; i < PROJECTILE_STACK_GAIN; i++) {
             addStack(player);
@@ -165,6 +184,16 @@ public class FleetFootwork extends StackingRune {
 
         speedBuffTicks.put(playerUUID, SPEED_BUFF_DURATION_TICKS);
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_BREEZE_IDLE_AIR, 1.0f, 1.2f);
+    }
+
+    private double bonusDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void refreshSpeedBuff(Player player) {

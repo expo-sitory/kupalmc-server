@@ -22,7 +22,6 @@ import org.bukkit.Particle;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 
 import net.kyori.adventure.text.Component;
@@ -66,32 +65,36 @@ public class DeathfireTorch extends BaseRune {
         burnedTargets.remove(uuid);
     }
 
-    @Override
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
-        triggerDeathFireTorch(attacker, target, event);
-    }
-    public void onProjectileHit(Player shooter, Entity target) {
-        triggerDeathFireTorch(shooter, target, null);
-    }
-
-    public void triggerDeathFireTorch(Player player, Entity target, EntityDamageByEntityEvent event) {
-        ItemStack weapon = player.getInventory().getItemInMainHand();
-
+    public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        triggerDeathFireTorch(attacker, target);
+    }
+    public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+        triggerDeathFireTorch(shooter, target);
+    }
+
+    public void triggerDeathFireTorch(Player player, Entity target) {
+        ItemStack weapon = player.getInventory().getItemInMainHand();
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
         if (!CheckEnchant(weapon)) {
             return;
         }
-
-        double totalOutput = bonusDamage(player, target);
-        if (event != null) {
-            applyBurn(player, livingTarget, totalOutput);
-        }
-        applyBurn(player, livingTarget, totalOutput);
+        applyBurn(player, livingTarget, bonusDamage(player, target));
     }
 
     private double bonusDamage(Player player, Entity target) {
@@ -102,6 +105,12 @@ public class DeathfireTorch extends BaseRune {
         double scaledBonus = getScaledBonusDamage(player);
 
         return baseDamage + scaledBonus;
+    }
+
+    private double physicalDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableOnlyAD();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private double getScaledBonusDamage(Player player) {
@@ -188,7 +197,8 @@ public class DeathfireTorch extends BaseRune {
                     LivingEntity target = targets.get(targetUUID);
                     if (target != null && target.isValid()) {
                         double damagePerTick = damages.getOrDefault(targetUUID, 0.0);
-                        target.damage(damagePerTick);
+                        double newHealth = Math.max(0, target.getHealth() - damagePerTick);
+                        target.setHealth(newHealth);
                         spawnBurnParticles(target);
                     }
                 }
