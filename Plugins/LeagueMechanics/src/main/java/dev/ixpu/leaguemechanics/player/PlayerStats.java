@@ -1,8 +1,7 @@
 package dev.ixpu.leaguemechanics.player;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
-import dev.ixpu.leaguemechanics.manager.StatsManager;
-import org.bukkit.entity.LivingEntity;
+import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -16,8 +15,8 @@ public class PlayerStats {
     double BASE_MAGIC_RESIST = 5.0;
 
     public void tick(Player player) {
-        getAttackerAD(player);
-        getTargetAR(player);
+        getPlayerAD(player);
+
     }
 
     public double getPlayerWeaponSharpnessEnchant(Player player) {
@@ -56,75 +55,70 @@ public class PlayerStats {
         return totalBonusProtectionLevel * 0.4;
     }
 
-    public double getAttackerAD(Player player) {
-        var playerAD = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-        assert playerAD != null;
-        double totalAD = BASE_ATTACK_DAMAGE + playerAD.getValue();
-        
-        StatsManager statsManager = LeagueMechanics.getInstance().getStatsManager();
-        if (statsManager != null) {
-            totalAD += statsManager.getPlayerAD(player);
+    public double getPlayerAD(Player player) {
+        double totalAD = 0;
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        if (itemStatsManager != null) {
+            totalAD = BASE_ATTACK_DAMAGE + itemStatsManager.getItemAD(player);
         }
-        
         return totalAD;
     }
 
-    public double getBaseAP() {
-        return BASE_ABILITY_POWER;
-    }
-
-    public double getBaseMR() {
-        return BASE_ABILITY_POWER;
-    }
-
-    public double getTargetAR(LivingEntity target) {
-        var playerAR = target.getAttribute(Attribute.GENERIC_ARMOR);
-        assert playerAR != null;
-        double totalAR = BASE_PHYSICAL_ARMOR + playerAR.getValue();
-        
-        if (target instanceof Player player) {
-            StatsManager statsManager = LeagueMechanics.getInstance().getStatsManager();
-            if (statsManager != null) {
-                totalAR += statsManager.getPlayerAR(player);
-            }
+    public double getPlayerAR(Player player) {
+        double totalAR = 0;
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        if (itemStatsManager != null) {
+            totalAR = BASE_PHYSICAL_ARMOR + itemStatsManager.getItemAR(player);
         }
-        
         return totalAR;
     }
 
+    public double getPlayerAP(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double totalAP = 0;
+        if (itemStatsManager != null) {
+            totalAP = BASE_ABILITY_POWER + itemStatsManager.getItemAP(player);
+        }
+        return totalAP;
+    }
+
+    public double getPlayerMR(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double totalMR = 0;
+        if (itemStatsManager != null) {
+            totalMR = BASE_MAGIC_RESIST + itemStatsManager.getItemMR(player);
+        }
+        return totalMR;
+    }
 
 
     public String getActionBarSections(Player player) {
+        var playerAD = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        var playerAR = player.getAttribute(Attribute.GENERIC_ARMOR);
+        assert playerAD != null;
+        assert playerAR != null;
+
         double SHARPNESS = getPlayerWeaponSharpnessEnchant(player);
         double PROTECTION = getPlayerArmorProtectionEnchant(player);
 
-        double AD = getAttackerAD(player);
-        double AR = getTargetAR(player);
 
-        StatsManager statsManager = LeagueMechanics.getInstance().getStatsManager();
-        double itemAD = statsManager != null ? statsManager.getPlayerAD(player) : 0;
-        double itemAR = statsManager != null ? statsManager.getPlayerAR(player) : 0;
-        double itemAP = statsManager != null ? statsManager.getPlayerAP(player) : 0;
-        double itemMR = statsManager != null ? statsManager.getPlayerMR(player) : 0;
+        double AD = getPlayerAD(player) + playerAD.getValue();
+        double AR = getPlayerAR(player) + playerAR.getValue();
+        double AP = getPlayerAP(player);
+        double MR = getPlayerMR(player);
 
-        String adDisplay = " §6🗡 §f" + String.format("%.1f", AD + itemAD);
+
+        String adDisplay = " §6🗡 §f" + String.format("%.1f", AD);
         if (SHARPNESS > 0) {
-            adDisplay = " §6🗡 §f" + String.format("%.1f", AD +itemAD) + "§f(+" + String.format("%.1f", SHARPNESS) + ")";
+            adDisplay = " §6🗡 §f" + String.format("%.1f", AD) + "§f(+" + String.format("%.1f", SHARPNESS) + ")";
         }
-        String arDisplay = " §e🛡 §f" + String.format("%.1f", AR + itemAR);
+        String arDisplay = " §e🛡 §f" + String.format("%.1f", AR);
         if (PROTECTION > 0) {
-            arDisplay = " §e🛡 §f" + String.format("%.1f", AR + itemAR) + " §f(+" + String.format("%.1f", PROTECTION) + ")";
+            arDisplay = " §e🛡 §f" + String.format("%.1f", AR) + " §f(+" + String.format("%.1f", PROTECTION) + ")";
         }
 
-        String apDisplay = " §9☄ §f" + String.format("%.1f", BASE_ABILITY_POWER);
-        if (itemAP > 0) {
-            apDisplay = " §9☄ §f" + String.format("%.1f", BASE_ABILITY_POWER + itemAP);
-        }
-        
-        String mrDisplay = " §b⦿ §f" + String.format("%.1f", BASE_MAGIC_RESIST);
-        if (itemMR > 0) {
-            mrDisplay = " §b⦿ §f" + String.format("%.1f", BASE_MAGIC_RESIST + itemMR) + ")";
-        }
+        String apDisplay = " §9☄ §f" + String.format("%.1f", AP);
+        String mrDisplay = " §b⦿ §f" + String.format("%.1f", MR) + ")";
 
         return adDisplay + arDisplay + apDisplay + mrDisplay;
     }

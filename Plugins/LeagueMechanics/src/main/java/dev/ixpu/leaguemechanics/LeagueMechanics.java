@@ -1,7 +1,7 @@
 package dev.ixpu.leaguemechanics;
 
 import dev.ixpu.leaguemechanics.manager.RuneManager;
-import dev.ixpu.leaguemechanics.manager.StatsManager;
+import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.command.CommandHandler;
 import dev.ixpu.leaguemechanics.util.ItemStatHelper;
 import org.bukkit.Bukkit;
@@ -31,20 +31,21 @@ import dev.ixpu.leaguemechanics.rune.keystones.sorcery.StormRaiderSurge;
 import dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch;
 
 import dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment;
+import dev.ixpu.leaguemechanics.rune.keystones.inspiration.FirstStrike;
 
 
 public class LeagueMechanics extends JavaPlugin {
     private static LeagueMechanics instance;
     private RuneRegistry runeRegistry;
     private RuneManager runeManager;
-    private StatsManager statsManager;
+    private ItemStatsManager itemStatsManager;
 
     @Override
     public void onEnable() {
         instance = this;
         runeRegistry = RuneRegistry.getInstance();
         runeManager = new RuneManager(this);
-        statsManager = new StatsManager();
+        itemStatsManager = new ItemStatsManager();
 
         getLogger().info("League Mechanics is starting...");
 
@@ -94,12 +95,12 @@ public class LeagueMechanics extends JavaPlugin {
         return runeManager;
     }
 
-    public StatsManager getStatsManager() {
-        return statsManager;
+    public ItemStatsManager getStatsManager() {
+        return itemStatsManager;
     }
 
     private void registerCommands() {
-        CommandHandler commandExecutor = new CommandHandler(this, statsManager);
+        CommandHandler commandExecutor = new CommandHandler(this, itemStatsManager);
         getCommand("leaguemechanics").setExecutor(commandExecutor);
         getLogger().info("Commands registered!");
     }
@@ -161,6 +162,10 @@ public class LeagueMechanics extends JavaPlugin {
         GlacialAugment glacialAugment = new GlacialAugment(config, this);
         loadRuneCooldown(glacialAugment, "runes.keystones.inspiration.glacial-augment.cooldown");
         runeRegistry.registerRune(glacialAugment);
+
+        FirstStrike firstStrike = new FirstStrike(config, this);
+        loadRuneCooldown(firstStrike, "runes.keystones.inspiration.first-strike.cooldown");
+        runeRegistry.registerRune(firstStrike);
 
         getLogger().info(() -> "Registered " + runeRegistry.getAllRunes().size() + " runes");
     }

@@ -20,7 +20,7 @@ import net.kyori.adventure.text.Component;
 
 public class Conqueror extends StackingRune {
 
-    private double BASE_PHYSICAL_DAMAGE_PER_STACK = 2.5;
+    private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 2.5;
 
     private static final int MAXIMUM_STACKS = 12;
 
@@ -31,7 +31,7 @@ public class Conqueror extends StackingRune {
 
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.conqueror");
         if (section != null) {
-            this.BASE_PHYSICAL_DAMAGE_PER_STACK = section.getDouble("attack-damage-per-stack", this.BASE_PHYSICAL_DAMAGE_PER_STACK);
+            this.BASE_ADAPTIVE_DAMAGE_PER_STACK = section.getDouble("base-adaptive-damage-per-stack", this.BASE_ADAPTIVE_DAMAGE_PER_STACK);
         }
     }
 

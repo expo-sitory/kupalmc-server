@@ -21,7 +21,7 @@ import net.kyori.adventure.text.Component;
 
 public class Electrocute extends StackingRune {
 
-    private double BASE_PHYSICAL_DAMAGE = 3.5;
+    private double BASE_ADAPTIVE_DAMAGE = 3.5;
 
     private static final int MAXIMUM_STACKS = 3;
 
@@ -34,7 +34,7 @@ public class Electrocute extends StackingRune {
 
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.electrocute");
         if (section != null) {
-            this.BASE_PHYSICAL_DAMAGE = section.getDouble("base-physical-damage", this.BASE_PHYSICAL_DAMAGE);
+            this.BASE_ADAPTIVE_DAMAGE = section.getDouble("base-adaptive-damage", this.BASE_ADAPTIVE_DAMAGE);
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
         }
         this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);

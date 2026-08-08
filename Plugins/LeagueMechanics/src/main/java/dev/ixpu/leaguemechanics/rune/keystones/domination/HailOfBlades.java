@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
+import dev.ixpu.leaguemechanics.manager.BuffManager;
 
 import java.util.*;
 
@@ -23,6 +24,9 @@ import net.kyori.adventure.text.Component;
 public class HailOfBlades extends BaseRune {
     private double BASE_ATTACK_SPEED = 0.10;
     private double BASE_TRUE_DAMAGE = 1.25;
+
+    private double AD_PERCENTAGE_MULTIPLIER = 0.8;
+    private double AP_PERCENTAGE_MULTIPLIER = 0.6;
 
     int COOLDOWN_DURATION_SECONDS = 60;
 
@@ -44,8 +48,10 @@ public class HailOfBlades extends BaseRune {
         super("hail-of-blades", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.hail-of-blades");
         if (section != null) {
-            this.BASE_ATTACK_SPEED = section.getDouble("attack-speed-bonus", this.BASE_ATTACK_SPEED);
-            this.BASE_TRUE_DAMAGE = section.getDouble("true-damage-multiplier", this.BASE_TRUE_DAMAGE);
+            this.BASE_ATTACK_SPEED = section.getDouble("base-attack-speed", this.BASE_ATTACK_SPEED);
+            this.BASE_TRUE_DAMAGE = section.getDouble("base-true-damage", this.BASE_TRUE_DAMAGE);
+            this.AD_PERCENTAGE_MULTIPLIER = section.getDouble("ad-percentage-multiplier", this.AD_PERCENTAGE_MULTIPLIER);
+            this.AP_PERCENTAGE_MULTIPLIER = section.getDouble("ap-percentage-multiplier", this.AP_PERCENTAGE_MULTIPLIER);
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
         }
         this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
@@ -99,7 +105,8 @@ public class HailOfBlades extends BaseRune {
         if (activeState.getOrDefault(playerUUID, false)) {
             lastAttackTick.put(playerUUID, 0);
 
-            double damageOutput = bonusDamage(player, target) * BASE_TRUE_DAMAGE;
+            double scaledTrueDamage = getScaledTrueDamage(player);
+            double damageOutput = bonusDamage(player, target) * scaledTrueDamage;
             event.setDamage(event.getDamage() + damageOutput);
 
             List<Integer> durations = stackDurationTicks.getOrDefault(playerUUID, new ArrayList<>());
@@ -155,8 +162,27 @@ public class HailOfBlades extends BaseRune {
 
     private double bonusDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
         return damageManager.totalBonusDamage(player, target, 0);
+    }
+
+    private double getScaledTrueDamage(Player player) {
+        BuffManager buffManager = new BuffManager();
+        return buffManager.calculateBuffValue(
+                player,
+                BASE_TRUE_DAMAGE,
+                AD_PERCENTAGE_MULTIPLIER,
+                AP_PERCENTAGE_MULTIPLIER
+        );
+    }
+
+    private double getScaledAttackSpeed(Player player) {
+        BuffManager buffManager = new BuffManager();
+        return buffManager.calculateBuffValue(
+                player,
+                BASE_ATTACK_SPEED,
+                AD_PERCENTAGE_MULTIPLIER,
+                AP_PERCENTAGE_MULTIPLIER
+        );
     }
 
     private void deactivateEffect(Player player) {
@@ -178,10 +204,12 @@ public class HailOfBlades extends BaseRune {
         removeAllModifiers(player);
         UUID modifierUUID = UUID.nameUUIDFromBytes(("hail-of-blades-" + player.getUniqueId()).getBytes());
 
+        double scaledAttackSpeed = getScaledAttackSpeed(player);
+
         AttributeModifier modifier = new AttributeModifier(
                 modifierUUID,
                 "Hail of Blades Attack Speed",
-                BASE_ATTACK_SPEED,
+                scaledAttackSpeed,
                 AttributeModifier.Operation.ADD_SCALAR
         );
 

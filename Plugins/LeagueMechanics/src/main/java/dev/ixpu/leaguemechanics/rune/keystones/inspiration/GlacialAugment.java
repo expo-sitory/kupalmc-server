@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.manager.BuffManager;
 
 import java.util.*;
 
@@ -24,11 +25,12 @@ import org.bukkit.potion.PotionEffectType;
 import net.kyori.adventure.text.Component;
 
 public class GlacialAugment extends BaseRune {
-    private double DAMAGE_REDUCTION = -0.20;
+    private int BASE_FREEZE_DURATION_TICKS = 120;
+
+    private double AD_PERCENTAGE_MULTIPLIER = 0.07;
+    private double AP_PERCENTAGE_MULTIPLIER = 0.06;
 
     int COOLDOWN_DURATION_SECONDS = 45;
-
-    private static final int FREEZE_DURATION_TICKS = 120;
 
     private final Map<UUID, Map<UUID, Integer>> frozenTargets = new HashMap<>();
     private final Map<UUID, Map<UUID, List<AttributeModifier>>> targetModifiers = new HashMap<>();
@@ -41,8 +43,10 @@ public class GlacialAugment extends BaseRune {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.inspiration.glacial-augment");
 
         if (section != null) {
-            this.DAMAGE_REDUCTION = section.getDouble("damage-reduction", this.DAMAGE_REDUCTION);
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
+            this.BASE_FREEZE_DURATION_TICKS = section.getInt("base-freeze-duration", this.BASE_FREEZE_DURATION_TICKS);
+            this.AD_PERCENTAGE_MULTIPLIER = section.getDouble("ad-percentage-multiplier", this.AD_PERCENTAGE_MULTIPLIER);
+            this.AP_PERCENTAGE_MULTIPLIER = section.getDouble("ap-percentage-multiplier", this.AP_PERCENTAGE_MULTIPLIER);
         }
         this.setCooldownSeconds(COOLDOWN_DURATION_SECONDS);
     }
@@ -65,6 +69,7 @@ public class GlacialAugment extends BaseRune {
     public void onProjectileHit(Player shooter, Entity target) {
         activateGlacialAugment(shooter, target);
     }
+
     private void activateGlacialAugment(Player player, Entity target) {
         ItemStack weapon = player.getInventory().getItemInMainHand();
 
@@ -135,6 +140,17 @@ public class GlacialAugment extends BaseRune {
         }
     }
 
+    private int getScaledFreezeDuration(Player player) {
+        BuffManager buffManager = new BuffManager();
+        double scaledDuration = buffManager.calculateBuffValue(
+                player,
+                BASE_FREEZE_DURATION_TICKS,
+                AD_PERCENTAGE_MULTIPLIER,
+                AP_PERCENTAGE_MULTIPLIER
+        );
+        return (int) scaledDuration;
+    }
+
     private void applyFreeze(Player attacker, LivingEntity target) {
         UUID attackerUUID = attacker.getUniqueId();
         UUID targetUUID = target.getUniqueId();
@@ -144,7 +160,8 @@ public class GlacialAugment extends BaseRune {
             return;
         }
 
-        frozen.put(targetUUID, FREEZE_DURATION_TICKS);
+        int scaledFreezeDuration = getScaledFreezeDuration(attacker);
+        frozen.put(targetUUID, scaledFreezeDuration);
 
         org.bukkit.Location loc = target.getLocation();
 
@@ -167,8 +184,16 @@ public class GlacialAugment extends BaseRune {
 
         target.addPotionEffect(new PotionEffect(
                 PotionEffectType.SLOWNESS,
-                FREEZE_DURATION_TICKS,
+                scaledFreezeDuration,
                 2,
+                false,
+                false
+        ));
+
+        target.addPotionEffect(new PotionEffect(
+                PotionEffectType.WEAKNESS,
+                scaledFreezeDuration,
+                0,
                 false,
                 false
         ));
@@ -184,7 +209,7 @@ public class GlacialAugment extends BaseRune {
                         snowLoc.getBlock().setType(org.bukkit.Material.AIR);
                     }
                 }
-            }, FREEZE_DURATION_TICKS);
+            }, scaledFreezeDuration);
         }
     }
 

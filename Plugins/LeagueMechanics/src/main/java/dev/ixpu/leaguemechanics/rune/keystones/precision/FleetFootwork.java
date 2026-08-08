@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.manager.BuffManager;
 
 import java.util.*;
 
@@ -21,7 +22,10 @@ public class FleetFootwork extends StackingRune {
 
     private double BLOCKS_PER_STACK = 10.0;
     private int PROJECTILE_STACK_GAIN = 5;
-    private double HEAL_PERCENT = 0.60;
+    private double HEAL_PERCENT = 0.10;
+
+    private double AD_PERCENTAGE_MULTIPLIER = 0.10;
+    private double AP_PERCENTAGE_MULTIPLIER = 0.05;
 
     private static final int MAXIMUM_STACKS = 100;
     private static final double MOVEMENT_SPEED_BONUS = 0.20;
@@ -39,7 +43,9 @@ public class FleetFootwork extends StackingRune {
         if (section != null) {
             this.BLOCKS_PER_STACK = section.getDouble("blocks-per-stack", this.BLOCKS_PER_STACK);
             this.PROJECTILE_STACK_GAIN = section.getInt("projectile-stack-gain", this.PROJECTILE_STACK_GAIN);
-            this.HEAL_PERCENT = section.getDouble("heal-percent", this.HEAL_PERCENT);
+            this.HEAL_PERCENT = section.getDouble("base-heal-percent", this.HEAL_PERCENT);
+            this.AD_PERCENTAGE_MULTIPLIER = section.getDouble("ad-percentage-multiplier", this.AD_PERCENTAGE_MULTIPLIER);
+            this.AP_PERCENTAGE_MULTIPLIER = section.getDouble("ap-percentage-multiplier", this.AP_PERCENTAGE_MULTIPLIER);
         }
     }
 
@@ -84,7 +90,8 @@ public class FleetFootwork extends StackingRune {
             double maxHealth = Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
             double currentHealth = player.getHealth();
             double missingHealth = maxHealth - currentHealth;
-            double healAmount = missingHealth * HEAL_PERCENT;
+            double scaledHealPercent = getScaledHealPercentage(player);
+            double healAmount = missingHealth * scaledHealPercent;
 
             player.setHealth(Math.min(maxHealth, currentHealth + healAmount));
             resetStacks(player);
@@ -93,6 +100,16 @@ public class FleetFootwork extends StackingRune {
         } else if (speedBuffTicks.getOrDefault(player.getUniqueId(), 0) > 0) {
             refreshSpeedBuff(player);
         }
+    }
+
+    private double getScaledHealPercentage(Player player) {
+        BuffManager buffManager = new BuffManager();
+        return buffManager.calculateBuffValue(
+                player,
+                HEAL_PERCENT,
+                AD_PERCENTAGE_MULTIPLIER,
+                AP_PERCENTAGE_MULTIPLIER
+        );
     }
 
     private void trackActiveTimer(Player player) {
@@ -205,8 +222,6 @@ public class FleetFootwork extends StackingRune {
     }
 
     private String getRuneDisplay(RuneState state, int stacks, int buffTicks) {
-
-
         return switch (state) {
             case ACTIVE -> {
                 double remainingSeconds = buffTicks / 20.0;

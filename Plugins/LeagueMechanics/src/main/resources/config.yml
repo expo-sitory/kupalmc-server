@@ -5,25 +5,6 @@
 #              RUNES                 #
 # ================================== #
 
-# CONVERSION:
-# Converted Damage = The AD and AP damage conveted to 1 is to 0.5 (1 AD/ 1AP = 0.5 Heart)
-# Event Damage = The damage of the player, this includes weapon/weapon w enchant, strength pots
-
-# DAMAGE OUTPUT FORMULA FOR PER-STACK-BASED OUTPUT RUNES:
-# totalAbilityPower = BASE-AP + (STACKS * AP-PER-STACKS)
-# totalAttackDamage = BASE-AD + (STACKS * AD-PER-STACKS)
-# ConvertedDamage = (totalAbilityPower + totalAttackDamage) / 2
-# totalBonusDamage = (PlayerArmor + PlayerMagicResist) - ConvertedDamage
-# totalOutput = EventDamage + totalBonusDamage
-
-# DAMAGE OUTPUT FORMULA FOR NON-PER-STACK-BASED & LEVEL-BASED BONUS DAMAGE RUNES:
-# BONUS-AP = IF LEVEL 0-29: 1.5, IF LEVEL 30-49: 2.0, IF LEVEL 50-69: 2.5, IF LEVEL 70-99+: 3.0, IF LEVEL 100+: 3.5
-# BONUS-AD = IF LEVEL 0-29: 1.5, IF LEVEL 30-49: 2.5, IF LEVEL 50-69: 3.5, IF LEVEL 70-99+: 4.5, IF LEVEL 100+: 5.5
-# totalAbilityPower = Player-AP + (BASE-AP + BONUS-AP)
-# totalAttackDamage = Player-AD + (BASE-AD + BONUS-AD)
-# ConvertedDamage = (totalAbilityPower + totalAttackDamage) / 2
-# totalBonusDamage (PlayerArnor + PlayerMagicResist) - ConvertedDamage
-# totalOutput = EventDamage + totalBonusDamage
 
 runes:
   keystones:
@@ -34,17 +15,19 @@ runes:
     domination:
 
       dark-harvest:
-        attack-damage-per-stack: 2.5
+        base-adaptive-damage-per-stack: 2.5
         level-cost-per-stack: 5
         cooldown: 60
 
       electrocute:
-        base-physical-damage: 3.5
+        base-adaptive-damage: 3.5
         cooldown: 25
 
       hail-of-blades:
-        attack-speed-bonus: 0.10
-        true-damage-multiplier: 1.25
+        base-attack-speed: 0.10
+        base-true-damage: 1.25
+        ad-percentage-multiplier: 0.10
+        ap-percentage-multiplier: 0.07
         cooldown: 60
 
 
@@ -54,20 +37,22 @@ runes:
     precision:
 
       conqueror:
-        attack-damage-per-stack: 2.5
+        base-adaptive-damage-per-stack: 2.5
 
       fleet-footwork:
         maximum-stacks: 100
         blocks-per-stack: 10.0
         projectile-stack-gain: 5
         heal-percent: 0.60
+        ad-percentage-multiplier: 0.10
+        ap-percentage-multiplier: 0.05
 
       lethal-tempo:
-        attack-speed-bonus: 0.80
+        attack-speed-bonus: 0.60 # when on max stacks/active state
         cooldown: 30
 
       press-the-attack:
-        base-physical-damage: 4.5
+        base-adaptive-damage: 4.5
         cooldown: 30
 
 
@@ -77,8 +62,18 @@ runes:
     inspiration:
 
       glacial-augment:
-        damage-reduction: -0.20
+        base-freeze-duration: 120 # in ticks
+        ad-percentage-multiplier: 0.07
+        ap-percentage-multiplier: 0.06
         cooldown: 45
+
+      first-strike:
+        initial-xp: 10.0
+        buff-duration: 3 #seconds
+        true-damage-percent: 0.07
+        combat-window-ms: 250
+        ad-percentage: 0.20
+        ap-percentage: 0.15
 
 
     # ============================= #
@@ -109,11 +104,15 @@ runes:
     sorcery:
 
       arcane-comet:
-        base-magic-damage: 20.5
+        base-adaptive-damage: 20.5
+        ad-percentage-multiplier: 0.05
+        ap-percentage-multiplier: 0.15
         cooldown: 20
 
       deathfire-torch:
         base-magic-damage: 10.5
+        ad-percentage-multiplier: 0.05
+        ap-percentage-multiplier: 0.10
 
       storm-raider-surge:
         damage-threshold: 0.80

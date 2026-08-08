@@ -6,6 +6,7 @@ import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
+import dev.ixpu.leaguemechanics.manager.BuffManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,10 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 public class ArcaneComet extends BaseRune {
-    double BASE_MAGIC_DAMAGE = 20.5;
+    double BASE_ADAPTIVE_DAMAGE = 20.5;
+
+    private double AD_PERCENTAGE_MULTIPLIER = 0.05;
+    private double AP_PERCENTAGE_MULTIPLIER = 0.15;
 
     int COOLDOWN_SECONDS = 20;
 
@@ -36,7 +40,9 @@ public class ArcaneComet extends BaseRune {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.sorcery.arcane-comet");
         this.plugin = plugin;
         if (section != null) {
-            this.BASE_MAGIC_DAMAGE = section.getDouble("base-magic-damage", this.BASE_MAGIC_DAMAGE);
+            this.BASE_ADAPTIVE_DAMAGE = section.getDouble("base-adaptive-damage", this.BASE_ADAPTIVE_DAMAGE);
+            this.AD_PERCENTAGE_MULTIPLIER = section.getDouble("ad-percentage-multiplier", this.AD_PERCENTAGE_MULTIPLIER);
+            this.AP_PERCENTAGE_MULTIPLIER = section.getDouble("ap-percentage-multiplier", this.AP_PERCENTAGE_MULTIPLIER);
             this.COOLDOWN_SECONDS = section.getInt("cooldown", this.COOLDOWN_SECONDS);
         }
         this.setCooldownSeconds(COOLDOWN_SECONDS);
@@ -79,9 +85,22 @@ public class ArcaneComet extends BaseRune {
 
     private double bonusDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAP();
+        damageManager.enableAdaptiveScaling();
 
-        return damageManager.totalBonusDamage(player, target, 0);
+        double baseDamage = damageManager.totalBonusDamage(player, target, 0);
+        double scaledBonus = getScaledBonusDamage(player);
+
+        return baseDamage + scaledBonus;
+    }
+
+    private double getScaledBonusDamage(Player player) {
+        BuffManager buffManager = new BuffManager();
+        return buffManager.calculateBuffValue(
+                player,
+                0,
+                AD_PERCENTAGE_MULTIPLIER,
+                AP_PERCENTAGE_MULTIPLIER
+        );
     }
 
     private void summonComet(Player shooter, LivingEntity target, double totalOutput) {
@@ -145,7 +164,7 @@ public class ArcaneComet extends BaseRune {
     private void setPlayerDisplay(Player player, String runeDisplay) {
         PlayerStats playerStats = new PlayerStats();
         String statsDisplay = playerStats.getActionBarSections(player);
-        
+
         String actionBarMessage = runeDisplay + " " + statsDisplay;
         player.sendActionBar(Component.text(actionBarMessage));
     }

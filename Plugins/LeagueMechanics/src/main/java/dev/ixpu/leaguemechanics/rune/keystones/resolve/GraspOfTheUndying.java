@@ -21,7 +21,7 @@ import net.kyori.adventure.text.Component;
 
 
 public class GraspOfTheUndying extends StackingRune {
-    private double BASE_PHYSICAL_DAMAGE_PERCENT = 0.05;
+    private double BASE_PHYSICAL_DAMAGE_PERCENT = 0.08;
     private double HEAL_PERCENT = 0.15;
 
     int COOLDOWN_DURATION_SECONDS = 60;
