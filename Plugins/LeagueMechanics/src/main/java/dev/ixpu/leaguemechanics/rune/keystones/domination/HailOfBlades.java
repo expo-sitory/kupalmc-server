@@ -101,7 +101,12 @@ public class HailOfBlades extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+
+        UUID playerUUID = attacker.getUniqueId();
+        if (isOnCooldown(attacker) || windupActive.getOrDefault(playerUUID, false)) {
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        }
+
         if (!isOnCooldown(attacker)) {
             activateHailofBlades(attacker, target);
         }
@@ -120,7 +125,6 @@ public class HailOfBlades extends BaseRune {
         double newHealth = Math.max(0, (livingTarget.getHealth() - bonusDamage(player, target)) * getScaledTrueDamage(player));
 
         if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(player)) {
-            livingTarget.setHealth(newHealth / 4);
             return;
         }
         if (activeState.getOrDefault(playerUUID, false)) {

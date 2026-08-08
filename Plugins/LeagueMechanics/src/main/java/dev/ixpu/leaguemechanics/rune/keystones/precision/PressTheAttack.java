@@ -55,13 +55,6 @@ public class PressTheAttack extends StackingRune {
     }
 
     public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
         if (!isOnCooldown(attacker)) {
             activatePressTheAttack(attacker, target);
         }
@@ -78,18 +71,17 @@ public class PressTheAttack extends StackingRune {
         }
 
         switchTarget(player, targetUUID);
-
         int currentStacks = getStacks(player, targetUUID);
 
         if (currentStacks == 2) {
             livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
-
             resetStacksForTarget(player, targetUUID);
 
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + player.getName());
             player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_CHIME, 1.0f, 0.5f);
             resetCooldown(player);
         } else {
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(player, target)));
             addStack(player, targetUUID);
         }
     }

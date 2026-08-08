@@ -83,9 +83,16 @@ public class LethalTempo extends StackingRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
-        if (!isOnCooldown(attacker)) {
+
+        RuneState state = playerState.getOrDefault(attacker.getUniqueId(), RuneState.STACKING);
+
+        if (state == RuneState.ACTIVE && !isOnCooldown(attacker)) {
             activateLethalTempo(attacker, target);
+        } else {
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+            if (!isOnCooldown(attacker)) {
+                activateLethalTempo(attacker, target);
+            }
         }
     }
 
