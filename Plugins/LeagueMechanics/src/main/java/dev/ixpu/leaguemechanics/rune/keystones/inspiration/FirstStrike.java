@@ -19,12 +19,14 @@ import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class FirstStrike extends BaseRune {
     private double INITIAL_XP = 10.0;
     private double BUFF_DURATION_SECONDS = 3;
     private double TRUE_DAMAGE_PERCENT = 0.07;
     private double COMBAT_WINDOW_MS = 250;
+
     private int COOLDOWN_SECONDS = 25;
 
     private double AD_PERCENTAGE = 0.20;
@@ -35,6 +37,7 @@ public class FirstStrike extends BaseRune {
     private final Map<UUID, Double> bonusDamageTracked = new HashMap<>();
     private final Map<UUID, Long> buffEndTime = new HashMap<>();
     private LeagueMechanics plugin;
+
 
     public FirstStrike(ConfigurationSection config, LeagueMechanics plugin) {
         super("first-strike", RunePath.INSPIRATION, RuneSlot.KEYSTONE);
@@ -74,7 +77,13 @@ public class FirstStrike extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        double statsDamage = playerDamage(shooter, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§3First Strike§f] (Projectile) Stats Damage = " + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§3First Strike§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
     }
 
@@ -82,7 +91,13 @@ public class FirstStrike extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = playerDamage(attacker, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§3First Strike§f] (Melee) Stats Damage = " + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§3First Strike§f] (Melee) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activateFirstStrike(attacker, target);

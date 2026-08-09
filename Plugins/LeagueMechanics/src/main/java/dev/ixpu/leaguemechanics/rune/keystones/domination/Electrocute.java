@@ -18,6 +18,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 
+
 public class Electrocute extends StackingRune {
 
     private double BASE_ADAPTIVE_DAMAGE = 25.15;
@@ -48,8 +49,14 @@ public class Electrocute extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        double statsDamage = playerDamage(shooter, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
         livingTarget.setHealth(newHealth);
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] (Projectile) Stats Damage = §e" + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] (Projectile) Target New HP = §e" + newHealth));
 
         activateElectrocute(shooter, target);
     }
@@ -58,8 +65,14 @@ public class Electrocute extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = playerDamage(attacker, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
         livingTarget.setHealth(newHealth);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Stats Damage = §e" + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Target New HP = §e" + newHealth));
 
         activateElectrocute(attacker, target);
     }
@@ -74,13 +87,16 @@ public class Electrocute extends StackingRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (isOnCooldown(player)) {
+            return;
+        }
 
         switchTarget(player, targetUUID);
         addStack(player, targetUUID);
 
         int stacks = getStacks(player, targetUUID);
         double newHealth = Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target));
-        
+
         if (stacks >= MAXIMUM_STACKS) {
             target.getWorld().strikeLightning(target.getLocation());
             resetStacksForTarget(player, targetUUID);
@@ -89,6 +105,8 @@ public class Electrocute extends StackingRune {
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
 
             livingTarget.setHealth(newHealth);
+            player.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Keystone Damage = " + keystoneDamage(player, target)));
+            player.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Target New HP = " + newHealth));
         }
     }
     
@@ -102,7 +120,6 @@ public class Electrocute extends StackingRune {
         DamageManager damageManager = new DamageManager();
         return damageManager.totalBonusDamage(player, target, 0);
     }
-
 
     private int trackPerTargetStacks(Player player) {
         tickStackExpiry(player);

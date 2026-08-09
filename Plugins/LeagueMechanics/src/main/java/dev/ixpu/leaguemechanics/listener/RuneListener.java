@@ -30,7 +30,7 @@ public class RuneListener implements Listener {
                 if (attackerRuneData != null) {
                     for (BaseRune rune : attackerRuneData.getAllRunes()) {
                         if (rune != null) {
-                            rune.onAttack(attacker, target);
+                            rune.onAttack(attacker, target, event);
                         }
                     }
                 }

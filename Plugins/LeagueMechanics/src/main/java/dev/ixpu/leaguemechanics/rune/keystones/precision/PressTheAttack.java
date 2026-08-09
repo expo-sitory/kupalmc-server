@@ -15,15 +15,16 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 
 public class PressTheAttack extends StackingRune {
 
     private double BASE_ADAPTIVE_DAMAGE = 4.5;
 
-    private static final int MAX_STACKS = 3;
-
     int COOLDOWN_DURATION_SECONDS = 6;
+
+    private static final int MAX_STACKS = 3;
 
     public PressTheAttack(org.bukkit.configuration.ConfigurationSection config) {
         super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE, 3, 60);
@@ -48,15 +49,27 @@ public class PressTheAttack extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        double statsDamage = playerDamage(shooter, target);
+        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§ePress The Attack§f] (Projectile) Stats Damage = " + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§ePress The Attack§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
     }
     
-    public void onAttack(Player attacker, Entity target) {
+    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = playerDamage(attacker, target);
+        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§ePress The Attack§f] (Melee) Stats Damage = " + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§ePress The Attack§f] (Melee) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activatePressTheAttack(attacker, target);
@@ -76,7 +89,13 @@ public class PressTheAttack extends StackingRune {
         int currentStacks = getStacks(player, targetUUID);
 
         if (currentStacks == 2) {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target)));
+            double newHealth = Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target));
+
+            player.sendMessage(Component.text("§7[Debug] §f[§ePress The Attack§f] Keystone Damage = " + keystoneDamage(player, target)));
+            player.sendMessage(Component.text("§7[Debug] §f[§ePress The Attack§f] Target New HP = " + newHealth));
+
+            livingTarget.setHealth(newHealth);
+
             resetStacksForTarget(player, targetUUID);
 
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + player.getName());

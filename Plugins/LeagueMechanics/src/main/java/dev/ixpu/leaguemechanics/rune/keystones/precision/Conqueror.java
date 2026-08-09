@@ -15,6 +15,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 
 public class Conqueror extends StackingRune {
@@ -43,17 +44,29 @@ public class Conqueror extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        double statsDamage = keystoneDamage(shooter, target, getStacks(shooter));
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Projectile) Keystone Damage = " + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activateConqueror(shooter, target);
     }
 
-    public void onAttack(Player attacker, Entity target) {
+    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = keystoneDamage(attacker, target, getStacks(attacker));
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Melee) Keystone Damage = " + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Melee) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activateConqueror(attacker, target);
@@ -70,8 +83,6 @@ public class Conqueror extends StackingRune {
         }
         switchTarget(player, targetUUID);
         addStack(player, targetUUID);
-
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target, getStacks(player))));
     }
 
     private double keystoneDamage(Player player, Entity target, int currentStacks) {

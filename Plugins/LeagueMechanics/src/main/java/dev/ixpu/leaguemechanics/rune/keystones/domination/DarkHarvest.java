@@ -15,6 +15,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
 
+
 public class DarkHarvest extends StackingRune {
 
     private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 2.5;
@@ -47,7 +48,13 @@ public class DarkHarvest extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
+
+        double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Projectile) Stats Damage = " + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activateDarkHarvest(shooter, target);
@@ -57,8 +64,14 @@ public class DarkHarvest extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = playerDamage(attacker, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
         livingTarget.setHealth(newHealth);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Melee) Stats Damage = " + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Melee) Target New HP = " + newHealth));
 
         activateDarkHarvest(attacker, target);
     }
@@ -79,6 +92,9 @@ public class DarkHarvest extends StackingRune {
         if (healthPercent >= HEALTH_THRESHOLD) {
             return;
         }
+
+        player.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] Keystone Damage = " + keystoneDamage(player, target)));
+        player.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] Target New HP = " + newHealth));
 
         livingTarget.setHealth(newHealth);
 

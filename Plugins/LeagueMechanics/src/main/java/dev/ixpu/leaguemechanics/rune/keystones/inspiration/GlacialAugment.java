@@ -16,6 +16,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
@@ -67,17 +68,29 @@ public class GlacialAugment extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        double statsDamage = playerDamage(shooter, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§3Glacial Augment§f] (Projectile) Stats Damage = " + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§3Glacial Augment§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activateGlacialAugment(shooter, target);
     }
 
-    public void onAttack(Player attacker, Entity target) {
+    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = playerDamage(attacker, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§3Glacial Augment§f] (Melee) Stats Damage = " + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§3Glacial Augment§f] (Melee) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
     }
 

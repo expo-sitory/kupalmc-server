@@ -9,7 +9,9 @@ import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -24,6 +26,26 @@ public class PlayerEventListener implements Listener {
         this.plugin = plugin;
         this.runeManager = plugin.getRuneManager();
         this.runeRegistry = plugin.getRuneRegistry();
+    }
+
+
+    @EventHandler
+    public void onLightningDamage(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.LIGHTNING) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onProjectileDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Projectile) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onAttack(EntityDamageByEntityEvent event) {
+        event.setDamage(0);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

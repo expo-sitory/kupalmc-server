@@ -12,6 +12,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.configuration.ConfigurationSection;
@@ -77,15 +78,27 @@ public class GraspOfTheUndying extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        double statsDamage = playerDamage(shooter, target);
+        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Stats Damage = " + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
     }
 
-    public void onAttack(Player attacker, Entity target) {
+    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = playerDamage(attacker, target);
+        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Stats Damage = " + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activateGraspOfTheUndying(attacker, target);
@@ -119,6 +132,10 @@ public class GraspOfTheUndying extends StackingRune {
 
         int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0) / 2;
         double newHealth = Math.max(0, livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts * 0.2));
+
+        player.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] Keystone Damage = " + (playerDamage(player, target) * absorptionHearts) * 0.2));
+        player.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);

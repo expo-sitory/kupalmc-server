@@ -20,14 +20,14 @@ runes:
         cooldown: 60
 
       electrocute:
-        base-adaptive-damage: 3.5
+        base-adaptive-damage: 25.15
         cooldown: 25
 
       hail-of-blades:
         base-attack-speed: 0.10
         base-true-damage: 1.25
-        ad-percentage-multiplier: 0.10
-        ap-percentage-multiplier: 0.07
+        ad-percentage-multiplier: 0.8
+        ap-percentage-multiplier: 0.6
         cooldown: 60
 
 
@@ -35,7 +35,6 @@ runes:
     #       PRECISION PATH          #
     # ============================= #
     precision:
-
       conqueror:
         base-adaptive-damage-per-stack: 2.5
 
@@ -43,17 +42,19 @@ runes:
         maximum-stacks: 100
         blocks-per-stack: 10.0
         projectile-stack-gain: 5
-        heal-percent: 0.60
+        heal-percent: 0.25
         ad-percentage-multiplier: 0.10
         ap-percentage-multiplier: 0.05
 
       lethal-tempo:
-        attack-speed-bonus: 0.60 # when on max stacks/active state
         cooldown: 30
+        attack-speed: 0.6 # when on max stacks/active state
+        base-adaptive-damage: 4.5
+
 
       press-the-attack:
+        cooldown: 6
         base-adaptive-damage: 4.5
-        cooldown: 30
 
 
     # ============================= #
@@ -68,6 +69,7 @@ runes:
         cooldown: 45
 
       first-strike:
+        cooldown: 25 # seconds
         initial-xp: 10.0
         buff-duration: 3 #seconds
         true-damage-percent: 0.07
@@ -82,15 +84,17 @@ runes:
     resolve:
 
       aftershock:
+        cooldown: 45
         effect-duration: 300
         absorption-level: 2
         resistance-level: 2
-        cooldown: 45
+
 
       grasp-of-the-undying:
-        damage-percent: 0.05
-        heal-percent: 0.15
         cooldown: 45
+        damage-percent: 0.08
+        heal-percent: 0.15
+
 
       guardian:
         max-players: 5
@@ -104,10 +108,10 @@ runes:
     sorcery:
 
       arcane-comet:
+        cooldown: 20
         base-adaptive-damage: 20.5
         ad-percentage-multiplier: 0.05
         ap-percentage-multiplier: 0.15
-        cooldown: 20
 
       deathfire-torch:
         base-magic-damage: 10.5
@@ -115,6 +119,7 @@ runes:
         ap-percentage-multiplier: 0.10
 
       storm-raider-surge:
-        damage-threshold: 0.80
-        movement-speed-bonus: 0.40
         cooldown: 25
+        damage-percent-threshold: 0.30 # percentage
+        movement-speed-bonus: 0.40 # percentage
+

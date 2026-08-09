@@ -39,7 +39,7 @@ public class StormRaiderSurge extends BaseRune {
         super("storm-raider-surge", RunePath.SORCERY, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.sorcery.storm-raider-surge");
         if (section != null) {
-            this.DAMAGE_THRESHOLD_PERCENTAGE = section.getDouble("damage-threshold", this.DAMAGE_THRESHOLD_PERCENTAGE);
+            this.DAMAGE_THRESHOLD_PERCENTAGE = section.getDouble("damage-percent-threshold", this.DAMAGE_THRESHOLD_PERCENTAGE);
             this.MOVEMENT_SPEED_BONUS = section.getDouble("movement-speed-bonus", this.MOVEMENT_SPEED_BONUS);
             this.COOLDOWN_SECONDS = section.getInt("cooldown", COOLDOWN_SECONDS);
         }
@@ -67,7 +67,13 @@ public class StormRaiderSurge extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        double statsDamage = playerDamage(shooter, target);
+        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Stats Damage = " + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
     }
 
@@ -75,7 +81,13 @@ public class StormRaiderSurge extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = playerDamage(attacker, target);
+        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Stats Damage = " + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activateStormRaiderSurge(attacker, target, event);

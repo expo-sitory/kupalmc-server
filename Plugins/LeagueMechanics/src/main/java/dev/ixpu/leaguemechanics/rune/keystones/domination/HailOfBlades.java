@@ -88,7 +88,13 @@ public class HailOfBlades extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        double statsDamage = playerDamage(shooter, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Projectile) Stats Damage = " + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
     }
 
@@ -96,7 +102,13 @@ public class HailOfBlades extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = playerDamage(attacker, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Melee) Stats Damage = " + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Melee) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activateHailofBlades(attacker, target);
@@ -119,6 +131,9 @@ public class HailOfBlades extends BaseRune {
         }
         if (activeState.getOrDefault(playerUUID, false)) {
             lastAttackTick.put(playerUUID, 0);
+
+            player.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] Keystone Damage = " + keystoneDamage(player, target)));
+            player.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] Target New HP = " + newHealth));
 
             livingTarget.setHealth(newHealth);
 

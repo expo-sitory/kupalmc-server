@@ -16,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 
 public class LethalTempo extends StackingRune {
@@ -70,15 +71,27 @@ public class LethalTempo extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+
+        double statsDamage = playerDamage(shooter, target);
+        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+
+        shooter.sendMessage(Component.text("§7[Debug] §f[§eLethal Tempo§f] (Projectile) Stats Damage = " + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§eLethal Tempo§f] (Projectile) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
     }
 
-    public void onAttack(Player attacker, Entity target) {
+    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+
+        double statsDamage = playerDamage(attacker, target);
+        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+
+        attacker.sendMessage(Component.text("§7[Debug] §f[§eLethal Tempo§f] (Melee) Stats Damage = " + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§eLethal Tempo§f] (Melee) Target New HP = " + newHealth));
+
         livingTarget.setHealth(newHealth);
 
         activateLethalTempo(attacker, target);
@@ -98,7 +111,14 @@ public class LethalTempo extends StackingRune {
         switchTarget(player, targetUUID);
 
         if (state == RuneState.ACTIVE) {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target, getStacks(player, targetUUID))));
+            double newHealth = Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target, getStacks(player, targetUUID)));
+
+            player.sendMessage(Component.text("§7[Debug] §f[§eLethal Tempo§f] Keystone Damage = " + keystoneDamage(player, target, getStacks(player, targetUUID))));
+            player.sendMessage(Component.text("§7[Debug] §f[§eLethal Tempo§f] Target New HP = " + newHealth));
+
+            livingTarget.setHealth(newHealth);
+
+            livingTarget.setHealth(newHealth);
             refreshActiveTimer(player);
             return;
         }

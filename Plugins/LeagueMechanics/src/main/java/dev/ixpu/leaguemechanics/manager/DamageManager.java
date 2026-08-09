@@ -26,8 +26,8 @@ public class DamageManager {
     public double totalBonusDamage(Player player, Entity target, int currentStacks) {
         PlayerStats stats = new PlayerStats();
 
-        double totalPhysicalDamage = (stats.getPlayerAD(player) - getTargetAR((Player) target)) / 2;
-        double totalMagicDamage = (stats.getPlayerAP(player) - getTargetMR((Player) target))  / 4;
+        double totalPhysicalDamage = (stats.getPlayerAD(player) - getTargetAR(target)) / 2;
+        double totalMagicDamage = (stats.getPlayerAP(player) - getTargetMR(target)) / 4;
 
         if (isOnlyAP) {
             return totalMagicDamage * levelBasedBonus(player);
@@ -46,35 +46,41 @@ public class DamageManager {
 
     public double levelBasedBonus(Player player) {
         double playerLevel = player.getLevel();
-        if (playerLevel >= 100) {
+        if (playerLevel >= 300) {
             return 1.7;
-        } else if (playerLevel >= 70) {
+        } else if (playerLevel >= 200) {
             return 1.5;
-        } else if (playerLevel >= 40) {
+        } else if (playerLevel >= 100) {
             return 1.2;
-        } else if (playerLevel >= 10) {
+        } else if (playerLevel >= 50) {
             return 1.07;
         } else {
             return 1.03;
         }
     }
 
-    public double getTargetAR(Player target) {
+    public double getTargetAR(Entity target) {
+        if (!(target instanceof Player targetPlayer)) {
+            return 0;
+        }
         PlayerStats stats = new PlayerStats();
         double totalAR = 0;
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         if (itemStatsManager != null) {
-            totalAR = stats.getPlayerAR(target) + itemStatsManager.getItemAR(target);
+            totalAR = stats.getPlayerAR(targetPlayer) + itemStatsManager.getItemAR(targetPlayer);
         }
         return totalAR;
     }
 
-    public double getTargetMR(Player target) {
+    public double getTargetMR(Entity target) {
+        if (!(target instanceof Player targetPlayer)) {
+            return 0;
+        }
         PlayerStats stats = new PlayerStats();
         double totalMR = 0;
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         if (itemStatsManager != null) {
-            totalMR = stats.getPlayerMR(target) + itemStatsManager.getItemMR(target);
+            totalMR = stats.getPlayerMR(targetPlayer) + itemStatsManager.getItemMR(targetPlayer);
         }
         return totalMR;
     }
