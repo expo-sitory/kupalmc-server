@@ -95,7 +95,7 @@ public abstract class BaseRune {
 
     public void onPlayerDamage(Player player, double damage) {}
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {}
+    public void onAttack(Player attacker, Entity target) {}
 
     public void onProjectileHit(Player shooter, Entity hitEntity) {}
 

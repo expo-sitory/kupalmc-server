@@ -92,8 +92,8 @@ public class HailOfBlades extends BaseRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Projectile) Stats Damage = " + statsDamage));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Projectile) Target New HP = " + newHealth));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
     }
@@ -106,8 +106,8 @@ public class HailOfBlades extends BaseRune {
         double statsDamage = playerDamage(attacker, target);
         double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Melee) Stats Damage = " + statsDamage));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Melee) Target New HP = " + newHealth));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
 
@@ -132,8 +132,8 @@ public class HailOfBlades extends BaseRune {
         if (activeState.getOrDefault(playerUUID, false)) {
             lastAttackTick.put(playerUUID, 0);
 
-            player.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] Keystone Damage = " + keystoneDamage(player, target)));
-            player.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] Target New HP = " + newHealth));
+            player.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0));
+            player.sendMessage(Component.text("§7[Debug] §f[§cHail of Blades§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
             livingTarget.setHealth(newHealth);
 

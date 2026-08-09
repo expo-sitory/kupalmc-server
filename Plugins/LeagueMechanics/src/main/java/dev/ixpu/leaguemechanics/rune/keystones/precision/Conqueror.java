@@ -48,8 +48,8 @@ public class Conqueror extends StackingRune {
         double statsDamage = keystoneDamage(shooter, target, getStacks(shooter));
         double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Projectile) Keystone Damage = " + statsDamage));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Projectile) Target New HP = " + newHealth));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Projectile) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
 
@@ -64,8 +64,8 @@ public class Conqueror extends StackingRune {
         double statsDamage = keystoneDamage(attacker, target, getStacks(attacker));
         double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Melee) Keystone Damage = " + statsDamage));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Melee) Target New HP = " + newHealth));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Melee) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
 

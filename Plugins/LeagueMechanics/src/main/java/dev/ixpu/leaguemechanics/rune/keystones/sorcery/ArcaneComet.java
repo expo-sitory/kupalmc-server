@@ -21,7 +21,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class ArcaneComet extends BaseRune {
     double BASE_ADAPTIVE_DAMAGE = 20.5;
@@ -70,15 +69,15 @@ public class ArcaneComet extends BaseRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Projectile) Stats Damage = " + statsDamage));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Projectile) Target New HP = " + newHealth));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
 
         triggerArcaneComet(shooter, target);
     }
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -86,8 +85,8 @@ public class ArcaneComet extends BaseRune {
         double statsDamage = playerDamage(attacker, target);
         double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Melee) Stats Damage = " + statsDamage));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Melee) Target New HP = " + newHealth));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
     }
@@ -149,8 +148,8 @@ public class ArcaneComet extends BaseRune {
             public void run() {
                 if (tick >= COMET_FALL_TICKS) {
                     target.setHealth(newHealth);
-                    shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] Keystone Damage = " + keystoneDamage(shooter, target)));
-                    shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] Target New HP = " + newHealth));
+                    shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(shooter, target) * 100) / 100.0));
+                    shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] Target New HP = §d" + newHealth));
 
                     targetLoc.getWorld().spawnParticle(
                             Particle.DUST,

@@ -71,8 +71,8 @@ public class StormRaiderSurge extends BaseRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Stats Damage = " + statsDamage));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Target New HP = " + newHealth));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
     }
@@ -85,8 +85,8 @@ public class StormRaiderSurge extends BaseRune {
         double statsDamage = playerDamage(attacker, target);
         double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Stats Damage = " + statsDamage));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Target New HP = " + newHealth));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
 

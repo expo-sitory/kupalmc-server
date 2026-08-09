@@ -55,8 +55,8 @@ public class Electrocute extends StackingRune {
 
         livingTarget.setHealth(newHealth);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] (Projectile) Stats Damage = §e" + statsDamage));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] (Projectile) Target New HP = §e" + newHealth));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         activateElectrocute(shooter, target);
     }
@@ -71,8 +71,8 @@ public class Electrocute extends StackingRune {
 
         livingTarget.setHealth(newHealth);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Stats Damage = §e" + statsDamage));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Target New HP = §e" + newHealth));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         activateElectrocute(attacker, target);
     }
@@ -105,8 +105,8 @@ public class Electrocute extends StackingRune {
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
 
             livingTarget.setHealth(newHealth);
-            player.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Keystone Damage = " + keystoneDamage(player, target)));
-            player.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Target New HP = " + newHealth));
+            player.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0));
+            player.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
         }
     }
     

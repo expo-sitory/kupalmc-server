@@ -52,8 +52,8 @@ public class DarkHarvest extends StackingRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Projectile) Stats Damage = " + statsDamage));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Projectile) Target New HP = " + newHealth));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
 
@@ -70,8 +70,8 @@ public class DarkHarvest extends StackingRune {
 
         livingTarget.setHealth(newHealth);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Melee) Stats Damage = " + statsDamage));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Melee) Target New HP = " + newHealth));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         activateDarkHarvest(attacker, target);
     }
@@ -93,8 +93,8 @@ public class DarkHarvest extends StackingRune {
             return;
         }
 
-        player.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] Keystone Damage = " + keystoneDamage(player, target)));
-        player.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] Target New HP = " + newHealth));
+        player.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0));
+        player.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] Target New HP = §d" + Math.ceil(healthPercent * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
 

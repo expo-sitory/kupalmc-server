@@ -19,7 +19,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.configuration.ConfigurationSection;
@@ -74,15 +73,15 @@ public class DeathfireTorch extends BaseRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Projectile) Stats Damage = " + statsDamage));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Projectile) Target New HP = " + newHealth));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
 
         triggerDeathFireTorch(shooter, target);
     }
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -90,8 +89,8 @@ public class DeathfireTorch extends BaseRune {
         double statsDamage = playerDamage(attacker, target);
         double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Melee) Stats Damage = " + statsDamage));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Melee) Target New HP = " + newHealth));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
 
         livingTarget.setHealth(newHealth);
 
@@ -213,8 +212,8 @@ public class DeathfireTorch extends BaseRune {
                     if (target != null && target.isValid()) {
                         double damagePerTick = damages.getOrDefault(targetUUID, 0.0);
                         double newHealth = Math.max(0, target.getHealth() - damagePerTick);
-                        player.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] Keystone Damage = " + keystoneDamage(player, target)));
-                        player.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] Target New HP = " + newHealth));
+                        player.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] Keystone Damage = §d" + Math.ceil(damagePerTick * 100) / 100.0));
+                        player.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
                         target.setHealth(newHealth);
                         spawnBurnParticles(target);
                     }

@@ -12,7 +12,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.configuration.ConfigurationSection;
@@ -82,13 +81,13 @@ public class GraspOfTheUndying extends StackingRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Stats Damage = " + statsDamage));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Target New HP = " + newHealth));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Stats Damage = §d" + statsDamage));
+        shooter.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Target New HP = §d" + newHealth));
 
         livingTarget.setHealth(newHealth);
     }
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -96,8 +95,8 @@ public class GraspOfTheUndying extends StackingRune {
         double statsDamage = playerDamage(attacker, target);
         double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Stats Damage = " + statsDamage));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Target New HP = " + newHealth));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Stats Damage = §d" + statsDamage));
+        attacker.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Target New HP = §d" + newHealth));
 
         livingTarget.setHealth(newHealth);
 
@@ -121,7 +120,8 @@ public class GraspOfTheUndying extends StackingRune {
 
     private double playerDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
+        double damage = damageManager.totalBonusDamage(player, target, 0);
+        return Math.ceil(damage * 100) / 100.0;
     }
 
     private void enterActiveState(Player player, Entity target) {
@@ -133,8 +133,8 @@ public class GraspOfTheUndying extends StackingRune {
         int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0) / 2;
         double newHealth = Math.max(0, livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts * 0.2));
 
-        player.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] Keystone Damage = " + (playerDamage(player, target) * absorptionHearts) * 0.2));
-        player.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] Target New HP = " + newHealth));
+        player.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (playerDamage(player, target) * absorptionHearts) * 0.2));
+        player.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] Target New HP = §d" + newHealth));
 
         livingTarget.setHealth(newHealth);
 
