@@ -59,7 +59,7 @@
 **Cooldown**: 20 seconds
 
 ### Guardian
-**PASSIVE**: Being near with a players (5 max) without entering combat for 10 seconds grants all of you 80% absorbtion with a duration of 50 seconds.
+**PASSIVE**: Being near with a players (5 max) without entering combat for 10 seconds grants all of you 80% absorption with a duration of 50 seconds.
 
 **Cooldown**: 60 seconds
 
