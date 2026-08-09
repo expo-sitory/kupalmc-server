@@ -118,7 +118,7 @@ public class GraspOfTheUndying extends StackingRune {
         }
 
         int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0) / 2;
-        double newHealth = Math.max(0, livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts));
+        double newHealth = Math.max(0, livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts * 0.2));
         livingTarget.setHealth(newHealth);
 
         var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);

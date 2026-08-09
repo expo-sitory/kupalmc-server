@@ -98,7 +98,7 @@ public class LethalTempo extends StackingRune {
         switchTarget(player, targetUUID);
 
         if (state == RuneState.ACTIVE) {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target)));
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target, getStacks(player, targetUUID))));
             refreshActiveTimer(player);
             return;
         }
@@ -108,10 +108,11 @@ public class LethalTempo extends StackingRune {
         }
     }
 
-    private double keystoneDamage(Player player, Entity target) {
+    private double keystoneDamage(Player player, Entity target, int currentStacks) {
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
-        return damageManager.totalBonusDamage(player, target, 0);
+        damageManager.enablePerStackScaling();
+        return damageManager.totalBonusDamage(player, target, currentStacks);
     }
 
     private double playerDamage(Player player, Entity target) {

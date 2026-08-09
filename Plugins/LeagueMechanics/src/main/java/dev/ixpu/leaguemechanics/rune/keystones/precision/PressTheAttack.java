@@ -23,7 +23,7 @@ public class PressTheAttack extends StackingRune {
 
     private static final int MAX_STACKS = 3;
 
-    int COOLDOWN_DURATION_SECONDS = 200;
+    int COOLDOWN_DURATION_SECONDS = 6;
 
     public PressTheAttack(org.bukkit.configuration.ConfigurationSection config) {
         super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE, 3, 60);
@@ -89,6 +89,7 @@ public class PressTheAttack extends StackingRune {
 
     private double keystoneDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
+        damageManager.enableAdaptiveScaling();
         return damageManager.totalBonusDamage(player, target, 0);
     }
 

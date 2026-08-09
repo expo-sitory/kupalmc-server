@@ -23,7 +23,7 @@ public class FleetFootwork extends StackingRune {
 
     private double BLOCKS_PER_STACK = 10.0;
     private int PROJECTILE_STACK_GAIN = 5;
-    private double HEAL_PERCENT = 0.10;
+    private double HEAL_PERCENT = 0.25;
 
     private double AD_PERCENTAGE_MULTIPLIER = 0.10;
     private double AP_PERCENTAGE_MULTIPLIER = 0.05;

@@ -117,9 +117,10 @@ public class FirstStrike extends BaseRune {
         boolean isActive = firstStrikeActive.getOrDefault(attackerUUID, false);
 
         if (isActive && System.currentTimeMillis() < buffEndTime.getOrDefault(attackerUUID, 0L)) {
-            double newHealth = Math.max(0, livingTarget.getHealth() - (playerDamage(player, target) * TRUE_DAMAGE_PERCENT));
+            double damageDealt = playerDamage(player, target) * TRUE_DAMAGE_PERCENT;
+            double newHealth = Math.max(0, livingTarget.getHealth() - damageDealt);
             livingTarget.setHealth(newHealth);
-            bonusDamageTracked.put(attackerUUID, tracked + newHealth);
+            bonusDamageTracked.put(attackerUUID, tracked + damageDealt);
             spawnXPOrbs(player, livingTarget);
         }
     }

@@ -26,7 +26,7 @@ public class DamageManager {
     public double totalBonusDamage(Player player, Entity target, int currentStacks) {
         PlayerStats stats = new PlayerStats();
 
-        double totalPhysicalDamage = stats.getPlayerAD(player) - getTargetAR((Player) target) / 2;
+        double totalPhysicalDamage = (stats.getPlayerAD(player) - getTargetAR((Player) target)) / 2;
         double totalMagicDamage = (stats.getPlayerAP(player) - getTargetMR((Player) target))  / 4;
 
         if (isOnlyAP) {
