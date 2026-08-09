@@ -67,26 +67,23 @@ public class FleetFootwork extends StackingRune {
         speedBuffTicks.remove(uuid);
         removeAllModifiers(player);
     }
+    
+    public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
+
+        activateFleetFootwork(shooter, target);
+    }
 
     public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
-    }
-
-    public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
-        activateFleetFootwork(shooter, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
     }
 
     private void activateFleetFootwork(Player player, Entity target) {
@@ -98,8 +95,6 @@ public class FleetFootwork extends StackingRune {
         }
 
         int currentStacks = getStacks(player);
-
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
 
         for (int i = 0; i < PROJECTILE_STACK_GAIN; i++) {
             addStack(player);
@@ -120,6 +115,12 @@ public class FleetFootwork extends StackingRune {
             refreshSpeedBuff(player);
         }
     }
+
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
 
     private double getScaledHealPercentage(Player player) {
         BuffManager buffManager = new BuffManager();
@@ -184,16 +185,6 @@ public class FleetFootwork extends StackingRune {
 
         speedBuffTicks.put(playerUUID, SPEED_BUFF_DURATION_TICKS);
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_BREEZE_IDLE_AIR, 1.0f, 1.2f);
-    }
-
-    private double bonusDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-    private double physicalDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void refreshSpeedBuff(Player player) {

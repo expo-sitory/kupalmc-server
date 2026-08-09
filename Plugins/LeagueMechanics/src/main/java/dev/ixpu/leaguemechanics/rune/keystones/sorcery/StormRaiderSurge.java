@@ -22,7 +22,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import net.kyori.adventure.text.Component;
 
 public class StormRaiderSurge extends BaseRune {
-    private double DAMAGE_THRESHOLD_PERCENTAGE = 0.80;
+    private double DAMAGE_THRESHOLD_PERCENTAGE = 0.30;
     private double MOVEMENT_SPEED_BONUS = 0.40;
 
     int COOLDOWN_SECONDS = 25;
@@ -67,29 +67,41 @@ public class StormRaiderSurge extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
     }
 
     public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
 
+        activateStormRaiderSurge(attacker, target, event);
+    }
+
+    private void activateStormRaiderSurge(Player player, Entity target, EntityDamageByEntityEvent event) {
+        UUID attackerUUID = player.getUniqueId();
+        double estimatedDamage = event.getDamage();
+
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
-        double estimatedDamage = event.getDamage();
-        triggerStormRaiderSurge(attacker, estimatedDamage);
+        double damageThreshold = livingTarget.getMaxHealth() * DAMAGE_THRESHOLD_PERCENTAGE;
+        if (estimatedDamage < damageThreshold) {
+            return;
+        }
+        double currentDamage = damageTracker.getOrDefault(attackerUUID, 0.0);
+        damageTracker.put(attackerUUID, currentDamage + estimatedDamage);
     }
 
-    private void triggerStormRaiderSurge(Player player, double damage) {
-        UUID playerUUID = player.getUniqueId();
-        double currentDamage = damageTracker.getOrDefault(playerUUID, 0.0);
-        damageTracker.put(playerUUID, currentDamage + damage);
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void enterActiveState(Player player) {
@@ -107,12 +119,6 @@ public class StormRaiderSurge extends BaseRune {
 
         removeNegativeEffects(player);
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 2f);
-    }
-
-    private double physicalDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void removeNegativeEffects(Player player) {

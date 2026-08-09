@@ -1,10 +1,10 @@
 package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
-import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,24 +64,23 @@ public class AfterShock extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
     }
 
     public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
-        triggerAfterShock(attacker, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
+
+        activateAfterShock(attacker, target);
     }
 
-    private void triggerAfterShock(Player player, Entity target) {
+    private void activateAfterShock(Player player, Entity target) {
+        UUID attackerUUID = player.getUniqueId();
+
         if (!isWindBurstMace(player.getInventory().getItemInMainHand())) {
             return;
         }
@@ -95,8 +94,7 @@ public class AfterShock extends BaseRune {
             return;
         }
 
-        UUID playerUUID = player.getUniqueId();
-        long effectStart = effectStartTime.getOrDefault(playerUUID, 0L);
+        long effectStart = effectStartTime.getOrDefault(attackerUUID, 0L);
         long currentTime = System.currentTimeMillis();
         long effectDurationMs = EFFECT_DURATION_TICKS * 50L;
 
@@ -111,6 +109,11 @@ public class AfterShock extends BaseRune {
                 () -> resetCooldown(player),
                 EFFECT_DURATION_TICKS
         );
+    }
+
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void activateEffects(Player player) {
@@ -134,16 +137,6 @@ public class AfterShock extends BaseRune {
         ));
 
         player.playSound(player.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.0f);
-    }
-
-    private double bonusDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-    private double physicalDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private boolean isWindBurstMace(ItemStack item) {

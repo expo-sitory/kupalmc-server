@@ -43,9 +43,9 @@ public class Conqueror extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
+
         activateConqueror(shooter, target);
     }
 
@@ -53,13 +53,14 @@ public class Conqueror extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
+
         activateConqueror(attacker, target);
     }
 
     private void activateConqueror(Player player, Entity target) {
+        UUID targetUUID = target.getUniqueId();
 
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
@@ -67,14 +68,24 @@ public class Conqueror extends StackingRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-
-        UUID targetUUID = target.getUniqueId();
         switchTarget(player, targetUUID);
         addStack(player, targetUUID);
 
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target, getStacks(player))));
-
+        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target, getStacks(player))));
     }
+
+    private double keystoneDamage(Player player, Entity target, int currentStacks) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableAdaptiveScaling();
+        damageManager.enablePerStackScaling();
+        return damageManager.totalBonusDamage(player, target, currentStacks);
+    }
+
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
 
     private int trackActiveStacks(Player player) {
         tickStackExpiry(player);
@@ -85,13 +96,6 @@ public class Conqueror extends StackingRune {
             currentStacks = getStacks(player, lastTargetUUID);
         }
         return currentStacks;
-    }
-
-    private double bonusDamage(Player player, Entity target, int currentStacks) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableAdaptiveScaling();
-        damageManager.enablePerStackScaling();
-        return damageManager.totalBonusDamage(player, target, currentStacks);
     }
 
     @Override

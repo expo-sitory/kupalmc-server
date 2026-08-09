@@ -69,20 +69,18 @@ public class DeathfireTorch extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
+
         triggerDeathFireTorch(attacker, target);
     }
     public void onProjectileHit(Player shooter, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
+
         triggerDeathFireTorch(shooter, target);
     }
 
@@ -91,13 +89,16 @@ public class DeathfireTorch extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
+        if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
         if (!CheckEnchant(weapon)) {
             return;
         }
-        applyBurn(player, livingTarget, bonusDamage(player, target));
+        applyBurn(player, livingTarget, keystoneDamage(player, target));
     }
 
-    private double bonusDamage(Player player, Entity target) {
+    private double keystoneDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
         damageManager.enableOnlyAP();
 
@@ -107,9 +108,8 @@ public class DeathfireTorch extends BaseRune {
         return baseDamage + scaledBonus;
     }
 
-    private double physicalDamage(Player player, Entity target) {
+    private double playerDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
         return damageManager.totalBonusDamage(player, target, 0);
     }
 

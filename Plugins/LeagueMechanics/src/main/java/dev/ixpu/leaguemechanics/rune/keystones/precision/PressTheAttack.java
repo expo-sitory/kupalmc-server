@@ -48,16 +48,18 @@ public class PressTheAttack extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
+    }
+    
+    public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        livingTarget.setHealth((Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)) / 4));
-    }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
 
-    public void onAttack(Player attacker, Entity target) {
-        if (!isOnCooldown(attacker)) {
-            activatePressTheAttack(attacker, target);
-        }
+        activatePressTheAttack(attacker, target);
     }
 
     private void activatePressTheAttack(Player player, Entity target) {
@@ -74,27 +76,27 @@ public class PressTheAttack extends StackingRune {
         int currentStacks = getStacks(player, targetUUID);
 
         if (currentStacks == 2) {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target)));
             resetStacksForTarget(player, targetUUID);
 
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "press-the-attack-stack-sound " + player.getName());
             player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_CHIME, 1.0f, 0.5f);
             resetCooldown(player);
         } else {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(player, target)));
             addStack(player, targetUUID);
         }
     }
 
-    private double bonusDamage(Player player, Entity target) {
+    private double keystoneDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
         return damageManager.totalBonusDamage(player, target, 0);
     }
-    private double physicalDamage(Player player, Entity target) {
+
+    private double playerDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
         return damageManager.totalBonusDamage(player, target, 0);
     }
+
 
     private int trackActiveStacks(Player player) {
         tickStackExpiry(player);

@@ -88,28 +88,18 @@ public class HailOfBlades extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
     }
 
     public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
 
-        UUID playerUUID = attacker.getUniqueId();
-        if (isOnCooldown(attacker) || windupActive.getOrDefault(playerUUID, false)) {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
-        }
-
-        if (!isOnCooldown(attacker)) {
-            activateHailofBlades(attacker, target);
-        }
+        activateHailofBlades(attacker, target);
     }
 
     private void activateHailofBlades(Player player, Entity target) {
@@ -122,7 +112,7 @@ public class HailOfBlades extends BaseRune {
             return;
         }
 
-        double newHealth = Math.max(0, (livingTarget.getHealth() - bonusDamage(player, target)) * getScaledTrueDamage(player));
+        double newHealth = Math.max(0, (livingTarget.getHealth() - keystoneDamage(player, target)) * getScaledTrueDamage(player));
 
         if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(player)) {
             return;
@@ -142,6 +132,17 @@ public class HailOfBlades extends BaseRune {
         windupTicks.put(playerUUID, WINDUP_TICKS);
         lastWindupStage.put(playerUUID, 0);
     }
+    
+    private double keystoneDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
 
     private int trackActiveStacks(Player player) {
         UUID playerUUID = player.getUniqueId();
@@ -181,16 +182,6 @@ public class HailOfBlades extends BaseRune {
         }
 
         return currentStacks.getOrDefault(playerUUID, 0);
-    }
-
-    private double bonusDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-    private double physicalDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private double getScaledTrueDamage(Player player) {

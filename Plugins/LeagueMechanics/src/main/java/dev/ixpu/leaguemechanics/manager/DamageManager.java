@@ -12,7 +12,6 @@ public class DamageManager {
     protected boolean isAdaptive = false;
     protected boolean isPerStack = false;
     protected boolean isOnlyAP = false;
-    protected boolean isOnlyAD = false;
 
     public void enableAdaptiveScaling() {
         this.isAdaptive = true;
@@ -23,9 +22,6 @@ public class DamageManager {
     public void enableOnlyAP() {
         this.isOnlyAP = true;
     }
-    public void enableOnlyAD() {
-        this.isOnlyAD = true;
-    }
 
     public double totalBonusDamage(Player player, Entity target, int currentStacks) {
         PlayerStats stats = new PlayerStats();
@@ -35,9 +31,6 @@ public class DamageManager {
 
         if (isOnlyAP) {
             return totalMagicDamage * levelBasedBonus(player);
-        }
-        if (isOnlyAD) {
-            return totalPhysicalDamage * levelBasedBonus(player);
         }
         if (isAdaptive) {
             double adaptiveDamage = 0;

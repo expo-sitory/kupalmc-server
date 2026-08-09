@@ -65,43 +65,36 @@ public class ArcaneComet extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
 
-        if (!isOnCooldown(shooter)) {
-            triggerArcaneComet(shooter, target);
-        } else {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
-        }
+        triggerArcaneComet(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
     }
 
     private void  triggerArcaneComet(Player player, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        double bonusDamageAmount = bonusDamage(player, target);
-        double newHealth = Math.max(0, livingTarget.getHealth() - bonusDamageAmount);
+
+        double keystoneDamageAmount = keystoneDamage(player, target);
+        double newHealth = Math.max(0, livingTarget.getHealth() - keystoneDamageAmount);
 
         summonComet(player, livingTarget, newHealth);
         resetCooldown(player);
     }
 
-    private double bonusDamage(Player player, Entity target) {
+    private double keystoneDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
 
@@ -111,9 +104,9 @@ public class ArcaneComet extends BaseRune {
         return baseDamage + scaledBonus;
     }
 
-    private double physicalDamage(Player player, Entity target) {
+
+    private double playerDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
         return damageManager.totalBonusDamage(player, target, 0);
     }
 

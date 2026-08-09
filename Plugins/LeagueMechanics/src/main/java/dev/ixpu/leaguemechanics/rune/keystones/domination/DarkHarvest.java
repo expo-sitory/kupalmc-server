@@ -44,10 +44,22 @@ public class DarkHarvest extends StackingRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
+
         activateDarkHarvest(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
+        if (!(target instanceof LivingEntity livingTarget)) {
+            return;
+        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
+
         activateDarkHarvest(attacker, target);
     }
 
@@ -62,14 +74,13 @@ public class DarkHarvest extends StackingRune {
         double targetHealth = livingTarget.getHealth();
         double maxHealth = livingTarget.getMaxHealth();
         double healthPercent = targetHealth / maxHealth;
-
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target));
 
         if (healthPercent >= HEALTH_THRESHOLD) {
             return;
         }
 
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
+        livingTarget.setHealth(newHealth);
 
         if (isOnCooldown(player) || player.getLevel() < LEVEL_COST_PER_STACK) {
             return;
@@ -79,13 +90,18 @@ public class DarkHarvest extends StackingRune {
         resetCooldown(player);
     }
 
-    private double bonusDamage(Player player, Entity target) {
+    private double keystoneDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
         damageManager.enablePerStackScaling();
         damageManager.enableAdaptiveScaling();
 
         int currentStacks = getStacks(player);
         return damageManager.totalBonusDamage(player, target, currentStacks);
+    }
+
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void scheduleAddStack(Player attacker) {

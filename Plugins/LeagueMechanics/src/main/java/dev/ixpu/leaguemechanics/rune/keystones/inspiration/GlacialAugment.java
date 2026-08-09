@@ -1,18 +1,17 @@
 package dev.ixpu.leaguemechanics.rune.keystones.inspiration;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
-import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.manager.BuffManager;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.*;
 
 import org.bukkit.Bukkit;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
@@ -34,7 +33,6 @@ public class GlacialAugment extends BaseRune {
     int COOLDOWN_DURATION_SECONDS = 45;
 
     private final Map<UUID, Map<UUID, Integer>> frozenTargets = new HashMap<>();
-    private final Map<UUID, Map<UUID, List<AttributeModifier>>> targetModifiers = new HashMap<>();
 
     private LeagueMechanics plugin;
 
@@ -56,7 +54,6 @@ public class GlacialAugment extends BaseRune {
     public void onEnable(Player player) {
         UUID uuid = player.getUniqueId();
         frozenTargets.put(uuid, new HashMap<>());
-        targetModifiers.put(uuid, new HashMap<>());
     }
 
     @Override
@@ -64,34 +61,31 @@ public class GlacialAugment extends BaseRune {
         UUID uuid = player.getUniqueId();
         clearPlayerCooldown(player);
         frozenTargets.remove(uuid);
-        targetModifiers.remove(uuid);
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
-        if (!isOnCooldown(shooter)) {
-            activateGlacialAugment(shooter, target);
-        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
+
+        activateGlacialAugment(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
     }
 
     private void activateGlacialAugment(Player player, Entity target) {
+        UUID attackerUUID = player.getUniqueId();
+        UUID targetUUID = target.getUniqueId();
         ItemStack weapon = player.getInventory().getItemInMainHand();
+
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -101,10 +95,74 @@ public class GlacialAugment extends BaseRune {
         if (CheckEnchant(weapon)) {
             return;
         }
+        if (isOnCooldown(player)) {
+            return;
+        }
 
-        applyFreeze(player, livingTarget);
+        Map<UUID, Integer> frozen = frozenTargets.get(attackerUUID);
+        if (frozen == null) {
+            return;
+        }
+
+        int scaledFreezeDuration = getScaledFreezeDuration(player);
+        frozen.put(targetUUID, scaledFreezeDuration);
+
+        org.bukkit.Location loc = target.getLocation();
+
+        List<org.bukkit.Location> snowLocations = new ArrayList<>();
+        snowLocations.add(loc.clone());
+        snowLocations.add(loc.clone().add(1, 0, 0));
+        snowLocations.add(loc.clone().add(2, 0, 0));
+        snowLocations.add(loc.clone().add(-1, 0, 0));
+        snowLocations.add(loc.clone().add(-2, 0, 0));
+        snowLocations.add(loc.clone().add(0, 0, 1));
+        snowLocations.add(loc.clone().add(0, 0, 2));
+        snowLocations.add(loc.clone().add(0, 0, -1));
+        snowLocations.add(loc.clone().add(0, 0, -2));
+
+        for (org.bukkit.Location snowLoc : snowLocations) {
+            if (snowLoc.getBlock().getType() == org.bukkit.Material.AIR) {
+                snowLoc.getBlock().setType(org.bukkit.Material.POWDER_SNOW);
+            }
+        }
+
+        livingTarget.addPotionEffect(new PotionEffect(
+                PotionEffectType.SLOWNESS,
+                scaledFreezeDuration,
+                2,
+                false,
+                false
+        ));
+
+        livingTarget.addPotionEffect(new PotionEffect(
+                PotionEffectType.WEAKNESS,
+                scaledFreezeDuration,
+                0,
+                false,
+                false
+        ));
+
+        player.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 1.0f, 1.0f);
+
+        if (plugin != null) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                livingTarget.removePotionEffect(PotionEffectType.SLOWNESS);
+
+                for (org.bukkit.Location snowLoc : snowLocations) {
+                    if (snowLoc.getBlock().getType() == org.bukkit.Material.POWDER_SNOW) {
+                        snowLoc.getBlock().setType(org.bukkit.Material.AIR);
+                    }
+                }
+            }, scaledFreezeDuration);
+        }
         resetCooldown(player);
     }
+
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
 
     private boolean CheckEnchant(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
@@ -151,8 +209,6 @@ public class GlacialAugment extends BaseRune {
 
         for (UUID targetUUID : toRemove) {
             frozen.remove(targetUUID);
-            removeTargetModifiers(targetUUID);
-            targetModifiers.get(playerUUID).remove(targetUUID);
         }
     }
 
@@ -165,106 +221,6 @@ public class GlacialAugment extends BaseRune {
                 AP_PERCENTAGE_MULTIPLIER
         );
         return (int) scaledDuration;
-    }
-
-    private void applyFreeze(Player attacker, LivingEntity target) {
-        UUID attackerUUID = attacker.getUniqueId();
-        UUID targetUUID = target.getUniqueId();
-
-        Map<UUID, Integer> frozen = frozenTargets.get(attackerUUID);
-        if (frozen == null) {
-            return;
-        }
-
-        int scaledFreezeDuration = getScaledFreezeDuration(attacker);
-        frozen.put(targetUUID, scaledFreezeDuration);
-
-        org.bukkit.Location loc = target.getLocation();
-
-        List<org.bukkit.Location> snowLocations = new ArrayList<>();
-        snowLocations.add(loc.clone());
-        snowLocations.add(loc.clone().add(1, 0, 0));
-        snowLocations.add(loc.clone().add(2, 0, 0));
-        snowLocations.add(loc.clone().add(-1, 0, 0));
-        snowLocations.add(loc.clone().add(-2, 0, 0));
-        snowLocations.add(loc.clone().add(0, 0, 1));
-        snowLocations.add(loc.clone().add(0, 0, 2));
-        snowLocations.add(loc.clone().add(0, 0, -1));
-        snowLocations.add(loc.clone().add(0, 0, -2));
-
-        for (org.bukkit.Location snowLoc : snowLocations) {
-            if (snowLoc.getBlock().getType() == org.bukkit.Material.AIR) {
-                snowLoc.getBlock().setType(org.bukkit.Material.POWDER_SNOW);
-            }
-        }
-
-        target.addPotionEffect(new PotionEffect(
-                PotionEffectType.SLOWNESS,
-                scaledFreezeDuration,
-                2,
-                false,
-                false
-        ));
-
-        target.addPotionEffect(new PotionEffect(
-                PotionEffectType.WEAKNESS,
-                scaledFreezeDuration,
-                0,
-                false,
-                false
-        ));
-
-        attacker.playSound(target.getLocation(), org.bukkit.Sound.BLOCK_POWDER_SNOW_BREAK, 1.0f, 1.0f);
-
-        if (plugin != null) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                target.removePotionEffect(PotionEffectType.SLOWNESS);
-
-                for (org.bukkit.Location snowLoc : snowLocations) {
-                    if (snowLoc.getBlock().getType() == org.bukkit.Material.POWDER_SNOW) {
-                        snowLoc.getBlock().setType(org.bukkit.Material.AIR);
-                    }
-                }
-            }, scaledFreezeDuration);
-        }
-    }
-
-    private void removeTargetModifiers(UUID targetUUID) {
-        for (UUID playerUUID : frozenTargets.keySet()) {
-            Map<UUID, List<AttributeModifier>> playerModifiers = targetModifiers.get(playerUUID);
-            if (playerModifiers != null) {
-                List<AttributeModifier> mods = playerModifiers.get(targetUUID);
-                if (mods != null) {
-                    for (LivingEntity entity : getAllLivingEntities()) {
-                        if (entity.getUniqueId().equals(targetUUID)) {
-                            for (AttributeModifier mod : mods) {
-                                try {
-                                    Objects.requireNonNull(entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)).removeModifier(mod);
-                                    Objects.requireNonNull(entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)).removeModifier(mod);
-                                } catch (Exception e) {
-                                    //
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private double physicalDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-
-    private java.util.List<LivingEntity> getAllLivingEntities() {
-        java.util.List<LivingEntity> entities = new ArrayList<>();
-        for (org.bukkit.World world : Bukkit.getWorlds()) {
-            entities.addAll(world.getLivingEntities());
-        }
-        return entities;
     }
 
     @Override

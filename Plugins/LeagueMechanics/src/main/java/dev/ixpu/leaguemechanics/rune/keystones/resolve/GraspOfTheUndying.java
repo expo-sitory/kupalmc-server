@@ -15,10 +15,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
-
 
 
 public class GraspOfTheUndying extends StackingRune {
@@ -79,26 +77,21 @@ public class GraspOfTheUndying extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
     }
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
-        if (!isOnCooldown(attacker)) {
-            triggerGraspOfTheUndying(attacker, target);
-        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
+
+        activateGraspOfTheUndying(attacker, target);
     }
 
-    private void triggerGraspOfTheUndying(Player player, Entity target) {
+    private void activateGraspOfTheUndying(Player player, Entity target) {
         UUID playerUUID = player.getUniqueId();
         int stacks = getStacks(player);
         int attackWindow = activationState.getOrDefault(playerUUID, 0);
@@ -113,14 +106,20 @@ public class GraspOfTheUndying extends StackingRune {
         }
     }
 
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
     private void enterActiveState(Player player, Entity target) {
         UUID playerUUID = player.getUniqueId();
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0);
 
-        livingTarget.setHealth((Math.max(0, livingTarget.getHealth() - physicalDamage(player, target)) * absorptionHearts));
+        int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0) / 2;
+        double newHealth = Math.max(0, livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts));
+        livingTarget.setHealth(newHealth);
 
         var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (maxHealthAttr != null) {
@@ -133,16 +132,6 @@ public class GraspOfTheUndying extends StackingRune {
         activateEffects(player);
 
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_AMBIENT, 1.0f, 1.0f);
-    }
-
-    private double bonusDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-    private double physicalDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void activateEffects(Player player) {

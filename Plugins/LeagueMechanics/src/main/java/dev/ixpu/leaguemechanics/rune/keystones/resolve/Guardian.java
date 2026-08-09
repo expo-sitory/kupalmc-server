@@ -16,7 +16,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.configuration.ConfigurationSection;
@@ -74,27 +73,23 @@ public class Guardian extends BaseRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
     }
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
     }
 
     public void onPlayerDamage(Player victim, double damage) {
-        triggerGuardian(victim, damage);
+        activateGuardian(victim, damage);
     }
 
-    private void triggerGuardian(Player player, Double damage) {
+    private void activateGuardian(Player player, Double damage) {
         UUID uuid = player.getUniqueId();
         lastCombatTime.put(uuid, System.currentTimeMillis());
 
@@ -102,6 +97,11 @@ public class Guardian extends BaseRune {
             windupCounter.put(uuid, 0);
             trackedPlayers.put(uuid, new ArrayList<>());
         }
+    }
+
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     @Override
@@ -199,12 +199,6 @@ public class Guardian extends BaseRune {
             }
         }
         resetCooldown(player);
-    }
-
-    private double physicalDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void applyShield(Player player) {

@@ -48,9 +48,9 @@ public class Electrocute extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
+
         activateElectrocute(shooter, target);
     }
 
@@ -58,9 +58,9 @@ public class Electrocute extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
+
         activateElectrocute(attacker, target);
     }
 
@@ -79,6 +79,8 @@ public class Electrocute extends StackingRune {
         addStack(player, targetUUID);
 
         int stacks = getStacks(player, targetUUID);
+        double newHealth = Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target));
+        
         if (stacks >= MAXIMUM_STACKS) {
             target.getWorld().strikeLightning(target.getLocation());
             resetStacksForTarget(player, targetUUID);
@@ -86,11 +88,21 @@ public class Electrocute extends StackingRune {
 
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
 
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
-        } else {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(player, target)));
+            livingTarget.setHealth(newHealth);
         }
     }
+    
+    private double keystoneDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableAdaptiveScaling();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
 
     private int trackPerTargetStacks(Player player) {
         tickStackExpiry(player);
@@ -101,17 +113,6 @@ public class Electrocute extends StackingRune {
             maxStacks = getStacks(player, lastTargetUUID);
         }
         return maxStacks;
-    }
-
-    private double bonusDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableAdaptiveScaling();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-    private double physicalDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     @Override

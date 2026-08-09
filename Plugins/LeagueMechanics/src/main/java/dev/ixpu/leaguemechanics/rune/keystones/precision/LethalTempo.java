@@ -70,30 +70,18 @@ public class LethalTempo extends StackingRune {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
-        livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(shooter, target)));
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        livingTarget.setHealth(newHealth);
     }
 
     public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
-        if (livingTarget.getMaxHealth() < 20) {
-            return;
-        }
+        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(attacker, target));
+        livingTarget.setHealth(newHealth);
 
-        RuneState state = playerState.getOrDefault(attacker.getUniqueId(), RuneState.STACKING);
-
-        if (state == RuneState.ACTIVE && !isOnCooldown(attacker)) {
-            activateLethalTempo(attacker, target);
-        } else {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - physicalDamage(attacker, target)));
-            if (!isOnCooldown(attacker)) {
-                activateLethalTempo(attacker, target);
-            }
-        }
+        activateLethalTempo(attacker, target);
     }
 
     public void activateLethalTempo(Player player, Entity target) {
@@ -110,7 +98,7 @@ public class LethalTempo extends StackingRune {
         switchTarget(player, targetUUID);
 
         if (state == RuneState.ACTIVE) {
-            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - bonusDamage(player, target)));
+            livingTarget.setHealth(Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target)));
             refreshActiveTimer(player);
             return;
         }
@@ -119,6 +107,18 @@ public class LethalTempo extends StackingRune {
             addStackForTarget(player, targetUUID);
         }
     }
+
+    private double keystoneDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        damageManager.enableAdaptiveScaling();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
+    private double playerDamage(Player player, Entity target) {
+        DamageManager damageManager = new DamageManager();
+        return damageManager.totalBonusDamage(player, target, 0);
+    }
+
 
     @SuppressWarnings("removal")
     private void applyAttackSpeedBonus(Player player) {
@@ -180,16 +180,6 @@ public class LethalTempo extends StackingRune {
         long stackDurationMs = STACK_DURATION_TICKS * 50L;
 
         targetTimestamps.removeIf(timestamp -> (currentTime - timestamp) > stackDurationMs);
-    }
-
-    private double bonusDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-    private double physicalDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        damageManager.enableOnlyAD();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private void removeAllModifiers(Player player) {
