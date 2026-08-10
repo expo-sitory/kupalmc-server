@@ -39,6 +39,7 @@ public class CommandHandler implements CommandExecutor {
             case "setbuild" -> handleSetBuild(player, args);
             case "stats" -> handleStats(player);
             case "clearstats" -> handleClearStats(player);
+            case "reload" -> handleReload(player);
             default -> {
                 player.sendMessage(Component.text("§cUnknown subcommand."));
                 yield false;
@@ -118,5 +119,12 @@ public class CommandHandler implements CommandExecutor {
 
     private boolean isValidStat(String stat) {
         return stat.equals("AP") || stat.equals("AD") || stat.equals("AR") || stat.equals("MR");
+    }
+
+    private boolean handleReload(Player player) {
+        player.sendMessage(Component.text("§6⟳ Reloading LeagueMechanics..."));
+        plugin.reloadPlugin();
+        player.sendMessage(Component.text("§a✓ LeagueMechanics reloaded"));
+        return true;
     }
 }

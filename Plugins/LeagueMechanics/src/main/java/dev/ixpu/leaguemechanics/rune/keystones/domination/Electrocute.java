@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.util.DebugLogger;
 
 import java.util.UUID;
 
@@ -51,12 +52,12 @@ public class Electrocute extends StackingRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
         livingTarget.setHealth(newHealth);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(shooter, "§7[Debug] §f[§cElectrocute§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§cElectrocute§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         activateElectrocute(shooter, target);
     }
@@ -67,12 +68,12 @@ public class Electrocute extends StackingRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
         livingTarget.setHealth(newHealth);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(attacker, "§7[Debug] §f[§cElectrocute§f] Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§cElectrocute§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         activateElectrocute(attacker, target);
     }
@@ -95,7 +96,7 @@ public class Electrocute extends StackingRune {
         addStack(player, targetUUID);
 
         int stacks = getStacks(player, targetUUID);
-        double newHealth = Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target));
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - keystoneDamage(player, target));
 
         if (stacks >= MAXIMUM_STACKS) {
             target.getWorld().strikeLightning(target.getLocation());
@@ -105,8 +106,8 @@ public class Electrocute extends StackingRune {
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
 
             livingTarget.setHealth(newHealth);
-            player.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0));
-            player.sendMessage(Component.text("§7[Debug] §f[§cElectrocute§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+            DebugLogger.debug(player, "§7[Debug] §f[§cElectrocute§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
+            DebugLogger.debug(player, "§7[Debug] §f[§cElectrocute§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
         }
     }
     

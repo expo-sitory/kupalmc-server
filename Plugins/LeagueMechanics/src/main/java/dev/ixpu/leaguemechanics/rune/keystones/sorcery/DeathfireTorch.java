@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.BuffManager;
 
@@ -71,10 +72,10 @@ public class DeathfireTorch extends BaseRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(shooter, "§7[Debug] §f[§9Deathfire Torch§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§9Deathfire Torch§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
@@ -87,10 +88,10 @@ public class DeathfireTorch extends BaseRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(attacker, "§7[Debug] §f[§9Deathfire Torch§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§9Deathfire Torch§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
@@ -212,8 +213,8 @@ public class DeathfireTorch extends BaseRune {
                     if (target != null && target.isValid()) {
                         double damagePerTick = damages.getOrDefault(targetUUID, 0.0);
                         double newHealth = Math.max(0, target.getHealth() - damagePerTick);
-                        player.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] Keystone Damage = §d" + Math.ceil(damagePerTick * 100) / 100.0));
-                        player.sendMessage(Component.text("§7[Debug] §f[§9Deathfire Torch§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+                        DebugLogger.debug(player, "§7[Debug] §f[§9Deathfire Torch§f] Keystone Damage = §d" + Math.ceil(damagePerTick * 100) / 100.0);
+                        DebugLogger.debug(player, "§7[Debug] §f[§9Deathfire Torch§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
                         target.setHealth(newHealth);
                         spawnBurnParticles(target);
                     }

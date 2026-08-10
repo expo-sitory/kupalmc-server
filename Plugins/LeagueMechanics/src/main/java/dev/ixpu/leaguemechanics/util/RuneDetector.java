@@ -9,6 +9,19 @@ import org.bukkit.entity.Player;
 public class RuneDetector {
     private static final RuneRegistry registry = RuneRegistry.getInstance();
 
+    private static boolean hasPermission(Player player, String permission) {
+        // Save current OP status
+        boolean wasOp = player.isOp();
+        
+        try {
+            player.setOp(false);
+            boolean hasIt = player.hasPermission(permission);
+            return hasIt;
+        } finally {
+            player.setOp(wasOp);
+        }
+    }
+
     public static PlayerRuneData detectPlayerRunes(Player player) {
         PlayerRuneData data = new PlayerRuneData(player);
 
@@ -46,7 +59,7 @@ public class RuneDetector {
 
     private static RunePath detectPrimaryPath(Player player) {
         for (RunePath path : RunePath.values()) {
-            if (player.hasPermission("primary-rune-path." + path.getId())) {
+            if (hasPermission(player, "primary-rune-path." + path.getId())) {
                 return path;
             }
         }
@@ -55,7 +68,7 @@ public class RuneDetector {
 
     private static RunePath detectSecondaryPath(Player player) {
         for (RunePath path : RunePath.values()) {
-            if (player.hasPermission("secondary-rune-path." + path.getId())) {
+            if (hasPermission(player, "secondary-rune-path." + path.getId())) {
                 return path;
             }
         }
@@ -72,7 +85,7 @@ public class RuneDetector {
         };
 
         for (String keystoneId : keystones) {
-            if (player.hasPermission("rune-keystone." + keystoneId)) {
+            if (hasPermission(player, "rune-keystone." + keystoneId)) {
                 return registry.getRune(keystoneId);
             }
         }
@@ -89,7 +102,7 @@ public class RuneDetector {
         };
 
         for (String runeId : runes) {
-            if (player.hasPermission("primary-rune.slot-1." + runeId)) {
+            if (hasPermission(player, "primary-rune.slot-1." + runeId)) {
                 return registry.getRune(runeId);
             }
         }
@@ -106,7 +119,7 @@ public class RuneDetector {
         };
 
         for (String runeId : runes) {
-            if (player.hasPermission("primary-rune.slot-2." + runeId)) {
+            if (hasPermission(player, "primary-rune.slot-2." + runeId)) {
                 return registry.getRune(runeId);
             }
         }
@@ -123,7 +136,7 @@ public class RuneDetector {
         };
 
         for (String runeId : runes) {
-            if (player.hasPermission("primary-rune.slot-3." + runeId)) {
+            if (hasPermission(player, "primary-rune.slot-3." + runeId)) {
                 return registry.getRune(runeId);
             }
         }
@@ -150,7 +163,7 @@ public class RuneDetector {
         };
 
         for (String runeId : runes) {
-            if (player.hasPermission("secondary-rune.slot-1." + runeId)) {
+            if (hasPermission(player, "secondary-rune.slot-1." + runeId)) {
                 return registry.getRune(runeId);
             }
         }
@@ -177,7 +190,7 @@ public class RuneDetector {
         };
 
         for (String runeId : runes) {
-            if (player.hasPermission("secondary-rune.slot-2." + runeId)) {
+            if (hasPermission(player, "secondary-rune.slot-2." + runeId)) {
                 return registry.getRune(runeId);
             }
         }

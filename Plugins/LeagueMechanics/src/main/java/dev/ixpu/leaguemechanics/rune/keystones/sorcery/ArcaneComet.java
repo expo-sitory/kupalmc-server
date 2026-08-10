@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.BuffManager;
 
@@ -67,10 +68,10 @@ public class ArcaneComet extends BaseRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
@@ -83,11 +84,10 @@ public class ArcaneComet extends BaseRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
-
+        DebugLogger.debug(attacker, "§7[Debug] §f[§9Arcane Comet§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§9Arcane Comet§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
         livingTarget.setHealth(newHealth);
     }
 
@@ -99,7 +99,7 @@ public class ArcaneComet extends BaseRune {
             return;
         }
 
-        double newHealth = Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target));
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - keystoneDamage(player, target));
 
         summonComet(player, livingTarget, newHealth);
         resetCooldown(player);
@@ -148,8 +148,8 @@ public class ArcaneComet extends BaseRune {
             public void run() {
                 if (tick >= COMET_FALL_TICKS) {
                     target.setHealth(newHealth);
-                    shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(shooter, target) * 100) / 100.0));
-                    shooter.sendMessage(Component.text("§7[Debug] §f[§9Arcane Comet§f] Target New HP = §d" + newHealth));
+                    DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(shooter, target) * 100) / 100.0);
+                    DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] Target New HP = §d" + newHealth);
 
                     targetLoc.getWorld().spawnParticle(
                             Particle.DUST,

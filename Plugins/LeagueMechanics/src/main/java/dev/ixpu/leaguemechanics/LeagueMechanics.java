@@ -6,6 +6,7 @@ import dev.ixpu.leaguemechanics.command.CommandHandler;
 import dev.ixpu.leaguemechanics.util.ItemStatHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
@@ -39,6 +40,7 @@ public class LeagueMechanics extends JavaPlugin {
     private RuneRegistry runeRegistry;
     private RuneManager runeManager;
     private ItemStatsManager itemStatsManager;
+    private boolean debugMode;
 
     @Override
     public void onEnable() {
@@ -51,6 +53,7 @@ public class LeagueMechanics extends JavaPlugin {
 
         saveDefaultConfig();
         reloadConfig();
+        debugMode = getConfig().getBoolean("debug", false);
 
         ItemStatHelper.initialize(this);
         registerCommands();
@@ -97,6 +100,28 @@ public class LeagueMechanics extends JavaPlugin {
 
     public ItemStatsManager getStatsManager() {
         return itemStatsManager;
+    }
+
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    public void reloadPlugin() {
+        getLogger().info("Reloading LeagueMechanics configuration...");
+
+        reloadConfig();
+        debugMode = getConfig().getBoolean("debug", false);
+
+        if (runeRegistry != null) {
+            runeRegistry.clearRegistry();
+        }
+        registerRunes();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            runeManager.reloadPlayerRunes(player);
+        }
+        
+        getLogger().info("LeagueMechanics reload completed!");
     }
 
     private void registerCommands() {

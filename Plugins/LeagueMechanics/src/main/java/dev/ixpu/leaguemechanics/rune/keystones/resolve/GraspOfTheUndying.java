@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.*;
@@ -79,10 +80,10 @@ public class GraspOfTheUndying extends StackingRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Stats Damage = §d" + statsDamage));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Target New HP = §d" + newHealth));
+        DebugLogger.debug(shooter, "§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Stats Damage = §d" + statsDamage);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Target New HP = §d" + newHealth);
 
         livingTarget.setHealth(newHealth);
     }
@@ -93,10 +94,10 @@ public class GraspOfTheUndying extends StackingRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Stats Damage = §d" + statsDamage));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Target New HP = §d" + newHealth));
+        DebugLogger.debug(attacker, "§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Stats Damage = §d" + statsDamage);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Target New HP = §d" + newHealth);
 
         livingTarget.setHealth(newHealth);
 
@@ -131,10 +132,10 @@ public class GraspOfTheUndying extends StackingRune {
         }
 
         int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0) / 2;
-        double newHealth = Math.max(0, livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts * 0.2));
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts * 0.2));
 
-        player.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (playerDamage(player, target) * absorptionHearts) * 0.2));
-        player.sendMessage(Component.text("§7[Debug] §f[§aGrasp Of The Undying§f] Target New HP = §d" + newHealth));
+        DebugLogger.debug(player, "§7[Debug] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (playerDamage(player, target) * absorptionHearts) * 0.2);
+        DebugLogger.debug(player, "§7[Debug] §f[§aGrasp Of The Undying§f] Target New HP = §d" + newHealth);
 
         livingTarget.setHealth(newHealth);
 

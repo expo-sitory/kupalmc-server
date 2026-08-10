@@ -6,6 +6,7 @@ import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.util.DebugLogger;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -50,10 +51,10 @@ public class DarkHarvest extends StackingRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0, livingTarget.getHealth() - playerDamage(shooter, target));
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - playerDamage(shooter, target));
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(shooter, "§7[Debug] §f[§cDark Harvest§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§cDark Harvest§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
@@ -66,12 +67,12 @@ public class DarkHarvest extends StackingRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
         livingTarget.setHealth(newHealth);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(attacker, "§7[Debug] §f[§cDark Harvest§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§cDark Harvest§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         activateDarkHarvest(attacker, target);
     }
@@ -87,14 +88,14 @@ public class DarkHarvest extends StackingRune {
         double targetHealth = livingTarget.getHealth();
         double maxHealth = livingTarget.getMaxHealth();
         double healthPercent = targetHealth / maxHealth;
-        double newHealth = Math.max(0, livingTarget.getHealth() - keystoneDamage(player, target));
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - keystoneDamage(player, target));
 
         if (healthPercent >= HEALTH_THRESHOLD) {
             return;
         }
 
-        player.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0));
-        player.sendMessage(Component.text("§7[Debug] §f[§cDark Harvest§f] Target New HP = §d" + Math.ceil(healthPercent * 100) / 100.0));
+        DebugLogger.debug(player, "§7[Debug] §f[§cDark Harvest§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§cDark Harvest§f] Target New HP = §d" + Math.ceil(healthPercent * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 

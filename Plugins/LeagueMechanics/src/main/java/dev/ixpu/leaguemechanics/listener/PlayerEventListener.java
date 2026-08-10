@@ -63,7 +63,9 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
-        event.setDamage(0);
+        if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

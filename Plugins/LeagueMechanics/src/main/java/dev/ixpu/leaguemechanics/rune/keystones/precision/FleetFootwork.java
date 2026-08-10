@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.manager.BuffManager;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 
@@ -75,10 +76,10 @@ public class FleetFootwork extends StackingRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§eFleet Footwork§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§eFleet Footwork§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(shooter, "§7[Debug] §f[§eFleet Footwork§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§eFleet Footwork§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
@@ -91,10 +92,10 @@ public class FleetFootwork extends StackingRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0   , livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§eFleet Footwork§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§eFleet Footwork§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(attacker, "§7[Debug] §f[§eFleet Footwork§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§eFleet Footwork§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
     }

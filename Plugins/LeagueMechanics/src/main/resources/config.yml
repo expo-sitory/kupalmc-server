@@ -1,9 +1,8 @@
 # LEAGUE MECHANICS CONFIGURATION
 # https://github.com/expo-sitory
 
-# ================================== #
-#              RUNES                 #
-# ================================== #
+
+debug: true
 
 
 runes:

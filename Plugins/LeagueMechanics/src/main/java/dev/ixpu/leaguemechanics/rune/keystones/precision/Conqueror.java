@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StackingRune;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.util.DebugLogger;
 
 import java.util.UUID;
 
@@ -46,10 +47,10 @@ public class Conqueror extends StackingRune {
         }
 
         double statsDamage = keystoneDamage(shooter, target, getStacks(shooter));
-        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        shooter.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Projectile) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        shooter.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(shooter, "§7[Debug] §f[§eConqueror§f] (Projectile) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§eConqueror§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
@@ -62,10 +63,10 @@ public class Conqueror extends StackingRune {
         }
 
         double statsDamage = keystoneDamage(attacker, target, getStacks(attacker));
-        double newHealth = Math.max(0, livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
 
-        attacker.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Melee) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0));
-        attacker.sendMessage(Component.text("§7[Debug] §f[§eConqueror§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0));
+        DebugLogger.debug(attacker, "§7[Debug] §f[§eConqueror§f] (Melee) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§eConqueror§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
