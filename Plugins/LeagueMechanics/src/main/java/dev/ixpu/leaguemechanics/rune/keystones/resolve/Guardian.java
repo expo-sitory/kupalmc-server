@@ -75,7 +75,7 @@ public class Guardian extends BaseRune {
             return;
         }
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
 
         DebugLogger.debug(shooter, "§7[Debug] §f[§aGuardian§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(shooter, "§7[Debug] §f[§aGuardian§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -89,7 +89,7 @@ public class Guardian extends BaseRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
 
         DebugLogger.debug(attacker, "§7[Debug] §f[§aGuardian§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(attacker, "§7[Debug] §f[§aGuardian§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -98,10 +98,10 @@ public class Guardian extends BaseRune {
     }
 
     public void onPlayerDamage(Player victim, double damage) {
-        activateGuardian(victim, damage);
+        activateGuardian(victim);
     }
 
-    private void activateGuardian(Player player, Double damage) {
+    private void activateGuardian(Player player) {
         UUID uuid = player.getUniqueId();
         lastCombatTime.put(uuid, System.currentTimeMillis());
 

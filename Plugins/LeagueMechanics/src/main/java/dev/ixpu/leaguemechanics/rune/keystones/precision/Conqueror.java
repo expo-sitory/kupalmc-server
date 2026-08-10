@@ -47,7 +47,7 @@ public class Conqueror extends StackingRune {
         }
 
         double statsDamage = keystoneDamage(shooter, target, getStacks(shooter));
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
 
         DebugLogger.debug(shooter, "§7[Debug] §f[§eConqueror§f] (Projectile) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(shooter, "§7[Debug] §f[§eConqueror§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -63,7 +63,7 @@ public class Conqueror extends StackingRune {
         }
 
         double statsDamage = keystoneDamage(attacker, target, getStacks(attacker));
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage);
+        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
 
         DebugLogger.debug(attacker, "§7[Debug] §f[§eConqueror§f] (Melee) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(attacker, "§7[Debug] §f[§eConqueror§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
