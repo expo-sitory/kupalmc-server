@@ -71,7 +71,7 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
-            event.setCancelled(true);
+            event.setDamage(0);
         }
     }
 
@@ -109,8 +109,6 @@ public class PlayerEventListener implements Listener {
                 runeManager.setPlayerKeystoneRune(player, keystone);
             }
         }
-
-        // Sync all items in inventory on join
         syncPlayerInventory(player);
     }
 
@@ -144,26 +142,22 @@ public class PlayerEventListener implements Listener {
     }
 
     private void syncPlayerInventory(Player player) {
-        // Sync main hand
         ItemStack mainHand = player.getInventory().getItemInMainHand();
         if (mainHand != null && !mainHand.getType().isAir()) {
             ItemStatHelper.syncItemStats(mainHand);
         }
 
-        // Sync off hand
         ItemStack offHand = player.getInventory().getItemInOffHand();
         if (offHand != null && !offHand.getType().isAir()) {
             ItemStatHelper.syncItemStats(offHand);
         }
 
-        // Sync armor
         for (ItemStack armor : player.getInventory().getArmorContents()) {
             if (armor != null && !armor.getType().isAir()) {
                 ItemStatHelper.syncItemStats(armor);
             }
         }
 
-        // Sync rest of inventory
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
                 ItemStatHelper.syncItemStats(item);
