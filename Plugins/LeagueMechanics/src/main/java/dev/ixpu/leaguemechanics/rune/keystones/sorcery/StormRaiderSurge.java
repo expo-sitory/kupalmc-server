@@ -110,7 +110,6 @@ public class StormRaiderSurge extends BaseRune {
         double currentDamage = damageTracker.getOrDefault(attackerUUID, 0.0);
         damageTracker.put(attackerUUID, currentDamage + estimatedDamage);
 
-        // Reset window timer on damage
         windowTickCounter.put(attackerUUID, 0);
     }
 
