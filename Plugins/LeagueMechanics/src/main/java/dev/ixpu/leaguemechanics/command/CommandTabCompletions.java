@@ -32,10 +32,6 @@ public class CommandTabCompletions implements org.bukkit.command.TabCompleter {
 
         if (args.length == 1) {
             completions.add("runes");
-            completions.add("addstat");
-            completions.add("setbuild");
-            completions.add("stats");
-            completions.add("clearstats");
             completions.add("reload");
             return filter(completions, args[0]);
         }
