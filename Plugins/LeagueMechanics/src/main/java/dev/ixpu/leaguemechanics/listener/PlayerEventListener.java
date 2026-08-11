@@ -84,6 +84,12 @@ public class PlayerEventListener implements Listener {
         DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget Stats§f] Target AR = §d" + Math.ceil(targetAR * 100) / 100.0);
         DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget Stats§f] Targer MR = §d" + Math.ceil(targetMR * 100) / 100.0);
 
+        for (ItemStack armor : target.getEquipment().getArmorContents()) {
+            if (armor != null && !armor.getType().isAir()) {
+                armor.damage((short) 1, target);
+            }
+        }
+
         target.damage(0.00001);
         event.getEntity().remove();
     }
@@ -106,6 +112,12 @@ public class PlayerEventListener implements Listener {
             DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] (Melee) Attacker AP = §d" + Math.ceil(attackerAP * 100) / 100.0);
             DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] Target AR = §d" + Math.ceil(targetAR * 100) / 100.0);
             DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] Target MR = §d" + Math.ceil(targetMR * 100) / 100.0);
+
+            for (ItemStack armor : target.getEquipment().getArmorContents()) {
+                if (armor != null && !armor.getType().isAir()) {
+                    armor.damage((short) 1, target);
+                }
+            }
 
             event.setDamage(0);
         }
@@ -155,7 +167,7 @@ public class PlayerEventListener implements Listener {
         }
 
         ItemStack cursor = event.getCursor();
-        if (cursor != null && !cursor.getType().isAir()) {
+        if (!cursor.getType().isAir()) {
             ItemStatHelper.syncItemStats(cursor);
         }
 
@@ -179,12 +191,12 @@ public class PlayerEventListener implements Listener {
 
     private void syncPlayerInventory(Player player) {
         ItemStack mainHand = player.getInventory().getItemInMainHand();
-        if (mainHand != null && !mainHand.getType().isAir()) {
+        if (!mainHand.getType().isAir()) {
             ItemStatHelper.syncItemStats(mainHand);
         }
 
         ItemStack offHand = player.getInventory().getItemInOffHand();
-        if (offHand != null && !offHand.getType().isAir()) {
+        if (!offHand.getType().isAir()) {
             ItemStatHelper.syncItemStats(offHand);
         }
 
