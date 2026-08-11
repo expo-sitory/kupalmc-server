@@ -41,11 +41,12 @@ public class Conqueror extends StackingRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
+        UUID targetUUID = target.getUniqueId();
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
 
-        double statsDamage = playerDamage(shooter, target) + keystoneDamage(shooter, target, getStacks(shooter));
+        double statsDamage = playerDamage(shooter, target) + keystoneDamage(shooter, target, getStacks(shooter, targetUUID));
         double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(shooter, "§7[Debug] §f[§eConqueror§f] (Projectile) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
@@ -57,11 +58,12 @@ public class Conqueror extends StackingRune {
     }
 
     public void onAttack(Player attacker, Entity target) {
+        UUID targetUUID = target.getUniqueId();
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
 
-        double statsDamage = playerDamage(attacker, target) + keystoneDamage(attacker, target, getStacks(attacker));
+        double statsDamage = playerDamage(attacker, target) + keystoneDamage(attacker, target, getStacks(attacker, targetUUID));
         double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(attacker, "§7[Debug] §f[§eConqueror§f] (Melee) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
