@@ -1,6 +1,5 @@
 package dev.ixpu.leaguemechanics.manager;
 
-import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import org.bukkit.entity.Player;
@@ -33,7 +32,7 @@ public class DamageManager {
             return totalMagicDamage * levelBasedBonus(player);
         }
         if (isAdaptive) {
-            double adaptiveDamage = 0;
+            double adaptiveDamage;
             if (isPerStack) {
                 adaptiveDamage = Math.max(totalPhysicalDamage, totalMagicDamage);
                 return (adaptiveDamage * levelBasedBonus(player)) * currentStacks;
@@ -60,28 +59,18 @@ public class DamageManager {
     }
 
     public double getTargetAR(Entity target) {
+        PlayerStats stats = new PlayerStats();
         if (!(target instanceof Player targetPlayer)) {
             return 0;
         }
-        PlayerStats stats = new PlayerStats();
-        double totalAR = 0;
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        if (itemStatsManager != null) {
-            totalAR = stats.getPlayerAR(targetPlayer) + itemStatsManager.getItemAR(targetPlayer);
-        }
-        return totalAR;
+        return stats.getPlayerAR(targetPlayer);
     }
 
     public double getTargetMR(Entity target) {
+        PlayerStats stats = new PlayerStats();
         if (!(target instanceof Player targetPlayer)) {
             return 0;
         }
-        PlayerStats stats = new PlayerStats();
-        double totalMR = 0;
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        if (itemStatsManager != null) {
-            totalMR = stats.getPlayerMR(targetPlayer) + itemStatsManager.getItemMR(targetPlayer);
-        }
-        return totalMR;
+        return stats.getPlayerMR(targetPlayer);
     }
 }
