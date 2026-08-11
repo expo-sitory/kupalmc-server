@@ -2,7 +2,6 @@ package dev.ixpu.leaguemechanics.rune;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +27,14 @@ public abstract class BaseRune {
 
     public String getId() {
         return id;
+    }
+
+    public RunePath getPath() {
+        return path;
+    }
+
+    public RuneSlot getSlot() {
+        return slot;
     }
 
     public void setCooldownSeconds(double seconds) {
