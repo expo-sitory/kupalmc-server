@@ -100,4 +100,40 @@ public class RuneManager {
     public JavaPlugin getPlugin() {
         return plugin;
     }
+
+    public void setPlayerKeystoneRune(Player player, BaseRune rune) {
+        UUID uuid = player.getUniqueId();
+        PlayerRuneData runeData = playerRuneData.getOrDefault(uuid, new PlayerRuneData(player));
+
+        BaseRune oldRune = runeData.getKeystoneRune();
+        if (oldRune != null) {
+            oldRune.onDisable(player);
+        }
+
+        runeData.setKeystoneRune(rune);
+        rune.onEnable(player);
+        playerRuneData.put(uuid, runeData);
+    }
+
+    public void clearPlayerRunes(Player player) {
+        UUID uuid = player.getUniqueId();
+        PlayerRuneData runeData = playerRuneData.get(uuid);
+
+        if (runeData != null) {
+            for (BaseRune rune : runeData.getAllRunes()) {
+                if (rune != null) {
+                    rune.onDisable(player);
+                }
+            }
+
+            runeData.setKeystoneRune(null);
+            runeData.setPrimaryPath(null);
+            runeData.setSecondaryPath(null);
+            runeData.setPrimarySlot1Rune(null);
+            runeData.setPrimarySlot2Rune(null);
+            runeData.setPrimarySlot3Rune(null);
+            runeData.setSecondarySlot1Rune(null);
+            runeData.setSecondarySlot2Rune(null);
+        }
+    }
 }
