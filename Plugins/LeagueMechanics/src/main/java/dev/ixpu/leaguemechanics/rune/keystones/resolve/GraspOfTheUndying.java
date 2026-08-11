@@ -88,6 +88,7 @@ public class GraspOfTheUndying extends StackingRune {
         livingTarget.setHealth(newHealth);
 
         onCombat(shooter);
+        activateGraspOfTheUndying(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
@@ -104,6 +105,7 @@ public class GraspOfTheUndying extends StackingRune {
         livingTarget.setHealth(newHealth);
 
         onCombat(attacker);
+        activateGraspOfTheUndying(attacker, target);
     }
 
     private void activateGraspOfTheUndying(Player player, Entity target) {
@@ -136,7 +138,7 @@ public class GraspOfTheUndying extends StackingRune {
         int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0) / 2;
         double newHealth = Math.clamp(livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts * 0.2), 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(player, "§7[Debug] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (playerDamage(player, target) * absorptionHearts) * 0.2);
+        DebugLogger.debug(player, "§7[Debug] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (playerDamage(player, target) * absorptionHearts * 0.2));
         DebugLogger.debug(player, "§7[Debug] §f[§aGrasp Of The Undying§f] Target New HP = §d" + newHealth);
 
         livingTarget.setHealth(newHealth);
