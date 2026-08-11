@@ -1,17 +1,22 @@
 package dev.ixpu.leaguemechanics;
 
-import dev.ixpu.leaguemechanics.manager.RuneManager;
-import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
-import dev.ixpu.leaguemechanics.command.CommandHandler;
-import dev.ixpu.leaguemechanics.util.ItemStatHelper;
-import dev.ixpu.leaguemechanics.util.RunePersistence;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.listener.RuneListener;
+
+import dev.ixpu.leaguemechanics.manager.RuneManager;
+import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
+
+import dev.ixpu.leaguemechanics.command.CommandHandler;
+import dev.ixpu.leaguemechanics.command.CommandTabCompletions;
+
+import dev.ixpu.leaguemechanics.util.ItemStatHelper;
+import dev.ixpu.leaguemechanics.util.RunePersistence;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.configuration.file.FileConfiguration;
+
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 
@@ -133,7 +138,9 @@ public class LeagueMechanics extends JavaPlugin {
 
     private void registerCommands() {
         CommandHandler commandExecutor = new CommandHandler(this, itemStatsManager, runeManager, runePersistence);
+        CommandTabCompletions tabCompleter = new CommandTabCompletions(runeRegistry);
         getCommand("leaguemechanics").setExecutor(commandExecutor);
+        getCommand("leaguemechanics").setTabCompleter(tabCompleter);
         getLogger().info("Commands registered!");
     }
 
