@@ -1,11 +1,14 @@
 package dev.ixpu.leaguemechanics.listener;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
 import dev.ixpu.leaguemechanics.player.PlayerRuneData;
+import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
+import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.util.ItemStatHelper;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
@@ -44,13 +47,19 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler
     public void onProjectileDamage(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Projectile) {
+        if (event.getDamager() instanceof Projectile projectile) {
+            if (!(projectile.getShooter() instanceof Player)) {
+                return;
+            }
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
+        DamageManager damage = new DamageManager();
+        PlayerStats stats = new PlayerStats();
+
         if (event.getHitEntity() == null || !(event.getHitEntity() instanceof LivingEntity target)) {
             return;
         }
@@ -64,6 +73,17 @@ public class PlayerEventListener implements Listener {
                 target.setFireTicks(8 * 20);
             }
         }
+
+        double attackerAD = stats.getPlayerAD(attacker);
+        double attackerAP = stats.getPlayerAP(attacker);
+        double targetAR = damage.getTargetAR(target);
+        double targetMR = damage.getTargetMR(target);
+
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker Stats§f] (Projectile) Attacker AD = §d" + Math.ceil(attackerAD * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker Stats§f] (Projectile) Attacker AP = §d" + Math.ceil(attackerAP * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget Stats§f] Target AR = §d" + Math.ceil(targetAR * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget Stats§f] Targer MR = §d" + Math.ceil(targetMR * 100) / 100.0);
+
         target.damage(0.00001);
         event.getEntity().remove();
     }
@@ -71,6 +91,22 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
+            Player attacker = (Player) event.getDamager();
+            Player target = (Player) event.getEntity();
+
+            DamageManager damage = new DamageManager();
+            PlayerStats stats = new PlayerStats();
+
+            double attackerAD = stats.getPlayerAD(attacker);
+            double attackerAP = stats.getPlayerAP(attacker);
+            double targetAR = damage.getTargetAR(target);
+            double targetMR = damage.getTargetMR(target);
+
+            DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] (Melee) Attacker AD = §d" + Math.ceil(attackerAD * 100) / 100.0);
+            DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] (Melee) Attacker AP = §d" + Math.ceil(attackerAP * 100) / 100.0);
+            DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] Target AR = §d" + Math.ceil(targetAR * 100) / 100.0);
+            DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] Target MR = §d" + Math.ceil(targetMR * 100) / 100.0);
+
             event.setDamage(0);
         }
     }
