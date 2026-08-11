@@ -130,7 +130,15 @@ public class LeagueMechanics extends JavaPlugin {
         registerRunes();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            runeManager.reloadPlayerRunes(player);
+            runeManager.loadPlayerRunes(player);
+
+            String keystoneRuneId = runePersistence.loadKeystoneRune(player.getUniqueId());
+            if (keystoneRuneId != null) {
+                BaseRune keystone = runeRegistry.getRune(keystoneRuneId);
+                if (keystone != null) {
+                    runeManager.setPlayerKeystoneRune(player, keystone);
+                }
+            }
         }
 
         getLogger().info("LeagueMechanics reload completed!");
