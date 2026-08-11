@@ -53,7 +53,7 @@ runes:
 
       press-the-attack:
         cooldown: 6
-        base-adaptive-damage: 4.5
+        base-adaptive-damage: 17.67
 
 
     # ============================= #
