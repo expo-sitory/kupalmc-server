@@ -7,7 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.meta.ItemMeta;
 
 
 public class PlayerStats {
@@ -79,22 +78,24 @@ public class PlayerStats {
             baseAD++;
         }
         var itemHeldAD = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        double enchantAD = getPlayerWeapon(player);
         double totalAD = BASE_ATTACK_DAMAGE + itemHeldAD.getValue();
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         if (itemStatsManager != null) {
             totalAD += itemStatsManager.getItemAD(player);
         }
-        return totalAD + baseAD;
+        return totalAD + baseAD + enchantAD;
     }
 
     public double getPlayerAR(Player player) {
         var itemEquipedAR = player.getAttribute(Attribute.GENERIC_ARMOR);
         double totalAR = BASE_PHYSICAL_ARMOR + itemEquipedAR.getValue();
+        double enchantAR = getPlayerArmor(player);
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         if (itemStatsManager != null) {
             totalAR += itemStatsManager.getItemAR(player);
         }
-        return totalAR;
+        return totalAR + enchantAR;
     }
 
     public double getPlayerAP(Player player) {
