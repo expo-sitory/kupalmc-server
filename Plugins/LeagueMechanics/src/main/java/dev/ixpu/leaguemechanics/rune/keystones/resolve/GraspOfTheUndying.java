@@ -82,8 +82,8 @@ public class GraspOfTheUndying extends StackingRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(shooter, "§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Stats Damage = §d" + statsDamage);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§aGrasp Of The Undying§f] (Projectile) Target New HP = §d" + newHealth);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + statsDamage);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);
 
         livingTarget.setHealth(newHealth);
 
@@ -99,8 +99,8 @@ public class GraspOfTheUndying extends StackingRune {
         double statsDamage = playerDamage(attacker, target);
         double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(attacker, "§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Stats Damage = §d" + statsDamage);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§aGrasp Of The Undying§f] (Melee) Target New HP = §d" + newHealth);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + statsDamage);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);
 
         livingTarget.setHealth(newHealth);
 
@@ -138,8 +138,8 @@ public class GraspOfTheUndying extends StackingRune {
         int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0) / 2;
         double newHealth = Math.clamp(livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts * 0.2), 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(player, "§7[Debug] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (playerDamage(player, target) * absorptionHearts * 0.2));
-        DebugLogger.debug(player, "§7[Debug] §f[§aGrasp Of The Undying§f] Target New HP = §d" + newHealth);
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (playerDamage(player, target) * absorptionHearts * 0.2));
+        DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);
 
         livingTarget.setHealth(newHealth);
 

@@ -53,8 +53,8 @@ public class DarkHarvest extends StackingRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.clamp(livingTarget.getHealth() - playerDamage(shooter, target), 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(shooter, "§7[Debug] §f[§cDark Harvest§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§cDark Harvest§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
@@ -71,8 +71,8 @@ public class DarkHarvest extends StackingRune {
 
         livingTarget.setHealth(newHealth);
 
-        DebugLogger.debug(attacker, "§7[Debug] §f[§cDark Harvest§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§cDark Harvest§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker Stats§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         activateDarkHarvest(attacker, target);
     }
@@ -94,8 +94,8 @@ public class DarkHarvest extends StackingRune {
             return;
         }
 
-        DebugLogger.debug(player, "§7[Debug] §f[§cDark Harvest§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
-        DebugLogger.debug(player, "§7[Debug] §f[§cDark Harvest§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker Stats§f] §f[§cDark Harvest§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 

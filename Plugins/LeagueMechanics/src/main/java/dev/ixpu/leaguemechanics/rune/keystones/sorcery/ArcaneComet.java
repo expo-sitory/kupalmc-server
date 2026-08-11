@@ -70,8 +70,8 @@ public class ArcaneComet extends BaseRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
@@ -86,8 +86,8 @@ public class ArcaneComet extends BaseRune {
         double statsDamage = playerDamage(attacker, target);
         double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(attacker, "§7[Debug] §f[§9Arcane Comet§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§9Arcane Comet§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
     }
@@ -153,8 +153,8 @@ public class ArcaneComet extends BaseRune {
                 if (tick >= COMET_FALL_TICKS) {
                     target.damage(0.00001);
                     target.setHealth(newHealth);
-                    DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(shooter, target) * 100) / 100.0);
-                    DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] Target New HP = §d" + newHealth);
+                    DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] §f[§9Arcane Comet§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(shooter, target) * 100) / 100.0);
+                    DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);
 
                     targetLoc.getWorld().spawnParticle(
                             Particle.DUST,

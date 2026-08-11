@@ -81,8 +81,8 @@ public class FirstStrike extends BaseRune {
         double statsDamage = playerDamage(shooter, target);
         double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(shooter, "§7[Debug] §f[§3First Strike§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§3First Strike§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
     }
@@ -95,8 +95,8 @@ public class FirstStrike extends BaseRune {
         double statsDamage = playerDamage(attacker, target);
         double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(attacker, "§7[Debug] §f[§3First Strike§f] (Melee) Stats Damage = §d" + statsDamage);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§3First Strike§f] (Melee) Target New HP = §d" + newHealth);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + statsDamage);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);
 
         livingTarget.setHealth(newHealth);
 
@@ -247,8 +247,8 @@ public class FirstStrike extends BaseRune {
         double finalXP = totalBonusDamage * statScaling;
         int xpToGive = (int) finalXP;
 
-        player.sendMessage("§6FirstStrike bonus: " + String.format("%.2f", finalXP) + " XP (damage: " + String.format("%.2f", totalBonusDamage) + ", AD: " + String.format("%.2f", totalAD) + ", AP: " + String.format("%.2f", totalAP) + ")");
-        player.sendMessage("§6Giving " + xpToGive + " XP");
+        DebugLogger.debug(player, String.format("§7[DEBUG] §f[§dAttacker§f] [§3First Strike§f] " + "%.2f", finalXP) + " XP (damage: " + String.format("%.2f", totalBonusDamage) + ", AD: " + String.format("%.2f", totalAD) + ", AP: " + String.format("%.2f", totalAP) + ")");
+        DebugLogger.debug(player, "§7[DEBUG] §f[§dAttacker§f] [§3First Strike§f] Total XP: " + xpToGive);
         player.giveExp(xpToGive);
     }
 

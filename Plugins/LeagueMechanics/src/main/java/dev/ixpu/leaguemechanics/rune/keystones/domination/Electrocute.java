@@ -56,8 +56,8 @@ public class Electrocute extends StackingRune {
 
         livingTarget.setHealth(newHealth);
 
-        DebugLogger.debug(shooter, "§7[Debug] §f[§cElectrocute§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§cElectrocute§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         activateElectrocute(shooter, target);
     }
@@ -72,8 +72,8 @@ public class Electrocute extends StackingRune {
 
         livingTarget.setHealth(newHealth);
 
-        DebugLogger.debug(attacker, "§7[Debug] §f[§cElectrocute§f] Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§cElectrocute§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         activateElectrocute(attacker, target);
     }
@@ -106,8 +106,8 @@ public class Electrocute extends StackingRune {
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
 
             livingTarget.setHealth(newHealth);
-            DebugLogger.debug(player, "§7[Debug] §f[§cElectrocute§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
-            DebugLogger.debug(player, "§7[Debug] §f[§cElectrocute§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+            DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§cElectrocute§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
+            DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
         }
     }
     
