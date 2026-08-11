@@ -39,7 +39,6 @@ public class CommandTabCompletions implements org.bukkit.command.TabCompleter {
         if (args.length >= 2 && args[0].equalsIgnoreCase("runes")) {
             if (args.length == 2) {
                 completions.add("select");
-                completions.add("clear");
                 return filter(completions, args[1]);
             }
 
