@@ -1,9 +1,7 @@
 # LEAGUE MECHANICS CONFIGURATION
 # https://github.com/expo-sitory
 
-
 debug: true
-
 
 runes:
   keystones:
