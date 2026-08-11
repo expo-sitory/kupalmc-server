@@ -8,6 +8,7 @@ import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import dev.ixpu.leaguemechanics.util.ItemStatHelper;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
