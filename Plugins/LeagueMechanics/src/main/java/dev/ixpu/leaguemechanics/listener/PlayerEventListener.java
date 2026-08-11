@@ -6,6 +6,7 @@ import dev.ixpu.leaguemechanics.player.PlayerRuneData;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
+import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import org.bukkit.entity.*;
 import org.bukkit.event.Listener;
@@ -22,11 +23,13 @@ public class PlayerEventListener implements Listener {
     private final LeagueMechanics plugin;
     private final RuneManager runeManager;
     private final RuneRegistry runeRegistry;
+    private final RunePersistence runePersistence;
 
-    public PlayerEventListener(LeagueMechanics plugin) {
+    public PlayerEventListener(LeagueMechanics plugin, RunePersistence runePersistence) {
         this.plugin = plugin;
         this.runeManager = plugin.getRuneManager();
         this.runeRegistry = plugin.getRuneRegistry();
+        this.runePersistence = runePersistence;
     }
 
 
@@ -96,6 +99,14 @@ public class PlayerEventListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         runeManager.loadPlayerRunes(player);
+
+        String keystoneRuneId = runePersistence.loadKeystoneRune(player.getUniqueId());
+        if (keystoneRuneId != null) {
+            BaseRune keystone = runeRegistry.getRune(keystoneRuneId);
+            if (keystone != null) {
+                runeManager.setPlayerKeystoneRune(player, keystone);
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
