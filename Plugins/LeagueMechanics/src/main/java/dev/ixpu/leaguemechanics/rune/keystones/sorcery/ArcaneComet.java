@@ -151,6 +151,7 @@ public class ArcaneComet extends BaseRune {
             @Override
             public void run() {
                 if (tick >= COMET_FALL_TICKS) {
+                    target.damage(0.00001);
                     target.setHealth(newHealth);
                     DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(shooter, target) * 100) / 100.0);
                     DebugLogger.debug(shooter, "§7[Debug] §f[§9Arcane Comet§f] Target New HP = §d" + newHealth);
