@@ -56,7 +56,6 @@ public class CommandHandler implements CommandExecutor {
 
         return switch (subcommand) {
             case "give" -> handleGive(player, args);
-            case "stats" -> handleStats(player);
             case "reload" -> {
                 if (!player.hasPermission("leaguemechanics.admin")) {
                     player.sendMessage(Component.text("§cYou don't have permission to use this command."));
@@ -181,25 +180,6 @@ public class CommandHandler implements CommandExecutor {
         runePersistence.clearAllRunes(player.getUniqueId());
         runeManager.clearPlayerRunes(player);
         player.sendMessage(Component.text("§a✓ All runes cleared"));
-        return true;
-    }
-
-    private boolean handleStats(Player player) {
-        if (!player.hasPermission("leaguemechanics.admin")) {
-            player.sendMessage(Component.text("§cYou don't have permission to use this command."));
-            return true;
-        }
-
-        double ap = itemStatsManager.getItemAP(player);
-        double ad = itemStatsManager.getItemAD(player);
-        double ar = itemStatsManager.getItemAR(player);
-        double mr = itemStatsManager.getItemMR(player);
-
-        player.sendMessage(Component.text("§7─── §6 ɪᴛᴇᴍ ꜱᴛᴀᴛꜱ §7───"));
-        player.sendMessage(Component.text("AP: " + String.format("%.1f", ap)));
-        player.sendMessage(Component.text("AD: " + String.format("%.1f", ad)));
-        player.sendMessage(Component.text("AR: " + String.format("%.1f", ar)));
-        player.sendMessage(Component.text("MR: " + String.format("%.1f", mr)));
         return true;
     }
 }
