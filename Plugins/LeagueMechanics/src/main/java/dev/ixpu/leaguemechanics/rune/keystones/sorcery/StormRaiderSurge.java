@@ -85,8 +85,8 @@ public class StormRaiderSurge extends BaseRune {
         double statsDamage = playerDamage(attacker, target);
         double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(attacker, "§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§9Storm Raider Surge§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(attacker, "§7[Debug] §f[§9Storm Raider Surge§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
@@ -107,14 +107,11 @@ public class StormRaiderSurge extends BaseRune {
         }
 
         double estimatedDamage = playerDamage(player, target);
-        double damageThreshold = livingTarget.getMaxHealth() * DAMAGE_THRESHOLD_PERCENTAGE;
-
-        if (estimatedDamage < damageThreshold) {
-            return;
-        }
-
         double currentDamage = damageTracker.getOrDefault(attackerUUID, 0.0);
         damageTracker.put(attackerUUID, currentDamage + estimatedDamage);
+
+        // Reset window timer on damage
+        windowTickCounter.put(attackerUUID, 0);
     }
 
     private double playerDamage(Player player, Entity target) {

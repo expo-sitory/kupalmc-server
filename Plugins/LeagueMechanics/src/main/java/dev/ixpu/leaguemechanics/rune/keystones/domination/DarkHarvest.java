@@ -95,7 +95,7 @@ public class DarkHarvest extends StackingRune {
         }
 
         DebugLogger.debug(player, "§7[Debug] §f[§cDark Harvest§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
-        DebugLogger.debug(player, "§7[Debug] §f[§cDark Harvest§f] Target New HP = §d" + Math.ceil(healthPercent * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§cDark Harvest§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
