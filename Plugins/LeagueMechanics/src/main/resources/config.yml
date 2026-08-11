@@ -9,6 +9,7 @@ runes:
     # ============================= #
     #        DOMINATION PATH        #
     # ============================= #
+
     domination:
 
       dark-harvest:
@@ -31,6 +32,7 @@ runes:
     # ============================= #
     #       PRECISION PATH          #
     # ============================= #
+
     precision:
       conqueror:
         base-adaptive-damage-per-stack: 2.5
@@ -57,6 +59,7 @@ runes:
     # ============================= #
     #       INSPIRATION PATH        #
     # ============================= #
+
     inspiration:
 
       glacial-augment:
@@ -78,6 +81,7 @@ runes:
     # ============================= #
     #       RESOLVE PATH            #
     # ============================= #
+
     resolve:
 
       aftershock:
@@ -102,6 +106,7 @@ runes:
     # ============================= #
     #       SORCERY PATH            #
     # ============================= #
+
     sorcery:
 
       arcane-comet:
