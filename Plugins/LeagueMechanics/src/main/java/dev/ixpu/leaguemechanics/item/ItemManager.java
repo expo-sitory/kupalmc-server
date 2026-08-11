@@ -20,20 +20,27 @@ public class ItemManager {
 
     private void loadDefaultItems() {
         // AP ITEMS
-        addItem("amplifying-tome", "", 0.0, 20.0, 0.0, 0.0);
+
+        addItem("amplifying-tome", 0.0, 20.0, 0.0, 0.0);
+        addItem("blasting-wand", 0.0, 45.0, 0.0, 0.0);
 
         // AD ITEMS
-        addItem("long-sword", "", 10.0, 0.0, 0.0, 0.0);
+        addItem("long-sword", 10.0, 0.0, 0.0, 0.0);
+
+        addItem("pickaxe", 25.0, 0.0, 0.0, 0.0);
+        addItem("b.f-sword", 45.0, 0.0, 0.0, 0.0);
 
         // AR ITEMS
-        addItem("cloth-armor", "", 0.0, 0.0, 15.0, 0.0);
+        addItem("cloth-armor", 0.0, 0.0, 15.0, 0.0);
+        addItem("chain-vest", 0.0, 0.0, 40, 0.0);
 
         // MR ITEMS
-        // no mr for starter items (still gonna make recipes)
+        addItem("null-magic-mantle", 0.0, 0.0, 0.0, 20.0);
+        addItem("negatron-cloak", 0.0, 0.0, 0.0, 45.0);
     }
 
-    private void addItem(String id, String name, double ad, double ap, double ar, double mr) {
-        items.put(id, new ItemStatData(id, name, ad, ap, ar, mr));
+    private void addItem(String id, double ad, double ap, double ar, double mr) {
+        items.put(id, new ItemStatData(id, "", ad, ap, ar, mr));
     }
 
     public ItemStatData getItem(String id) {
