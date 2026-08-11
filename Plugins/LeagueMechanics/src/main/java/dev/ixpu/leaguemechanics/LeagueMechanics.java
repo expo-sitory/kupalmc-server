@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.manager.RuneManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.command.CommandHandler;
 import dev.ixpu.leaguemechanics.util.ItemStatHelper;
+import dev.ixpu.leaguemechanics.util.RunePersistence;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -40,6 +41,7 @@ public class LeagueMechanics extends JavaPlugin {
     private RuneRegistry runeRegistry;
     private RuneManager runeManager;
     private ItemStatsManager itemStatsManager;
+    private RunePersistence runePersistence;
     private boolean debugMode;
 
     @Override
@@ -48,6 +50,7 @@ public class LeagueMechanics extends JavaPlugin {
         runeRegistry = RuneRegistry.getInstance();
         runeManager = new RuneManager(this);
         itemStatsManager = new ItemStatsManager();
+        runePersistence = new RunePersistence(this);
 
         getLogger().info("League Mechanics is starting...");
 
@@ -60,7 +63,7 @@ public class LeagueMechanics extends JavaPlugin {
         registerRunes();
 
         Bukkit.getPluginManager().registerEvents(new RuneListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this, runePersistence), this);
 
         startRuneTicker();
 
@@ -102,6 +105,10 @@ public class LeagueMechanics extends JavaPlugin {
         return itemStatsManager;
     }
 
+    public RunePersistence getRunePersistence() {
+        return runePersistence;
+    }
+
     public boolean isDebugMode() {
         return debugMode;
     }
@@ -120,12 +127,12 @@ public class LeagueMechanics extends JavaPlugin {
         for (Player player : Bukkit.getOnlinePlayers()) {
             runeManager.reloadPlayerRunes(player);
         }
-        
+
         getLogger().info("LeagueMechanics reload completed!");
     }
 
     private void registerCommands() {
-        CommandHandler commandExecutor = new CommandHandler(this, itemStatsManager);
+        CommandHandler commandExecutor = new CommandHandler(this, itemStatsManager, runeManager, runePersistence);
         getCommand("leaguemechanics").setExecutor(commandExecutor);
         getLogger().info("Commands registered!");
     }
