@@ -6,6 +6,7 @@ import dev.ixpu.leaguemechanics.player.PlayerRuneData;
 import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
+import dev.ixpu.leaguemechanics.util.ItemStatHelper;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import org.bukkit.entity.*;
@@ -16,8 +17,10 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class PlayerEventListener implements Listener {
     private final LeagueMechanics plugin;
@@ -31,7 +34,6 @@ public class PlayerEventListener implements Listener {
         this.runeRegistry = plugin.getRuneRegistry();
         this.runePersistence = runePersistence;
     }
-
 
     @EventHandler
     public void onLightningDamage(EntityDamageEvent event) {
@@ -107,6 +109,26 @@ public class PlayerEventListener implements Listener {
                 runeManager.setPlayerKeystoneRune(player, keystone);
             }
         }
+
+        // Sync all items in inventory on join
+        syncPlayerInventory(player);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
+            return;
+        }
+
+        ItemStack cursor = event.getCursor();
+        if (cursor != null && !cursor.getType().isAir()) {
+            ItemStatHelper.syncItemStats(cursor);
+        }
+
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked != null && !clicked.getType().isAir()) {
+            ItemStatHelper.syncItemStats(clicked);
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -121,13 +143,31 @@ public class PlayerEventListener implements Listener {
         runeManager.unloadPlayerRunes(player);
     }
 
-//    @EventHandler(priority = EventPriority.NORMAL)
-//    public void onPlayerDeath(PlayerDeathEvent event) {
-//        Player player = event.getEntity();
-//       class nick = (name) runeRegistry.getRune("id");
-//
-//        if (nick != null) {
-//           nick.event(player);
-//       }
-//    }
+    private void syncPlayerInventory(Player player) {
+        // Sync main hand
+        ItemStack mainHand = player.getInventory().getItemInMainHand();
+        if (mainHand != null && !mainHand.getType().isAir()) {
+            ItemStatHelper.syncItemStats(mainHand);
+        }
+
+        // Sync off hand
+        ItemStack offHand = player.getInventory().getItemInOffHand();
+        if (offHand != null && !offHand.getType().isAir()) {
+            ItemStatHelper.syncItemStats(offHand);
+        }
+
+        // Sync armor
+        for (ItemStack armor : player.getInventory().getArmorContents()) {
+            if (armor != null && !armor.getType().isAir()) {
+                ItemStatHelper.syncItemStats(armor);
+            }
+        }
+
+        // Sync rest of inventory
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && !item.getType().isAir()) {
+                ItemStatHelper.syncItemStats(item);
+            }
+        }
+    }
 }
