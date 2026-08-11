@@ -136,7 +136,7 @@ public class PlayerStats {
         }
 
         String apDisplay = " §9☄ §f" + String.format("%.1f", AP);
-        String mrDisplay = " §b⦿ §f" + String.format("%.1f", MR) + ")";
+        String mrDisplay = " §b⦿ §f" + String.format("%.1f", MR);
 
         return adDisplay + arDisplay + apDisplay + mrDisplay;
     }
