@@ -1,0 +1,59 @@
+package dev.ixpu.leaguemechanics.item;
+
+public class ItemStatData {
+    private String id;
+    private String name;
+    private double ad;
+    private double ap;
+    private double ar;
+    private double mr;
+
+    public ItemStatData(String id, String name, double ad, double ap, double ar, double mr) {
+        this.id = id;
+        this.name = name;
+        this.ad = ad;
+        this.ap = ap;
+        this.ar = ar;
+        this.mr = mr;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getAd() {
+        return ad;
+    }
+
+    public void setAd(double ad) {
+        this.ad = ad;
+    }
+
+    public double getAp() {
+        return ap;
+    }
+
+    public void setAp(double ap) {
+        this.ap = ap;
+    }
+
+    public double getAr() {
+        return ar;
+    }
+
+    public void setAr(double ar) {
+        this.ar = ar;
+    }
+
+    public double getMr() {
+        return mr;
+    }
+
+    public void setMr(double mr) {
+        this.mr = mr;
+    }
+}
