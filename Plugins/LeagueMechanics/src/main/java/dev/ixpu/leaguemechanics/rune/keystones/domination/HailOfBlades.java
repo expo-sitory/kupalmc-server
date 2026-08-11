@@ -125,7 +125,7 @@ public class HailOfBlades extends BaseRune {
             return;
         }
 
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - keystoneDamage(player, target)) * getScaledTrueDamage(player));
+        double newHealth = Math.clamp(livingTarget.getHealth() - (keystoneDamage(player, target) * getScaledTrueDamage(player)), 0, livingTarget.getMaxHealth());
 
         if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(player)) {
             return;
