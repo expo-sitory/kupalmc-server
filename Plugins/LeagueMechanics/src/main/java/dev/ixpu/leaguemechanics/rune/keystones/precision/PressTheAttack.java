@@ -20,7 +20,7 @@ import net.kyori.adventure.text.Component;
 
 public class PressTheAttack extends StackingRune {
 
-    private double BASE_ADAPTIVE_DAMAGE = 4.5;
+    private double BASE_ADAPTIVE_DAMAGE = 17.67;
 
     int COOLDOWN_DURATION_SECONDS = 6;
 
@@ -51,7 +51,7 @@ public class PressTheAttack extends StackingRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(shooter, "§7[Debug] §f[§ePress The Attack§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(shooter, "§7[Debug] §f[§ePress The Attack§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -65,7 +65,7 @@ public class PressTheAttack extends StackingRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(attacker, "§7[Debug] §f[§ePress The Attack§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(attacker, "§7[Debug] §f[§ePress The Attack§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -89,7 +89,7 @@ public class PressTheAttack extends StackingRune {
         int currentStacks = getStacks(player, targetUUID);
 
         if (currentStacks == 2) {
-            double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - keystoneDamage(player, target)));
+            double newHealth = Math.clamp(livingTarget.getHealth() - keystoneDamage(player, target), 0, livingTarget.getMaxHealth());
 
             DebugLogger.debug(player, "§7[Debug] §f[§ePress The Attack§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
             DebugLogger.debug(player, "§7[Debug] §f[§ePress The Attack§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);

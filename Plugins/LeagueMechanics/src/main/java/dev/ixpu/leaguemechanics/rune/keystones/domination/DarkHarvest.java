@@ -51,7 +51,7 @@ public class DarkHarvest extends StackingRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - playerDamage(shooter, target)));
+        double newHealth = Math.clamp(livingTarget.getHealth() - playerDamage(shooter, target), 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(shooter, "§7[Debug] §f[§cDark Harvest§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(shooter, "§7[Debug] §f[§cDark Harvest§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -67,7 +67,7 @@ public class DarkHarvest extends StackingRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         livingTarget.setHealth(newHealth);
 
@@ -88,7 +88,7 @@ public class DarkHarvest extends StackingRune {
         double targetHealth = livingTarget.getHealth();
         double maxHealth = livingTarget.getMaxHealth();
         double healthPercent = targetHealth / maxHealth;
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - keystoneDamage(player, target)));
+        double newHealth = Math.clamp(livingTarget.getHealth() - keystoneDamage(player, target), 0, livingTarget.getMaxHealth());
 
         if (healthPercent >= HEALTH_THRESHOLD) {
             return;

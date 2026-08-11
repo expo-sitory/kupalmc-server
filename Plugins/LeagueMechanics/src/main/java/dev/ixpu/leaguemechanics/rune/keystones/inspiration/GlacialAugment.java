@@ -71,7 +71,7 @@ public class GlacialAugment extends BaseRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(shooter, "§7[Debug] §f[§3Glacial Augment§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(shooter, "§7[Debug] §f[§3Glacial Augment§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -87,7 +87,7 @@ public class GlacialAugment extends BaseRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(attacker, "§7[Debug] §f[§3Glacial Augment§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(attacker, "§7[Debug] §f[§3Glacial Augment§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);

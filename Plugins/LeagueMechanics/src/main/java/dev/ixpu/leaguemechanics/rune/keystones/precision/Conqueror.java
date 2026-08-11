@@ -16,7 +16,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 
 public class Conqueror extends StackingRune {
@@ -46,8 +45,8 @@ public class Conqueror extends StackingRune {
             return;
         }
 
-        double statsDamage = keystoneDamage(shooter, target, getStacks(shooter));
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double statsDamage = playerDamage(shooter, target) + keystoneDamage(shooter, target, getStacks(shooter));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(shooter, "§7[Debug] §f[§eConqueror§f] (Projectile) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(shooter, "§7[Debug] §f[§eConqueror§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -57,13 +56,13 @@ public class Conqueror extends StackingRune {
         activateConqueror(shooter, target);
     }
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
 
-        double statsDamage = keystoneDamage(attacker, target, getStacks(attacker));
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double statsDamage = playerDamage(attacker, target) + keystoneDamage(attacker, target, getStacks(attacker));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(attacker, "§7[Debug] §f[§eConqueror§f] (Melee) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(attacker, "§7[Debug] §f[§eConqueror§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);

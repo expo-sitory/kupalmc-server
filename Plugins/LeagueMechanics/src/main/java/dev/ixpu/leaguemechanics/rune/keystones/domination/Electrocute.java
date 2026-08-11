@@ -52,7 +52,7 @@ public class Electrocute extends StackingRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         livingTarget.setHealth(newHealth);
 
@@ -68,7 +68,7 @@ public class Electrocute extends StackingRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         livingTarget.setHealth(newHealth);
 
@@ -96,7 +96,7 @@ public class Electrocute extends StackingRune {
         addStack(player, targetUUID);
 
         int stacks = getStacks(player, targetUUID);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - keystoneDamage(player, target)));
+        double newHealth = Math.clamp(livingTarget.getHealth() - keystoneDamage(player, target), 0, livingTarget.getMaxHealth());
 
         if (stacks >= MAXIMUM_STACKS) {
             target.getWorld().strikeLightning(target.getLocation());

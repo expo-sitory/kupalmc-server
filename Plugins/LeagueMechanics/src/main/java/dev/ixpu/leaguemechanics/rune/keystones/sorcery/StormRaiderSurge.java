@@ -18,7 +18,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import net.kyori.adventure.text.Component;
 
@@ -70,7 +69,7 @@ public class StormRaiderSurge extends BaseRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(shooter, "§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(shooter, "§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -78,25 +77,24 @@ public class StormRaiderSurge extends BaseRune {
         livingTarget.setHealth(newHealth);
     }
 
-    public void onAttack(Player attacker, Entity target, EntityDamageByEntityEvent event) {
+    public void onAttack(Player attacker, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(attacker, "§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(attacker, "§7[Debug] §f[§9Storm Raider Surge§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);
 
-        activateStormRaiderSurge(attacker, target, event);
+        activateStormRaiderSurge(attacker, target);
     }
 
-    private void activateStormRaiderSurge(Player player, Entity target, EntityDamageByEntityEvent event) {
+    private void activateStormRaiderSurge(Player player, Entity target) {
         UUID attackerUUID = player.getUniqueId();
-        double estimatedDamage = event.getDamage();
 
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
@@ -104,10 +102,17 @@ public class StormRaiderSurge extends BaseRune {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (isOnCooldown(player)) {
+            return;
+        }
+
+        double estimatedDamage = playerDamage(player, target);
         double damageThreshold = livingTarget.getMaxHealth() * DAMAGE_THRESHOLD_PERCENTAGE;
+
         if (estimatedDamage < damageThreshold) {
             return;
         }
+
         double currentDamage = damageTracker.getOrDefault(attackerUUID, 0.0);
         damageTracker.put(attackerUUID, currentDamage + estimatedDamage);
     }

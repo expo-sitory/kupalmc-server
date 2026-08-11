@@ -2,14 +2,16 @@ package dev.ixpu.leaguemechanics.listener;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
+import dev.ixpu.leaguemechanics.player.PlayerRuneData;
+import dev.ixpu.leaguemechanics.rune.BaseRune;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
 
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -65,6 +67,28 @@ public class PlayerEventListener implements Listener {
     public void onAttack(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDamaged(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+
+        if (!(event.getDamager() instanceof Player)) {
+            return;
+        }
+
+        PlayerRuneData runeData = runeManager.getPlayerRuneData(player);
+        if (runeData == null) {
+            return;
+        }
+
+        for (BaseRune rune : runeData.getAllRunes()) {
+            if (rune instanceof GraspOfTheUndying grasp) {
+                grasp.onCombat(player);
+            }
         }
     }
 

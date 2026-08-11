@@ -91,7 +91,7 @@ public class HailOfBlades extends BaseRune {
         }
 
         double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(shooter, "§7[Debug] §f[§cHail of Blades§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(shooter, "§7[Debug] §f[§cHail of Blades§f] (Projectile) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -105,7 +105,7 @@ public class HailOfBlades extends BaseRune {
         }
 
         double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.max(0, Math.min(livingTarget.getMaxHealth(), livingTarget.getHealth() - statsDamage));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(attacker, "§7[Debug] §f[§cHail of Blades§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(attacker, "§7[Debug] §f[§cHail of Blades§f] (Melee) Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
@@ -162,39 +162,15 @@ public class HailOfBlades extends BaseRune {
 
     private int trackActiveStacks(Player player) {
         UUID playerUUID = player.getUniqueId();
-        List<Integer> durations = stackDurationTicks.getOrDefault(playerUUID, new ArrayList<>());
 
         int inactivityCount = lastAttackTick.getOrDefault(playerUUID, 0);
         inactivityCount++;
         lastAttackTick.put(playerUUID, inactivityCount);
 
-        if (inactivityCount >= INACTIVITY_TIMEOUT_TICKS && !durations.isEmpty()) {
-            durations.removeFirst();
+        if (inactivityCount >= INACTIVITY_TIMEOUT_TICKS) {
             currentStacks.put(playerUUID, currentStacks.getOrDefault(playerUUID, 0) - 1);
-
-            for (int i = 0; i < durations.size(); i++) {
-                durations.set(i, STACK_DURATION_TICKS);
-            }
-
-            player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_HIT_GROUND, 1.0f, 0.5f);
+            player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_HIT_GROUND, 1.0f, 0.5f);  // ← Here
             lastAttackTick.put(playerUUID, 0);
-        }
-
-        List<Integer> expiredIndices = new ArrayList<>();
-        for (int i = 0; i < durations.size(); i++) {
-            int duration = durations.get(i);
-            duration--;
-            durations.set(i, duration);
-
-            if (duration <= 0) {
-                expiredIndices.add(i);
-            }
-        }
-
-        for (int i = expiredIndices.size() - 1; i >= 0; i--) {
-            durations.remove((int) expiredIndices.get(i));
-            currentStacks.put(playerUUID, currentStacks.getOrDefault(playerUUID, 0) - 1);
-            player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_HIT_GROUND, 1.0f, 0.5f);
         }
 
         return currentStacks.getOrDefault(playerUUID, 0);
