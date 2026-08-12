@@ -1,23 +1,127 @@
 # LeagueMechanics
 
-### Damage System
-- **Adaptive Scaling**: Keystones compare physical (AD vs Armor) and magic (AP vs MR) damage, dealing whichever is higher
-  - Conversion: 1 AD = 0.5 HP | 1 AP = 0.25 HP
-- **Level XP Multiplier**: Damage scales based on player level:
-  - Level 1-49: 1.03x multiplier
-  - Level 50-99: 1.07x multiplier
-  - Level 100-199: 1.2x multiplier
-  - Level 200-299: 1.5x multiplier
-  - Level 300+: 1.7x multiplier
-- **Stat Scaling**: Bonus damage calculated as percentages of total AD and AP
+---
+
+## Features
+
+**Rune System**: 14 keystones across 5 paths (Precision, Resolve, Domination, Sorcery, Inspiration).
+
+**Item Stats Management**: Equip gear with custom stat values. 
+
+  - **Current:** 
+    - Attack Damage
+    - Ability Power
+    - Armor
+    - Magic Resist
+    - Health
+    - Attack Speed
+    - Movement Speed
+
+**Adaptive Damage**: All damage scales dynamically based on your total AD/AP versus enemy AR/MR, choosing the most effective damage type automatically.
+
+
+## Stat System
 
 ### Player Stats
-- **Attack Damage (AD)**: Base = 1.0 + Player Weapon (+Sharpness Enchantment) + Item Build Stats
-- **Physical Armor (AR)**: Base = 0.0 + Player Armor (+Protection Enchantment) + Item Build Stats
-- **Ability Power (AP)**: Base = 12.0 + Item Build Stats
-- **Magic Resist (MR)**: Base = 5.0 + Item Build Stats
+Players accumulate stats from two sources:
+
+1. **Base Stats** (hardcoded):
+  - Attack Damage (AD): Base 1.0 + Weapon sharpness
+  - Physical Armor (AR): Base 0.0 + Armor protection
+  - Ability Power (AP): Base 12.0
+  - Magic Resist (MR): Base 5.0
+
+2. **Item Stats** (NBT-driven):
+  - Bonus AD, AR, AP, MR
+  - Bonus HP, AS (attack speed %), MS (movement speed %)
+  - Health Regen (HR) and Saturation Regen (SR)
+
+
+Each item's stats are stored in custom NBT tags and synced when equipped.
+
+### Stat Conversion
+
+For adaptive damage calculations:
+- 1 AD = 0.25 HP equivalent
+- 1 AP = 0.25 HP equivalent
+
+
+## List of Current Items
+
+**Stat Legend:**
+- **AD**: Attack Damage
+- **AP**: Ability Power
+- **AR**: Armor
+- **MR**: Magic Resist
+- **HP**: Health
+- **HR**: Health Regen per 15s
+- **SR**: Saturation Regen per 25s
+- **AS**: Attack Speed %
+- **MS**: Movement Speed %
+
+### Starter Items
+
+Limitations: Limited to 1 **ꜱᴛᴀʀᴛᴇʀ** item
+
+| Item | AD | AP | AR | MR | HP | HR |
+|---|---|---|---|---|---|---|
+| Doran's Blade | 10 | — | — | — | 8 | — |
+| Doran's Bow | 8 | — | — | — | — | — |
+| Doran's Helm | — | — | 8 | 8 | 10 | — |
+| Doran's Ring | — | 18 | — | — | 9 | — |
+| Doran's Shield | — | — | — | — | 11 | 0.5 |
+| Dark Seal | — | 15 | — | — | 5 | — |
+
+
+
+### Basic Items
+
+For future items recipes
+
+| Item | AD | AP | AR | MR | HP | HR | SR | AS | MS |
+|---|---|---|---|---|---|---|---|---|---|
+| Amplifying Tome | — | 20 | — | — | — | — | — | — | — |
+| Blasting Wand | — | 45 | — | — | — | — | — | — | — |
+| Needlessly Large Rod | — | 65 | — | — | — | — | — | — | — |
+| Cull | 7 | — | — | — | — | — | — | — | — |
+| Long Sword | 10 | — | — | — | — | — | — | — | — |
+| Pickaxe | 25 | — | — | — | — | — | — | — | — |
+| B.F. Sword | 45 | — | — | — | — | — | — | — | — |
+| Cloth Armor | — | — | 15 | — | — | — | — | — | — |
+| Chain Vest | — | — | 40 | — | — | — | — | — | — |
+| Null-Magic Mantle | — | — | — | 20 | — | — | — | — | — |
+| Negatron Cloak | — | — | — | 45 | — | — | — | — | — |
+| Ruby Crystal | — | — | — | — | 10 | — | — | — | — |
+| Rejuvenation Bead | — | — | — | — | — | 1.0 | — | — | — |
+| Faeri Charm | — | — | — | — | — | — | 1.0 | — | — |
+| Dagger | — | — | — | — | — | — | — | 10 | — |
+| Boots | — | — | — | — | — | — | — | — | 25 |
 
 ---
+
+## Damage System
+
+### Adaptive Scaling
+Keystones automatically compare physical and magic damage paths, dealing whichever is higher based on your gear and enemy defenses.
+
+**Physical Damage** = (Attacker AD - Target AR) / 2
+**Magic Damage** = (Attacker AP - Target MR) / 4
+**Adaptive Damage** = max(Physical, Magic) × Level Multiplier
+
+### Level Multipliers
+Damage scales with player level across 5 tiers:
+- Level 1-49: 1.03x
+- Level 50-99: 1.07x
+- Level 100-199: 1.2x
+- Level 200-299: 1.5x
+- Level 300+: 1.7x
+
+### Stat Scaling
+Each keystone applies bonus damage as a percentage of your total AD and AP, separate from adaptive calculations.
+
+### Per-Stack Damage
+Stacking runes multiply base damage by current stack count.
+
 
 # Keystones
 
@@ -31,7 +135,7 @@
 **Cooldown**: None
 
 ### Press the Attack
-**PASSIVE**: Melee attacks against entities apply a stack for 3 seconds, refreshing on subsequent applications. Stacking up to 3 times, the third stack consumes all stacks to deal 4.5-7.65 (base on level) bonus adaptive damage.
+**PASSIVE**: Melee attacks against entities apply a stack for 3 seconds, refreshing on subsequent applications. Stacking up to 3 times, the third stack consumes all stacks to deal 17.67-30.04 (base on level) bonus adaptive damage.
 
 **ADAPTIVE DAMAGE**: Press the Attack deals either physical or magical damage depending on whether you have more attack damage or ability power. If the damage contribution are equal, the damage type depends on your adaptive type.
 
@@ -130,7 +234,6 @@ Damaging melee or projectile attacks apply stacks against entities, up to one pe
 
 **Cooldown**: 45 seconds
 
-
 ---
 
 ## Damage Calculation Formula
@@ -147,7 +250,7 @@ magicDamage = (attackerAP - targetMR) / 4
 
 ### Adaptive Damage
 ```
-adaptiveDamage = max(physicalDamage, magicalDamage) * levelMultiplier
+adaptiveDamage = max(physicalDamage, magicDamage) * levelMultiplier
 ```
 
 ### Bonus Scaling
@@ -157,9 +260,9 @@ totalDamage = adaptiveDamage + bonusScaling
 ```
 
 ### BuffManager Integration
-Utility runes (FleetFootwork, GlacialAugment) use BuffManager for scaling:
+Utility runes (FleetFootwork, GlacialAugment, Grasp) use BuffManager for scaling:
 ```
-scaledValue = baseValue + (AD × adMultiplier) + (AP * apMultiplier)
+scaledValue = baseValue + (AD × adMultiplier) + (AP × apMultiplier)
 ```
 
 ### Per-Stack Damage
