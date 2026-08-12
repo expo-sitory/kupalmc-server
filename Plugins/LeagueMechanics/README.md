@@ -70,6 +70,7 @@ Limitations: Limited to 1 **ꜱᴛᴀʀᴛᴇʀ** item
 | Doran's Ring | — | 18 | — | — | 9 | — |
 | Doran's Shield | — | — | — | — | 11 | 0.5 |
 | Dark Seal | — | 15 | — | — | 5 | — |
+| Cull | 7 | — | — | — | — | — | — | — | — |
 
 
 
@@ -82,7 +83,6 @@ For future items recipes
 | Amplifying Tome | — | 20 | — | — | — | — | — | — | — |
 | Blasting Wand | — | 45 | — | — | — | — | — | — | — |
 | Needlessly Large Rod | — | 65 | — | — | — | — | — | — | — |
-| Cull | 7 | — | — | — | — | — | — | — | — |
 | Long Sword | 10 | — | — | — | — | — | — | — | — |
 | Pickaxe | 25 | — | — | — | — | — | — | — | — |
 | B.F. Sword | 45 | — | — | — | — | — | — | — | — |
