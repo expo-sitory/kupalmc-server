@@ -1,6 +1,6 @@
 package dev.ixpu.leaguemechanics.util;
 
-import dev.ixpu.leaguemechanics.item.ItemManager;
+import dev.ixpu.leaguemechanics.item.ItemListData;
 import dev.ixpu.leaguemechanics.item.ItemStatData;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -45,7 +45,7 @@ public class ItemStatHelper {
         String itemId = getItemId(item);
         if (itemId == null) return;
 
-        ItemStatData statData = ItemManager.getInstance().getItem(itemId);
+        ItemStatData statData = ItemListData.getInstance().getItem(itemId);
         if (statData == null) return;
 
         updateItemLore(item, statData);
@@ -58,16 +58,31 @@ public class ItemStatHelper {
         List<String> lore = new ArrayList<>();
 
         if (statData.getAd() > 0) {
-            lore.add("§aAttack Damage: +" + formatStat(statData.getAd()));
+            lore.add("§6🗡 " + formatStat(statData.getAd()) + " §fAttack Damage");
         }
         if (statData.getAp() > 0) {
-            lore.add("§aAbility Power: +" + formatStat(statData.getAp()));
+            lore.add("§9☄ " + formatStat(statData.getAp()) + " §fAbility Power");
         }
         if (statData.getAr() > 0) {
-            lore.add("§aArmor: +" + formatStat(statData.getAr()));
+            lore.add("§e🛡 " + formatStat(statData.getAr()) + " §fArmor");
         }
         if (statData.getMr() > 0) {
-            lore.add("§aMagic Resist: +" + formatStat(statData.getMr()));
+            lore.add("§b⦿ " + formatStat(statData.getMr()) + " §fMagic Resist");
+        }
+        if (statData.getHp() > 0) {
+            lore.add("§a❤ " + formatStat(statData.getHp()) + " §fHealth");
+        }
+        if (statData.getHr() > 0) {
+            lore.add("§c❣ " + formatStat(statData.getHr()) + " §fHealth Regen per 15 sec.");
+        }
+        if (statData.getSr() > 0) {
+            lore.add("§6🍖 " + formatStat(statData.getSr()) + " §fSaturation Regen per 25 sec.");
+        }
+        if (statData.getAs() > 0) {
+            lore.add("§7⚔ " + formatStat(statData.getAs()) + "% §fAttack Speed");
+        }
+        if (statData.getMs() > 0) {
+            lore.add("§2👣 " + formatStat(statData.getMs()) + "% §fMovement Speed");
         }
 
         meta.setLore(lore);
@@ -88,7 +103,7 @@ public class ItemStatHelper {
         String itemId = getItemId(item);
         if (itemId == null) return 0;
 
-        ItemStatData statData = ItemManager.getInstance().getItem(itemId);
+        ItemStatData statData = ItemListData.getInstance().getItem(itemId);
         if (statData == null) return 0;
 
         return switch (statType.toUpperCase()) {
@@ -96,6 +111,11 @@ public class ItemStatHelper {
             case "AP" -> statData.getAp();
             case "AR" -> statData.getAr();
             case "MR" -> statData.getMr();
+            case "HP" -> statData.getHp();
+            case "HR" -> statData.getHr();
+            case "SR" -> statData.getSr();
+            case "AS" -> statData.getAs();
+            case "MS" -> statData.getMs();
             default -> 0;
         };
     }
