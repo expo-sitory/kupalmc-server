@@ -22,11 +22,18 @@ public class DamageManager {
         this.isOnlyAP = true;
     }
 
+
     public double totalBonusDamage(Player player, Entity target, int currentStacks) {
         PlayerStats stats = new PlayerStats();
 
-        double totalPhysicalDamage = Math.max(0, (stats.getPlayerAD(player) - getTargetAR(target)) / 2);
-        double totalMagicDamage = Math.max(0, (stats.getPlayerAP(player) - getTargetMR(target)) / 4);
+        double rawAD = stats.getPlayerAD(player) / 4;
+        double rawAP = stats.getPlayerAP(player) / 4;
+
+        double targetArmor = getTargetAR(target);
+        double totalPhysicalDamage = rawAD / (1.0 + (targetArmor / 100.0));
+
+        double targetMR = getTargetMR(target);
+        double totalMagicDamage = rawAP / (1.0 + (targetMR / 100.0));
 
         if (isOnlyAP) {
             return totalMagicDamage * levelBasedBonus(player);
