@@ -210,8 +210,8 @@ public class ArcaneComet extends BaseRune {
 
     private String getRuneDisplay(RuneState state, Player player) {
         return switch (state) {
-            case COOLDOWN -> "§7💥 " + getCooldownDisplay(player);
-            case IDLE -> "§1💥";
+            case COOLDOWN -> "§7🌠" + getCooldownDisplay(player);
+            case IDLE -> "§1🌠";
         };
     }
 
