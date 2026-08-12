@@ -15,12 +15,21 @@ public class PlayerStats {
     double BASE_ABILITY_POWER = 12.0;
     double BASE_MAGIC_RESIST = 5.0;
 
+    double BASE_BONUS_HEALTH = 0.0;
+    double BASE_BONUS_ATTACK_SPEED = 0.0;
+    double BASE_BONUS_HEALTH_REGEN = 0.0;
+    double BASE_BONUS_SATURATION_REGEN = 0.0;
+
 
     public void tick(Player player) {
         getPlayerAD(player);
         getPlayerAP(player);
         getPlayerAR(player);
         getPlayerMR(player);
+        getPlayerHP(player);
+        getPlayerHR(player);
+        getPlayerSR(player);
+        getPlayerAS(player);
     }
 
     public double getPlayerWeapon(Player player) {
@@ -116,6 +125,42 @@ public class PlayerStats {
         return totalMR;
     }
 
+    public double getPlayerHP(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double totalHP = BASE_BONUS_HEALTH;
+        if (itemStatsManager != null) {
+            totalHP += itemStatsManager.getItemHP(player);
+        }
+        return totalHP;
+    }
+
+    public double getPlayerHR(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double totalHR = BASE_BONUS_HEALTH_REGEN;
+        if (itemStatsManager != null) {
+            totalHR += itemStatsManager.getItemHR(player);
+        }
+        return totalHR;
+    }
+
+    public double getPlayerAS(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double totalAS = BASE_BONUS_ATTACK_SPEED;
+        if (itemStatsManager != null) {
+            totalAS += itemStatsManager.getItemAS(player);
+        }
+        return totalAS;
+    }
+
+    public double getPlayerSR(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double totalSR = BASE_BONUS_SATURATION_REGEN;
+        if (itemStatsManager != null) {
+            totalSR += itemStatsManager.getItemSR(player);
+        }
+        return totalSR;
+    }
+
 
     public String getActionBarSections(Player player) {
         double SHARPNESS = getPlayerWeapon(player);
@@ -125,6 +170,11 @@ public class PlayerStats {
         double AR = getPlayerAR(player);
         double AP = getPlayerAP(player);
         double MR = getPlayerMR(player);
+
+        double AS = getPlayerAS(player);
+        double HP = getPlayerHP(player);
+        double HR = getPlayerHR(player);
+        double SR = getPlayerSR(player);
 
 
         String adDisplay = " §6🗡 §f" + String.format("%.1f", AD);
