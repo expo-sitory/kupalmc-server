@@ -2,9 +2,10 @@ package dev.ixpu.leaguemechanics.command;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 
-import dev.ixpu.leaguemechanics.item.ItemManager;
+import dev.ixpu.leaguemechanics.item.ItemListData;
 import dev.ixpu.leaguemechanics.item.ItemStatData;
 
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
 
@@ -30,12 +31,14 @@ public class CommandHandler implements CommandExecutor {
     private final ItemStatsManager itemStatsManager;
     private final RuneManager runeManager;
     private final RunePersistence runePersistence;
+    private final PlayerEventListener playerEventListener;
 
-    public CommandHandler(LeagueMechanics plugin, ItemStatsManager itemStatsManager, RuneManager runeManager, RunePersistence runePersistence) {
+    public CommandHandler(LeagueMechanics plugin, ItemStatsManager itemStatsManager, RuneManager runeManager, RunePersistence runePersistence, PlayerEventListener playerEventListener) {
         this.plugin = plugin;
         this.itemStatsManager = itemStatsManager;
         this.runeManager = runeManager;
         this.runePersistence = runePersistence;
+        this.playerEventListener = playerEventListener;
     }
 
     @Override
@@ -84,7 +87,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         String itemId = args[1].toLowerCase();
-        ItemStatData itemData = ItemManager.getInstance().getItem(itemId);
+        ItemStatData itemData = ItemListData.getInstance().getItem(itemId);
 
         if (itemData == null) {
             player.sendMessage(Component.text("§cItem not found: " + itemId));
@@ -102,6 +105,10 @@ public class CommandHandler implements CommandExecutor {
         ItemStatHelper.syncItemStats(item);
 
         player.getInventory().addItem(item);
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            playerEventListener.applyPlayerStats(player);
+        }, 1L);
+
         player.sendMessage(Component.text("§a✓ Gave " + itemData.getName()));
         return true;
     }
