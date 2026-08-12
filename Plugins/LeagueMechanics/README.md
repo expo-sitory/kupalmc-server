@@ -1,6 +1,5 @@
 # LeagueMechanics
 
----
 
 ## Features
 
