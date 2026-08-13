@@ -26,8 +26,8 @@ Players accumulate stats from two sources:
 
 1. **Base Stats** (hardcoded):
   - Attack Damage (AD): Base 1.0 + Weapon sharpness
-  - Physical Armor (AR): Base 0.0 + Armor protection
-  - Ability Power (AP): Base 12.0
+  - Physical Armor (AR): Base 15.0 + Armor protection
+  - Ability Power (AP): Base 4.0
   - Magic Resist (MR): Base 5.0
 
 2. **Item Stats** (NBT-driven):
@@ -239,7 +239,7 @@ Damaging melee or projectile attacks apply stacks against entities, up to one pe
 
 ### Physical Damage
 ```
-physicalDamage = (attackerAD - targetAR) / 2
+physicalDamage = (attackerAD - targetAR) / 4
 ```
 
 ### Magic Damage
