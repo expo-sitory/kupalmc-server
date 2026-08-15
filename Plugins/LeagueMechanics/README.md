@@ -25,10 +25,10 @@
 Players accumulate stats from two sources:
 
 1. **Base Stats** (hardcoded):
-  - Attack Damage (AD): Base 1.0 + Weapon sharpness
-  - Physical Armor (AR): Base 0.0 + Armor protection
-  - Ability Power (AP): Base 12.0
-  - Magic Resist (MR): Base 5.0
+  - Attack Damage (AD): Base 4.0 + Weapon sharpness
+  - Physical Armor (AR): Base 15.0 + Armor protection
+  - Ability Power (AP): Base 4.0
+  - Magic Resist (MR): Base 15.0
 
 2. **Item Stats** (NBT-driven):
   - Bonus AD, AR, AP, MR
