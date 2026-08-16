@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import dev.ixpu.leaguemechanics.player.PlayerRuneData;
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.util.RuneDetector;
 
 public class RuneManager {
@@ -27,7 +27,7 @@ public class RuneManager {
         playerRuneData.put(uuid, runeData);
         playerRunesActive.put(uuid, true);
 
-        for (BaseRune rune : runeData.getAllRunes()) {
+        for (CooldownHandler rune : runeData.getAllRunes()) {
             if (rune != null) {
                 rune.onEnable(player);
             }
@@ -44,7 +44,7 @@ public class RuneManager {
         PlayerRuneData runeData = playerRuneData.get(uuid);
 
         if (runeData != null) {
-            for (BaseRune rune : runeData.getAllRunes()) {
+            for (CooldownHandler rune : runeData.getAllRunes()) {
                 if (rune != null) {
                     rune.onDisable(player);
                 }
@@ -73,7 +73,7 @@ public class RuneManager {
             return;
         }
 
-        for (BaseRune rune : runeData.getAllRunes()) {
+        for (CooldownHandler rune : runeData.getAllRunes()) {
             if (rune != null) {
                 rune.tick(player);
             }
@@ -101,11 +101,11 @@ public class RuneManager {
         return plugin;
     }
 
-    public void setPlayerKeystoneRune(Player player, BaseRune rune) {
+    public void setPlayerKeystoneRune(Player player, CooldownHandler rune) {
         UUID uuid = player.getUniqueId();
         PlayerRuneData runeData = playerRuneData.getOrDefault(uuid, new PlayerRuneData(player));
 
-        BaseRune oldRune = runeData.getKeystoneRune();
+        CooldownHandler oldRune = runeData.getKeystoneRune();
         if (oldRune != null) {
             oldRune.onDisable(player);
         }
@@ -120,7 +120,7 @@ public class RuneManager {
         PlayerRuneData runeData = playerRuneData.get(uuid);
 
         if (runeData != null) {
-            for (BaseRune rune : runeData.getAllRunes()) {
+            for (CooldownHandler rune : runeData.getAllRunes()) {
                 if (rune != null) {
                     rune.onDisable(player);
                 }
