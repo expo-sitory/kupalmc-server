@@ -1,6 +1,6 @@
 package dev.ixpu.leaguemechanics.player;
 
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import org.bukkit.entity.Player;
 
@@ -8,12 +8,12 @@ public class PlayerRuneData {
     private final Player player;
     private RunePath primaryPath;
     private RunePath secondaryPath;
-    private BaseRune keystoneRune;
-    private BaseRune primarySlot1Rune;
-    private BaseRune primarySlot2Rune;
-    private BaseRune primarySlot3Rune;
-    private BaseRune secondarySlot1Rune;
-    private BaseRune secondarySlot2Rune;
+    private CooldownHandler keystoneRune;
+    private CooldownHandler primarySlot1Rune;
+    private CooldownHandler primarySlot2Rune;
+    private CooldownHandler primarySlot3Rune;
+    private CooldownHandler secondarySlot1Rune;
+    private CooldownHandler secondarySlot2Rune;
 
     public PlayerRuneData(Player player) {
         this.player = player;
@@ -39,56 +39,56 @@ public class PlayerRuneData {
         this.secondaryPath = path;
     }
 
-    public BaseRune getKeystoneRune() {
+    public CooldownHandler getKeystoneRune() {
         return keystoneRune;
     }
 
-    public void setKeystoneRune(BaseRune rune) {
+    public void setKeystoneRune(CooldownHandler rune) {
         this.keystoneRune = rune;
     }
 
-    public BaseRune getPrimarySlot1Rune() {
+    public CooldownHandler getPrimarySlot1Rune() {
         return primarySlot1Rune;
     }
 
-    public void setPrimarySlot1Rune(BaseRune rune) {
+    public void setPrimarySlot1Rune(CooldownHandler rune) {
         this.primarySlot1Rune = rune;
     }
 
-    public BaseRune getPrimarySlot2Rune() {
+    public CooldownHandler getPrimarySlot2Rune() {
         return primarySlot2Rune;
     }
 
-    public void setPrimarySlot2Rune(BaseRune rune) {
+    public void setPrimarySlot2Rune(CooldownHandler rune) {
         this.primarySlot2Rune = rune;
     }
 
-    public BaseRune getPrimarySlot3Rune() {
+    public CooldownHandler getPrimarySlot3Rune() {
         return primarySlot3Rune;
     }
 
-    public void setPrimarySlot3Rune(BaseRune rune) {
+    public void setPrimarySlot3Rune(CooldownHandler rune) {
         this.primarySlot3Rune = rune;
     }
 
-    public BaseRune getSecondarySlot1Rune() {
+    public CooldownHandler getSecondarySlot1Rune() {
         return secondarySlot1Rune;
     }
 
-    public void setSecondarySlot1Rune(BaseRune rune) {
+    public void setSecondarySlot1Rune(CooldownHandler rune) {
         this.secondarySlot1Rune = rune;
     }
 
-    public BaseRune getSecondarySlot2Rune() {
+    public CooldownHandler getSecondarySlot2Rune() {
         return secondarySlot2Rune;
     }
 
-    public void setSecondarySlot2Rune(BaseRune rune) {
+    public void setSecondarySlot2Rune(CooldownHandler rune) {
         this.secondarySlot2Rune = rune;
     }
 
-    public BaseRune[] getAllRunes() {
-        return new BaseRune[] {
+    public CooldownHandler[] getAllRunes() {
+        return new CooldownHandler[] {
             keystoneRune,
             primarySlot1Rune,
             primarySlot2Rune,
