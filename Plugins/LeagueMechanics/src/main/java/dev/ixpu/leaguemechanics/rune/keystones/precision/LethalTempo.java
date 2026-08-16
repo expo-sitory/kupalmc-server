@@ -2,15 +2,14 @@ package dev.ixpu.leaguemechanics.rune.keystones.precision;
 
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
-import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.rune.StacksHandler;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.*;
 
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -19,10 +18,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 
-public class LethalTempo extends StackingRune {
+public class LethalTempo extends StacksHandler {
 
     private double ATTACK_SPEED = 0.6;
-    private double BASE_ADAPTIVE_DAMAGE = 4.5;
+    private double BASE_ADAPTIVE_DAMAGE = 0.7;
+
+    private PlayerEventListener listener;
 
     private static final int MAXIMUM_STACKS = 6;
     private static final int ACTIVE_DURATION_TICKS = 60;
@@ -32,11 +33,12 @@ public class LethalTempo extends StackingRune {
 
     private final Map<UUID, RuneState> playerState = new HashMap<>();
     private final Map<UUID, Integer> activeState = new HashMap<>();
-    private final Map<UUID, List<AttributeModifier>> activeModifiers = new HashMap<>();
+    private final Map<UUID, Double> activeASBonus = new HashMap<>();
     private final Map<UUID, Map<UUID, List<Long>>> stackTimestamps = new HashMap<>();
 
     public LethalTempo(org.bukkit.configuration.ConfigurationSection config) {
         super("lethal-tempo", RunePath.PRECISION, RuneSlot.KEYSTONE, 6, 120);
+        this.listener = listener;
         enablePerTargetStacking();
 
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.precision.lethal-tempo");
@@ -54,6 +56,7 @@ public class LethalTempo extends StackingRune {
         UUID uuid = player.getUniqueId();
         playerState.put(uuid, RuneState.STACKING);
         activeState.put(uuid, 0);
+        activeASBonus.put(uuid, 0.0);
     }
 
     @Override
@@ -62,38 +65,12 @@ public class LethalTempo extends StackingRune {
         super.onDisable(player);
         playerState.remove(uuid);
         activeState.remove(uuid);
+        activeASBonus.remove(uuid);
         stackTimestamps.remove(uuid);
         clearPlayerCooldown(player);
-        removeAllModifiers(player);
-    }
-
-    public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
     }
 
     public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         activateLethalTempo(attacker, target);
     }
 
@@ -129,37 +106,13 @@ public class LethalTempo extends StackingRune {
     }
 
     private double keystoneDamage(Player player, Entity target, int currentStacks) {
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return 0.0;
+        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
         damageManager.enablePerStackScaling();
-        double damage = damageManager.totalBonusDamage(player, target, currentStacks);
-        return Math.ceil(damage * 100) / 100.0;
-    }
-
-    private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-
-
-    @SuppressWarnings("removal")
-    private void applyAttackSpeedBonus(Player player) {
-        removeAllModifiers(player);
-
-        var modifier = new AttributeModifier(
-                UUID.randomUUID(),
-                "lethal-tempo-active",
-                ATTACK_SPEED,
-                AttributeModifier.Operation.ADD_SCALAR
-        );
-
-        var attackSpeedAttr = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
-        if (attackSpeedAttr == null) {
-            return;
-        }
-
-        attackSpeedAttr.addModifier(modifier);
-        activeModifiers.computeIfAbsent(player.getUniqueId(), k -> new ArrayList<>()).add(modifier);
+        return damageManager.DamageCalculation(player, target, currentStacks, BASE_ADAPTIVE_DAMAGE, 0);
     }
 
     private void addStackForTarget(Player player, UUID targetUUID) {
@@ -204,24 +157,11 @@ public class LethalTempo extends StackingRune {
         targetTimestamps.removeIf(timestamp -> (currentTime - timestamp) > stackDurationMs);
     }
 
-    private void removeAllModifiers(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        List<AttributeModifier> mods = activeModifiers.getOrDefault(playerUUID, new ArrayList<>());
-        for (AttributeModifier mod : mods) {
-            try {
-                Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED)).removeModifier(mod);
-            } catch (Exception e) {
-                //
-            }
-        }
-        activeModifiers.put(playerUUID, new ArrayList<>());
-    }
-
     private void enterActiveState(Player player) {
         UUID playerUUID = player.getUniqueId();
         playerState.put(playerUUID, RuneState.ACTIVE);
         activeState.put(playerUUID, ACTIVE_DURATION_TICKS);
-        applyAttackSpeedBonus(player);
+        activeASBonus.put(playerUUID, ATTACK_SPEED);
         player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.2f);
     }
 
@@ -237,6 +177,10 @@ public class LethalTempo extends StackingRune {
             currentStacks = getActiveStacks(player, lastTargetUUID);
         }
         return currentStacks;
+    }
+
+    public double getActiveASBonus(Player player) {
+        return activeASBonus.getOrDefault(player.getUniqueId(), 0.0);
     }
 
     @Override
@@ -267,7 +211,7 @@ public class LethalTempo extends StackingRune {
             if (activeTime == 0) {
                 resetCooldown(player);
                 playerState.put(playerUUID, RuneState.STACKING);
-                removeAllModifiers(player);
+                activeASBonus.put(playerUUID, 0.0);
                 resetStacks(player);
                 clearPlayerTimestamps(player);
                 player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.2f);

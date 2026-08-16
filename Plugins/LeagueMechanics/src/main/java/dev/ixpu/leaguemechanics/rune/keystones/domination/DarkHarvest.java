@@ -3,10 +3,11 @@ package dev.ixpu.leaguemechanics.rune.keystones.domination;
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
-import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.rune.StacksHandler;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -17,9 +18,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 
-public class DarkHarvest extends StackingRune {
+public class DarkHarvest extends StacksHandler {
 
-    private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 2.5;
+    private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 0.2;
     private int LEVEL_COST_PER_STACK = 5;
 
     int COOLDOWN_DURATION_SECONDS = 60;
@@ -28,9 +29,11 @@ public class DarkHarvest extends StackingRune {
     private static final int REAP_DELAY_TICKS = 75;
 
     private LeagueMechanics plugin;
+    private PlayerEventListener listener;
 
-    public DarkHarvest(ConfigurationSection config) {
+    public DarkHarvest(ConfigurationSection config, PlayerEventListener listener) {
         super("dark-harvest", RunePath.DOMINATION, RuneSlot.KEYSTONE, 20);
+        this.listener = listener;
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.dark-harvest");
         if (section != null) {
             this.BASE_ADAPTIVE_DAMAGE_PER_STACK = section.getDouble("adaptive-damage-per-stack", this.BASE_ADAPTIVE_DAMAGE_PER_STACK);
@@ -46,34 +49,10 @@ public class DarkHarvest extends StackingRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - playerDamage(shooter, target), 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         activateDarkHarvest(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        livingTarget.setHealth(newHealth);
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker Stats§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
         activateDarkHarvest(attacker, target);
     }
 
@@ -108,17 +87,15 @@ public class DarkHarvest extends StackingRune {
     }
 
     private double keystoneDamage(Player player, Entity target) {
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return 0.0;
+        }
         DamageManager damageManager = new DamageManager();
         damageManager.enablePerStackScaling();
         damageManager.enableAdaptiveScaling();
 
         int currentStacks = getStacks(player);
-        return damageManager.totalBonusDamage(player, target, currentStacks);
-    }
-
-    private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
+        return damageManager.DamageCalculation(player, target, currentStacks, BASE_ADAPTIVE_DAMAGE_PER_STACK, 0);
     }
 
     private void scheduleAddStack(Player attacker) {

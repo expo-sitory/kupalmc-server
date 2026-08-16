@@ -1,13 +1,14 @@
 package dev.ixpu.leaguemechanics.rune.keystones.sorcery;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.BuffManager;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,13 +24,15 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
 
-public class ArcaneComet extends BaseRune {
-    double BASE_ADAPTIVE_DAMAGE = 20.5;
+public class ArcaneComet extends CooldownHandler {
+    double BASE_ADAPTIVE_DAMAGE = 17.5;
 
     private double AD_PERCENTAGE_MULTIPLIER = 0.05;
     private double AP_PERCENTAGE_MULTIPLIER = 0.15;
 
     int COOLDOWN_SECONDS = 20;
+
+    private PlayerEventListener listener;
 
     private static final int COMET_FALL_TICKS = 30;
 
@@ -38,6 +41,7 @@ public class ArcaneComet extends BaseRune {
 
     public ArcaneComet(ConfigurationSection config, LeagueMechanics plugin) {
         super("arcane-comet", RunePath.SORCERY, RuneSlot.KEYSTONE);
+        this.listener = listener;
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.sorcery.arcane-comet");
         this.plugin = plugin;
         if (section != null) {
@@ -63,33 +67,7 @@ public class ArcaneComet extends BaseRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         triggerArcaneComet(shooter, target);
-    }
-
-    public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
     }
 
     private void  triggerArcaneComet(Player player, Entity target) {
@@ -110,19 +88,15 @@ public class ArcaneComet extends BaseRune {
     }
 
     private double keystoneDamage(Player player, Entity target) {
+        if(listener.isAnyHotbarOnCooldown(player)) {
+            return 0.0;
+        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
-
-        double baseDamage = damageManager.totalBonusDamage(player, target, 0);
+        double baseDamage = damageManager.DamageCalculation(player, target, 0, BASE_ADAPTIVE_DAMAGE, 0);
         double scaledBonus = getScaledBonusDamage(player);
 
         return baseDamage + scaledBonus;
-    }
-
-
-    private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private double getScaledBonusDamage(Player player) {

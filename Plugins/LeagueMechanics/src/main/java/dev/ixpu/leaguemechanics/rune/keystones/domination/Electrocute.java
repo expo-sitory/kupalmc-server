@@ -2,10 +2,11 @@ package dev.ixpu.leaguemechanics.rune.keystones.domination;
 
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
-import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.rune.StacksHandler;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.UUID;
 
@@ -20,16 +21,18 @@ import net.kyori.adventure.text.Component;
 
 
 
-public class Electrocute extends StackingRune {
+public class Electrocute extends StacksHandler {
 
-    private double BASE_ADAPTIVE_DAMAGE = 25.15;
+    private double BASE_ADAPTIVE_DAMAGE = 17.5;
 
     private static final int MAXIMUM_STACKS = 3;
+    private PlayerEventListener listener;
 
     int COOLDOWN_DURATION_SECONDS = 25;
 
     public Electrocute(org.bukkit.configuration.ConfigurationSection config) {
         super("electrocute", RunePath.DOMINATION, RuneSlot.KEYSTONE, 3, 60);
+        this.listener = listener;
         enablePerTargetStacking();
         enablePerTargetExpiry();
 
@@ -47,34 +50,10 @@ public class Electrocute extends StackingRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        livingTarget.setHealth(newHealth);
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
         activateElectrocute(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        livingTarget.setHealth(newHealth);
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
         activateElectrocute(attacker, target);
     }
 
@@ -112,14 +91,12 @@ public class Electrocute extends StackingRune {
     }
     
     private double keystoneDamage(Player player, Entity target) {
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return 0.0;
+        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-
-    private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
+        return damageManager.DamageCalculation(player, target, 0, BASE_ADAPTIVE_DAMAGE, 0);
     }
 
     private int trackPerTargetStacks(Player player) {

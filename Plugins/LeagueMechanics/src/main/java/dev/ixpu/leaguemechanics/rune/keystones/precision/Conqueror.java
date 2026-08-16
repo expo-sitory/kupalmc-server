@@ -2,13 +2,14 @@ package dev.ixpu.leaguemechanics.rune.keystones.precision;
 
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
-import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.rune.StacksHandler;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
-import dev.ixpu.leaguemechanics.util.DebugLogger;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.UUID;
 
+import dev.ixpu.leaguemechanics.util.DebugLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
@@ -18,14 +19,17 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 
-public class Conqueror extends StackingRune {
+public class Conqueror extends StacksHandler {
 
-    private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 2.5;
+    private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 0.7;
 
     private static final int MAXIMUM_STACKS = 12;
 
+    private PlayerEventListener listener;
+
     public Conqueror(ConfigurationSection config) {
         super("conqueror", RunePath.PRECISION, RuneSlot.KEYSTONE, 12, 100);
+        this.listener = listener;
         enablePerTargetStacking();
         enablePerTargetExpiry();
 
@@ -41,36 +45,10 @@ public class Conqueror extends StackingRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        UUID targetUUID = target.getUniqueId();
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target) + keystoneDamage(shooter, target, getStacks(shooter, targetUUID));
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] §f[§eConqueror§f] (Projectile) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         activateConqueror(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
-        UUID targetUUID = target.getUniqueId();
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target) + keystoneDamage(attacker, target, getStacks(attacker, targetUUID));
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] §f[§eConqueror§f] (Melee) Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         activateConqueror(attacker, target);
     }
 
@@ -85,20 +63,25 @@ public class Conqueror extends StackingRune {
         }
         switchTarget(player, targetUUID);
         addStack(player, targetUUID);
+
+        double statsDamage = keystoneDamage(player, target, getStacks(player, targetUUID));
+        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
+
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] [§eConqueror§f] Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+
+        livingTarget.setHealth(newHealth);
     }
 
     private double keystoneDamage(Player player, Entity target, int currentStacks) {
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return 0.0;
+        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
         damageManager.enablePerStackScaling();
-        return damageManager.totalBonusDamage(player, target, currentStacks);
+        return damageManager.DamageCalculation(player, target, currentStacks, BASE_ADAPTIVE_DAMAGE_PER_STACK, 0);
     }
-
-    private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-
 
     private int trackActiveStacks(Player player) {
         tickStackExpiry(player);

@@ -2,11 +2,12 @@ package dev.ixpu.leaguemechanics.rune.keystones.inspiration;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,16 +22,17 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
 
-public class FirstStrike extends BaseRune {
+public class FirstStrike extends CooldownHandler {
     private double INITIAL_XP = 10.0;
     private double BUFF_DURATION_SECONDS = 3;
-    private double TRUE_DAMAGE_PERCENT = 0.07;
+    private double TRUE_DAMAGE_PERCENT = 2;
     private double COMBAT_WINDOW_MS = 250;
 
     private int COOLDOWN_SECONDS = 25;
 
     private double AD_PERCENTAGE = 0.20;
     private double AP_PERCENTAGE = 0.15;
+    private PlayerEventListener listener;
 
     private final Map<UUID, Long> lastCombatTime = new HashMap<>();
     private final Map<UUID, Boolean> firstStrikeActive = new HashMap<>();
@@ -41,6 +43,7 @@ public class FirstStrike extends BaseRune {
 
     public FirstStrike(ConfigurationSection config, LeagueMechanics plugin) {
         super("first-strike", RunePath.INSPIRATION, RuneSlot.KEYSTONE);
+        this.listener = listener;
         this.plugin = plugin;
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.inspiration.first-strike");
         if (section != null) {
@@ -74,32 +77,10 @@ public class FirstStrike extends BaseRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
+        activateFirstStrike(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + statsDamage);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);
-
-        livingTarget.setHealth(newHealth);
-
         activateFirstStrike(attacker, target);
     }
 
@@ -132,7 +113,7 @@ public class FirstStrike extends BaseRune {
         boolean isActive = firstStrikeActive.getOrDefault(attackerUUID, false);
 
         if (isActive && System.currentTimeMillis() < buffEndTime.getOrDefault(attackerUUID, 0L)) {
-            double damageDealt = playerDamage(player, target) * TRUE_DAMAGE_PERCENT;
+            double damageDealt = keystoneDamage(player, target);
             double newHealth = Math.clamp(livingTarget.getHealth() - damageDealt, 0, livingTarget.getMaxHealth());
             livingTarget.setHealth(newHealth);
             bonusDamageTracked.put(attackerUUID, tracked + damageDealt);
@@ -140,11 +121,14 @@ public class FirstStrike extends BaseRune {
         }
     }
 
-    private double playerDamage(Player player, Entity target) {
+    private double keystoneDamage(Player player, Entity target) {
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return 0.0;
+        }
         DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
+        damageManager.enableTrueDamage();
+        return damageManager.DamageCalculation(player, target, 0, 0, TRUE_DAMAGE_PERCENT);
     }
-
 
     private void spawnXPOrbs(Player attacker, LivingEntity target) {
         if (plugin == null) return;
@@ -243,11 +227,11 @@ public class FirstStrike extends BaseRune {
         double apBonus = totalAP * AP_PERCENTAGE;
         double statScaling = Math.max(adBonus, apBonus);
 
-        double totalBonusDamage = bonusDamageTracked.getOrDefault(player.getUniqueId(), 0.0);
-        double finalXP = totalBonusDamage * statScaling;
+        double DamageCalculation = bonusDamageTracked.getOrDefault(player.getUniqueId(), 0.0);
+        double finalXP = DamageCalculation * statScaling;
         int xpToGive = (int) finalXP;
 
-        DebugLogger.debug(player, String.format("§7[DEBUG] §f[§dAttacker§f] [§3First Strike§f] " + "%.2f", finalXP) + " XP (damage: " + String.format("%.2f", totalBonusDamage) + ", AD: " + String.format("%.2f", totalAD) + ", AP: " + String.format("%.2f", totalAP) + ")");
+        DebugLogger.debug(player, String.format("§7[DEBUG] §f[§dAttacker§f] [§3First Strike§f] " + "%.2f", finalXP) + " XP (damage: " + String.format("%.2f", DamageCalculation) + ", AD: " + String.format("%.2f", totalAD) + ", AP: " + String.format("%.2f", totalAP) + ")");
         DebugLogger.debug(player, "§7[DEBUG] §f[§dAttacker§f] [§3First Strike§f] Total XP: " + xpToGive);
         player.giveExp(xpToGive);
     }

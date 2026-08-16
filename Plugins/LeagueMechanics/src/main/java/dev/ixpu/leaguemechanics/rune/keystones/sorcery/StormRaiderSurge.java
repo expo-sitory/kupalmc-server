@@ -1,12 +1,11 @@
 package dev.ixpu.leaguemechanics.rune.keystones.sorcery;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
-import dev.ixpu.leaguemechanics.util.DebugLogger;
-import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +20,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
 
-public class StormRaiderSurge extends BaseRune {
+public class StormRaiderSurge extends CooldownHandler {
     private double DAMAGE_THRESHOLD_PERCENTAGE = 0.30;
     private double MOVEMENT_SPEED_BONUS = 0.40;
 
@@ -63,33 +62,7 @@ public class StormRaiderSurge extends BaseRune {
         speedActiveDuration.remove(uuid);
     }
 
-    public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-    }
-
     public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         activateStormRaiderSurge(attacker, target);
     }
 
@@ -115,7 +88,7 @@ public class StormRaiderSurge extends BaseRune {
 
     private double playerDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
+        return damageManager.DamageCalculation(player, target, 0, 0, 0);
     }
 
     private void enterActiveState(Player player) {

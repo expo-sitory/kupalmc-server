@@ -2,16 +2,14 @@ package dev.ixpu.leaguemechanics.rune.keystones.domination;
 
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.BuffManager;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.*;
-
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
@@ -21,12 +19,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 
-public class HailOfBlades extends BaseRune {
-    private double BASE_ATTACK_SPEED = 0.10;
-    private double BASE_TRUE_DAMAGE = 1.25;
+public class HailOfBlades extends CooldownHandler {
+    private double ATTACK_SPEED = 0.10;
+    private double TRUE_DAMAGE_PERCENT = 2;
 
-    private double AD_PERCENTAGE_MULTIPLIER = 0.8;
-    private double AP_PERCENTAGE_MULTIPLIER = 0.6;
+    private double AD_PERCENTAGE_MULTIPLIER = 12.0;
+    private double AP_PERCENTAGE_MULTIPLIER = 8.0;
 
     int COOLDOWN_DURATION_SECONDS = 60;
 
@@ -35,21 +33,24 @@ public class HailOfBlades extends BaseRune {
     private static final int INACTIVITY_TIMEOUT_TICKS = 60;
     private static final int INITIAL_STACKS = 2;
 
+    private PlayerEventListener listener;
+
     private final Map<UUID, Boolean> windupActive = new HashMap<>();
     private final Map<UUID, Integer> windupTicks = new HashMap<>();
     private final Map<UUID, Integer> lastWindupStage = new HashMap<>();
     private final Map<UUID, Boolean> activeState = new HashMap<>();
+    private final Map<UUID, Double> activeASBonus = new HashMap<>();
     private final Map<UUID, List<Integer>> stackDurationTicks = new HashMap<>();
     private final Map<UUID, Integer> lastAttackTick = new HashMap<>();
     private final Map<UUID, Integer> currentStacks = new HashMap<>();
-    private final Map<UUID, List<AttributeModifier>> activeModifiers = new HashMap<>();
 
     public HailOfBlades(ConfigurationSection config) {
         super("hail-of-blades", RunePath.DOMINATION, RuneSlot.KEYSTONE);
+        this.listener = listener;
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.hail-of-blades");
         if (section != null) {
-            this.BASE_ATTACK_SPEED = section.getDouble("base-attack-speed", this.BASE_ATTACK_SPEED);
-            this.BASE_TRUE_DAMAGE = section.getDouble("base-true-damage", this.BASE_TRUE_DAMAGE);
+            this.ATTACK_SPEED = section.getDouble("base-attack-speed", this.ATTACK_SPEED);
+            this.TRUE_DAMAGE_PERCENT = section.getDouble("base-true-damage", this.TRUE_DAMAGE_PERCENT);
             this.AD_PERCENTAGE_MULTIPLIER = section.getDouble("ad-percentage-multiplier", this.AD_PERCENTAGE_MULTIPLIER);
             this.AP_PERCENTAGE_MULTIPLIER = section.getDouble("ap-percentage-multiplier", this.AP_PERCENTAGE_MULTIPLIER);
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
@@ -64,54 +65,38 @@ public class HailOfBlades extends BaseRune {
         windupTicks.put(uuid, 0);
         lastWindupStage.put(uuid, 0);
         activeState.put(uuid, false);
+        activeASBonus.put(uuid, 0.0);
         stackDurationTicks.put(uuid, new ArrayList<>());
         lastAttackTick.put(uuid, 0);
         currentStacks.put(uuid, 0);
-        activeModifiers.put(uuid, new ArrayList<>());
     }
 
     @Override
     public void onDisable(Player player) {
         UUID uuid = player.getUniqueId();
-        removeAllModifiers(player);
         clearPlayerCooldown(player);
         windupActive.remove(uuid);
         windupTicks.remove(uuid);
         lastWindupStage.remove(uuid);
         activeState.remove(uuid);
+        activeASBonus.remove(uuid);
         stackDurationTicks.remove(uuid);
         lastAttackTick.remove(uuid);
         currentStacks.remove(uuid);
-        activeModifiers.remove(uuid);
+    }
+
+    public void onCombat(Player player) {
+        if (isOnCooldown(player)) {
+            return;
+        }
+        activateHailofBlades(player, null);
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
+        activateHailofBlades(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         activateHailofBlades(attacker, target);
     }
 
@@ -132,33 +117,28 @@ public class HailOfBlades extends BaseRune {
         }
         if (activeState.getOrDefault(playerUUID, false)) {
             lastAttackTick.put(playerUUID, 0);
+            currentStacks.put(playerUUID, currentStacks.getOrDefault(playerUUID, 0) - 1);
 
             DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§cHail of Blades§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
             DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
             livingTarget.setHealth(newHealth);
 
-            List<Integer> durations = stackDurationTicks.getOrDefault(playerUUID, new ArrayList<>());
-            for (int i = 0; i < durations.size(); i++) {
-                durations.set(i, STACK_DURATION_TICKS);
-            }
             return;
         }
         windupActive.put(playerUUID, true);
         windupTicks.put(playerUUID, WINDUP_TICKS);
         lastWindupStage.put(playerUUID, 0);
     }
-    
+
     private double keystoneDamage(Player player, Entity target) {
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return 0.0;
+        }
         DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
+        damageManager.enableTrueDamage();
+        return damageManager.DamageCalculation(player, target, 0, 0, TRUE_DAMAGE_PERCENT);
     }
-
-    private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-
 
     private int trackActiveStacks(Player player) {
         UUID playerUUID = player.getUniqueId();
@@ -169,7 +149,7 @@ public class HailOfBlades extends BaseRune {
 
         if (inactivityCount >= INACTIVITY_TIMEOUT_TICKS) {
             currentStacks.put(playerUUID, currentStacks.getOrDefault(playerUUID, 0) - 1);
-            player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_HIT_GROUND, 1.0f, 0.5f);  // ← Here
+            player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_HIT_GROUND, 1.0f, 0.5f);
             lastAttackTick.put(playerUUID, 0);
         }
 
@@ -180,17 +160,7 @@ public class HailOfBlades extends BaseRune {
         BuffManager buffManager = new BuffManager();
         return buffManager.calculateBuffValue(
                 player,
-                BASE_TRUE_DAMAGE,
-                AD_PERCENTAGE_MULTIPLIER,
-                AP_PERCENTAGE_MULTIPLIER
-        );
-    }
-
-    private double getScaledAttackSpeed(Player player) {
-        BuffManager buffManager = new BuffManager();
-        return buffManager.calculateBuffValue(
-                player,
-                BASE_ATTACK_SPEED,
+                TRUE_DAMAGE_PERCENT,
                 AD_PERCENTAGE_MULTIPLIER,
                 AP_PERCENTAGE_MULTIPLIER
         );
@@ -199,6 +169,7 @@ public class HailOfBlades extends BaseRune {
     private void deactivateEffect(Player player) {
         UUID playerUUID = player.getUniqueId();
         activeState.put(playerUUID, false);
+        activeASBonus.put(playerUUID, 0.0);
         currentStacks.put(playerUUID, 0);
         windupTicks.put(playerUUID, 0);
         windupActive.put(playerUUID, false);
@@ -207,33 +178,10 @@ public class HailOfBlades extends BaseRune {
         stackDurationTicks.put(playerUUID, new ArrayList<>());
 
         resetCooldown(player);
-        removeAllModifiers(player);
     }
 
-    @SuppressWarnings("removal")
-    private void applyAttackSpeedBonus(Player player) {
-        removeAllModifiers(player);
-        UUID modifierUUID = UUID.nameUUIDFromBytes(("hail-of-blades-" + player.getUniqueId()).getBytes());
-
-        double scaledAttackSpeed = getScaledAttackSpeed(player);
-
-        AttributeModifier modifier = new AttributeModifier(
-                modifierUUID,
-                "Hail of Blades Attack Speed",
-                scaledAttackSpeed,
-                AttributeModifier.Operation.ADD_SCALAR
-        );
-
-        Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED)).addModifier(modifier);
-        activeModifiers.get(player.getUniqueId()).add(modifier);
-    }
-
-    private void removeAllModifiers(Player player) {
-        List<AttributeModifier> modifiers = activeModifiers.getOrDefault(player.getUniqueId(), new ArrayList<>());
-        for (AttributeModifier modifier : modifiers) {
-            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED)).removeModifier(modifier);
-        }
-        modifiers.clear();
+    public double getActiveASBonus(Player player) {
+        return activeASBonus.getOrDefault(player.getUniqueId(), 0.0);
     }
 
     @Override
@@ -281,6 +229,7 @@ public class HailOfBlades extends BaseRune {
     private void activateEffect(Player player) {
         UUID playerUUID = player.getUniqueId();
         activeState.put(playerUUID, true);
+        activeASBonus.put(playerUUID, ATTACK_SPEED);
         lastAttackTick.put(playerUUID, 0);
         currentStacks.put(playerUUID, INITIAL_STACKS);
 
@@ -289,8 +238,6 @@ public class HailOfBlades extends BaseRune {
             durations.add(STACK_DURATION_TICKS);
         }
         stackDurationTicks.put(playerUUID, durations);
-
-        applyAttackSpeedBonus(player);
 
         player.playSound(player.getLocation(), org.bukkit.Sound.ITEM_TRIDENT_THROW, 1.0f, 2.0f);
     }

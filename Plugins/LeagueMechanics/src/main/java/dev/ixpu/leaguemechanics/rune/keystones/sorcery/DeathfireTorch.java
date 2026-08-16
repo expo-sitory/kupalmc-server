@@ -1,7 +1,7 @@
 package dev.ixpu.leaguemechanics.rune.keystones.sorcery;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
@@ -27,8 +27,8 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import net.kyori.adventure.text.Component;
 
-public class DeathfireTorch extends BaseRune {
-    private double BASE_MAGIC_DAMAGE = 10.5;
+public class DeathfireTorch extends CooldownHandler {
+    private double BASE_MAGIC_DAMAGE = 2.5;
 
     private double AD_PERCENTAGE_MULTIPLIER = 0.05;
     private double AP_PERCENTAGE_MULTIPLIER = 0.10;
@@ -67,34 +67,10 @@ public class DeathfireTorch extends BaseRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         triggerDeathFireTorch(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         triggerDeathFireTorch(attacker, target);
     }
 
@@ -116,16 +92,10 @@ public class DeathfireTorch extends BaseRune {
     private double keystoneDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager();
         damageManager.enableOnlyAP();
-
-        double baseDamage = damageManager.totalBonusDamage(player, target, 0);
+        double baseDamage = damageManager.DamageCalculation(player, target, 0, 0, 0);
         double scaledBonus = getScaledBonusDamage(player);
 
         return baseDamage + scaledBonus;
-    }
-
-    private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
     }
 
     private double getScaledBonusDamage(Player player) {

@@ -2,11 +2,9 @@ package dev.ixpu.leaguemechanics.rune.keystones.precision;
 
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
-import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.rune.StacksHandler;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
-import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.manager.BuffManager;
-import dev.ixpu.leaguemechanics.manager.DamageManager;
 
 import java.util.*;
 
@@ -20,7 +18,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 
-public class FleetFootwork extends StackingRune {
+public class FleetFootwork extends StacksHandler {
 
     private double BLOCKS_PER_STACK = 10.0;
     private int PROJECTILE_STACK_GAIN = 5;
@@ -70,33 +68,7 @@ public class FleetFootwork extends StackingRune {
     }
     
     public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
-
         activateFleetFootwork(shooter, target);
-    }
-
-    public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-        livingTarget.setHealth(newHealth);
     }
 
     private void activateFleetFootwork(Player player, Entity target) {
@@ -128,12 +100,6 @@ public class FleetFootwork extends StackingRune {
             refreshSpeedBuff(player);
         }
     }
-
-    private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        return damageManager.totalBonusDamage(player, target, 0);
-    }
-
 
     private double getScaledHealPercentage(Player player) {
         BuffManager buffManager = new BuffManager();

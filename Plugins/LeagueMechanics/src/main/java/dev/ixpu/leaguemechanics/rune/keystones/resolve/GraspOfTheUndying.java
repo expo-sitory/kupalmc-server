@@ -2,10 +2,11 @@ package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
-import dev.ixpu.leaguemechanics.rune.StackingRune;
+import dev.ixpu.leaguemechanics.rune.StacksHandler;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.*;
 
@@ -20,11 +21,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 
-public class GraspOfTheUndying extends StackingRune {
+public class GraspOfTheUndying extends StacksHandler {
     private double BASE_PHYSICAL_DAMAGE_PERCENT = 0.08;
     private double HEAL_PERCENT = 0.15;
 
     int COOLDOWN_DURATION_SECONDS = 60;
+
+    private PlayerEventListener listener;
 
     private static final int ATTACK_WINDOW_TICKS = 100;
     private static final int ABSORPTION_DURATION_TICKS = Integer.MAX_VALUE;
@@ -35,6 +38,7 @@ public class GraspOfTheUndying extends StackingRune {
 
     public GraspOfTheUndying(org.bukkit.configuration.ConfigurationSection config) {
         super("grasp-of-the-undying", RunePath.RESOLVE, RuneSlot.KEYSTONE, 4, 60);
+        this.listener = listener;
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.grasp-of-the-undying");
 
         if (section != null) {
@@ -75,35 +79,11 @@ public class GraspOfTheUndying extends StackingRune {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(shooter, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dAttacker§f] (Projectile) Stats Damage = §d" + statsDamage);
-        DebugLogger.debug(shooter, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);
-
-        livingTarget.setHealth(newHealth);
-
         onCombat(shooter);
         activateGraspOfTheUndying(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
-        if (!(target instanceof LivingEntity livingTarget)) {
-            return;
-        }
-
-        double statsDamage = playerDamage(attacker, target);
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker§f] (Melee) Stats Damage = §d" + statsDamage);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);
-
-        livingTarget.setHealth(newHealth);
-
         onCombat(attacker);
         activateGraspOfTheUndying(attacker, target);
     }
@@ -123,12 +103,6 @@ public class GraspOfTheUndying extends StackingRune {
         }
     }
 
-    private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
-        double damage = damageManager.totalBonusDamage(player, target, 0);
-        return Math.ceil(damage * 100) / 100.0;
-    }
-
     private void enterActiveState(Player player, Entity target) {
         UUID playerUUID = player.getUniqueId();
         if (!(target instanceof LivingEntity livingTarget)) {
@@ -136,9 +110,9 @@ public class GraspOfTheUndying extends StackingRune {
         }
 
         int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0) / 2;
-        double newHealth = Math.clamp(livingTarget.getHealth() - (playerDamage(player, target) * absorptionHearts * 0.2), 0, livingTarget.getMaxHealth());
+        double newHealth = Math.clamp(livingTarget.getHealth() - (keystoneDamage(player, target) * absorptionHearts * 0.2), 0, livingTarget.getMaxHealth());
 
-        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (playerDamage(player, target) * absorptionHearts * 0.2));
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (keystoneDamage(player, target) * absorptionHearts * 0.2));
         DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);
 
         livingTarget.setHealth(newHealth);
@@ -154,6 +128,14 @@ public class GraspOfTheUndying extends StackingRune {
         activateEffects(player);
 
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_WITHER_AMBIENT, 1.0f, 1.0f);
+    }
+
+    private double keystoneDamage(Player player, Entity target) {
+        if(listener.isAnyHotbarOnCooldown(player)) {
+            return 0.0;
+        }
+        DamageManager damageManager = new DamageManager();
+        return damageManager.DamageCalculation(player, target, 0, 0, 0);
     }
 
     private void activateEffects(Player player) {
