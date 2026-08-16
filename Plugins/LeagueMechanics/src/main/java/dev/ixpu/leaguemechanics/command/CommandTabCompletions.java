@@ -1,6 +1,6 @@
 package dev.ixpu.leaguemechanics.command;
 
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
@@ -74,7 +74,7 @@ public class CommandTabCompletions implements org.bukkit.command.TabCompleter {
     private List<String> getKeystonesByPath(RunePath path) {
         return runeRegistry.getAllRunes().values().stream()
                 .filter(rune -> rune.getPath().equals(path) && rune.getSlot().equals(RuneSlot.KEYSTONE))
-                .map(BaseRune::getId)
+                .map(CooldownHandler::getId)
                 .collect(Collectors.toList());
     }
 
