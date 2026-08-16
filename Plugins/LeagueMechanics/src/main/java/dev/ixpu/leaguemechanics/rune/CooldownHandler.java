@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class BaseRune {
+public abstract class CooldownHandler {
     protected final String id;
     protected final RunePath path;
     protected final RuneSlot slot;
@@ -17,7 +17,7 @@ public abstract class BaseRune {
 
     protected final Map<UUID, Long> playerCooldowns = new HashMap<>();
 
-    public BaseRune(String id, RunePath path, RuneSlot slot) {
+    public CooldownHandler(String id, RunePath path, RuneSlot slot) {
         this.id = id;
         this.path = path;
         this.slot = slot;
