@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class RuneRegistry {
     private static final RuneRegistry instance = new RuneRegistry();
-    private final Map<String, BaseRune> runes = new HashMap<>();
+    private final Map<String, CooldownHandler> runes = new HashMap<>();
 
     private RuneRegistry() {}
 
@@ -13,11 +13,11 @@ public class RuneRegistry {
         return instance;
     }
 
-    public void registerRune(BaseRune rune) {
+    public void registerRune(CooldownHandler rune) {
         runes.put(rune.getId(), rune);
     }
 
-    public BaseRune getRune(String id) {
+    public CooldownHandler getRune(String id) {
         return runes.get(id);
     }
 
@@ -25,7 +25,7 @@ public class RuneRegistry {
         return runes.containsKey(id);
     }
 
-    public Map<String, BaseRune> getAllRunes() {
+    public Map<String, CooldownHandler> getAllRunes() {
         return new HashMap<>(runes);
     }
 
