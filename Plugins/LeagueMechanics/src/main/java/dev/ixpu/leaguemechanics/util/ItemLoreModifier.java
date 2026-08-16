@@ -1,7 +1,7 @@
 package dev.ixpu.leaguemechanics.util;
 
-import dev.ixpu.leaguemechanics.item.ItemListData;
-import dev.ixpu.leaguemechanics.item.ItemStatData;
+import dev.ixpu.leaguemechanics.item.ItemStatsData;
+import dev.ixpu.leaguemechanics.item.ItemStatsRegistry;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemStatHelper {
+public class ItemLoreModifier {
     private static NamespacedKey ITEM_ID_KEY;
 
     public static void initialize(Plugin plugin) {
@@ -45,13 +45,13 @@ public class ItemStatHelper {
         String itemId = getItemId(item);
         if (itemId == null) return;
 
-        ItemStatData statData = ItemListData.getInstance().getItem(itemId);
+        ItemStatsRegistry statData = ItemStatsData.getInstance().getItem(itemId);
         if (statData == null) return;
 
         updateItemLore(item, statData);
     }
 
-    private static void updateItemLore(ItemStack item, ItemStatData statData) {
+    private static void updateItemLore(ItemStack item, ItemStatsRegistry statData) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
 
@@ -73,16 +73,16 @@ public class ItemStatHelper {
             lore.add("§a❤ " + formatStat(statData.getHp()) + " §fHealth");
         }
         if (statData.getHr() > 0) {
-            lore.add("§c❣ " + formatStat(statData.getHr()) + " §fHealth Regen per 15 sec.");
+            lore.add("§2❣ " + formatStat(statData.getHr()) + " §fHealth Regen per 15 sec.");
         }
         if (statData.getSr() > 0) {
             lore.add("§6🍖 " + formatStat(statData.getSr()) + " §fSaturation Regen per 25 sec.");
         }
         if (statData.getAs() > 0) {
-            lore.add("§7⚔ " + formatStat(statData.getAs()) + "% §fAttack Speed");
+            lore.add("§c⚔ " + formatStat(statData.getAs()) + "% §fAttack Speed");
         }
         if (statData.getMs() > 0) {
-            lore.add("§2👣 " + formatStat(statData.getMs()) + "% §fMovement Speed");
+            lore.add("§7👣 " + formatStat(statData.getMs()) + "% §fMovement Speed");
         }
 
         meta.setLore(lore);
@@ -103,19 +103,25 @@ public class ItemStatHelper {
         String itemId = getItemId(item);
         if (itemId == null) return 0;
 
-        ItemStatData statData = ItemListData.getInstance().getItem(itemId);
+        ItemStatsRegistry statData = ItemStatsData.getInstance().getItem(itemId);
         if (statData == null) return 0;
 
         return switch (statType.toUpperCase()) {
-            case "AD" -> statData.getAd();
-            case "AP" -> statData.getAp();
-            case "AR" -> statData.getAr();
-            case "MR" -> statData.getMr();
             case "HP" -> statData.getHp();
             case "HR" -> statData.getHr();
-            case "SR" -> statData.getSr();
+
+            case "AD" -> statData.getAd();
+            case "AP" -> statData.getAp();
+
+            case "TD" -> statData.getTd();
             case "AS" -> statData.getAs();
+            case "AR" -> statData.getAr();
+            case "MR" -> statData.getMr();
+            case "LS" -> statData.getLs();
+            case "CC" -> statData.getCc();
+            case "SR" -> statData.getSr();
             case "MS" -> statData.getMs();
+
             default -> 0;
         };
     }
