@@ -13,17 +13,17 @@ runes:
     domination:
 
       dark-harvest:
-        base-adaptive-damage-per-stack: 2.5
+        base-adaptive-damage-per-stack: 0.2
         level-cost-per-stack: 5
         cooldown: 60
 
       electrocute:
-        base-adaptive-damage: 25.15
+        base-adaptive-damage: 17.5
         cooldown: 25
 
       hail-of-blades:
-        base-attack-speed: 0.10
-        base-true-damage: 1.25
+        base-attack-speed: 0.10 # percentage
+        base-true-damage: 0.7 # percentage
         ad-percentage-multiplier: 0.8
         ap-percentage-multiplier: 0.6
         cooldown: 60
@@ -35,7 +35,7 @@ runes:
 
     precision:
       conqueror:
-        base-adaptive-damage-per-stack: 2.5
+        base-adaptive-damage-per-stack: 0.5
 
       fleet-footwork:
         maximum-stacks: 100
@@ -48,12 +48,12 @@ runes:
       lethal-tempo:
         cooldown: 30
         attack-speed: 0.6 # when on max stacks/active state
-        base-adaptive-damage: 4.5
+        base-adaptive-damage: 0.7
 
 
       press-the-attack:
         cooldown: 6
-        base-adaptive-damage: 17.67
+        base-adaptive-damage: 6.7
 
 
     # ============================= #
@@ -111,12 +111,12 @@ runes:
 
       arcane-comet:
         cooldown: 20
-        base-adaptive-damage: 20.5
+        base-adaptive-damage: 17.5
         ad-percentage-multiplier: 0.05
         ap-percentage-multiplier: 0.15
 
       deathfire-torch:
-        base-magic-damage: 10.5
+        base-magic-damage: 2.5
         ad-percentage-multiplier: 0.05
         ap-percentage-multiplier: 0.10
 
