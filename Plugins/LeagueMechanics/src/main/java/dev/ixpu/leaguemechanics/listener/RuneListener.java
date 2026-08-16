@@ -12,7 +12,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
 import dev.ixpu.leaguemechanics.player.PlayerRuneData;
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 
 public class RuneListener implements Listener {
     private final RuneManager runeManager;
@@ -28,7 +28,7 @@ public class RuneListener implements Listener {
             if (runeManager.hasActiveRunes(attacker)) {
                 PlayerRuneData attackerRuneData = runeManager.getPlayerRuneData(attacker);
                 if (attackerRuneData != null) {
-                    for (BaseRune rune : attackerRuneData.getAllRunes()) {
+                    for (CooldownHandler rune : attackerRuneData.getAllRunes()) {
                         if (rune != null) {
                             rune.onAttack(attacker, target);
                         }
@@ -52,7 +52,7 @@ public class RuneListener implements Listener {
             return;
         }
 
-        for (BaseRune rune : runeData.getAllRunes()) {
+        for (CooldownHandler rune : runeData.getAllRunes()) {
             if (rune != null) {
                 rune.onPlayerDamage(victim, damage);
             }
@@ -79,7 +79,7 @@ public class RuneListener implements Listener {
             return;
         }
 
-        BaseRune keystoneRune = runeData.getKeystoneRune();
+        CooldownHandler keystoneRune = runeData.getKeystoneRune();
         if (keystoneRune != null) {
             keystoneRune.onProjectileHit(shooter, hitEntity);
         }
