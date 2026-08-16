@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 
-public abstract class StackingRune extends BaseRune {
+public abstract class StacksHandler extends CooldownHandler {
 
     protected int maxStacks;
     protected int stackResetTicks = 0;
@@ -38,13 +38,13 @@ public abstract class StackingRune extends BaseRune {
         resetStacks(player);
     }
 
-    public StackingRune(String id, RunePath path, RuneSlot slot, int maxStacks) {
+    public StacksHandler(String id, RunePath path, RuneSlot slot, int maxStacks) {
         super(id, path, slot);
         this.maxStacks = maxStacks;
         this.hasStacking = true;
     }
 
-    public StackingRune(String id, RunePath path, RuneSlot slot, int maxStacks, int stackResetTicks) {
+    public StacksHandler(String id, RunePath path, RuneSlot slot, int maxStacks, int stackResetTicks) {
         super(id, path, slot);
         this.maxStacks = maxStacks;
         this.stackResetTicks = stackResetTicks;
