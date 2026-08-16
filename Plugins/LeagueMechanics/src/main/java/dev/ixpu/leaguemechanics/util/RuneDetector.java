@@ -1,7 +1,7 @@
 package dev.ixpu.leaguemechanics.util;
 
 import dev.ixpu.leaguemechanics.player.PlayerRuneData;
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import org.bukkit.entity.Player;
@@ -34,24 +34,24 @@ public class RuneDetector {
         data.setSecondaryPath(secondaryPath);
 
         // Detect keystone
-        BaseRune keystone = detectKeystone(player);
+        CooldownHandler keystone = detectKeystone(player);
         data.setKeystoneRune(keystone);
 
         // Detect primary runes
-        BaseRune primarySlot1 = detectPrimarySlot1(player);
+        CooldownHandler primarySlot1 = detectPrimarySlot1(player);
         data.setPrimarySlot1Rune(primarySlot1);
 
-        BaseRune primarySlot2 = detectPrimarySlot2(player);
+        CooldownHandler primarySlot2 = detectPrimarySlot2(player);
         data.setPrimarySlot2Rune(primarySlot2);
 
-        BaseRune primarySlot3 = detectPrimarySlot3(player);
+        CooldownHandler primarySlot3 = detectPrimarySlot3(player);
         data.setPrimarySlot3Rune(primarySlot3);
 
         // Detect secondary runes
-        BaseRune secondarySlot1 = detectSecondarySlot1(player);
+        CooldownHandler secondarySlot1 = detectSecondarySlot1(player);
         data.setSecondarySlot1Rune(secondarySlot1);
 
-        BaseRune secondarySlot2 = detectSecondarySlot2(player);
+        CooldownHandler secondarySlot2 = detectSecondarySlot2(player);
         data.setSecondarySlot2Rune(secondarySlot2);
 
         return data;
@@ -75,7 +75,7 @@ public class RuneDetector {
         return null;
     }
 
-    private static BaseRune detectKeystone(Player player) {
+    private static CooldownHandler detectKeystone(Player player) {
         String[] keystones = {
             "press-the-attack", "lethal-tempo", "fleet-footwork", "conqueror",
             "electrocute", "dark-harvest", "hail-of-blades",
@@ -92,7 +92,7 @@ public class RuneDetector {
         return null;
     }
 
-    private static BaseRune detectPrimarySlot1(Player player) {
+    private static CooldownHandler detectPrimarySlot1(Player player) {
         String[] runes = {
             "absorb-life", "triump", "presence-of-mind",
             "cheap-shot", "taste-of-blood", "sudden-impact",
@@ -109,7 +109,7 @@ public class RuneDetector {
         return null;
     }
 
-    private static BaseRune detectPrimarySlot2(Player player) {
+    private static CooldownHandler detectPrimarySlot2(Player player) {
         String[] runes = {
             "legend-alacrity", "legend-haste", "legend-bloodline",
             "six-sense", "grisly-mementos", "deep-ward",
@@ -126,7 +126,7 @@ public class RuneDetector {
         return null;
     }
 
-    private static BaseRune detectPrimarySlot3(Player player) {
+    private static CooldownHandler detectPrimarySlot3(Player player) {
         String[] runes = {
             "coup-de-grace", "cut-down", "last-stand",
             "treasure-hunter", "relentless-hunter", "ultimate-hunter",
@@ -143,7 +143,7 @@ public class RuneDetector {
         return null;
     }
 
-    private static BaseRune detectSecondarySlot1(Player player) {
+    private static CooldownHandler detectSecondarySlot1(Player player) {
         String[] runes = {
             "absorb-life", "triump", "presence-of-mind",
             "legend-alacrity", "legend-haste", "legend-bloodline",
@@ -170,7 +170,7 @@ public class RuneDetector {
         return null;
     }
 
-    private static BaseRune detectSecondarySlot2(Player player) {
+    private static CooldownHandler detectSecondarySlot2(Player player) {
         String[] runes = {
             "absorb-life", "triump", "presence-of-mind",
             "legend-alacrity", "legend-haste", "legend-bloodline",
