@@ -1,7 +1,11 @@
 package dev.ixpu.leaguemechanics.player;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
+import dev.ixpu.leaguemechanics.rune.keystones.precision.LethalTempo;
+import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -10,39 +14,139 @@ import org.bukkit.enchantments.Enchantment;
 
 
 public class PlayerStats {
-    double BASE_ATTACK_DAMAGE = 0.0;
-    double BASE_PHYSICAL_ARMOR = 0.0;
-    double BASE_ABILITY_POWER = 12.0;
-    double BASE_MAGIC_RESIST = 5.0;
+    double BASE_HEALTH = 0.0;
+    double BASE_HEALTH_REGEN = 0.0;
 
-    double BASE_BONUS_HEALTH = 0.0;
-    double BASE_BONUS_ATTACK_SPEED = 0.0;
-    double BASE_BONUS_HEALTH_REGEN = 0.0;
-    double BASE_BONUS_SATURATION_REGEN = 0.0;
+    double BASE_ATTACK_DAMAGE = 3.0;
+    double BASE_ABILITY_POWER = 4.0;
+    double BASE_ADAPTIVE_FORCE = 4.0;
+
+    double BASE_TRUE_DAMAGE = 0.0;
+    double BASE_ATTACK_SPEED = 0.0;
+    double BASE_ARMOR = 15.0;
+    double BASE_MAGIC_RESIST = 15.0;
 
 
-    public void tick(Player player) {
-        getPlayerAD(player);
-        getPlayerAP(player);
-        getPlayerAR(player);
-        getPlayerMR(player);
-        getPlayerHP(player);
-        getPlayerHR(player);
-        getPlayerSR(player);
-        getPlayerAS(player);
+    public double getPlayerHP(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double itemHP = 0;
+        double baseHP = BASE_HEALTH;
+        if (itemStatsManager != null) {
+            itemHP += itemStatsManager.getItemHP(player);
+        }
+        return baseHP + itemHP;
     }
 
-    public double getPlayerWeapon(Player player) {
+    public double getPlayerHR(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double itemHR = 0;
+        double baseHR = BASE_HEALTH_REGEN;
+        if (itemStatsManager != null) {
+            itemHR += itemStatsManager.getItemHR(player);
+        }
+        return baseHR + itemHR;
+    }
+
+
+    public double getPlayerAD(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         ItemStack weapon = player.getInventory().getItemInMainHand();
-        if (weapon.getType() == Material.AIR) {
-            return 0;
+        double itemAD = 0;
+        double baseAD = BASE_ATTACK_DAMAGE + player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getValue();
+        double enchantAD = getWeaponEnchant(player);
+        if (isWeapon(weapon)) {
+            baseAD++;
+        }
+        if (itemStatsManager != null) {
+            itemAD += itemStatsManager.getItemAD(player);
+        }
+        return baseAD + itemAD + enchantAD;
+    }
+
+    public double getPlayerAP(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double itemAP = 0;
+        double baseAP = BASE_ABILITY_POWER;
+        if (itemStatsManager != null) {
+            itemAP += itemStatsManager.getItemAP(player);
+        }
+        return baseAP + itemAP;
+    }
+
+    public double getPlayerAF(Player player) {
+        return BASE_ADAPTIVE_FORCE;
+    }
+
+    public double getPlayerTD(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double itemTD = 0;
+        double baseTD = BASE_TRUE_DAMAGE;
+        double bonusTD = levelBasedTD(player);
+        if (itemStatsManager != null) {
+            itemTD += itemStatsManager.getItemTD(player);
+        }
+        return baseTD + itemTD + bonusTD;
+    }
+
+    public double getPlayerAS(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double itemAS = 0;
+        double baseAS = BASE_ATTACK_SPEED;
+        double runeAS = 0;
+
+        if (itemStatsManager != null) {
+            itemAS += itemStatsManager.getItemAS(player);
         }
 
-        int sharpnessLevel = weapon.getEnchantmentLevel(Enchantment.SHARPNESS);
-        if (sharpnessLevel == 0) {
-            return 0;
+        PlayerRuneData runeData = LeagueMechanics.getInstance().getRuneManager().getPlayerRuneData(player);
+        if (runeData != null) {
+            for (CooldownHandler rune : runeData.getAllRunes()) {
+                if (rune instanceof LethalTempo lethalTempo) {
+                    runeAS += lethalTempo.getActiveASBonus(player);
+                }
+                if (rune instanceof HailOfBlades hailOfBlades) {
+                    runeAS += hailOfBlades.getActiveASBonus(player);
+                }
+            }
         }
-        return 0.5 + (sharpnessLevel * 0.5);
+
+        return baseAS + itemAS + runeAS;
+    }
+
+    public double getPlayerAR(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double itemAR = 0;
+        double baseAR = BASE_ARMOR + player.getAttribute(Attribute.GENERIC_ARMOR).getValue();
+        double enchantAR = getArmorEnchant(player);
+        if (itemStatsManager != null) {
+            itemAR += itemStatsManager.getItemAR(player);
+        }
+        return baseAR + itemAR + enchantAR;
+    }
+
+    public double getPlayerMR(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double itemMR = 0;
+        double baseMR = BASE_MAGIC_RESIST;
+        if (itemStatsManager != null) {
+            itemMR += itemStatsManager.getItemMR(player);
+        }
+        return baseMR + itemMR;
+    }
+
+    private double levelBasedTD(Player player) {
+        double playerLevel = player.getLevel();
+        if (playerLevel >= 300) {
+            return 20;
+        } else if (playerLevel >= 200) {
+            return 16;
+        } else if (playerLevel >= 100) {
+            return 8;
+        } else if (playerLevel >= 50) {
+            return 4;
+        } else {
+            return 2;
+        }
     }
 
     private boolean isWeapon(ItemStack item) {
@@ -56,7 +160,20 @@ public class PlayerStats {
                 name.contains("mace") || name.contains("spear");
     }
 
-    public double getPlayerArmor(Player player) {
+    public double getWeaponEnchant(Player player) {
+        ItemStack weapon = player.getInventory().getItemInMainHand();
+        if (weapon.getType() == Material.AIR) {
+            return 0;
+        }
+
+        int sharpnessLevel = weapon.getEnchantmentLevel(Enchantment.SHARPNESS);
+        if (sharpnessLevel == 0) {
+            return 0;
+        }
+        return 0.5 + (sharpnessLevel * 0.5);
+    }
+
+    public double getArmorEnchant(Player player) {
         ItemStack helmet = player.getInventory().getHelmet();
         ItemStack chestplate = player.getInventory().getChestplate();
         ItemStack leggings = player.getInventory().getLeggings();
@@ -80,115 +197,38 @@ public class PlayerStats {
         return totalBonusProtectionLevel * 0.4;
     }
 
-    public double getPlayerAD(Player player) {
-        ItemStack weapon = player.getInventory().getItemInMainHand();
-        int baseAD = 0;
-        if (isWeapon(weapon)) {
-            baseAD++;
-        }
-        var itemHeldAD = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-        double enchantAD = getPlayerWeapon(player);
-        double totalAD = BASE_ATTACK_DAMAGE + itemHeldAD.getValue();
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        if (itemStatsManager != null) {
-            totalAD += itemStatsManager.getItemAD(player);
-        }
-        return totalAD + baseAD + enchantAD;
-    }
-
-    public double getPlayerAR(Player player) {
-        var itemEquipedAR = player.getAttribute(Attribute.GENERIC_ARMOR);
-        double totalAR = BASE_PHYSICAL_ARMOR + itemEquipedAR.getValue();
-        double enchantAR = getPlayerArmor(player);
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        if (itemStatsManager != null) {
-            totalAR += itemStatsManager.getItemAR(player);
-        }
-        return totalAR + enchantAR;
-    }
-
-    public double getPlayerAP(Player player) {
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        double totalAP = BASE_ABILITY_POWER;
-        if (itemStatsManager != null) {
-            totalAP += itemStatsManager.getItemAP(player);
-        }
-        return totalAP;
-    }
-
-    public double getPlayerMR(Player player) {
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        double totalMR = BASE_MAGIC_RESIST;
-        if (itemStatsManager != null) {
-            totalMR += itemStatsManager.getItemMR(player);
-        }
-        return totalMR;
-    }
-
-    public double getPlayerHP(Player player) {
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        double totalHP = BASE_BONUS_HEALTH;
-        if (itemStatsManager != null) {
-            totalHP += itemStatsManager.getItemHP(player);
-        }
-        return totalHP;
-    }
-
-    public double getPlayerHR(Player player) {
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        double totalHR = BASE_BONUS_HEALTH_REGEN;
-        if (itemStatsManager != null) {
-            totalHR += itemStatsManager.getItemHR(player);
-        }
-        return totalHR;
-    }
-
-    public double getPlayerAS(Player player) {
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        double totalAS = BASE_BONUS_ATTACK_SPEED;
-        if (itemStatsManager != null) {
-            totalAS += itemStatsManager.getItemAS(player);
-        }
-        return totalAS;
-    }
-
-    public double getPlayerSR(Player player) {
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        double totalSR = BASE_BONUS_SATURATION_REGEN;
-        if (itemStatsManager != null) {
-            totalSR += itemStatsManager.getItemSR(player);
-        }
-        return totalSR;
-    }
-
 
     public String getActionBarSections(Player player) {
-        double SHARPNESS = getPlayerWeapon(player);
-        double PROTECTION = getPlayerArmor(player);
+        DamageManager damage = new DamageManager();
 
-        double AD = getPlayerAD(player);
-        double AR = getPlayerAR(player);
+        double enchantmentAD = getWeaponEnchant(player);
+        double enchantmentAR = getArmorEnchant(player);
+
+        double adaptiveAD = damage.getPlayerAdaptiveAD(player);
+        double adaptiveAP = damage.getPlayerAdaptiveAP(player);
+
+        double AD = getPlayerAD(player) - enchantmentAD;
+        double AR = getPlayerAR(player) - enchantmentAR;
         double AP = getPlayerAP(player);
         double MR = getPlayerMR(player);
 
-        double AS = getPlayerAS(player);
-        double HP = getPlayerHP(player);
-        double HR = getPlayerHR(player);
-        double SR = getPlayerSR(player);
-
-
         String adDisplay = " §6🗡 §f" + String.format("%.1f", AD);
-        if (SHARPNESS > 0) {
-            adDisplay = " §6🗡 §f" + String.format("%.1f", AD) + "§f(+" + String.format("%.1f", SHARPNESS) + ")";
-        }
-        String arDisplay = " §e🛡 §f" + String.format("%.1f", AR);
-        if (PROTECTION > 0) {
-            arDisplay = " §e🛡 §f" + String.format("%.1f", AR) + " §f(+" + String.format("%.1f", PROTECTION) + ")";
+        if (enchantmentAD > 0 || adaptiveAD > BASE_ADAPTIVE_FORCE && adaptiveAD > adaptiveAP) {
+            adDisplay = " §6🗡 §f" + String.format("%.1f", AD) + "§f(+" + String.format("%.1f", adaptiveAD + enchantmentAD) + ")";
         }
 
         String apDisplay = " §9☄ §f" + String.format("%.1f", AP);
+        if (adaptiveAP > BASE_ADAPTIVE_FORCE && adaptiveAP > adaptiveAD) {
+            apDisplay = " §9☄ §f" + String.format("%.1f", AP) + "§f(+" + String.format("%.1f", adaptiveAP) + ")";
+        }
+
+        String arDisplay = " §e🛡 §f" + String.format("%.1f", AR);
+        if (enchantmentAR > 0) {
+            arDisplay = " §e🛡 §f" + String.format("%.1f", AR) + " §f(+" + String.format("%.1f", enchantmentAR) + ")";
+        }
+
         String mrDisplay = " §b⦿ §f" + String.format("%.1f", MR);
 
-        return adDisplay + arDisplay + apDisplay + mrDisplay;
+        return adDisplay + apDisplay + arDisplay + mrDisplay;
     }
 }
