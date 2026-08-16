@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics.listener;
 
+import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
@@ -8,18 +9,16 @@ import dev.ixpu.leaguemechanics.manager.RuneManager;
 import dev.ixpu.leaguemechanics.player.PlayerRuneData;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
+import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
 import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
 
 import dev.ixpu.leaguemechanics.util.DebugLogger;
-import dev.ixpu.leaguemechanics.util.ItemStatHelper;
+import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.advancement.Advancement;
-import org.bukkit.advancement.AdvancementProgress;
+import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
@@ -29,22 +28,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 
-import java.awt.*;
 import java.util.*;
-
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 
 public class PlayerEventListener implements Listener {
     private static final String LEAGUE_HP_MODIFIER = "league_hp";
-    private static final String LEAGUE_AS_MODIFIER = "league_as";
     private static final String LEAGUE_MS_MODIFIER = "league_ms";
 
     private final LeagueMechanics plugin;
@@ -68,7 +59,7 @@ public class PlayerEventListener implements Listener {
 
         String keystoneRuneId = runePersistence.loadKeystoneRune(player.getUniqueId());
         if (keystoneRuneId != null) {
-            BaseRune keystone = runeRegistry.getRune(keystoneRuneId);
+            CooldownHandler keystone = runeRegistry.getRune(keystoneRuneId);
             if (keystone != null) {
                 runeManager.setPlayerKeystoneRune(player, keystone);
             }
@@ -94,16 +85,15 @@ public class PlayerEventListener implements Listener {
         }
         ItemStack cursor = event.getCursor();
         if (!cursor.getType().isAir()) {
-            ItemStatHelper.syncItemStats(cursor);
+            ItemLoreModifier.syncItemStats(cursor);
         }
 
         ItemStack clicked = event.getCurrentItem();
         if (clicked != null && !clicked.getType().isAir()) {
-            ItemStatHelper.syncItemStats(clicked);
+            ItemLoreModifier.syncItemStats(clicked);
         }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> applyPlayerStats(player), 1L);
     }
-
 
     @EventHandler
     public void onLightningDamage(EntityDamageEvent event) {
@@ -113,85 +103,75 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler
-    public void onProjectileDamage(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Projectile projectile)) {
+    public void onProjectileDamage(ProjectileHitEvent event) {
+        if (!(event.getEntity().getShooter() instanceof Player)) {
             return;
         }
+        event.setCancelled(true);
+    }
 
-        if (!(projectile.getShooter() instanceof Player)) {
+    @EventHandler
+    public void onAttackDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player)) {
+            return;
+        }
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onProjectileDraw(PlayerLaunchProjectileEvent event) {
+        Player shooter = event.getPlayer();
+        if (isAnyHotbarOnCooldown(shooter)) {
+            event.setCancelled(true);
+        }
+        setAttackCooldown(shooter);
+    }
+
+    @EventHandler
+    public void onArmSwing(PlayerArmSwingEvent event) {
+        Player attacker = event.getPlayer();
+        if (isAnyHotbarOnCooldown(attacker)) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
-        if (!(event.getEntity().getShooter() instanceof Player attacker)) {
+        if (!(event.getEntity().getShooter() instanceof Player shooter)) {
             return;
         }
-
         if (event.getHitEntity() == null || !(event.getHitEntity() instanceof LivingEntity target)) {
             return;
         }
-
-        DamageManager damage = new DamageManager();
-        PlayerStats stats = new PlayerStats();
-
         if (event.getEntity() instanceof Arrow) {
-            if (attacker.getInventory().getItemInMainHand().containsEnchantment(Enchantment.FLAME)) {
+            if (shooter.getInventory().getItemInMainHand().containsEnchantment(Enchantment.FLAME)) {
                 target.setFireTicks(8 * 20);
             }
         }
-
-        double attackerAD = stats.getPlayerAD(attacker);
-        double attackerAP = stats.getPlayerAP(attacker);
-        double targetAR = damage.getTargetAR(target);
-        double targetMR = damage.getTargetMR(target);
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker Stats§f] (Projectile) Attacker AD = §d" + Math.ceil(attackerAD * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dAttacker Stats§f] (Projectile) Attacker AP = §d" + Math.ceil(attackerAP * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget Stats§f] Target AR = §d" + Math.ceil(targetAR * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§dTarget Stats§f] Target MR = §d" + Math.ceil(targetMR * 100) / 100.0);
-
-        for (ItemStack armor : target.getEquipment().getArmorContents()) {
-            if (armor != null && !armor.getType().isAir()) {
-                armor.damage((short) 1, target);
-            }
+        if (target instanceof Creature creature) {
+            creature.setTarget(shooter);
         }
-
-        target.damage(0.00001);
         event.getEntity().remove();
+        damageEvent(shooter, target, "Projectile Hit Event");
     }
 
     @EventHandler
-    public void onMeleeAttack(EntityDamageByEntityEvent event) {
+    public void onAttack(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player attacker)) {
             return;
         }
-
-        if (!(event.getEntity() instanceof Player target)) {
+        if (!(event.getEntity() instanceof LivingEntity target)) {
             return;
         }
-
-        DamageManager damage = new DamageManager();
-        PlayerStats stats = new PlayerStats();
-
-        double attackerAD = stats.getPlayerAD(attacker);
-        double attackerAP = stats.getPlayerAP(attacker);
-        double targetAR = damage.getTargetAR(target);
-        double targetMR = damage.getTargetMR(target);
-
-        DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] (Melee) Attacker AD = §d" + Math.ceil(attackerAD * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] (Melee) Attacker AP = §d" + Math.ceil(attackerAP * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] Target AR = §d" + Math.ceil(targetAR * 100) / 100.0);
-        DebugLogger.debug(attacker, "§7[Debug] §f[§cMelee Attack§f] Target MR = §d" + Math.ceil(targetMR * 100) / 100.0);
-
-        for (ItemStack armor : target.getEquipment().getArmorContents()) {
-            if (armor != null && !armor.getType().isAir()) {
-                armor.damage((short) 1, target);
-            }
+        if (isAnyHotbarOnCooldown(attacker)) {
+            event.setCancelled(true);
+            return;
         }
-
-        event.setDamage(0);
+        if (target instanceof Creature creature) {
+            creature.setTarget(attacker);
+        }
+        damageEvent(attacker, target, "Melee Hit Event");
+        setAttackCooldown(attacker);
     }
 
     @EventHandler
@@ -209,134 +189,13 @@ public class PlayerEventListener implements Listener {
             return;
         }
 
-        for (BaseRune rune : runeData.getAllRunes()) {
+        for (CooldownHandler rune : runeData.getAllRunes()) {
             if (rune instanceof GraspOfTheUndying grasp) {
                 grasp.onCombat(player);
             }
-        }
-    }
-
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player dead = event.getEntity();
-        UUID attackerId = lastAttacker.remove(dead.getUniqueId());
-
-        if (attackerId != null) {
-            Player attacker = Bukkit.getPlayer(attackerId);
-            if (attacker != null) {
-                String killMessage = dead.getName() + " has been slain by " + attacker.getName();
-
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    showKillToast(p, killMessage);
-                }
-                event.deathMessage(null);
+            if (rune instanceof HailOfBlades hailOfBlades) {
+                hailOfBlades.onCombat(player);
             }
-        }
-    }
-
-    private void showKillToast(Player player, String message) {
-        Component component = MiniMessage.miniMessage().deserialize("<gold>" + message + "</gold>");
-        player.sendMessage(component);
-
-        Advancement fakeAdv = Bukkit.getAdvancement(NamespacedKey.minecraft("story/root"));
-        if (fakeAdv != null) {
-            AdvancementProgress progress = player.getAdvancementProgress(fakeAdv);
-            if (!progress.isDone()) {
-                progress.awardCriteria("root");
-            }
-        }
-    }
-
-    public void applyPlayerStats(Player player) {
-        syncItemStats(player);
-        applyHealthModifier(player);
-        applyAttackSpeedModifier(player);
-        applyMovementSpeedModifier(player);
-        applyAttackSpeedModifier(player);
-    }
-
-    @SuppressWarnings("removal")
-    private void syncItemStats(Player player) {
-        ItemStack mainHand = player.getInventory().getItemInMainHand();
-
-        if (!mainHand.getType().isAir()) {
-            ItemStatHelper.syncItemStats(mainHand);
-        }
-
-        ItemStack offHand = player.getInventory().getItemInOffHand();
-        if (!offHand.getType().isAir()) {
-            ItemStatHelper.syncItemStats(offHand);
-        }
-
-        for (ItemStack armor : player.getInventory().getArmorContents()) {
-            if (armor != null && !armor.getType().isAir()) {
-                ItemStatHelper.syncItemStats(armor);
-            }
-        }
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                ItemStatHelper.syncItemStats(item);
-            }
-        }
-    }
-
-    @SuppressWarnings("removal")
-    private void applyHealthModifier(Player player) {
-        ItemStatsManager statsManager = plugin.getStatsManager();
-        if (statsManager == null) return;
-
-        double bonusHP = statsManager.getItemHP(player);
-        var attr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        if (attr != null) {
-            new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
-        }
-
-        if (bonusHP > 0) {
-            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).addModifier(
-                    new AttributeModifier(UUID.randomUUID(), LEAGUE_HP_MODIFIER, bonusHP, AttributeModifier.Operation.ADD_NUMBER)
-            );
-        }
-
-        if (player.getHealth() > player.getMaxHealth()) {
-            player.setHealth(player.getMaxHealth());
-        }
-    }
-
-    @SuppressWarnings("removal")
-    private void applyAttackSpeedModifier(Player player) {
-        ItemStatsManager statsManager = plugin.getStatsManager();
-        if (statsManager == null) return;
-
-        double bonusAS = statsManager.getItemAS(player);
-        var attr = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
-        if (attr != null) {
-            new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
-        }
-        if (bonusAS > 0) {
-            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED)).addModifier(
-                    new AttributeModifier(UUID.randomUUID(), LEAGUE_AS_MODIFIER, bonusAS / 100.0, AttributeModifier.Operation.MULTIPLY_SCALAR_1)
-            );
-        }
-    }
-
-    @SuppressWarnings("removal")
-    private void applyMovementSpeedModifier(Player player) {
-        ItemStatsManager statsManager = plugin.getStatsManager();
-        if (statsManager == null) return;
-
-        double bonusMS = statsManager.getItemMS(player);
-
-        var attr = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-        if (attr != null) {
-            new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
-        }
-
-        if (bonusMS > 0) {
-            double speedBonus = 0.1 * (bonusMS / 100.0);
-            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)).addModifier(
-                    new AttributeModifier(UUID.randomUUID(), LEAGUE_MS_MODIFIER, speedBonus, AttributeModifier.Operation.ADD_NUMBER)
-            );
         }
     }
 
@@ -368,6 +227,80 @@ public class PlayerEventListener implements Listener {
         }, 1L);
     }
 
+    public void applyPlayerStats(Player player) {
+        syncItemStats(player);
+        applyHealthModifier(player);
+        applyMovementSpeedModifier(player);
+    }
+
+    @SuppressWarnings("removal")
+    private void syncItemStats(Player player) {
+        ItemStack mainHand = player.getInventory().getItemInMainHand();
+
+        if (!mainHand.getType().isAir()) {
+            ItemLoreModifier.syncItemStats(mainHand);
+        }
+
+        ItemStack offHand = player.getInventory().getItemInOffHand();
+        if (!offHand.getType().isAir()) {
+            ItemLoreModifier.syncItemStats(offHand);
+        }
+
+        for (ItemStack armor : player.getInventory().getArmorContents()) {
+            if (armor != null && !armor.getType().isAir()) {
+                ItemLoreModifier.syncItemStats(armor);
+            }
+        }
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && !item.getType().isAir()) {
+                ItemLoreModifier.syncItemStats(item);
+            }
+        }
+    }
+
+    @SuppressWarnings("removal")
+    private void applyHealthModifier(Player player) {
+        ItemStatsManager statsManager = plugin.getStatsManager();
+        if (statsManager == null) return;
+
+        double bonusHP = statsManager.getItemHP(player);
+        var attr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if (attr != null) {
+            new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
+        }
+
+        if (bonusHP > 0) {
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).addModifier(
+                    new AttributeModifier(UUID.randomUUID(), LEAGUE_HP_MODIFIER, bonusHP, AttributeModifier.Operation.ADD_NUMBER)
+            );
+        }
+
+        if (player.getHealth() > player.getMaxHealth()) {
+            player.setHealth(player.getMaxHealth());
+        }
+    }
+
+    @SuppressWarnings("removal")
+    private void applyMovementSpeedModifier(Player player) {
+        ItemStatsManager statsManager = plugin.getStatsManager();
+        if (statsManager == null) return;
+
+        double bonusMS = statsManager.getItemMS(player);
+
+        var attr = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        if (attr != null) {
+            new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
+        }
+
+        if (bonusMS > 0) {
+            double speedBonus = 0.1 * (bonusMS / 100.0);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)).addModifier(
+                    new AttributeModifier(UUID.randomUUID(), LEAGUE_MS_MODIFIER, speedBonus, AttributeModifier.Operation.ADD_NUMBER)
+            );
+        }
+    }
+
     private void removeModifier(Player player, Attribute attribute, String modifierName) {
         var attr = player.getAttribute(attribute);
         if (attr == null) return;
@@ -379,5 +312,61 @@ public class PlayerEventListener implements Listener {
         for (AttributeModifier modifier : modifiersToRemove) {
             attr.removeModifier(modifier);
         }
+    }
+
+    private void setAttackCooldown(Player player) {
+        PlayerStats stats = new PlayerStats();
+        double attackSpeed = 35 * (1.0 - (stats.getPlayerAS(player) / 100.0));
+
+        for (int i = 0; i < 9; i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item != null && !item.getType().isAir()) {
+                player.setCooldown(item.getType(), (int) attackSpeed);
+            }
+        }
+    }
+
+    public boolean isAnyHotbarOnCooldown(Player player) {
+        for (int i = 0; i < 9; i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item != null && !item.getType().isAir()) {
+                if (player.getCooldown(item.getType()) > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void damageEvent(Player player, LivingEntity target, String type) {
+        DamageManager damage = new DamageManager();
+        PlayerStats stats = new PlayerStats();
+
+        double attackerAD = stats.getPlayerAD(player) + damage.getPlayerAdaptiveAD(player);
+        double attackerAP = stats.getPlayerAP(player) + damage.getPlayerAdaptiveAP(player);
+        double targetAR = damage.getTargetAR(target);
+        double targetMR = damage.getTargetMR(target);
+
+        double statsDamage = damage.DamageCalculation(player, target, 0, 0, 0);
+        double newHealth = Math.clamp(target.getHealth() - statsDamage, 0, target.getMaxHealth());
+
+        for (ItemStack armor : target.getEquipment().getArmorContents()) {
+            if (armor != null && !armor.getType().isAir()) {
+                armor.damage((short) 1, target);
+            }
+        }
+
+        DebugLogger.debug(player, "§7----------- §f[ §dDEBUG MODE §f] §7-----------");
+        DebugLogger.debug(player, "§aTrigger Type: " + type);
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] Total AD = §d" + Math.ceil(attackerAD * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] Total AP = §d" + Math.ceil(attackerAP * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Total AR = §d" + Math.ceil(targetAR * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Total MR = §d" + Math.ceil(targetMR * 100) / 100.0);
+
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+
+        target.damage(0.001);
+        target.setHealth(newHealth);
     }
 }
