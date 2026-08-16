@@ -2,18 +2,18 @@ package dev.ixpu.leaguemechanics.command;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 
-import dev.ixpu.leaguemechanics.item.ItemListData;
-import dev.ixpu.leaguemechanics.item.ItemStatData;
+import dev.ixpu.leaguemechanics.item.ItemStatsData;
+import dev.ixpu.leaguemechanics.item.ItemStatsRegistry;
 
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
 
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 
-import dev.ixpu.leaguemechanics.util.ItemStatHelper;
+import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import net.kyori.adventure.text.Component;
@@ -87,7 +87,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         String itemId = args[1].toLowerCase();
-        ItemStatData itemData = ItemListData.getInstance().getItem(itemId);
+        ItemStatsRegistry itemData = ItemStatsData.getInstance().getItem(itemId);
 
         if (itemData == null) {
             player.sendMessage(Component.text("§cItem not found: " + itemId));
@@ -101,8 +101,8 @@ public class CommandHandler implements CommandExecutor {
             meta.setLore(null);
             item.setItemMeta(meta);
         }
-        ItemStatHelper.setItemId(item, itemId);
-        ItemStatHelper.syncItemStats(item);
+        ItemLoreModifier.setItemId(item, itemId);
+        ItemLoreModifier.syncItemStats(item);
 
         player.getInventory().addItem(item);
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
@@ -150,7 +150,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         String keystoneName = args[4].toLowerCase();
-        BaseRune keystone = RuneRegistry.getInstance().getRune(keystoneName);
+        CooldownHandler keystone = RuneRegistry.getInstance().getRune(keystoneName);
 
         if (keystone == null) {
             player.sendMessage(Component.text("§cKeystone not found."));
