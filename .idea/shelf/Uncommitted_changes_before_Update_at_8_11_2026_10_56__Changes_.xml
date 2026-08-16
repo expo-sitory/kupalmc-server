@@ -1,0 +1,54 @@
+<changelist name="Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]" date="1786417000733" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 8/11/2026 10:56 [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/RedisManager$CoordsSyncSubscriber.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/RedisManager$CoordsSyncSubscriber.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/RedisManager$CoordsSyncSubscriber.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/RedisManager.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/RedisManager.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/RedisManager.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/config/ConfigManager.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/config/ConfigManager.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/ConfigManager.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/MySQLManager.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/MySQLManager.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/MySQLManager.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/listener/PlayerListener.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/listener/PlayerListener.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/PlayerListener.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/CoordsSync.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/CoordsSync.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/CoordsSync.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/command/CommandManager.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/command/CommandManager.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/CommandManager.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/DatabaseManager.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/DatabaseManager.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/DatabaseManager.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/PlayerData.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/PlayerData.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/PlayerData.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/RedisManager$PlayerCoordinates.class" />
+    <option name="AFTER_PATH" value="Plugins/CoordsSync/target/classes/dev/ixpu/coordssync/database/RedisManager$PlayerCoordinates.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/RedisManager$PlayerCoordinates.class" />
+  </binary>
+</changelist>
