@@ -9,7 +9,7 @@ import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.command.CommandHandler;
 import dev.ixpu.leaguemechanics.command.CommandTabCompletions;
 
-import dev.ixpu.leaguemechanics.util.ItemStatHelper;
+import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import org.bukkit.Bukkit;
@@ -20,7 +20,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import dev.ixpu.leaguemechanics.rune.BaseRune;
+import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 
 import dev.ixpu.leaguemechanics.rune.keystones.precision.Conqueror;
@@ -68,7 +68,7 @@ public class LeagueMechanics extends JavaPlugin {
         reloadConfig();
         debugMode = getConfig().getBoolean("debug", false);
 
-        ItemStatHelper.initialize(this);
+        ItemLoreModifier.initialize(this);
         registerRunes();
         registerCommands();
         registerRegenTask();
@@ -140,7 +140,7 @@ public class LeagueMechanics extends JavaPlugin {
 
             String keystoneRuneId = runePersistence.loadKeystoneRune(player.getUniqueId());
             if (keystoneRuneId != null) {
-                BaseRune keystone = runeRegistry.getRune(keystoneRuneId);
+                CooldownHandler keystone = runeRegistry.getRune(keystoneRuneId);
                 if (keystone != null) {
                     runeManager.setPlayerKeystoneRune(player, keystone);
                 }
@@ -221,7 +221,7 @@ public class LeagueMechanics extends JavaPlugin {
         loadRuneCooldown(electrocute, "runes.keystones.domination.electrocute.cooldown");
         runeRegistry.registerRune(electrocute);
 
-        DarkHarvest darkHarvest = new DarkHarvest(config);
+        DarkHarvest darkHarvest = new DarkHarvest(config, playerEventListener);
         loadRuneCooldown(darkHarvest, "runes.keystones.domination.dark-harvest.cooldown");
         runeRegistry.registerRune(darkHarvest);
 
@@ -263,7 +263,7 @@ public class LeagueMechanics extends JavaPlugin {
         getLogger().info(() -> "Registered " + runeRegistry.getAllRunes().size() + " runes");
     }
 
-    private void loadRuneCooldown(BaseRune rune, String configPath) {
+    private void loadRuneCooldown(CooldownHandler rune, String configPath) {
         if (getConfig().contains(configPath)) {
             double cooldown = getConfig().getDouble(configPath);
             rune.setCooldownSeconds(cooldown);
