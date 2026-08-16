@@ -1,7 +1,8 @@
 package dev.ixpu.leaguemechanics.manager;
 
-import dev.ixpu.leaguemechanics.util.ItemStatHelper;
+import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -10,52 +11,117 @@ import java.util.Set;
 
 public class ItemStatsManager {
 
-    public double getItemAP(Player player) {
-        double totalAP = 0;
+    public double getItemHP(Player player) {
+        double itemHP = 0;
         Set<String> countedItems = new HashSet<>();
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
-                String itemId = ItemStatHelper.getItemId(item);
+                String itemId = ItemLoreModifier.getItemId(item);
                 if (itemId != null && !countedItems.contains(itemId)) {
-                    totalAP += ItemStatHelper.getStat(item, "AP");
+                    itemHP += ItemLoreModifier.getStat(item, "HP");
                     countedItems.add(itemId);
                 }
             }
         }
-        return totalAP;
+        return itemHP;
     }
 
-    public double getItemAD(Player player) {
-        double totalAD = 0;
+    public double getItemHR(Player player) {
+        double itemHR = 0;
         Set<String> countedItems = new HashSet<>();
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
-                String itemId = ItemStatHelper.getItemId(item);
+                String itemId = ItemLoreModifier.getItemId(item);
                 if (itemId != null && !countedItems.contains(itemId)) {
-                    totalAD += ItemStatHelper.getStat(item, "AD");
+                    itemHR += ItemLoreModifier.getStat(item, "HR");
                     countedItems.add(itemId);
                 }
             }
         }
-        return totalAD;
+        return itemHR;
+    }
+
+
+    public double getItemAD(Player player) {
+        double itemAD = 0;
+        Set<String> countedItems = new HashSet<>();
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && !item.getType().isAir()) {
+                String itemId = ItemLoreModifier.getItemId(item);
+                if (itemId != null && !countedItems.contains(itemId)) {
+                    itemAD += ItemLoreModifier.getStat(item, "AD");
+                    countedItems.add(itemId);
+                }
+            }
+        }
+        return itemAD;
+    }
+
+    public double getItemAP(Player player) {
+        double itemAP = 0;
+        Set<String> countedItems = new HashSet<>();
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && !item.getType().isAir()) {
+                String itemId = ItemLoreModifier.getItemId(item);
+                if (itemId != null && !countedItems.contains(itemId)) {
+                    itemAP += ItemLoreModifier.getStat(item, "AP");
+                    countedItems.add(itemId);
+                }
+            }
+        }
+        return itemAP;
+    }
+
+    public double getItemTD(Player player) {
+        double itemTD = 0;
+        Set<String> countedItems = new HashSet<>();
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && !item.getType().isAir()) {
+                String itemId = ItemLoreModifier.getItemId(item);
+                if (itemId != null && !countedItems.contains(itemId)) {
+                    itemTD += ItemLoreModifier.getStat(item, "TD");
+                    countedItems.add(itemId);
+                }
+            }
+        }
+        return itemTD;
+    }
+
+    public double getItemAS(Player player) {
+        double itemAS = 0;
+        Set<String> countedItems = new HashSet<>();
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && !item.getType().isAir()) {
+                String itemId = ItemLoreModifier.getItemId(item);
+                if (itemId != null && !countedItems.contains(itemId)) {
+                    itemAS += ItemLoreModifier.getStat(item, "AS");
+                    countedItems.add(itemId);
+                }
+            }
+        }
+        return itemAS;
     }
 
     public double getItemAR(Player player) {
-        double totalAR = 0;
+        double itemAR = 0;
         Set<String> countedItems = new HashSet<>();
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
-                String itemId = ItemStatHelper.getItemId(item);
+                String itemId = ItemLoreModifier.getItemId(item);
                 if (itemId != null && !countedItems.contains(itemId)) {
-                    totalAR += ItemStatHelper.getStat(item, "AR");
+                    itemAR += ItemLoreModifier.getStat(item, "AR");
                     countedItems.add(itemId);
                 }
             }
         }
-        return totalAR;
+        return itemAR;
     }
 
     public double getItemMR(Player player) {
@@ -64,9 +130,9 @@ public class ItemStatsManager {
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
-                String itemId = ItemStatHelper.getItemId(item);
+                String itemId = ItemLoreModifier.getItemId(item);
                 if (itemId != null && !countedItems.contains(itemId)) {
-                    totalMR += ItemStatHelper.getStat(item, "MR");
+                    totalMR += ItemLoreModifier.getStat(item, "MR");
                     countedItems.add(itemId);
                 }
             }
@@ -74,83 +140,99 @@ public class ItemStatsManager {
         return totalMR;
     }
 
-    public double getItemHP(Player player) {
-        double totalHP = 0;
-        Set<String> countedItems = new HashSet<>();
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemStatHelper.getItemId(item);
-                if (itemId != null && !countedItems.contains(itemId)) {
-                    totalHP += ItemStatHelper.getStat(item, "HP");
-                    countedItems.add(itemId);
-                }
-            }
-        }
-        return totalHP;
-    }
-
-    public double getItemHR(Player player) {
-        double totalHR = 0;
-        Set<String> countedItems = new HashSet<>();
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemStatHelper.getItemId(item);
-                if (itemId != null && !countedItems.contains(itemId)) {
-                    totalHR += ItemStatHelper.getStat(item, "HR");
-                    countedItems.add(itemId);
-                }
-            }
-        }
-        return totalHR;
-    }
-
     public double getItemSR(Player player) {
-        double totalSR = 0;
+        double itemSR = 0;
         Set<String> countedItems = new HashSet<>();
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
-                String itemId = ItemStatHelper.getItemId(item);
+                String itemId = ItemLoreModifier.getItemId(item);
                 if (itemId != null && !countedItems.contains(itemId)) {
-                    totalSR += ItemStatHelper.getStat(item, "SR");
+                    itemSR += ItemLoreModifier.getStat(item, "SR");
                     countedItems.add(itemId);
                 }
             }
         }
-        return totalSR;
+        return itemSR;
     }
 
-    public double getItemAS(Player player) {
-        double totalAS = 0;
+    public double getItemLS(Player player) {
+        double itemLS = 0;
         Set<String> countedItems = new HashSet<>();
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
-                String itemId = ItemStatHelper.getItemId(item);
+                String itemId = ItemLoreModifier.getItemId(item);
                 if (itemId != null && !countedItems.contains(itemId)) {
-                    totalAS += ItemStatHelper.getStat(item, "AS");
+                    itemLS += ItemLoreModifier.getStat(item, "LS");
                     countedItems.add(itemId);
                 }
             }
         }
-        return totalAS;
+        return itemLS;
+    }
+
+    public double getItemCC(Player player) {
+        double itemCC = 0;
+        Set<String> countedItems = new HashSet<>();
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && !item.getType().isAir()) {
+                String itemId = ItemLoreModifier.getItemId(item);
+                if (itemId != null && !countedItems.contains(itemId)) {
+                    itemCC += ItemLoreModifier.getStat(item, "CC");
+                    countedItems.add(itemId);
+                }
+            }
+        }
+        return itemCC;
     }
 
     public double getItemMS(Player player) {
-        double totalMS = 0;
+        double itemMS = 0;
         Set<String> countedItems = new HashSet<>();
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
-                String itemId = ItemStatHelper.getItemId(item);
+                String itemId = ItemLoreModifier.getItemId(item);
                 if (itemId != null && !countedItems.contains(itemId)) {
-                    totalMS += ItemStatHelper.getStat(item, "MS");
+                    itemMS += ItemLoreModifier.getStat(item, "MS");
                     countedItems.add(itemId);
                 }
             }
         }
-        return totalMS;
+        return itemMS;
+    }
+
+    public double getItemAPen(Player player) {
+        double ItemAPen = 0;
+        Set<String> countedItems = new HashSet<>();
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && !item.getType().isAir()) {
+                String itemId = ItemLoreModifier.getItemId(item);
+                if (itemId != null && !countedItems.contains(itemId)) {
+                    ItemAPen += ItemLoreModifier.getStat(item, "APEN");
+                    countedItems.add(itemId);
+                }
+            }
+        }
+        return ItemAPen;
+    }
+
+    public double getItemMPen(Player player) {
+        double ItemMPen = 0;
+        Set<String> countedItems = new HashSet<>();
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && !item.getType().isAir()) {
+                String itemId = ItemLoreModifier.getItemId(item);
+                if (itemId != null && !countedItems.contains(itemId)) {
+                    ItemMPen += ItemLoreModifier.getStat(item, "MPEN");
+                    countedItems.add(itemId);
+                }
+            }
+        }
+        return ItemMPen;
     }
 }
