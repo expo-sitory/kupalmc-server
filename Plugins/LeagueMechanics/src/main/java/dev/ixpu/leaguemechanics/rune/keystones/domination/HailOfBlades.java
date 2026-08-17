@@ -44,7 +44,7 @@ public class HailOfBlades extends CooldownHandler {
     private final Map<UUID, Integer> lastAttackTick = new HashMap<>();
     private final Map<UUID, Integer> currentStacks = new HashMap<>();
 
-    public HailOfBlades(ConfigurationSection config) {
+    public HailOfBlades(ConfigurationSection config, PlayerEventListener listener) {
         super("hail-of-blades", RunePath.DOMINATION, RuneSlot.KEYSTONE);
         this.listener = listener;
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.domination.hail-of-blades");

@@ -39,7 +39,7 @@ public class ArcaneComet extends CooldownHandler {
     private final Map<UUID, Long> lastCometTime = new HashMap<>();
     private LeagueMechanics plugin;
 
-    public ArcaneComet(ConfigurationSection config, LeagueMechanics plugin) {
+    public ArcaneComet(ConfigurationSection config, LeagueMechanics plugin, PlayerEventListener listener) {
         super("arcane-comet", RunePath.SORCERY, RuneSlot.KEYSTONE);
         this.listener = listener;
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.sorcery.arcane-comet");

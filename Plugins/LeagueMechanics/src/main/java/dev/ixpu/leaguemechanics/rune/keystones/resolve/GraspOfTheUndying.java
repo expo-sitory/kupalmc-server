@@ -36,7 +36,7 @@ public class GraspOfTheUndying extends StacksHandler {
     private final Map<UUID, Integer> totalAbsorptionHearts = new HashMap<>();
     private final Map<UUID, Boolean> activeStateActive = new HashMap<>();
 
-    public GraspOfTheUndying(org.bukkit.configuration.ConfigurationSection config) {
+    public GraspOfTheUndying(org.bukkit.configuration.ConfigurationSection config, PlayerEventListener listener) {
         super("grasp-of-the-undying", RunePath.RESOLVE, RuneSlot.KEYSTONE, 4, 60);
         this.listener = listener;
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.grasp-of-the-undying");

@@ -27,7 +27,7 @@ public class Conqueror extends StacksHandler {
 
     private PlayerEventListener listener;
 
-    public Conqueror(ConfigurationSection config) {
+    public Conqueror(ConfigurationSection config, PlayerEventListener listener) {
         super("conqueror", RunePath.PRECISION, RuneSlot.KEYSTONE, 12, 100);
         this.listener = listener;
         enablePerTargetStacking();

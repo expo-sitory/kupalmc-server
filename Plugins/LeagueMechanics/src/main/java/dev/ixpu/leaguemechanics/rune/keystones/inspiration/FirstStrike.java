@@ -41,7 +41,7 @@ public class FirstStrike extends CooldownHandler {
     private LeagueMechanics plugin;
 
 
-    public FirstStrike(ConfigurationSection config, LeagueMechanics plugin) {
+    public FirstStrike(ConfigurationSection config, LeagueMechanics plugin, PlayerEventListener listener) {
         super("first-strike", RunePath.INSPIRATION, RuneSlot.KEYSTONE);
         this.listener = listener;
         this.plugin = plugin;

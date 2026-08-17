@@ -29,7 +29,7 @@ public class PressTheAttack extends StacksHandler {
 
     private static final int MAX_STACKS = 3;
 
-    public PressTheAttack(org.bukkit.configuration.ConfigurationSection config) {
+    public PressTheAttack(org.bukkit.configuration.ConfigurationSection config, PlayerEventListener listener) {
         super("press-the-attack", RunePath.PRECISION, RuneSlot.KEYSTONE, 3, 60);
         this.listener = listener;
         enablePerTargetStacking();

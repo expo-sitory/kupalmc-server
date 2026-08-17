@@ -36,7 +36,7 @@ public class LethalTempo extends StacksHandler {
     private final Map<UUID, Double> activeASBonus = new HashMap<>();
     private final Map<UUID, Map<UUID, List<Long>>> stackTimestamps = new HashMap<>();
 
-    public LethalTempo(org.bukkit.configuration.ConfigurationSection config) {
+    public LethalTempo(org.bukkit.configuration.ConfigurationSection config, PlayerEventListener listener) {
         super("lethal-tempo", RunePath.PRECISION, RuneSlot.KEYSTONE, 6, 120);
         this.listener = listener;
         enablePerTargetStacking();
