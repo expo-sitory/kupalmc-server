@@ -201,15 +201,15 @@ public class LeagueMechanics extends JavaPlugin {
     private void registerRunes() {
         FileConfiguration config = getConfig();
 
-        PressTheAttack pressTheAttack = new PressTheAttack(config);
+        PressTheAttack pressTheAttack = new PressTheAttack(config, playerEventListener);
         loadRuneCooldown(pressTheAttack, "runes.keystones.precision.press-the-attack.cooldown");
         runeRegistry.registerRune(pressTheAttack);
 
-        LethalTempo lethalTempo = new LethalTempo(config);
+        LethalTempo lethalTempo = new LethalTempo(config, playerEventListener);
         loadRuneCooldown(lethalTempo, "runes.keystones.precision.lethal-tempo.cooldown");
         runeRegistry.registerRune(lethalTempo);
 
-        Conqueror conqueror = new Conqueror(config);
+        Conqueror conqueror = new Conqueror(config, playerEventListener);
         loadRuneCooldown(conqueror, "runes.keystones.precision.conqueror.cooldown");
         runeRegistry.registerRune(conqueror);
 
@@ -217,7 +217,7 @@ public class LeagueMechanics extends JavaPlugin {
         loadRuneCooldown(fleetFootwork, "runes.keystones.precision.fleet-footwork.cooldown");
         runeRegistry.registerRune(fleetFootwork);
 
-        Electrocute electrocute = new Electrocute(config);
+        Electrocute electrocute = new Electrocute(config, playerEventListener);
         loadRuneCooldown(electrocute, "runes.keystones.domination.electrocute.cooldown");
         runeRegistry.registerRune(electrocute);
 
@@ -225,11 +225,11 @@ public class LeagueMechanics extends JavaPlugin {
         loadRuneCooldown(darkHarvest, "runes.keystones.domination.dark-harvest.cooldown");
         runeRegistry.registerRune(darkHarvest);
 
-        HailOfBlades hailOfBlades = new HailOfBlades(config);
+        HailOfBlades hailOfBlades = new HailOfBlades(config, playerEventListener);
         loadRuneCooldown(hailOfBlades, "runes.keystones.domination.hail-of-blades.cooldown");
         runeRegistry.registerRune(hailOfBlades);
 
-        GraspOfTheUndying grasp = new GraspOfTheUndying(config);
+        GraspOfTheUndying grasp = new GraspOfTheUndying(config, playerEventListener);
         loadRuneCooldown(grasp, "runes.keystones.resolve.grasp-of-the-undying.cooldown");
         runeRegistry.registerRune(grasp);
 
@@ -241,7 +241,7 @@ public class LeagueMechanics extends JavaPlugin {
         loadRuneCooldown(guardian, "runes.keystones.resolve.guardian.cooldown");
         runeRegistry.registerRune(guardian);
 
-        ArcaneComet arcaneComet = new ArcaneComet(config, this);
+        ArcaneComet arcaneComet = new ArcaneComet(config, this, playerEventListener);
         loadRuneCooldown(arcaneComet, "runes.keystones.sorcery.arcane-comet.cooldown");
         runeRegistry.registerRune(arcaneComet);
 
@@ -256,7 +256,7 @@ public class LeagueMechanics extends JavaPlugin {
         loadRuneCooldown(glacialAugment, "runes.keystones.inspiration.glacial-augment.cooldown");
         runeRegistry.registerRune(glacialAugment);
 
-        FirstStrike firstStrike = new FirstStrike(config, this);
+        FirstStrike firstStrike = new FirstStrike(config, this, playerEventListener);
         loadRuneCooldown(firstStrike, "runes.keystones.inspiration.first-strike.cooldown");
         runeRegistry.registerRune(firstStrike);
 
