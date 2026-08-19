@@ -6,6 +6,8 @@ import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.rune.keystones.precision.LethalTempo;
 import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
+import dev.ixpu.leaguemechanics.item.ItemPassivesRegistry;
+import dev.ixpu.leaguemechanics.item.passives.dark_seal;
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -70,6 +72,12 @@ public class PlayerStats {
         if (itemStatsManager != null) {
             itemAP += itemStatsManager.getItemAP(player);
         }
+
+        dark_seal darkSeal = (dark_seal) ItemPassivesRegistry.getInstance().getPassive("dark-seal");
+        if (darkSeal != null) {
+            itemAP += darkSeal.getAbilityPower(player);
+        }
+
         return baseAP + itemAP;
     }
 

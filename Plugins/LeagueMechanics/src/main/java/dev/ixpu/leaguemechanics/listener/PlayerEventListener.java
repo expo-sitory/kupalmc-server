@@ -2,6 +2,7 @@ package dev.ixpu.leaguemechanics.listener;
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.item.*;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
@@ -19,9 +20,14 @@ import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
+
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
+import org.bukkit.Sound;
+import org.bukkit.util.Vector;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,6 +43,7 @@ import java.util.*;
 public class PlayerEventListener implements Listener {
     private static final String LEAGUE_HP_MODIFIER = "league_hp";
     private static final String LEAGUE_MS_MODIFIER = "league_ms";
+    private static final long TITLE_COOLDOWN_MS = 1500;
 
     private final LeagueMechanics plugin;
     private final RuneManager runeManager;
@@ -44,6 +51,7 @@ public class PlayerEventListener implements Listener {
     private final RunePersistence runePersistence;
 
     private final Map<UUID, UUID> lastAttacker = new HashMap<>();
+    private final Map<UUID, Long> titleCooldown = new HashMap<>();
 
     public PlayerEventListener(LeagueMechanics plugin, RunePersistence runePersistence) {
         this.plugin = plugin;
@@ -83,15 +91,29 @@ public class PlayerEventListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
+
+        ItemStack currentItem = event.getCurrentItem();
+
+        if (currentItem != null && !currentItem.getType().isAir() && event.getClickedInventory() != player.getInventory()) {
+            String itemId = ItemLoreModifier.getItemId(currentItem);
+            if (itemId != null) {
+                ItemStatsManager statsManager = plugin.getStatsManager();
+                if (statsManager.countLeagueItems(player) > 5) {
+                    event.setCancelled(true);
+                    player.sendMessage(Component.text("§cLeague Items Count: 6/6"));
+                    return;
+                }
+            }
+        }
+
         ItemStack cursor = event.getCursor();
         if (!cursor.getType().isAir()) {
             ItemLoreModifier.syncItemStats(cursor);
         }
-
-        ItemStack clicked = event.getCurrentItem();
-        if (clicked != null && !clicked.getType().isAir()) {
-            ItemLoreModifier.syncItemStats(clicked);
+        if (currentItem != null && !currentItem.getType().isAir()) {
+            ItemLoreModifier.syncItemStats(currentItem);
         }
+
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> applyPlayerStats(player), 1L);
     }
 
@@ -115,12 +137,23 @@ public class PlayerEventListener implements Listener {
         if (!(event.getDamager() instanceof Player)) {
             return;
         }
-        event.setCancelled(true);
+        event.setDamage(0);
     }
 
     @EventHandler
     public void onProjectileDraw(PlayerLaunchProjectileEvent event) {
         Player shooter = event.getPlayer();
+        if (isAnyHotbarOnCooldown(shooter)) {
+            event.setCancelled(true);
+        }
+        setAttackCooldown(shooter);
+    }
+
+    @EventHandler
+    public void onBowShoot(EntityShootBowEvent event) {
+        if (!(event.getEntity() instanceof Player shooter)) {
+            return;
+        }
         if (isAnyHotbarOnCooldown(shooter)) {
             event.setCancelled(true);
         }
@@ -143,14 +176,32 @@ public class PlayerEventListener implements Listener {
         if (event.getHitEntity() == null || !(event.getHitEntity() instanceof LivingEntity target)) {
             return;
         }
+
         if (event.getEntity() instanceof Arrow) {
-            if (shooter.getInventory().getItemInMainHand().containsEnchantment(Enchantment.FLAME)) {
+            ItemStack bow = shooter.getInventory().getItemInMainHand();
+
+            if (bow.containsEnchantment(Enchantment.FLAME)) {
                 target.setFireTicks(8 * 20);
+            }
+
+            if (!target.getUniqueId().equals(shooter.getUniqueId())) {
+                Vector direction = target.getLocation().toVector().subtract(shooter.getLocation().toVector()).normalize();
+                double knockbackPower = 0.5;
+
+                if (bow.containsEnchantment(Enchantment.KNOCKBACK)) {
+                    int knockbackLevel = bow.getEnchantmentLevel(Enchantment.KNOCKBACK);
+                    knockbackPower = knockbackLevel * 0.5;
+                }
+
+                target.setVelocity(direction.multiply(knockbackPower));
             }
         }
         if (target instanceof Creature creature) {
             creature.setTarget(shooter);
         }
+
+        shooter.getWorld().playSound(shooter.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1.0f, 1.0f);
+
         event.getEntity().remove();
         damageEvent(shooter, target, "Projectile Hit Event");
     }
@@ -199,6 +250,37 @@ public class PlayerEventListener implements Listener {
         }
     }
 
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onEntityDeath(EntityDeathEvent event) {
+        Entity killer = event.getEntity().getKiller();
+        if (!(killer instanceof Player player)) {
+            return;
+        }
+
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item == null || item.getType().isAir()) {
+                continue;
+            }
+
+            String itemId = ItemLoreModifier.getItemId(item);
+            if (itemId == null) {
+                continue;
+            }
+
+            ItemStatsRegistry itemData = ItemStatsData.getInstance().getItem(itemId);
+            if (itemData == null || !itemData.hasPassive()) {
+                continue;
+            }
+
+            ItemPassive passive = ItemPassivesRegistry.getInstance().getPassive(itemData.getPassiveId());
+            if (passive != null) {
+                passive.onEntityKill(player, item);
+                ItemLoreModifier.syncItemStats(item);
+            }
+        }
+    }
+
     @EventHandler
     public void onHealthRegen(EntityRegainHealthEvent event) {
         if (!(event.getEntity() instanceof Player)) {
@@ -222,9 +304,76 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
         Player player = event.getPlayer();
+        ItemStack item = event.getItem().getItemStack();
+        String itemId = ItemLoreModifier.getItemId(item);
+
+        if (itemId == null) {
+            return;
+        }
+
+        ItemStatsManager statsManager = plugin.getStatsManager();
+        if (statsManager.countLeagueItems(player) > 5) {
+            event.setCancelled(true);
+            UUID uuid = player.getUniqueId();
+            long now = System.currentTimeMillis();
+            if (!titleCooldown.containsKey(uuid) || now - titleCooldown.get(uuid) >= TITLE_COOLDOWN_MS) {
+                player.showTitle(Title.title(
+                        Component.text("§c§l✗ ʙᴜɪʟᴅ ꜱʟᴏᴛꜱ ꜰᴜʟʟ"),
+                        Component.text("§7ʟᴇᴀɢᴜᴇ ɪᴛᴇᴍꜱ ᴄᴏᴜɴᴛ: 6/6")
+                ));
+                titleCooldown.put(uuid, now);
+            }
+            return;
+        }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             applyPlayerStats(player);
         }, 1L);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+
+        List<ItemStack> leagueItems = new ArrayList<>();
+        for (ItemStack drop : event.getDrops()) {
+            if (drop != null && !drop.getType().isAir()) {
+                String itemId = ItemLoreModifier.getItemId(drop);
+                if (itemId != null) {
+                    leagueItems.add(drop.clone());
+                }
+            }
+        }
+
+        for (ItemStack leagueItem : leagueItems) {
+            event.getDrops().remove(leagueItem);
+        }
+
+        if (!leagueItems.isEmpty()) {
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                for (ItemStack leagueItem : leagueItems) {
+                    player.getInventory().addItem(leagueItem);
+                }
+            }, 1L);
+        }
+
+        for (int i = 0; i < 9; i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item == null || item.getType().isAir()) {
+                continue;
+            }
+
+            String itemId = ItemLoreModifier.getItemId(item);
+            if (itemId == null || !itemId.equals("dark-seal")) {
+                continue;
+            }
+
+            dev.ixpu.leaguemechanics.item.passives.dark_seal darkSeal =
+                    (dev.ixpu.leaguemechanics.item.passives.dark_seal) ItemPassivesRegistry.getInstance().getPassive("dark-seal");
+            if (darkSeal != null) {
+                darkSeal.clearStacks(player);
+                ItemLoreModifier.syncItemStats(item);
+            }
+        }
     }
 
     public void applyPlayerStats(Player player) {
@@ -367,6 +516,11 @@ public class PlayerEventListener implements Listener {
         DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         target.damage(0.001);
-        target.setHealth(newHealth);
+        if (newHealth <= 0) {
+            target.setHealth(0);
+            target.damage(1000, player);
+        } else {
+            target.setHealth(newHealth);
+        }
     }
 }
