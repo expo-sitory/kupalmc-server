@@ -63,6 +63,9 @@ public class DarkHarvest extends StacksHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return;
+        }
 
         double targetHealth = livingTarget.getHealth();
         double maxHealth = livingTarget.getMaxHealth();
@@ -87,9 +90,6 @@ public class DarkHarvest extends StacksHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        if (listener.isAnyHotbarOnCooldown(player)) {
-            return 0.0;
-        }
         DamageManager damageManager = new DamageManager();
         damageManager.enablePerStackScaling();
         damageManager.enableAdaptiveScaling();

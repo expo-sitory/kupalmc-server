@@ -1,6 +1,7 @@
 package dev.ixpu.leaguemechanics.rune.keystones.sorcery;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
@@ -33,6 +34,8 @@ public class DeathfireTorch extends CooldownHandler {
     private double AD_PERCENTAGE_MULTIPLIER = 0.05;
     private double AP_PERCENTAGE_MULTIPLIER = 0.10;
 
+    private PlayerEventListener listener;
+
     private static final int BURN_DURATION_TICKS = 100;
 
     private final Map<UUID, Map<UUID, Integer>> burnedPlayers = new HashMap<>();
@@ -40,9 +43,10 @@ public class DeathfireTorch extends CooldownHandler {
     private final Map<UUID, Map<UUID, LivingEntity>> burnedTargets = new HashMap<>();
     private LeagueMechanics plugin;
 
-    public DeathfireTorch(ConfigurationSection config) {
+    public DeathfireTorch(ConfigurationSection config, PlayerEventListener listener) {
         super("deathfire-torch", RunePath.SORCERY, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.sorcery.deathfire-torch");
+        this.listener = listener;
         if (section != null) {
             this.BASE_MAGIC_DAMAGE = section.getDouble("base-magic-damage", this.BASE_MAGIC_DAMAGE);
             this.AD_PERCENTAGE_MULTIPLIER = section.getDouble("ad-percentage-multiplier", this.AD_PERCENTAGE_MULTIPLIER);
@@ -83,6 +87,9 @@ public class DeathfireTorch extends CooldownHandler {
             return;
         }
         if (!CheckEnchant(weapon)) {
+            return;
+        }
+        if(listener.isAnyHotbarOnCooldown(player)) {
             return;
         }
 

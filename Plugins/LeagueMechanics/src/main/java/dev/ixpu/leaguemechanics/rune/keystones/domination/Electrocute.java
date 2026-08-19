@@ -23,7 +23,7 @@ import net.kyori.adventure.text.Component;
 
 public class Electrocute extends StacksHandler {
 
-    private double BASE_ADAPTIVE_DAMAGE = 17.5;
+    private double BASE_ADAPTIVE_DAMAGE = 7.5;
 
     private static final int MAXIMUM_STACKS = 3;
     private PlayerEventListener listener;
@@ -70,6 +70,9 @@ public class Electrocute extends StacksHandler {
         if (isOnCooldown(player)) {
             return;
         }
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return;
+        }
 
         switchTarget(player, targetUUID);
         addStack(player, targetUUID);
@@ -83,6 +86,7 @@ public class Electrocute extends StacksHandler {
             resetCooldown(player);
 
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.2f);
+            target.getWorld().playSound(target.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.0f);
 
             livingTarget.setHealth(newHealth);
             DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§cElectrocute§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
@@ -91,9 +95,6 @@ public class Electrocute extends StacksHandler {
     }
     
     private double keystoneDamage(Player player, Entity target) {
-        if (listener.isAnyHotbarOnCooldown(player)) {
-            return 0.0;
-        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
         return damageManager.DamageCalculation(player, target, 0, BASE_ADAPTIVE_DAMAGE, 0);

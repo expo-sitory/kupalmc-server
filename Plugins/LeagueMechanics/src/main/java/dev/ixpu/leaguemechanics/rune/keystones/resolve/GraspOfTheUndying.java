@@ -79,12 +79,10 @@ public class GraspOfTheUndying extends StacksHandler {
     }
 
     public void onProjectileHit(Player shooter, Entity target) {
-        onCombat(shooter);
         activateGraspOfTheUndying(shooter, target);
     }
 
     public void onAttack(Player attacker, Entity target) {
-        onCombat(attacker);
         activateGraspOfTheUndying(attacker, target);
     }
 
@@ -93,6 +91,9 @@ public class GraspOfTheUndying extends StacksHandler {
         int stacks = getStacks(player);
         int attackWindow = activationState.getOrDefault(playerUUID, 0);
 
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return;
+        }
         if (stacks >= maxStacks && attackWindow > 0 && !activeStateActive.getOrDefault(playerUUID, false)) {
             enterActiveState(player, target);
             resetStacks(player);
@@ -131,9 +132,6 @@ public class GraspOfTheUndying extends StacksHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        if(listener.isAnyHotbarOnCooldown(player)) {
-            return 0.0;
-        }
         DamageManager damageManager = new DamageManager();
         return damageManager.DamageCalculation(player, target, 0, 0, 0);
     }

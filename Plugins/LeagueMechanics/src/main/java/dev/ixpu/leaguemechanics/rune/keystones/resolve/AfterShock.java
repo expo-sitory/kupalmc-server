@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,14 +30,16 @@ public class AfterShock extends CooldownHandler {
     private int ABSORPTION_LEVEL = 5;
     private int RESISTANCE_LEVEL = 2;
 
+    private PlayerEventListener listener;
+
     int COOLDOWN_SECONDS = 45;
 
     private final Map<UUID, Long> effectStartTime = new HashMap<>();
 
-    public AfterShock(ConfigurationSection config) {
+    public AfterShock(ConfigurationSection config, PlayerEventListener listener) {
         super("aftershock", RunePath.RESOLVE, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.aftershock");
-        
+        this.listener = listener;
         if (section != null) {
             this.EFFECT_DURATION_TICKS = section.getInt("effect-duration", this.EFFECT_DURATION_TICKS);
             this.ABSORPTION_LEVEL = section.getInt("absorption-level", this.ABSORPTION_LEVEL);
@@ -77,6 +80,9 @@ public class AfterShock extends CooldownHandler {
             return;
         }
         if (isOnCooldown(player)) {
+            return;
+        }
+        if (listener.isAnyHotbarOnCooldown(player)) {
             return;
         }
 

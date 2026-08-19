@@ -21,7 +21,7 @@ import net.kyori.adventure.text.Component;
 
 public class PressTheAttack extends StacksHandler {
 
-    private double BASE_ADAPTIVE_DAMAGE = 6.7;
+    private double BASE_ADAPTIVE_DAMAGE = 2.5;
 
     int COOLDOWN_DURATION_SECONDS = 6;
 
@@ -62,6 +62,9 @@ public class PressTheAttack extends StacksHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return;
+        }
 
         switchTarget(player, targetUUID);
         int currentStacks = getStacks(player, targetUUID);
@@ -85,9 +88,6 @@ public class PressTheAttack extends StacksHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        if (listener.isAnyHotbarOnCooldown(player)) {
-            return 0.0;
-        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
         return damageManager.DamageCalculation(player, target, 0, BASE_ADAPTIVE_DAMAGE, 0);

@@ -24,7 +24,7 @@ import net.kyori.adventure.text.Component;
 
 public class FirstStrike extends CooldownHandler {
     private double INITIAL_XP = 10.0;
-    private double BUFF_DURATION_SECONDS = 3;
+    private double BUFF_DURATION_SECONDS = 7;
     private double TRUE_DAMAGE_PERCENT = 2;
     private double COMBAT_WINDOW_MS = 250;
 
@@ -93,6 +93,9 @@ public class FirstStrike extends CooldownHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return;
+        }
 
         long currentTime = System.currentTimeMillis();
         long lastCombat = lastCombatTime.getOrDefault(attackerUUID, 0L);
@@ -122,9 +125,6 @@ public class FirstStrike extends CooldownHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        if (listener.isAnyHotbarOnCooldown(player)) {
-            return 0.0;
-        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableTrueDamage();
         return damageManager.DamageCalculation(player, target, 0, 0, TRUE_DAMAGE_PERCENT);

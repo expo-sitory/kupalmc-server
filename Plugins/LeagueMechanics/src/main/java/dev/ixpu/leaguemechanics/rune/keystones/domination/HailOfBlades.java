@@ -31,7 +31,7 @@ public class HailOfBlades extends CooldownHandler {
     private static final int WINDUP_TICKS = 200;
     private static final int STACK_DURATION_TICKS = 60;
     private static final int INACTIVITY_TIMEOUT_TICKS = 60;
-    private static final int INITIAL_STACKS = 2;
+    private static final int INITIAL_STACKS = 4;
 
     private PlayerEventListener listener;
 
@@ -109,6 +109,9 @@ public class HailOfBlades extends CooldownHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return;
+        }
 
         double newHealth = Math.clamp(livingTarget.getHealth() - (keystoneDamage(player, target) * getScaledTrueDamage(player)), 0, livingTarget.getMaxHealth());
 
@@ -132,9 +135,6 @@ public class HailOfBlades extends CooldownHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        if (listener.isAnyHotbarOnCooldown(player)) {
-            return 0.0;
-        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableTrueDamage();
         return damageManager.DamageCalculation(player, target, 0, 0, TRUE_DAMAGE_PERCENT);

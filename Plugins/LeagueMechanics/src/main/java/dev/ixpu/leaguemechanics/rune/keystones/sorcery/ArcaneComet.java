@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.Color;
@@ -25,7 +26,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 public class ArcaneComet extends CooldownHandler {
-    double BASE_ADAPTIVE_DAMAGE = 17.5;
+    double BASE_ADAPTIVE_DAMAGE = 7.0;
 
     private double AD_PERCENTAGE_MULTIPLIER = 0.05;
     private double AP_PERCENTAGE_MULTIPLIER = 0.15;
@@ -80,6 +81,9 @@ public class ArcaneComet extends CooldownHandler {
         if (isOnCooldown(player)){
             return;
         }
+        if(listener.isAnyHotbarOnCooldown(player)) {
+            return;
+        }
 
         double newHealth = Math.clamp(livingTarget.getHealth() - keystoneDamage(player, target), 0, livingTarget.getMaxHealth());
 
@@ -88,9 +92,6 @@ public class ArcaneComet extends CooldownHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        if(listener.isAnyHotbarOnCooldown(player)) {
-            return 0.0;
-        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
         double baseDamage = damageManager.DamageCalculation(player, target, 0, BASE_ADAPTIVE_DAMAGE, 0);
@@ -138,7 +139,10 @@ public class ArcaneComet extends CooldownHandler {
                             new Particle.DustOptions(Color.BLUE, 1.5f)
                     );
 
-                    shooter.playSound(targetLoc, org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 1.5f);
+                    shooter.playSound(targetLoc, org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 2.0f);
+                    shooter.playSound(targetLoc, org.bukkit.Sound.ENTITY_ILLUSIONER_CAST_SPELL, 0.8f, 2.0f);
+                    target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 2.0f);
+                    target.getWorld().playSound(target.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.0f, 1.0f);
                     plugin.getServer().getScheduler().cancelTask(taskId[0]);
                     return;
                 }

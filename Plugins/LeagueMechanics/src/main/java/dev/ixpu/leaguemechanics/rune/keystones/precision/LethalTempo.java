@@ -10,6 +10,7 @@ import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.*;
 
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -84,6 +85,9 @@ public class LethalTempo extends StacksHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return;
+        }
 
         switchTarget(player, targetUUID);
 
@@ -106,9 +110,6 @@ public class LethalTempo extends StacksHandler {
     }
 
     private double keystoneDamage(Player player, Entity target, int currentStacks) {
-        if (listener.isAnyHotbarOnCooldown(player)) {
-            return 0.0;
-        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
         damageManager.enablePerStackScaling();
@@ -162,7 +163,7 @@ public class LethalTempo extends StacksHandler {
         playerState.put(playerUUID, RuneState.ACTIVE);
         activeState.put(playerUUID, ACTIVE_DURATION_TICKS);
         activeASBonus.put(playerUUID, ATTACK_SPEED);
-        player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.2f);
+        player.playSound(player.getLocation(), Sound.ENTITY_ILLUSIONER_PREPARE_BLINDNESS, 1.0f, 1.2f);
     }
 
     private void refreshActiveTimer(Player player) {
@@ -214,7 +215,7 @@ public class LethalTempo extends StacksHandler {
                 activeASBonus.put(playerUUID, 0.0);
                 resetStacks(player);
                 clearPlayerTimestamps(player);
-                player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.2f);
+                player.playSound(player.getLocation(), Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.0f, 1.2f);
             }
         }
     }

@@ -21,7 +21,7 @@ import net.kyori.adventure.text.Component;
 
 public class Conqueror extends StacksHandler {
 
-    private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 0.7;
+    private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 0.5;
 
     private static final int MAXIMUM_STACKS = 12;
 
@@ -61,6 +61,10 @@ public class Conqueror extends StacksHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (listener.isAnyHotbarOnCooldown(player)) {
+            return;
+        }
+
         switchTarget(player, targetUUID);
         addStack(player, targetUUID);
 
@@ -74,9 +78,6 @@ public class Conqueror extends StacksHandler {
     }
 
     private double keystoneDamage(Player player, Entity target, int currentStacks) {
-        if (listener.isAnyHotbarOnCooldown(player)) {
-            return 0.0;
-        }
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
         damageManager.enablePerStackScaling();

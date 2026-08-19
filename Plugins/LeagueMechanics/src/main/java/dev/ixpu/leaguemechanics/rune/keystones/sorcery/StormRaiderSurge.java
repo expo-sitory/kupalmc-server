@@ -1,6 +1,7 @@
 package dev.ixpu.leaguemechanics.rune.keystones.sorcery;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
@@ -26,6 +27,8 @@ public class StormRaiderSurge extends CooldownHandler {
 
     int COOLDOWN_SECONDS = 25;
 
+    private PlayerEventListener listener;
+
     private static final int TRACKING_WINDOW_TICKS = 60;
     private static final int SPEED_DURATION_TICKS = 120;
 
@@ -34,9 +37,10 @@ public class StormRaiderSurge extends CooldownHandler {
     private final Map<UUID, Integer> speedActiveDuration = new HashMap<>();
     private LeagueMechanics plugin;
 
-    public StormRaiderSurge(ConfigurationSection config) {
+    public StormRaiderSurge(ConfigurationSection config, PlayerEventListener listener) {
         super("storm-raider-surge", RunePath.SORCERY, RuneSlot.KEYSTONE);
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.sorcery.storm-raider-surge");
+        this.listener = listener;
         if (section != null) {
             this.DAMAGE_THRESHOLD_PERCENTAGE = section.getDouble("damage-percent-threshold", this.DAMAGE_THRESHOLD_PERCENTAGE);
             this.MOVEMENT_SPEED_BONUS = section.getDouble("movement-speed-bonus", this.MOVEMENT_SPEED_BONUS);
@@ -76,6 +80,9 @@ public class StormRaiderSurge extends CooldownHandler {
             return;
         }
         if (isOnCooldown(player)) {
+            return;
+        }
+        if (listener.isAnyHotbarOnCooldown(player)) {
             return;
         }
 
