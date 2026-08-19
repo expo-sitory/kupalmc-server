@@ -233,7 +233,7 @@ public class LeagueMechanics extends JavaPlugin {
         loadRuneCooldown(grasp, "runes.keystones.resolve.grasp-of-the-undying.cooldown");
         runeRegistry.registerRune(grasp);
 
-        AfterShock aftershock = new AfterShock(config);
+        AfterShock aftershock = new AfterShock(config, playerEventListener);
         loadRuneCooldown(aftershock, "runes.keystones.resolve.aftershock.cooldown");
         runeRegistry.registerRune(aftershock);
 
@@ -245,11 +245,11 @@ public class LeagueMechanics extends JavaPlugin {
         loadRuneCooldown(arcaneComet, "runes.keystones.sorcery.arcane-comet.cooldown");
         runeRegistry.registerRune(arcaneComet);
 
-        StormRaiderSurge stormRaiderSurge = new StormRaiderSurge(config);
+        StormRaiderSurge stormRaiderSurge = new StormRaiderSurge(config, playerEventListener);
         loadRuneCooldown(stormRaiderSurge, "runes.keystones.sorcery.storm-raider-surge.cooldown");
         runeRegistry.registerRune(stormRaiderSurge);
 
-        DeathfireTorch deathfireTorch = new DeathfireTorch(config);
+        DeathfireTorch deathfireTorch = new DeathfireTorch(config, playerEventListener);
         runeRegistry.registerRune(deathfireTorch);
 
         GlacialAugment glacialAugment = new GlacialAugment(config, this);
