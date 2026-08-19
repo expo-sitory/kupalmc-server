@@ -2,6 +2,8 @@ package dev.ixpu.leaguemechanics.util;
 
 import dev.ixpu.leaguemechanics.item.ItemStatsData;
 import dev.ixpu.leaguemechanics.item.ItemStatsRegistry;
+import dev.ixpu.leaguemechanics.item.ItemPassive;
+import dev.ixpu.leaguemechanics.item.ItemPassivesRegistry;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -83,6 +85,16 @@ public class ItemLoreModifier {
         }
         if (statData.getMs() > 0) {
             lore.add("§7👣 " + formatStat(statData.getMs()) + "% §fMovement Speed");
+        }
+
+        if (statData.hasPassive()) {
+            ItemPassive passive = ItemPassivesRegistry.getInstance().getPassive(statData.getPassiveId());
+            if (passive != null) {
+                lore.add("");
+                for (String line : passive.getDescription().split("\n")) {
+                    lore.add(line);
+                }
+            }
         }
 
         meta.setLore(lore);
