@@ -1,10 +1,9 @@
 package dev.ixpu.leaguemechanics.manager;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
-import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 
-import dev.ixpu.leaguemechanics.util.DebugLogger;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 
@@ -19,7 +18,6 @@ public class DamageManager {
     protected boolean isOnlyAP = false;
 
     private static final Random RANDOM = new Random();
-    private PlayerEventListener listener;
 
     public void enableAdaptiveScaling() {
         this.isAdaptive = true;
@@ -38,7 +36,8 @@ public class DamageManager {
     public double DamageCalculation(Player player, Entity target, int currentStacks, double bonusAdaptive, double bonusTrueDamage) {
         PlayerStats stats = new PlayerStats();
 
-        double attackerAD = (stats.getPlayerAD(player) + getPlayerAdaptiveAD(player)) / 7;
+        double doransBonus = getDoransOnHitAD(player);
+        double attackerAD = ((stats.getPlayerAD(player) + getPlayerAdaptiveAD(player) + doransBonus) / 7);
         double attackerAP = (stats.getPlayerAP(player) + getPlayerAdaptiveAP(player)) / 7;
 
         double targetAR = getTargetAR(target);
@@ -140,5 +139,20 @@ public class DamageManager {
             return 0;
         }
         return stats.getPlayerMR(targetPlayer);
+    }
+
+    public double getDoransOnHitAD(Player player) {
+        double bonus = 0;
+        for (org.bukkit.inventory.ItemStack item : player.getInventory().getContents()) {
+            if (item == null || item.getType().isAir()) {
+                continue;
+            }
+
+            String itemId = ItemLoreModifier.getItemId(item);
+            if (itemId != null && (itemId.equals("dorans-ring") || itemId.equals("dorans-shield"))) {
+                bonus += 10;
+            }
+        }
+        return bonus;
     }
 }
