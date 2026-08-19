@@ -1,0 +1,31 @@
+package dev.ixpu.leaguemechanics.item.passives;
+
+import dev.ixpu.leaguemechanics.item.ItemPassive;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+public class dorans_shield implements ItemPassive {
+    private static final int ONHIT_AD_BONUS = 10;
+
+    @Override
+    public String getId() {
+        return "dorans-shield";
+    }
+
+    @Override
+    public String getDescription() {
+        return "§7ᴜɴɪQᴜᴇ – ʜᴇʟᴘɪɴɢ ʜᴀɴᴅ: §fAttacks deal §610 §lbonus §r§6physical damage §eon-hit §fagainst §eentities§r.";
+    }
+
+    @Override
+    public void onEntityKill(Player player, ItemStack item) {
+    }
+
+    @Override
+    public void tick(Player player, ItemStack item) {
+    }
+
+    public int getOnHitAdBonus() {
+        return ONHIT_AD_BONUS;
+    }
+}

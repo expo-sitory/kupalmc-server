@@ -26,7 +26,7 @@ public class ItemStatsData {
         addItem("needlessly-large-rod", 0.0, 0.0, 0.0, 65.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
         // ATTACK DAMAGE
-        addItem("cull", 0.0, 0.0, 7.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        addItem("cull", 0.0, 0.0, 7.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, "cull");
 
         addItem("long-sword", 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -60,14 +60,20 @@ public class ItemStatsData {
         addItem("dorans-blade", 8.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("dorans-bow", 0.0, 0.0, 8.0, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("dorans-helm", 10.0, 0.0, 0.0, 8.0, 0.0, 0.0, 8.0, 8.0, 0.0, 0.0, 0.0, 0.0);
-        addItem("dorans-ring", 9.0, 0.0, 0.0, 18.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        addItem("dorans-shield", 11.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        addItem("dark-seal", 5.0, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        addItem("dorans-ring", 9.0, 0.0, 0.0, 18.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, "dorans-ring");
+        addItem("dorans-shield", 11.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, "dorans-shield");
+        addItem("dark-seal", 5.0, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, "dark-seal");
     }
 
     private void addItem(String id, double hp, double hr, double ad, double ap, double td,
                          double as, double ar, double mr, double ls, double cc, double sr, double ms) {
         items.put(id, new ItemStatsRegistry(id, "", hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms));
+    }
+
+    private void addItem(String id, double hp, double hr, double ad, double ap, double td,
+                         double as, double ar, double mr, double ls, double cc, double sr, double ms,
+                         boolean hasPassive, String passiveId) {
+        items.put(id, new ItemStatsRegistry(id, "", hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms, hasPassive, passiveId));
     }
 
     public ItemStatsRegistry getItem(String id) {

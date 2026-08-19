@@ -19,10 +19,19 @@ public class ItemStatsRegistry {
     private double sr;
 
     private double ms;
+    private boolean hasPassive;
+    private String passiveId;
 
     public ItemStatsRegistry(String id, String name,
                              double hp, double hr, double ad, double ap, double td, double as,
                              double ar, double mr, double ls, double cc, double sr, double ms) {
+        this(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms, false, null);
+    }
+
+    public ItemStatsRegistry(String id, String name,
+                             double hp, double hr, double ad, double ap, double td, double as,
+                             double ar, double mr, double ls, double cc, double sr, double ms,
+                             boolean hasPassive, String passiveId) {
         this.id = id;
         this.name = name;
 
@@ -41,6 +50,8 @@ public class ItemStatsRegistry {
         this.sr = sr;
 
         this.ms = ms;
+        this.hasPassive = hasPassive;
+        this.passiveId = passiveId;
     }
     public String getId() {
         return id;
@@ -136,5 +147,11 @@ public class ItemStatsRegistry {
         this.ms = ms;
     }
 
+    public boolean hasPassive() {
+        return hasPassive;
+    }
 
+    public String getPassiveId() {
+        return passiveId;
+    }
 }
