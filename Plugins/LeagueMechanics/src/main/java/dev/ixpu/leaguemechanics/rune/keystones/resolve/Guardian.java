@@ -22,7 +22,7 @@ import net.kyori.adventure.text.Component;
 public class Guardian extends CooldownHandler {
 
     private int MAX_PLAYERS = 5;
-    private double ABSORPTION_PERCENTAGE = 0.80;
+    private double ABSORPTION_PERCENTAGE = 1.5;
 
     private int COOLDOWN_SECONDS = 60;
 
@@ -88,7 +88,28 @@ public class Guardian extends CooldownHandler {
         int windupCount = windupCounter.getOrDefault(playerUUID, 0);
 
         if (windupCount > 0) {
-            String runeDisplay = getRuneDisplay(RuneState.WINDUP, player, windupCount, nearbyPlayers.size());
+            List<UUID> trackedPlayers = this.trackedPlayers.getOrDefault(playerUUID, new ArrayList<>());
+            long currentTime = System.currentTimeMillis();
+            long peaceDurationMs = PEACE_DURATION_TICKS * 50L;
+
+            boolean anyTrackedPlayerInCombat = false;
+            for (UUID trackedUUID : trackedPlayers) {
+                long lastCombat = lastCombatTime.getOrDefault(trackedUUID, 0L);
+                if ((currentTime - lastCombat) < peaceDurationMs) {
+                    anyTrackedPlayerInCombat = true;
+                    break;
+                }
+            }
+
+            if (anyTrackedPlayerInCombat) {
+                windupCounter.put(playerUUID, 0);
+                this.trackedPlayers.put(playerUUID, new ArrayList<>());
+                String runeDisplay = getRuneDisplay(RuneState.IDLE, player, 0, 0);
+                setPlayerDisplay(player, runeDisplay);
+                return;
+            }
+
+            String runeDisplay = getRuneDisplay(RuneState.WINDUP, player, windupCount, trackedPlayers.size());
             setPlayerDisplay(player, runeDisplay);
 
             windupCounter.put(playerUUID, windupCount - 1);

@@ -27,7 +27,7 @@ import net.kyori.adventure.text.Component;
 
 public class AfterShock extends CooldownHandler {
     private int EFFECT_DURATION_TICKS = 300;
-    private int ABSORPTION_LEVEL = 5;
+    private int ABSORPTION_LEVEL = 10;
     private int RESISTANCE_LEVEL = 2;
 
     private PlayerEventListener listener;
