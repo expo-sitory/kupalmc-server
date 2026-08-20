@@ -2,7 +2,6 @@ package dev.ixpu.leaguemechanics.manager;
 
 import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -21,200 +20,77 @@ public class ItemStatsManager {
         return count;
     }
 
-    public double getItemHP(Player player) {
-        double itemHP = 0;
+    private double getStatWithLimit(Player player, String statType) {
+        double total = 0;
+        int count = 0;
 
         for (ItemStack item : player.getInventory().getContents()) {
+            if (count >= 6) break;
+
             if (item != null && !item.getType().isAir()) {
                 String itemId = ItemLoreModifier.getItemId(item);
                 if (itemId != null) {
-                    itemHP += ItemLoreModifier.getStat(item, "HP");
+                    total += ItemLoreModifier.getStat(item, statType);
+                    count++;
                 }
             }
         }
-        return itemHP;
+        return total;
+    }
+
+    public double getItemHP(Player player) {
+        return getStatWithLimit(player, "HP");
     }
 
     public double getItemHR(Player player) {
-        double itemHR = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemHR += ItemLoreModifier.getStat(item, "HR");
-                }
-            }
-        }
-        return itemHR;
+        return getStatWithLimit(player, "HR");
     }
 
-
     public double getItemAD(Player player) {
-        double itemAD = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemAD += ItemLoreModifier.getStat(item, "AD");
-                }
-            }
-        }
-        return itemAD;
+        return getStatWithLimit(player, "AD");
     }
 
     public double getItemAP(Player player) {
-        double itemAP = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemAP += ItemLoreModifier.getStat(item, "AP");
-                }
-            }
-        }
-        return itemAP;
+        return getStatWithLimit(player, "AP");
     }
 
     public double getItemTD(Player player) {
-        double itemTD = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemTD += ItemLoreModifier.getStat(item, "TD");
-                }
-            }
-        }
-        return itemTD;
+        return getStatWithLimit(player, "TD");
     }
 
     public double getItemAS(Player player) {
-        double itemAS = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemAS += ItemLoreModifier.getStat(item, "AS");
-                }
-            }
-        }
-        return itemAS;
+        return getStatWithLimit(player, "AS");
     }
 
     public double getItemAR(Player player) {
-        double itemAR = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemAR += ItemLoreModifier.getStat(item, "AR");
-                }
-            }
-        }
-        return itemAR;
+        return getStatWithLimit(player, "AR");
     }
 
     public double getItemMR(Player player) {
-        double totalMR = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    totalMR += ItemLoreModifier.getStat(item, "MR");
-                }
-            }
-        }
-        return totalMR;
+        return getStatWithLimit(player, "MR");
     }
 
     public double getItemSR(Player player) {
-        double itemSR = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemSR += ItemLoreModifier.getStat(item, "SR");
-                }
-            }
-        }
-        return itemSR;
+        return getStatWithLimit(player, "SR");
     }
 
     public double getItemLS(Player player) {
-        double itemLS = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemLS += ItemLoreModifier.getStat(item, "LS");
-                }
-            }
-        }
-        return itemLS;
+        return getStatWithLimit(player, "LS");
     }
 
     public double getItemCC(Player player) {
-        double itemCC = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemCC += ItemLoreModifier.getStat(item, "CC");
-                }
-            }
-        }
-        return itemCC;
+        return getStatWithLimit(player, "CC");
     }
 
     public double getItemMS(Player player) {
-        double itemMS = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    itemMS += ItemLoreModifier.getStat(item, "MS");
-                }
-            }
-        }
-        return itemMS;
+        return getStatWithLimit(player, "MS");
     }
 
     public double getItemAPen(Player player) {
-        double ItemAPen = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    ItemAPen += ItemLoreModifier.getStat(item, "APEN");
-                }
-            }
-        }
-        return ItemAPen;
+        return getStatWithLimit(player, "APEN");
     }
 
     public double getItemMPen(Player player) {
-        double ItemMPen = 0;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
-                if (itemId != null) {
-                    ItemMPen += ItemLoreModifier.getStat(item, "MPEN");
-                }
-            }
-        }
-        return ItemMPen;
+        return getStatWithLimit(player, "MPEN");
     }
 }
