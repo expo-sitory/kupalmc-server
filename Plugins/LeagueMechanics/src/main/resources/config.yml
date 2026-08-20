@@ -18,7 +18,7 @@ runes:
         cooldown: 60
 
       electrocute:
-        base-adaptive-damage: 7.5
+        base-adaptive-damage: 5.5
         cooldown: 25
 
       hail-of-blades:
@@ -53,7 +53,7 @@ runes:
 
       press-the-attack:
         cooldown: 6
-        base-adaptive-damage: 2.5
+        base-adaptive-damage: 3.5
 
 
     # ============================= #
@@ -110,7 +110,7 @@ runes:
 
       arcane-comet:
         cooldown: 20
-        base-adaptive-damage: 6.0
+        base-adaptive-damage: 4.5
         ad-percentage-multiplier: 0.05
         ap-percentage-multiplier: 0.15
 
