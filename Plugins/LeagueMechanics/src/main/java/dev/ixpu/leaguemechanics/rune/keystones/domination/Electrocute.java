@@ -23,7 +23,7 @@ import net.kyori.adventure.text.Component;
 
 public class Electrocute extends StacksHandler {
 
-    private double BASE_ADAPTIVE_DAMAGE = 7.5;
+    private double BASE_ADAPTIVE_DAMAGE = 3.5;
 
     private static final int MAXIMUM_STACKS = 3;
     private PlayerEventListener listener;

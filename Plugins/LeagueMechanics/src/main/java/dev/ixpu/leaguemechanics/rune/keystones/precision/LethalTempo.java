@@ -22,7 +22,7 @@ import net.kyori.adventure.text.Component;
 public class LethalTempo extends StacksHandler {
 
     private double ATTACK_SPEED = 0.6;
-    private double BASE_ADAPTIVE_DAMAGE = 0.7;
+    private double BASE_ADAPTIVE_DAMAGE = 1.7;
 
     private PlayerEventListener listener;
 
