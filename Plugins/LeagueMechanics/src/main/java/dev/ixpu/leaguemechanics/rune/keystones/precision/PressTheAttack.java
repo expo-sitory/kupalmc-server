@@ -21,7 +21,7 @@ import net.kyori.adventure.text.Component;
 
 public class PressTheAttack extends StacksHandler {
 
-    private double BASE_ADAPTIVE_DAMAGE = 2.5;
+    private double BASE_ADAPTIVE_DAMAGE = 3.5;
 
     int COOLDOWN_DURATION_SECONDS = 6;
 
@@ -60,6 +60,9 @@ public class PressTheAttack extends StacksHandler {
             return;
         }
         if (livingTarget.getMaxHealth() < 20) {
+            return;
+        }
+        if (isOnCooldown(player)){
             return;
         }
         if (!listener.letRunesThrough(player)) {
