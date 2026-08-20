@@ -42,8 +42,8 @@ runes:
         blocks-per-stack: 10.0
         projectile-stack-gain: 5
         heal-percent: 0.25
-        ad-percentage-multiplier: 0.10
-        ap-percentage-multiplier: 0.05
+        ad-percentage-multiplier: 0.10 # bonus healing percentage from total AD percent
+        ap-percentage-multiplier: 0.05 # bonus healing percentage from total AP percent
 
       lethal-tempo:
         cooldown: 30
@@ -64,18 +64,17 @@ runes:
 
       glacial-augment:
         base-freeze-duration: 120 # in ticks
-        ad-percentage-multiplier: 0.07
-        ap-percentage-multiplier: 0.06
+        ad-percentage-multiplier: 0.07 # bonus freeze duration from total AD percent
+        ap-percentage-multiplier: 0.06 # bbonus freeze duration from total AP percent
         cooldown: 45
 
       first-strike:
         cooldown: 25 # seconds
-        initial-xp: 10.0
+        initial-xp: 10.0 # starting xp
         buff-duration: 3 #seconds
-        true-damage-percent: 0.07
-        combat-window-ms: 250
-        ad-percentage: 0.20
-        ap-percentage: 0.15
+        true-damage-percent: 0.07 # while on active state
+        ad-percentage: 0.20 # bonus true damage from total AD percent
+        ap-percentage: 0.15 # bonus true damage from total AP percent
 
 
     # ============================= #
@@ -99,7 +98,7 @@ runes:
 
       guardian:
         max-players: 5
-        absorption-percentage: 0.80
+        absorption-line: 2.0 # lines of absorption hearts
         cooldown: 60
 
 
@@ -111,17 +110,17 @@ runes:
 
       arcane-comet:
         cooldown: 20
-        base-adaptive-damage: 7.0
+        base-adaptive-damage: 6.0
         ad-percentage-multiplier: 0.05
         ap-percentage-multiplier: 0.15
 
       deathfire-torch:
-        base-magic-damage: 2.5
-        ad-percentage-multiplier: 0.05
-        ap-percentage-multiplier: 0.10
+        damage-ticks: 20 # 20 ticks apart per damage
+        ad-percentage-multiplier: 0.02 # bonus magic damage from total AD percent
+        ap-percentage-multiplier: 0.03 # bonus magic damage from total AP percent
 
       storm-raider-surge:
         cooldown: 25
-        damage-percent-threshold: 0.30 # percentage
-        movement-speed-bonus: 0.40 # percentage
+        damage-percent-threshold: 0.30 # bonus duration from total AD percent
+        movement-speed-bonus: 0.40 # bonus duration from total AP percent
 
