@@ -22,7 +22,7 @@ import net.kyori.adventure.text.Component;
 public class Guardian extends CooldownHandler {
 
     private int MAX_PLAYERS = 5;
-    private double ABSORPTION_PERCENTAGE = 1.5;
+    private double ABSORPTION_PERCENTAGE = 2.0;
 
     private int COOLDOWN_SECONDS = 60;
 
@@ -41,7 +41,7 @@ public class Guardian extends CooldownHandler {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.guardian");
         if (section != null) {
             this.MAX_PLAYERS = section.getInt("max-players", this.MAX_PLAYERS);
-            this.ABSORPTION_PERCENTAGE = section.getDouble("absorption-percentage", this.ABSORPTION_PERCENTAGE);
+            this.ABSORPTION_PERCENTAGE = section.getDouble("absorption-lines", this.ABSORPTION_PERCENTAGE);
             this.COOLDOWN_SECONDS = section.getInt("cooldown", this.COOLDOWN_SECONDS);
         }
         this.setCooldownSeconds(COOLDOWN_SECONDS);
@@ -72,8 +72,6 @@ public class Guardian extends CooldownHandler {
 
     private void activateGuardian(Player player) {
         UUID uuid = player.getUniqueId();
-        lastCombatTime.put(uuid, System.currentTimeMillis());
-
         if (windupCounter.getOrDefault(uuid, 0) > 0) {
             windupCounter.put(uuid, 0);
             trackedPlayers.put(uuid, new ArrayList<>());
@@ -177,6 +175,15 @@ public class Guardian extends CooldownHandler {
         player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.2f);
     }
 
+    public void onTakeDamage(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (windupCounter.getOrDefault(uuid, 0) > 0) {
+            windupCounter.put(uuid, 0);
+            trackedPlayers.put(uuid, new ArrayList<>());
+            resetCooldown(player);
+        }
+    }
+
     private void activateEffects(Player player) {
         UUID playerUUID = player.getUniqueId();
         List<UUID> shields = trackedPlayers.getOrDefault(playerUUID, new ArrayList<>());
@@ -230,11 +237,11 @@ public class Guardian extends CooldownHandler {
             case WINDUP -> {
                 String message;
                 if (remaining > GUARD_RAISE_DURATION_TICKS * 2 / 3) {
-                    message = "§a《§2❖》 " + nearbyCount + "/" + MAX_PLAYERS;
+                    message = "§a《§2❖》 §a" + nearbyCount + "/" + MAX_PLAYERS;
                 } else if (remaining > GUARD_RAISE_DURATION_TICKS / 3) {
-                    message = "§a《❖§2》 " + nearbyCount + "/" + MAX_PLAYERS;
+                    message = "§a《❖§2》 §a" + nearbyCount + "/" + MAX_PLAYERS;
                 } else {
-                    message = "§a《❖》 " + nearbyCount + "/" + MAX_PLAYERS;
+                    message = "§a《❖》 §a" + nearbyCount + "/" + MAX_PLAYERS;
                 }
                 yield message;
             }

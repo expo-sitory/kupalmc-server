@@ -26,13 +26,15 @@ public class FirstStrike extends CooldownHandler {
     private double INITIAL_XP = 10.0;
     private double BUFF_DURATION_SECONDS = 7;
     private double TRUE_DAMAGE_PERCENT = 2;
-    private double COMBAT_WINDOW_MS = 250;
 
     private int COOLDOWN_SECONDS = 25;
 
     private double AD_PERCENTAGE = 0.20;
     private double AP_PERCENTAGE = 0.15;
+
     private PlayerEventListener listener;
+
+    private static final double COMBAT_WINDOW_MS = 250;
 
     private final Map<UUID, Long> lastCombatTime = new HashMap<>();
     private final Map<UUID, Boolean> firstStrikeActive = new HashMap<>();
@@ -50,7 +52,6 @@ public class FirstStrike extends CooldownHandler {
             this.INITIAL_XP = section.getDouble("initial-xp", this.INITIAL_XP);
             this.BUFF_DURATION_SECONDS = section.getDouble("buff-duration", this.BUFF_DURATION_SECONDS);
             this.TRUE_DAMAGE_PERCENT = section.getDouble("true-damage-percent", this.TRUE_DAMAGE_PERCENT);
-            this.COMBAT_WINDOW_MS = section.getDouble("combat-window-ms", this.COMBAT_WINDOW_MS);
             this.COOLDOWN_SECONDS = section.getInt("cooldown", this.COOLDOWN_SECONDS);
             this.AD_PERCENTAGE = section.getDouble("ad-percentage", this.AD_PERCENTAGE);
             this.AP_PERCENTAGE = section.getDouble("ap-percentage", this.AP_PERCENTAGE);
@@ -93,7 +94,7 @@ public class FirstStrike extends CooldownHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (listener.isAnyHotbarOnCooldown(player)) {
+        if(!listener.letRunesThrough(player)) {
             return;
         }
 
@@ -116,10 +117,22 @@ public class FirstStrike extends CooldownHandler {
         boolean isActive = firstStrikeActive.getOrDefault(attackerUUID, false);
 
         if (isActive && System.currentTimeMillis() < buffEndTime.getOrDefault(attackerUUID, 0L)) {
-            double damageDealt = keystoneDamage(player, target);
-            double newHealth = Math.clamp(livingTarget.getHealth() - damageDealt, 0, livingTarget.getMaxHealth());
+            double damageToApply = keystoneDamage(player, target);
+
+            if (livingTarget instanceof Player targetPlayer) {
+                double absorption = targetPlayer.getAbsorptionAmount();
+                if (damageToApply > absorption) {
+                    damageToApply -= absorption;
+                    targetPlayer.setAbsorptionAmount(0);
+                } else {
+                    targetPlayer.setAbsorptionAmount(absorption - damageToApply);
+                    damageToApply = 0;
+                }
+            }
+
+            double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
             livingTarget.setHealth(newHealth);
-            bonusDamageTracked.put(attackerUUID, tracked + damageDealt);
+            bonusDamageTracked.put(attackerUUID, tracked + damageToApply);
             spawnXPOrbs(player, livingTarget);
         }
     }

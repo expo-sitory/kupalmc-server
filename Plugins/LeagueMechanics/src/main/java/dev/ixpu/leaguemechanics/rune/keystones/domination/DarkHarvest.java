@@ -63,14 +63,28 @@ public class DarkHarvest extends StacksHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (listener.isAnyHotbarOnCooldown(player)) {
+        if(!listener.letRunesThrough(player)) {
             return;
         }
 
         double targetHealth = livingTarget.getHealth();
         double maxHealth = livingTarget.getMaxHealth();
         double healthPercent = targetHealth / maxHealth;
-        double newHealth = Math.clamp(livingTarget.getHealth() - keystoneDamage(player, target), 0, livingTarget.getMaxHealth());
+
+        double damageToApply = keystoneDamage(player, target);
+
+        if (livingTarget instanceof Player targetPlayer) {
+            double absorption = targetPlayer.getAbsorptionAmount();
+            if (damageToApply > absorption) {
+                damageToApply -= absorption;
+                targetPlayer.setAbsorptionAmount(0);
+            } else {
+                targetPlayer.setAbsorptionAmount(absorption - damageToApply);
+                damageToApply = 0;
+            }
+        }
+
+        double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
 
         if (healthPercent >= HEALTH_THRESHOLD) {
             return;

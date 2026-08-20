@@ -85,19 +85,30 @@ public class LethalTempo extends StacksHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (listener.isAnyHotbarOnCooldown(player)) {
+        if (!listener.letRunesThrough(player)) {
             return;
         }
 
         switchTarget(player, targetUUID);
 
         if (state == RuneState.ACTIVE) {
-            double newHealth = Math.clamp(livingTarget.getHealth() - keystoneDamage(player, target, getStacks(player, targetUUID)), 0, livingTarget.getMaxHealth());
+            double damageToApply = keystoneDamage(player, target, getStacks(player, targetUUID));
+
+            if (livingTarget instanceof Player targetPlayer) {
+                double absorption = targetPlayer.getAbsorptionAmount();
+                if (damageToApply > absorption) {
+                    damageToApply -= absorption;
+                    targetPlayer.setAbsorptionAmount(0);
+                } else {
+                    targetPlayer.setAbsorptionAmount(absorption - damageToApply);
+                    damageToApply = 0;
+                }
+            }
+
+            double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
 
             DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§eLethal Tempo§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target, getStacks(player, targetUUID)) * 100) / 100.0);
             DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
-
-            livingTarget.setHealth(newHealth);
 
             livingTarget.setHealth(newHealth);
             refreshActiveTimer(player);

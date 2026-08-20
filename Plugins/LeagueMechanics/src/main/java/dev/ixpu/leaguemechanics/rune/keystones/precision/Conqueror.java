@@ -61,17 +61,29 @@ public class Conqueror extends StacksHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (listener.isAnyHotbarOnCooldown(player)) {
+        if (!listener.letRunesThrough(player)) {
             return;
         }
 
         switchTarget(player, targetUUID);
         addStack(player, targetUUID);
 
-        double statsDamage = keystoneDamage(player, target, getStacks(player, targetUUID));
-        double newHealth = Math.clamp(livingTarget.getHealth() - statsDamage, 0, livingTarget.getMaxHealth());
+        double damageToApply = keystoneDamage(player, target, getStacks(player, targetUUID));
 
-        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] [§eConqueror§f] Keystone Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
+        if (livingTarget instanceof Player targetPlayer) {
+            double absorption = targetPlayer.getAbsorptionAmount();
+            if (damageToApply > absorption) {
+                damageToApply -= absorption;
+                targetPlayer.setAbsorptionAmount(0);
+            } else {
+                targetPlayer.setAbsorptionAmount(absorption - damageToApply);
+                damageToApply = 0;
+            }
+        }
+
+        double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
+
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] [§eConqueror§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target, getStacks(player, targetUUID)) * 100) / 100.0);
         DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
         livingTarget.setHealth(newHealth);

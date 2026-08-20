@@ -109,11 +109,24 @@ public class HailOfBlades extends CooldownHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (listener.isAnyHotbarOnCooldown(player)) {
+        if(!listener.letRunesThrough(player)) {
             return;
         }
 
-        double newHealth = Math.clamp(livingTarget.getHealth() - (keystoneDamage(player, target) * getScaledTrueDamage(player)), 0, livingTarget.getMaxHealth());
+        double damageToApply = keystoneDamage(player, target) * getScaledTrueDamage(player);
+
+        if (livingTarget instanceof Player targetPlayer) {
+            double absorption = targetPlayer.getAbsorptionAmount();
+            if (damageToApply > absorption) {
+                damageToApply -= absorption;
+                targetPlayer.setAbsorptionAmount(0);
+            } else {
+                targetPlayer.setAbsorptionAmount(absorption - damageToApply);
+                damageToApply = 0;
+            }
+        }
+
+        double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
 
         if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(player)) {
             return;

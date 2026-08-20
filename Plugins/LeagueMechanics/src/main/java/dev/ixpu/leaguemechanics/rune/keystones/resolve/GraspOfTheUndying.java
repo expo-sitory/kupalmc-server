@@ -91,7 +91,7 @@ public class GraspOfTheUndying extends StacksHandler {
         int stacks = getStacks(player);
         int attackWindow = activationState.getOrDefault(playerUUID, 0);
 
-        if (listener.isAnyHotbarOnCooldown(player)) {
+        if(listener.isAnyHotbarOnCooldown(player) && !listener.letRunesThrough(player)) {
             return;
         }
         if (stacks >= maxStacks && attackWindow > 0 && !activeStateActive.getOrDefault(playerUUID, false)) {
@@ -111,7 +111,20 @@ public class GraspOfTheUndying extends StacksHandler {
         }
 
         int absorptionHearts = totalAbsorptionHearts.getOrDefault(playerUUID, 0) / 2;
-        double newHealth = Math.clamp(livingTarget.getHealth() - (keystoneDamage(player, target) * absorptionHearts * 0.2), 0, livingTarget.getMaxHealth());
+        double damageToApply = keystoneDamage(player, target) * absorptionHearts * 0.2;
+
+        if (livingTarget instanceof Player targetPlayer) {
+            double absorption = targetPlayer.getAbsorptionAmount();
+            if (damageToApply > absorption) {
+                damageToApply -= absorption;
+                targetPlayer.setAbsorptionAmount(0);
+            } else {
+                targetPlayer.setAbsorptionAmount(absorption - damageToApply);
+                damageToApply = 0;
+            }
+        }
+
+        double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
 
         DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§aGrasp Of The Undying§f] Keystone Damage = §d" + (keystoneDamage(player, target) * absorptionHearts * 0.2));
         DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + newHealth);

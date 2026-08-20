@@ -26,7 +26,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 public class ArcaneComet extends CooldownHandler {
-    double BASE_ADAPTIVE_DAMAGE = 7.0;
+    double BASE_ADAPTIVE_DAMAGE = 6.0;
 
     private double AD_PERCENTAGE_MULTIPLIER = 0.05;
     private double AP_PERCENTAGE_MULTIPLIER = 0.15;
@@ -71,7 +71,7 @@ public class ArcaneComet extends CooldownHandler {
         triggerArcaneComet(shooter, target);
     }
 
-    private void  triggerArcaneComet(Player player, Entity target) {
+    private void triggerArcaneComet(Player player, Entity target) {
         if (!(target instanceof LivingEntity livingTarget)) {
             return;
         }
@@ -81,11 +81,24 @@ public class ArcaneComet extends CooldownHandler {
         if (isOnCooldown(player)){
             return;
         }
-        if(listener.isAnyHotbarOnCooldown(player)) {
+        if(!listener.letRunesThrough(player)) {
             return;
         }
 
-        double newHealth = Math.clamp(livingTarget.getHealth() - keystoneDamage(player, target), 0, livingTarget.getMaxHealth());
+        double damageToApply = keystoneDamage(player, target);
+
+        if (livingTarget instanceof Player targetPlayer) {
+            double absorption = targetPlayer.getAbsorptionAmount();
+            if (damageToApply > absorption) {
+                damageToApply -= absorption;
+                targetPlayer.setAbsorptionAmount(0);
+            } else {
+                targetPlayer.setAbsorptionAmount(absorption - damageToApply);
+                damageToApply = 0;
+            }
+        }
+
+        double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
 
         summonComet(player, livingTarget, newHealth);
         resetCooldown(player);
@@ -140,9 +153,9 @@ public class ArcaneComet extends CooldownHandler {
                     );
 
                     shooter.playSound(targetLoc, org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 2.0f);
-                    shooter.playSound(targetLoc, org.bukkit.Sound.ENTITY_ILLUSIONER_CAST_SPELL, 0.8f, 2.0f);
+                    shooter.playSound(targetLoc, org.bukkit.Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.5f, 2.0f);
                     target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 2.0f);
-                    target.getWorld().playSound(target.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.0f, 1.0f);
+                    target.getWorld().playSound(target.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 2.0f, 1.0f);
                     plugin.getServer().getScheduler().cancelTask(taskId[0]);
                     return;
                 }

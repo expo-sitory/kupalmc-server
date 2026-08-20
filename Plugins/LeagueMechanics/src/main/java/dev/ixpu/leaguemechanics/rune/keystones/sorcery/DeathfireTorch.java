@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -29,14 +30,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 public class DeathfireTorch extends CooldownHandler {
-    private double BASE_MAGIC_DAMAGE = 2.5;
+    private double DAMAGE_TICKS = 20;
 
-    private double AD_PERCENTAGE_MULTIPLIER = 0.05;
-    private double AP_PERCENTAGE_MULTIPLIER = 0.10;
+    private double AD_PERCENTAGE_MULTIPLIER = 0.02;
+    private double AP_PERCENTAGE_MULTIPLIER = 0.03;
 
     private PlayerEventListener listener;
-
-    private static final int BURN_DURATION_TICKS = 100;
 
     private final Map<UUID, Map<UUID, Integer>> burnedPlayers = new HashMap<>();
     private final Map<UUID, Map<UUID, Double>> burnDamage = new HashMap<>();
@@ -48,7 +47,7 @@ public class DeathfireTorch extends CooldownHandler {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.sorcery.deathfire-torch");
         this.listener = listener;
         if (section != null) {
-            this.BASE_MAGIC_DAMAGE = section.getDouble("base-magic-damage", this.BASE_MAGIC_DAMAGE);
+            this.DAMAGE_TICKS = section.getDouble("damage-ticks", this.DAMAGE_TICKS);
             this.AD_PERCENTAGE_MULTIPLIER = section.getDouble("ad-percentage-multiplier", this.AD_PERCENTAGE_MULTIPLIER);
             this.AP_PERCENTAGE_MULTIPLIER = section.getDouble("ap-percentage-multiplier", this.AP_PERCENTAGE_MULTIPLIER);
         }
@@ -89,7 +88,7 @@ public class DeathfireTorch extends CooldownHandler {
         if (!CheckEnchant(weapon)) {
             return;
         }
-        if(listener.isAnyHotbarOnCooldown(player)) {
+        if(!listener.letRunesThrough(player)) {
             return;
         }
 
@@ -116,6 +115,10 @@ public class DeathfireTorch extends CooldownHandler {
     }
 
     private void applyBurn(Player attacker, LivingEntity victim, double burnDamagePerTick) {
+        ItemStack weapon = attacker.getInventory().getItemInMainHand();
+        int enchantLevel = getFireEnchantLevel(weapon);
+        int burnDuration = 50 * enchantLevel;
+
         UUID attackerUUID = attacker.getUniqueId();
         UUID victimUUID = victim.getUniqueId();
 
@@ -127,11 +130,43 @@ public class DeathfireTorch extends CooldownHandler {
             return;
         }
 
-        burned.put(victimUUID, BURN_DURATION_TICKS);
+        burned.put(victimUUID, burnDuration);
         damages.put(victimUUID, burnDamagePerTick);
         targets.put(victimUUID, victim);
 
         attacker.playSound(victim.getLocation(), org.bukkit.Sound.BLOCK_FIRE_AMBIENT, 0.5f, 0.8f);
+    }
+
+    private int getFireEnchantLevel(ItemStack item) {
+        if (item == null || item.getType().isAir()) {
+            return 0;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return 0;
+        }
+
+        return meta.getEnchants().entrySet().stream()
+                .filter(e -> {
+                    String enchantName = e.getKey().toString().toLowerCase();
+                    return enchantName.contains("fire_aspect") || enchantName.contains("flame");
+                })
+                .mapToInt(Map.Entry::getValue)
+                .findFirst()
+                .orElse(0);
+    }
+
+    public void clearBurnForTarget(UUID victimUUID) {
+        for (Map<UUID, Integer> burned : burnedPlayers.values()) {
+            burned.remove(victimUUID);
+        }
+        for (Map<UUID, Double> damages : burnDamage.values()) {
+            damages.remove(victimUUID);
+        }
+        for (Map<UUID, LivingEntity> targets : burnedTargets.values()) {
+            targets.remove(victimUUID);
+        }
     }
 
     private boolean CheckEnchant(ItemStack item) {
@@ -185,15 +220,29 @@ public class DeathfireTorch extends CooldownHandler {
                 duration--;
                 burned.put(targetUUID, duration);
 
-                if (duration % BASE_MAGIC_DAMAGE == 0) {
+                if (duration % DAMAGE_TICKS == 0) {
                     LivingEntity target = targets.get(targetUUID);
                     if (target != null && target.isValid()) {
                         double damagePerTick = damages.getOrDefault(targetUUID, 0.0);
+
+                        if (target instanceof Player targetPlayer) {
+                            double absorption = targetPlayer.getAbsorptionAmount();
+                            if (damagePerTick > absorption) {
+                                damagePerTick -= absorption;
+                                targetPlayer.setAbsorptionAmount(0);
+                            } else {
+                                targetPlayer.setAbsorptionAmount(absorption - damagePerTick);
+                                damagePerTick = 0;
+                            }
+                        }
+
                         double newHealth = Math.max(0, target.getHealth() - damagePerTick);
                         DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§9Deathfire Torch§f] Keystone Damage = §d" + Math.ceil(damagePerTick * 100) / 100.0);
                         DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
                         target.setHealth(newHealth);
                         spawnBurnParticles(target);
+                        target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GENERIC_BURN, 1.0f, 2.0f);
+                        target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GENERIC_BURN, 1.0f, 0.7f);
                     }
                 }
 

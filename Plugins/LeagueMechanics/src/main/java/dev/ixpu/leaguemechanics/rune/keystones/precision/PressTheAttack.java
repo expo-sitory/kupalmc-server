@@ -62,7 +62,7 @@ public class PressTheAttack extends StacksHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
-        if (listener.isAnyHotbarOnCooldown(player)) {
+        if (!listener.letRunesThrough(player)) {
             return;
         }
 
@@ -70,7 +70,20 @@ public class PressTheAttack extends StacksHandler {
         int currentStacks = getStacks(player, targetUUID);
 
         if (currentStacks == 2) {
-            double newHealth = Math.clamp(livingTarget.getHealth() - keystoneDamage(player, target), 0, livingTarget.getMaxHealth());
+            double damageToApply = keystoneDamage(player, target);
+
+            if (livingTarget instanceof Player targetPlayer) {
+                double absorption = targetPlayer.getAbsorptionAmount();
+                if (damageToApply > absorption) {
+                    damageToApply -= absorption;
+                    targetPlayer.setAbsorptionAmount(0);
+                } else {
+                    targetPlayer.setAbsorptionAmount(absorption - damageToApply);
+                    damageToApply = 0;
+                }
+            }
+
+            double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
 
             DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§ePress The Attack§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target) * 100) / 100.0);
             DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
