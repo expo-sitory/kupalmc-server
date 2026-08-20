@@ -1,7 +1,6 @@
 package dev.ixpu.leaguemechanics;
 
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
-import dev.ixpu.leaguemechanics.listener.RuneListener;
 
 import dev.ixpu.leaguemechanics.manager.RuneManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
@@ -73,7 +72,6 @@ public class LeagueMechanics extends JavaPlugin {
         registerCommands();
         registerRegenTask();
 
-        Bukkit.getPluginManager().registerEvents(new RuneListener(this), this);
         Bukkit.getPluginManager().registerEvents(playerEventListener, this);
 
         startRuneTicker();
