@@ -14,7 +14,9 @@ import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
 import dev.ixpu.leaguemechanics.rune.keystones.resolve.GraspOfTheUndying;
+import dev.ixpu.leaguemechanics.rune.keystones.resolve.Guardian;
 
+import dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
@@ -50,8 +52,8 @@ public class PlayerEventListener implements Listener {
     private final RuneRegistry runeRegistry;
     private final RunePersistence runePersistence;
 
-    private final Map<UUID, UUID> lastAttacker = new HashMap<>();
     private final Map<UUID, Long> titleCooldown = new HashMap<>();
+    private final Map<UUID, Boolean> letRunesThroughMap = new HashMap<>();
 
     public PlayerEventListener(LeagueMechanics plugin, RunePersistence runePersistence) {
         this.plugin = plugin;
@@ -157,6 +159,7 @@ public class PlayerEventListener implements Listener {
         if (isAnyHotbarOnCooldown(shooter)) {
             event.setCancelled(true);
         }
+        letRunesThroughMap.put(shooter.getUniqueId(), false);
         setAttackCooldown(shooter);
     }
 
@@ -176,6 +179,8 @@ public class PlayerEventListener implements Listener {
         if (event.getHitEntity() == null || !(event.getHitEntity() instanceof LivingEntity target)) {
             return;
         }
+
+        letRunesThroughMap.put(shooter.getUniqueId(), true);
 
         if (event.getEntity() instanceof Arrow) {
             ItemStack bow = shooter.getInventory().getItemInMainHand();
@@ -202,8 +207,17 @@ public class PlayerEventListener implements Listener {
 
         shooter.getWorld().playSound(shooter.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1.0f, 1.0f);
 
+        PlayerRuneData runeData = runeManager.getPlayerRuneData(shooter);
+        if (runeData != null) {
+            CooldownHandler keystoneRune = runeData.getKeystoneRune();
+            if (keystoneRune != null) {
+                keystoneRune.onProjectileHit(shooter, target);
+            }
+        }
+
         event.getEntity().remove();
         damageEvent(shooter, target, "Projectile Hit Event");
+        letRunesThroughMap.put(shooter.getUniqueId(), false);
     }
 
     @EventHandler
@@ -221,17 +235,34 @@ public class PlayerEventListener implements Listener {
         if (target instanceof Creature creature) {
             creature.setTarget(attacker);
         }
+        letRunesThroughMap.put(attacker.getUniqueId(), true);
+
+        PlayerRuneData runeData = runeManager.getPlayerRuneData(attacker);
+        if (runeData != null) {
+            CooldownHandler keystoneRune = runeData.getKeystoneRune();
+            if (keystoneRune != null) {
+                keystoneRune.onAttack(attacker, target);
+            }
+        }
+
+        if (target instanceof Player targetPlayer) {
+            PlayerRuneData targetRuneData = runeManager.getPlayerRuneData(targetPlayer);
+            if (targetRuneData != null) {
+                CooldownHandler targetKeystoneRune = targetRuneData.getKeystoneRune();
+                if (targetKeystoneRune instanceof Guardian guardian) {
+                    guardian.onTakeDamage(targetPlayer);
+                }
+            }
+        }
+
         damageEvent(attacker, target, "Melee Hit Event");
         setAttackCooldown(attacker);
+        letRunesThroughMap.put(attacker.getUniqueId(), false);
     }
 
     @EventHandler
     public void onPlayerDamaged(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
-
-        if (!(event.getDamager() instanceof Player)) {
             return;
         }
 
@@ -250,12 +281,16 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-
     @EventHandler(priority = EventPriority.NORMAL)
     public void onEntityDeath(EntityDeathEvent event) {
         Entity killer = event.getEntity().getKiller();
         if (!(killer instanceof Player player)) {
             return;
+        }
+
+        DeathfireTorch deathfire = (DeathfireTorch) runeRegistry.getRune("deathfire-torch");
+        if (deathfire != null) {
+            deathfire.clearBurnForTarget(event.getEntity().getUniqueId());
         }
 
         for (ItemStack item : player.getInventory().getContents()) {
@@ -475,6 +510,11 @@ public class PlayerEventListener implements Listener {
         }
     }
 
+    public boolean letRunesThrough(Player player) {
+        boolean value = letRunesThroughMap.getOrDefault(player.getUniqueId(), false);
+        return value;
+    }
+
     public boolean isAnyHotbarOnCooldown(Player player) {
         for (int i = 0; i < 9; i++) {
             ItemStack item = player.getInventory().getItem(i);
@@ -497,7 +537,20 @@ public class PlayerEventListener implements Listener {
         double targetMR = damage.getTargetMR(target);
 
         double statsDamage = damage.DamageCalculation(player, target, 0, 0, 0);
-        double newHealth = Math.clamp(target.getHealth() - statsDamage, 0, target.getMaxHealth());
+
+        double newHealth = target.getHealth();
+        if (target instanceof Player targetPlayer) {
+            double absorption = targetPlayer.getAbsorptionAmount();
+            if (statsDamage > absorption) {
+                statsDamage -= absorption;
+                targetPlayer.setAbsorptionAmount(0);
+            } else {
+                targetPlayer.setAbsorptionAmount(absorption - statsDamage);
+                statsDamage = 0;
+            }
+        }
+
+        newHealth = Math.clamp(newHealth - statsDamage, 0, target.getMaxHealth());
 
         for (ItemStack armor : target.getEquipment().getArmorContents()) {
             if (armor != null && !armor.getType().isAir()) {
