@@ -54,6 +54,7 @@ public class PlayerEventListener implements Listener {
 
     private final Map<UUID, Long> titleCooldown = new HashMap<>();
     private final Map<UUID, Boolean> letRunesThroughMap = new HashMap<>();
+    private final Map<UUID, Long> lastAttackTime = new HashMap<>();
 
     public PlayerEventListener(LeagueMechanics plugin, RunePersistence runePersistence) {
         this.plugin = plugin;
@@ -232,6 +233,11 @@ public class PlayerEventListener implements Listener {
             event.setCancelled(true);
             return;
         }
+        if (isOnAttackCooldown(attacker)) {
+            event.setCancelled(true);
+            return;
+        }
+        recordAttack(attacker);
         if (target instanceof Creature creature) {
             creature.setTarget(attacker);
         }
@@ -273,10 +279,10 @@ public class PlayerEventListener implements Listener {
 
         for (CooldownHandler rune : runeData.getAllRunes()) {
             if (rune instanceof GraspOfTheUndying grasp) {
-                grasp.onCombat(player);
+                grasp.activateGraspOfTheUndying(player, null);
             }
             if (rune instanceof HailOfBlades hailOfBlades) {
-                hailOfBlades.onCombat(player);
+                hailOfBlades.activateHailofBlades(player, null);
             }
         }
     }
@@ -498,16 +504,44 @@ public class PlayerEventListener implements Listener {
         }
     }
 
+    @SuppressWarnings("removal")
     private void setAttackCooldown(Player player) {
         PlayerStats stats = new PlayerStats();
-        double attackSpeed = 35 * (1.0 - (stats.getPlayerAS(player) / 100.0));
+        double totalAS = Math.clamp(stats.getPlayerAS(player), 0.0, 4.0);
+        int cooldown = Math.max(1, (int) (35 * (1.0 - (totalAS / 100.0))));
 
         for (int i = 0; i < 9; i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item != null && !item.getType().isAir()) {
-                player.setCooldown(item.getType(), (int) attackSpeed);
+                player.setCooldown(item.getType(), cooldown);
             }
         }
+
+        double attack_speed = (200.0 / cooldown) - 10.0;
+
+        var attr = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
+        if (attr != null) {
+            new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
+        }
+
+        if (attack_speed > 4.0) {
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED)).addModifier(
+                    new AttributeModifier(UUID.randomUUID(), "league_as", attack_speed - 4.0, AttributeModifier.Operation.ADD_NUMBER)
+            );
+        }
+    }
+
+    private boolean isOnAttackCooldown(Player player) {
+        long lastAttack = lastAttackTime.getOrDefault(player.getUniqueId(), 0L);
+        PlayerStats stats = new PlayerStats();
+        double totalAS = Math.clamp(stats.getPlayerAS(player), 0.0, 4.0);
+        int cooldown = Math.max(1, (int) (35 * (1.0 - totalAS)));
+        long cooldownMs = cooldown * 50L;
+        return System.currentTimeMillis() - lastAttack < cooldownMs;
+    }
+
+    private void recordAttack(Player player) {
+        lastAttackTime.put(player.getUniqueId(), System.currentTimeMillis());
     }
 
     public boolean letRunesThrough(Player player) {
