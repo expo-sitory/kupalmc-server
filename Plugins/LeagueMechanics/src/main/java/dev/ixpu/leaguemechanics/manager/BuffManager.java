@@ -9,11 +9,11 @@ public class BuffManager {
     public double calculateBuffValue(Player player, double baseValue, double adPercentageMultiplier, double apPercentageMultiplier) {
         PlayerStats stats = new PlayerStats();
 
-        double totalAD = stats.getPlayerAD(player)  / 2;
-        double totalAP = stats.getPlayerAP(player) / 4;
+        double totalAD = stats.getPlayerAD(player);
+        double totalAP = stats.getPlayerAP(player);
 
-        double adBonus = totalAD * adPercentageMultiplier;
-        double apBonus = totalAP * apPercentageMultiplier;
+        double adBonus = totalAD * (adPercentageMultiplier / 100);
+        double apBonus = totalAP * (apPercentageMultiplier / 100);
 
         return baseValue + adBonus + apBonus;
     }
