@@ -26,8 +26,8 @@ import net.kyori.adventure.text.Component;
 public class GlacialAugment extends CooldownHandler {
     private int BASE_FREEZE_DURATION_TICKS = 120;
 
-    private double AD_PERCENTAGE_MULTIPLIER = 0.07;
-    private double AP_PERCENTAGE_MULTIPLIER = 0.06;
+    private double AD_PERCENTAGE_MULTIPLIER = 7.0;
+    private double AP_PERCENTAGE_MULTIPLIER = 6.0;
 
     int COOLDOWN_DURATION_SECONDS = 45;
 

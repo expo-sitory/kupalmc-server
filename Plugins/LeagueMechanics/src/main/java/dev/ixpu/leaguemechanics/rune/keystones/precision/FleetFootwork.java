@@ -22,10 +22,10 @@ public class FleetFootwork extends StacksHandler {
 
     private double BLOCKS_PER_STACK = 10.0;
     private int PROJECTILE_STACK_GAIN = 5;
-    private double HEAL_PERCENT = 0.25;
+    private double HEAL_PERCENT = 25.0;
 
-    private double AD_PERCENTAGE_MULTIPLIER = 0.10;
-    private double AP_PERCENTAGE_MULTIPLIER = 0.05;
+    private double AD_PERCENTAGE_MULTIPLIER = 10.0;
+    private double AP_PERCENTAGE_MULTIPLIER = 5.0;
 
     private static final int MAXIMUM_STACKS = 100;
     private static final double MOVEMENT_SPEED_BONUS = 0.20;

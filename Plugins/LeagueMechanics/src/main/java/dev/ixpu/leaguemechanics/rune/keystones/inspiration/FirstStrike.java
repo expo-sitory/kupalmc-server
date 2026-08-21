@@ -24,13 +24,13 @@ import net.kyori.adventure.text.Component;
 
 public class FirstStrike extends CooldownHandler {
     private double INITIAL_XP = 10.0;
-    private double BUFF_DURATION_SECONDS = 7;
-    private double TRUE_DAMAGE_PERCENT = 2;
+    private double BUFF_DURATION_SECONDS = 7.0;
+    private double TRUE_DAMAGE_PERCENT = 7.0;
 
     private int COOLDOWN_SECONDS = 25;
 
-    private double AD_PERCENTAGE = 0.20;
-    private double AP_PERCENTAGE = 0.15;
+    private double AD_PERCENTAGE = 20.0;
+    private double AP_PERCENTAGE = 15.0;
 
     private PlayerEventListener listener;
 

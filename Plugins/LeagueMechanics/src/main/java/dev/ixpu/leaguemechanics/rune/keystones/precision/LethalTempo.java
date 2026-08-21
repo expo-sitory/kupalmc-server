@@ -21,8 +21,8 @@ import net.kyori.adventure.text.Component;
 
 public class LethalTempo extends StacksHandler {
 
-    private double ATTACK_SPEED = 0.6;
-    private double BASE_ADAPTIVE_DAMAGE = 1.7;
+    private double ATTACK_SPEED = 60.0;
+    private double BASE_ADAPTIVE_DAMAGE = 2.7;
 
     private PlayerEventListener listener;
 
@@ -71,6 +71,10 @@ public class LethalTempo extends StacksHandler {
         clearPlayerCooldown(player);
     }
 
+    public void onProjectileHit(Player shooter, Entity target) {
+        activateLethalTempo(shooter, target);
+    }
+
     public void onAttack(Player attacker, Entity target) {
         activateLethalTempo(attacker, target);
     }
@@ -85,6 +89,9 @@ public class LethalTempo extends StacksHandler {
         if (livingTarget.getMaxHealth() < 20) {
             return;
         }
+        if (isOnCooldown(player)) {
+            return;
+        }
         if (!listener.letRunesThrough(player)) {
             return;
         }
@@ -92,7 +99,7 @@ public class LethalTempo extends StacksHandler {
         switchTarget(player, targetUUID);
 
         if (state == RuneState.ACTIVE) {
-            double damageToApply = keystoneDamage(player, target, getStacks(player, targetUUID));
+            double damageToApply = keystoneDamage(player, target, getValidStackCount(player, targetUUID));
 
             if (livingTarget instanceof Player targetPlayer) {
                 double absorption = targetPlayer.getAbsorptionAmount();
@@ -107,7 +114,7 @@ public class LethalTempo extends StacksHandler {
 
             double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
 
-            DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§eLethal Tempo§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target, getStacks(player, targetUUID)) * 100) / 100.0);
+            DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§eLethal Tempo§f] Keystone Damage = §d" + Math.ceil(keystoneDamage(player, target, getValidStackCount(player, targetUUID)) * 100) / 100.0);
             DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
 
             livingTarget.setHealth(newHealth);
@@ -123,15 +130,12 @@ public class LethalTempo extends StacksHandler {
     private double keystoneDamage(Player player, Entity target, int currentStacks) {
         DamageManager damageManager = new DamageManager();
         damageManager.enableAdaptiveScaling();
-        damageManager.enablePerStackScaling();
         return damageManager.DamageCalculation(player, target, currentStacks, BASE_ADAPTIVE_DAMAGE, 0);
     }
 
     private void addStackForTarget(Player player, UUID targetUUID) {
-        addStack(player, targetUUID);
         recordStackTimestamp(player, targetUUID);
-
-        int currentStacks = getActiveStacks(player, targetUUID);
+        int currentStacks = getValidStackCount(player, targetUUID);
 
         if (currentStacks == MAXIMUM_STACKS) {
             enterActiveState(player);
@@ -143,11 +147,6 @@ public class LethalTempo extends StacksHandler {
         Map<UUID, List<Long>> playerTimestamps = stackTimestamps.computeIfAbsent(playerUUID, k -> new HashMap<>());
         List<Long> targetTimestamps = playerTimestamps.computeIfAbsent(targetUUID, k -> new ArrayList<>());
         targetTimestamps.add(System.currentTimeMillis());
-    }
-
-    private int getActiveStacks(Player player, UUID targetUUID) {
-        expireOldStacks(player, targetUUID);
-        return getStacks(player, targetUUID);
     }
 
     private void expireOldStacks(Player player, UUID targetUUID) {
@@ -169,6 +168,23 @@ public class LethalTempo extends StacksHandler {
         targetTimestamps.removeIf(timestamp -> (currentTime - timestamp) > stackDurationMs);
     }
 
+    private int getValidStackCount(Player player, UUID targetUUID) {
+        expireOldStacks(player, targetUUID);
+        UUID playerUUID = player.getUniqueId();
+        Map<UUID, List<Long>> playerTimestamps = stackTimestamps.get(playerUUID);
+
+        if (playerTimestamps == null) {
+            return 0;
+        }
+
+        List<Long> targetTimestamps = playerTimestamps.get(targetUUID);
+        if (targetTimestamps == null) {
+            return 0;
+        }
+
+        return Math.min(targetTimestamps.size(), MAXIMUM_STACKS);
+    }
+
     private void enterActiveState(Player player) {
         UUID playerUUID = player.getUniqueId();
         playerState.put(playerUUID, RuneState.ACTIVE);
@@ -180,15 +196,6 @@ public class LethalTempo extends StacksHandler {
     private void refreshActiveTimer(Player player) {
         UUID playerUUID = player.getUniqueId();
         activeState.put(playerUUID, ACTIVE_DURATION_TICKS);
-    }
-
-    private int trackActiveStacks(Player player) {
-        UUID lastTargetUUID = lastTarget.getOrDefault(player.getUniqueId(), null);
-        int currentStacks = 0;
-        if (lastTargetUUID != null) {
-            currentStacks = getActiveStacks(player, lastTargetUUID);
-        }
-        return currentStacks;
     }
 
     public double getActiveASBonus(Player player) {
@@ -208,7 +215,11 @@ public class LethalTempo extends StacksHandler {
         RuneState state = playerState.getOrDefault(playerUUID, RuneState.STACKING);
 
         if (state == RuneState.STACKING) {
-            int currentStacks = trackActiveStacks(player);
+            UUID lastTargetUUID = lastTarget.getOrDefault(playerUUID, null);
+            int currentStacks = 0;
+            if (lastTargetUUID != null) {
+                currentStacks = getValidStackCount(player, lastTargetUUID);
+            }
             String runeDisplay = getRuneDisplay(RuneState.STACKING, player, currentStacks);
             setPlayerDisplay(player, runeDisplay);
 
@@ -224,7 +235,6 @@ public class LethalTempo extends StacksHandler {
                 resetCooldown(player);
                 playerState.put(playerUUID, RuneState.STACKING);
                 activeASBonus.put(playerUUID, 0.0);
-                resetStacks(player);
                 clearPlayerTimestamps(player);
                 player.playSound(player.getLocation(), Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.0f, 1.2f);
             }

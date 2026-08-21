@@ -20,8 +20,8 @@ import net.kyori.adventure.text.Component;
 
 
 public class HailOfBlades extends CooldownHandler {
-    private double ATTACK_SPEED = 0.10;
-    private double TRUE_DAMAGE_PERCENT = 2;
+    private double ATTACK_SPEED = 10.0;
+    private double TRUE_DAMAGE_PERCENT = 7.0;
 
     private double AD_PERCENTAGE_MULTIPLIER = 12.0;
     private double AP_PERCENTAGE_MULTIPLIER = 8.0;
@@ -85,13 +85,6 @@ public class HailOfBlades extends CooldownHandler {
         currentStacks.remove(uuid);
     }
 
-    public void onCombat(Player player) {
-        if (isOnCooldown(player)) {
-            return;
-        }
-        activateHailofBlades(player, null);
-    }
-
     public void onProjectileHit(Player shooter, Entity target) {
         activateHailofBlades(shooter, target);
     }
@@ -100,7 +93,7 @@ public class HailOfBlades extends CooldownHandler {
         activateHailofBlades(attacker, target);
     }
 
-    private void activateHailofBlades(Player player, Entity target) {
+    public void activateHailofBlades(Player player, Entity target) {
         UUID playerUUID = player.getUniqueId();
 
         if (!(target instanceof LivingEntity livingTarget)) {

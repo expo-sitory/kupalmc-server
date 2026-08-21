@@ -32,8 +32,8 @@ import net.kyori.adventure.text.Component;
 public class DeathfireTorch extends CooldownHandler {
     private double DAMAGE_TICKS = 20;
 
-    private double AD_PERCENTAGE_MULTIPLIER = 0.02;
-    private double AP_PERCENTAGE_MULTIPLIER = 0.03;
+    private double AD_PERCENTAGE_MULTIPLIER = 3.0;
+    private double AP_PERCENTAGE_MULTIPLIER = 6.0;
 
     private PlayerEventListener listener;
 
@@ -241,8 +241,8 @@ public class DeathfireTorch extends CooldownHandler {
                         DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
                         target.setHealth(newHealth);
                         spawnBurnParticles(target);
-                        target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GENERIC_BURN, 1.0f, 2.0f);
-                        target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GENERIC_BURN, 1.0f, 0.7f);
+                        target.getWorld().playSound(target.getLocation(), Sound.ENTITY_ENDER_DRAGON_SHOOT, 1.0f, 2.0f);
+                        target.getWorld().playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT_ON_FIRE, 1.0f, 0.7f);
                     }
                 }
 

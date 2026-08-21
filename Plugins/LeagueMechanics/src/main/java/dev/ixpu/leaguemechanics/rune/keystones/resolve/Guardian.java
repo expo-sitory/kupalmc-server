@@ -22,7 +22,7 @@ import net.kyori.adventure.text.Component;
 public class Guardian extends CooldownHandler {
 
     private int MAX_PLAYERS = 5;
-    private double ABSORPTION_PERCENTAGE = 2.0;
+    private double ABSORPTION_PERCENTAGE = 100.0;
 
     private int COOLDOWN_SECONDS = 60;
 
@@ -41,7 +41,7 @@ public class Guardian extends CooldownHandler {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.guardian");
         if (section != null) {
             this.MAX_PLAYERS = section.getInt("max-players", this.MAX_PLAYERS);
-            this.ABSORPTION_PERCENTAGE = section.getDouble("absorption-lines", this.ABSORPTION_PERCENTAGE);
+            this.ABSORPTION_PERCENTAGE = section.getDouble("absorption-percentage", this.ABSORPTION_PERCENTAGE);
             this.COOLDOWN_SECONDS = section.getInt("cooldown", this.COOLDOWN_SECONDS);
         }
         this.setCooldownSeconds(COOLDOWN_SECONDS);
@@ -208,7 +208,7 @@ public class Guardian extends CooldownHandler {
     private void applyShield(Player player) {
 
         int maxHealth = (int) Math.ceil(player.getMaxHealth());
-        int absorbAmount = (int) Math.ceil(maxHealth * ABSORPTION_PERCENTAGE / 4.0);
+        int absorbAmount = (int) Math.ceil(maxHealth * (ABSORPTION_PERCENTAGE / 100) / 4.0);
 
         player.addPotionEffect(new PotionEffect(
                 PotionEffectType.ABSORPTION,

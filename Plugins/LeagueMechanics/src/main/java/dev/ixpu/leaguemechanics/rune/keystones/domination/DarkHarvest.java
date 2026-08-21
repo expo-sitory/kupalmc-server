@@ -25,7 +25,7 @@ public class DarkHarvest extends StacksHandler {
 
     int COOLDOWN_DURATION_SECONDS = 60;
 
-    private static final double HEALTH_THRESHOLD = 0.50;
+    private static final double HEALTH_THRESHOLD = 50;
     private static final int REAP_DELAY_TICKS = 75;
 
     private LeagueMechanics plugin;
@@ -70,6 +70,7 @@ public class DarkHarvest extends StacksHandler {
         double targetHealth = livingTarget.getHealth();
         double maxHealth = livingTarget.getMaxHealth();
         double healthPercent = targetHealth / maxHealth;
+        double threshold = HEALTH_THRESHOLD / 100;
 
         double damageToApply = keystoneDamage(player, target);
 
@@ -86,7 +87,7 @@ public class DarkHarvest extends StacksHandler {
 
         double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
 
-        if (healthPercent >= HEALTH_THRESHOLD) {
+        if (healthPercent >= threshold) {
             return;
         }
 

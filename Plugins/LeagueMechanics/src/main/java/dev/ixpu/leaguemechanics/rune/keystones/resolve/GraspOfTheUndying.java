@@ -22,8 +22,7 @@ import net.kyori.adventure.text.Component;
 
 
 public class GraspOfTheUndying extends StacksHandler {
-    private double BASE_PHYSICAL_DAMAGE_PERCENT = 0.08;
-    private double HEAL_PERCENT = 0.15;
+    private double HEAL_PERCENT = 15.0;
 
     int COOLDOWN_DURATION_SECONDS = 60;
 
@@ -42,7 +41,6 @@ public class GraspOfTheUndying extends StacksHandler {
         ConfigurationSection section = config.getConfigurationSection("runes.keystones.resolve.grasp-of-the-undying");
 
         if (section != null) {
-            this.BASE_PHYSICAL_DAMAGE_PERCENT = section.getDouble("damage-percent", this.BASE_PHYSICAL_DAMAGE_PERCENT);
             this.HEAL_PERCENT = section.getDouble("heal-percent", this.HEAL_PERCENT);
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", COOLDOWN_DURATION_SECONDS);
         }
@@ -66,18 +64,6 @@ public class GraspOfTheUndying extends StacksHandler {
         activeStateActive.remove(uuid);
     }
 
-    public void onCombat(Player player) {
-        if (isOnCooldown(player)) {
-            return;
-        }
-
-        addStack(player);
-
-        if (getStacks(player) == maxStacks) {
-            activationState.put(player.getUniqueId(), ATTACK_WINDOW_TICKS);
-        }
-    }
-
     public void onProjectileHit(Player shooter, Entity target) {
         activateGraspOfTheUndying(shooter, target);
     }
@@ -86,21 +72,27 @@ public class GraspOfTheUndying extends StacksHandler {
         activateGraspOfTheUndying(attacker, target);
     }
 
-    private void activateGraspOfTheUndying(Player player, Entity target) {
+    public void activateGraspOfTheUndying(Player player, Entity target) {
         UUID playerUUID = player.getUniqueId();
         int stacks = getStacks(player);
         int attackWindow = activationState.getOrDefault(playerUUID, 0);
 
+        if (isOnCooldown(player)) {
+            return;
+        }
+        if (getStacks(player) == maxStacks) {
+            activationState.put(player.getUniqueId(), ATTACK_WINDOW_TICKS);
+        }
         if(listener.isAnyHotbarOnCooldown(player) && !listener.letRunesThrough(player)) {
             return;
         }
+        addStack(player);
+
         if (stacks >= maxStacks && attackWindow > 0 && !activeStateActive.getOrDefault(playerUUID, false)) {
             enterActiveState(player, target);
             resetStacks(player);
             activationState.put(playerUUID, 0);
             resetCooldown(player);
-        } else {
-            onCombat(player);
         }
     }
 
@@ -133,8 +125,9 @@ public class GraspOfTheUndying extends StacksHandler {
 
         var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (maxHealthAttr != null) {
+            double healPercent = HEAL_PERCENT / 100;
             double maxHealth = maxHealthAttr.getValue();
-            double healAmount = maxHealth * HEAL_PERCENT;
+            double healAmount = maxHealth * healPercent;
             double currentHealth = player.getHealth();
             player.setHealth(Math.min(maxHealth, currentHealth + healAmount));
         }

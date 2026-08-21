@@ -28,8 +28,8 @@ import net.kyori.adventure.text.Component;
 public class ArcaneComet extends CooldownHandler {
     double BASE_ADAPTIVE_DAMAGE = 4.5;
 
-    private double AD_PERCENTAGE_MULTIPLIER = 0.05;
-    private double AP_PERCENTAGE_MULTIPLIER = 0.15;
+    private double AD_PERCENTAGE_MULTIPLIER = 5.0;
+    private double AP_PERCENTAGE_MULTIPLIER = 15.0;
 
     int COOLDOWN_SECONDS = 20;
 
@@ -201,7 +201,7 @@ public class ArcaneComet extends CooldownHandler {
 
     private String getRuneDisplay(RuneState state, Player player) {
         return switch (state) {
-            case COOLDOWN -> "§7🌠" + getCooldownDisplay(player);
+            case COOLDOWN -> "§7🌠 " + getCooldownDisplay(player);
             case IDLE -> "§1🌠";
         };
     }

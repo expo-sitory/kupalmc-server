@@ -22,8 +22,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.kyori.adventure.text.Component;
 
 public class StormRaiderSurge extends CooldownHandler {
-    private double DAMAGE_THRESHOLD_PERCENTAGE = 0.30;
-    private double MOVEMENT_SPEED_BONUS = 0.40;
+    private double DAMAGE_THRESHOLD_PERCENTAGE = 30.0;
+    private int MOVEMENT_SPEED_BONUS = 1;
 
     int COOLDOWN_SECONDS = 25;
 
@@ -43,7 +43,7 @@ public class StormRaiderSurge extends CooldownHandler {
         this.listener = listener;
         if (section != null) {
             this.DAMAGE_THRESHOLD_PERCENTAGE = section.getDouble("damage-percent-threshold", this.DAMAGE_THRESHOLD_PERCENTAGE);
-            this.MOVEMENT_SPEED_BONUS = section.getDouble("movement-speed-bonus", this.MOVEMENT_SPEED_BONUS);
+            this.MOVEMENT_SPEED_BONUS = section.getInt("speed-level", this.MOVEMENT_SPEED_BONUS);
             this.COOLDOWN_SECONDS = section.getInt("cooldown", COOLDOWN_SECONDS);
         }
         this.setCooldownSeconds(COOLDOWN_SECONDS);
@@ -106,7 +106,7 @@ public class StormRaiderSurge extends CooldownHandler {
         player.addPotionEffect(new PotionEffect(
                 PotionEffectType.SPEED,
                 SPEED_DURATION_TICKS,
-                1,
+                MOVEMENT_SPEED_BONUS,
                 false,
                 false
         ));
@@ -163,7 +163,7 @@ public class StormRaiderSurge extends CooldownHandler {
         }
 
         double maxHp = player.getMaxHealth();
-        double damageThreshold = maxHp * DAMAGE_THRESHOLD_PERCENTAGE;
+        double damageThreshold = maxHp * (DAMAGE_THRESHOLD_PERCENTAGE / 100);
         double currentDamage = damageTracker.getOrDefault(playerUUID, 0.0);
 
         if (currentDamage >= damageThreshold) {

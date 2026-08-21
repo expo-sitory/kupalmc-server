@@ -26,6 +26,7 @@ public class Electrocute extends StacksHandler {
     private double BASE_ADAPTIVE_DAMAGE = 5.5;
 
     private static final int MAXIMUM_STACKS = 3;
+
     private PlayerEventListener listener;
 
     int COOLDOWN_DURATION_SECONDS = 25;
