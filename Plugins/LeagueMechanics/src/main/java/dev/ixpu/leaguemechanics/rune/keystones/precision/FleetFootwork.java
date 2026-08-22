@@ -209,7 +209,7 @@ public class FleetFootwork extends StacksHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         String statsDisplay = playerStats.getActionBarSections(player);
 
         String actionBarMessage = runeDisplay + " " + statsDisplay;

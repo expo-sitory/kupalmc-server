@@ -105,7 +105,7 @@ public class DarkHarvest extends StacksHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
+        DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
         damageManager.enablePerStackScaling();
         damageManager.enableAdaptiveScaling();
 
@@ -150,7 +150,7 @@ public class DarkHarvest extends StacksHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         String statsDisplay = playerStats.getActionBarSections(player);
 
         String actionBarMessage = runeDisplay + " " + statsDisplay;

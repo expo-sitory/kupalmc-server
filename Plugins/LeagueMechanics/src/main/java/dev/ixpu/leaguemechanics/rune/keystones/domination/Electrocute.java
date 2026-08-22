@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics.rune.keystones.domination;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StacksHandler;
@@ -110,7 +111,7 @@ public class Electrocute extends StacksHandler {
     }
     
     private double keystoneDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
+        DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
         damageManager.enableAdaptiveScaling();
         return damageManager.DamageCalculation(player, target, 0, BASE_ADAPTIVE_DAMAGE, 0);
     }
@@ -147,8 +148,8 @@ public class Electrocute extends StacksHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
-        DamageManager damageManager = new DamageManager();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
+        DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
         damageManager.enableAdaptiveScaling();
 
         String statsDisplay = playerStats.getActionBarSections(player);

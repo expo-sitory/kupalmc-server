@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 public class BuffManager {
 
     public double calculateBuffValue(Player player, double baseValue, double adPercentageMultiplier, double apPercentageMultiplier) {
-        PlayerStats stats = new PlayerStats();
+        PlayerStats stats = PlayerStats.getOrCreate(player);
 
         double totalAD = stats.getPlayerAD(player);
         double totalAP = stats.getPlayerAP(player);

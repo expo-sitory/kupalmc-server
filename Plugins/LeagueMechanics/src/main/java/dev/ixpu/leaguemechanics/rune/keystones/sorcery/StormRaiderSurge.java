@@ -94,7 +94,7 @@ public class StormRaiderSurge extends CooldownHandler {
     }
 
     private double playerDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
+        DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
         return damageManager.DamageCalculation(player, target, 0, 0, 0);
     }
 
@@ -176,7 +176,7 @@ public class StormRaiderSurge extends CooldownHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         String statsDisplay = playerStats.getActionBarSections(player);
 
         String actionBarMessage = runeDisplay + " " + statsDisplay;

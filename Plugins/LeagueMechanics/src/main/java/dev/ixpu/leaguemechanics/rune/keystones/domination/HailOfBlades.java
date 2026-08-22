@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics.rune.keystones.domination;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
@@ -141,7 +142,7 @@ public class HailOfBlades extends CooldownHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
+        DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
         damageManager.enableTrueDamage();
         return damageManager.DamageCalculation(player, target, 0, 0, TRUE_DAMAGE_PERCENT);
     }
@@ -249,7 +250,7 @@ public class HailOfBlades extends CooldownHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
 
         String statsDisplay = playerStats.getActionBarSections(player);
 

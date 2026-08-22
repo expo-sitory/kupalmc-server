@@ -138,7 +138,7 @@ public class FirstStrike extends CooldownHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
+        DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
         damageManager.enableTrueDamage();
         return damageManager.DamageCalculation(player, target, 0, 0, TRUE_DAMAGE_PERCENT);
     }
@@ -229,7 +229,7 @@ public class FirstStrike extends CooldownHandler {
     }
 
     private void grantXPBonus(Player player) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         double totalAD = playerStats.getPlayerAD(player);
         double totalAP = playerStats.getPlayerAP(player);
 
@@ -250,7 +250,7 @@ public class FirstStrike extends CooldownHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         String statsDisplay = playerStats.getActionBarSections(player);
 
         String actionBarMessage = runeDisplay + " " + statsDisplay;

@@ -6,7 +6,7 @@ import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.rune.keystones.precision.LethalTempo;
 import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
-import dev.ixpu.leaguemechanics.item.ItemPassivesRegistry;
+import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import dev.ixpu.leaguemechanics.item.passives.dark_seal;
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
@@ -14,8 +14,14 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.enchantments.Enchantment;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 public class PlayerStats {
+    private static final Map<UUID, PlayerStats> INSTANCE_CACHE = new ConcurrentHashMap<>();
+    private static final long CACHE_TTL_MS = 100;
+
     double BASE_HEALTH = 0.0;
     double BASE_HEALTH_REGEN = 0.0;
 
@@ -27,6 +33,31 @@ public class PlayerStats {
     double BASE_ATTACK_SPEED = 0.0;
     double BASE_ARMOR = 15.0;
     double BASE_MAGIC_RESIST = 15.0;
+
+    private final Player player;
+    private long lastCacheTime = 0;
+
+    private PlayerStats(Player player) {
+        this.player = player;
+    }
+
+    public static PlayerStats getOrCreate(Player player) {
+        UUID uuid = player.getUniqueId();
+        PlayerStats stats = INSTANCE_CACHE.get(uuid);
+        if (stats == null) {
+            stats = new PlayerStats(player);
+            INSTANCE_CACHE.put(uuid, stats);
+        }
+        return stats;
+    }
+
+    public static void invalidateCache(UUID uuid) {
+        INSTANCE_CACHE.remove(uuid);
+    }
+
+    public static void invalidateAll() {
+        INSTANCE_CACHE.clear();
+    }
 
 
     public double getPlayerHP(Player player) {
@@ -207,7 +238,8 @@ public class PlayerStats {
 
 
     public String getActionBarSections(Player player) {
-        DamageManager damage = new DamageManager();
+        ItemStatsManager statsManager = LeagueMechanics.getInstance().getStatsManager();
+        DamageManager damage = new DamageManager(statsManager);
 
         double enchantmentAD = getWeaponEnchant(player);
         double enchantmentAR = getArmorEnchant(player);

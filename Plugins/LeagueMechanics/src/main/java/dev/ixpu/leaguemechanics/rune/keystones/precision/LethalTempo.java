@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics.rune.keystones.precision;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StacksHandler;
@@ -128,7 +129,7 @@ public class LethalTempo extends StacksHandler {
     }
 
     private double keystoneDamage(Player player, Entity target, int currentStacks) {
-        DamageManager damageManager = new DamageManager();
+        DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
         damageManager.enableAdaptiveScaling();
         return damageManager.DamageCalculation(player, target, currentStacks, BASE_ADAPTIVE_DAMAGE, 0);
     }
@@ -246,7 +247,7 @@ public class LethalTempo extends StacksHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         String statsDisplay = playerStats.getActionBarSections(player);
 
         String actionBarMessage = runeDisplay + " " + statsDisplay;

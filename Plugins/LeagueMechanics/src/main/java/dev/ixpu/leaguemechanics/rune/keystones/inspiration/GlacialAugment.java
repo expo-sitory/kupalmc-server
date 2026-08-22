@@ -126,8 +126,7 @@ public class GlacialAugment extends CooldownHandler {
                 false,
                 false
         ));
-
-        player.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 1.0f, 1.0f);
+        target.getWorld().playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 1.0f, 1.0f);
 
         if (plugin != null) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
@@ -211,7 +210,7 @@ public class GlacialAugment extends CooldownHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         String statsDisplay = playerStats.getActionBarSections(player);
 
         String actionBarMessage = runeDisplay + " " + statsDisplay;

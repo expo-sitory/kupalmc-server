@@ -3,6 +3,8 @@ package dev.ixpu.leaguemechanics.listener;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.item.*;
+import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
+import dev.ixpu.leaguemechanics.item.shop.ItemShopGUI;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
@@ -28,6 +30,7 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 import org.bukkit.event.Listener;
@@ -51,16 +54,17 @@ public class PlayerEventListener implements Listener {
     private final RuneManager runeManager;
     private final RuneRegistry runeRegistry;
     private final RunePersistence runePersistence;
+    private final ItemStatsManager itemStatsManager;
 
     private final Map<UUID, Long> titleCooldown = new HashMap<>();
     private final Map<UUID, Boolean> letRunesThroughMap = new HashMap<>();
-    private final Map<UUID, Long> lastAttackTime = new HashMap<>();
 
     public PlayerEventListener(LeagueMechanics plugin, RunePersistence runePersistence) {
         this.plugin = plugin;
         this.runeManager = plugin.getRuneManager();
         this.runeRegistry = plugin.getRuneRegistry();
         this.runePersistence = runePersistence;
+        this.itemStatsManager = plugin.getStatsManager();
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -81,12 +85,16 @@ public class PlayerEventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
 
         GraspOfTheUndying grasp = (GraspOfTheUndying) runeRegistry.getRune("grasp-of-the-undying");
         if (grasp != null) {
             grasp.resetAbsorption(player);
         }
         runeManager.unloadPlayerRunes(player);
+
+        PlayerStats.invalidateCache(uuid);
+        itemStatsManager.invalidateCache(uuid);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -95,7 +103,22 @@ public class PlayerEventListener implements Listener {
             return;
         }
 
+        ItemShopGUI.updateShopDisplay(player);
+
         ItemStack currentItem = event.getCurrentItem();
+        ItemStack cursor = event.getCursor();
+
+        if (preventBundleInsert(currentItem, cursor)) {
+            event.setCancelled(true);
+            player.sendMessage(Component.text("§cLeague items cannot be inserted into bundles"));
+            return;
+        }
+
+        if (preventLeagueItemsInHotbar(event, player)) {
+            event.setCancelled(true);
+            player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
+            return;
+        }
 
         if (currentItem != null && !currentItem.getType().isAir() && event.getClickedInventory() != player.getInventory()) {
             String itemId = ItemLoreModifier.getItemId(currentItem);
@@ -109,13 +132,17 @@ public class PlayerEventListener implements Listener {
             }
         }
 
-        ItemStack cursor = event.getCursor();
         if (!cursor.getType().isAir()) {
             ItemLoreModifier.syncItemStats(cursor);
         }
         if (currentItem != null && !currentItem.getType().isAir()) {
             ItemLoreModifier.syncItemStats(currentItem);
         }
+
+        UUID uuid = player.getUniqueId();
+        PlayerStats.invalidateCache(uuid);
+        itemStatsManager.invalidateCache(uuid);
+
 
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> applyPlayerStats(player), 1L);
     }
@@ -233,11 +260,6 @@ public class PlayerEventListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        if (isOnAttackCooldown(attacker)) {
-            event.setCancelled(true);
-            return;
-        }
-        recordAttack(attacker);
         if (target instanceof Creature creature) {
             creature.setTarget(attacker);
         }
@@ -504,44 +526,16 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @SuppressWarnings("removal")
     private void setAttackCooldown(Player player) {
-        PlayerStats stats = new PlayerStats();
-        double totalAS = Math.clamp(stats.getPlayerAS(player), 0.0, 4.0);
-        int cooldown = Math.max(1, (int) (35 * (1.0 - (totalAS / 100.0))));
+        PlayerStats stats = PlayerStats.getOrCreate(player);
+        double attackSpeed = 35 * (1.0 - (stats.getPlayerAS(player) / 100.0));
 
         for (int i = 0; i < 9; i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item != null && !item.getType().isAir()) {
-                player.setCooldown(item.getType(), cooldown);
+                player.setCooldown(item.getType(), (int) attackSpeed);
             }
         }
-
-        double attack_speed = (200.0 / cooldown) - 10.0;
-
-        var attr = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
-        if (attr != null) {
-            new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
-        }
-
-        if (attack_speed > 4.0) {
-            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_ATTACK_SPEED)).addModifier(
-                    new AttributeModifier(UUID.randomUUID(), "league_as", attack_speed - 4.0, AttributeModifier.Operation.ADD_NUMBER)
-            );
-        }
-    }
-
-    private boolean isOnAttackCooldown(Player player) {
-        long lastAttack = lastAttackTime.getOrDefault(player.getUniqueId(), 0L);
-        PlayerStats stats = new PlayerStats();
-        double totalAS = Math.clamp(stats.getPlayerAS(player), 0.0, 4.0);
-        int cooldown = Math.max(1, (int) (35 * (1.0 - totalAS)));
-        long cooldownMs = cooldown * 50L;
-        return System.currentTimeMillis() - lastAttack < cooldownMs;
-    }
-
-    private void recordAttack(Player player) {
-        lastAttackTime.put(player.getUniqueId(), System.currentTimeMillis());
     }
 
     public boolean letRunesThrough(Player player) {
@@ -562,8 +556,8 @@ public class PlayerEventListener implements Listener {
     }
 
     private void damageEvent(Player player, LivingEntity target, String type) {
-        DamageManager damage = new DamageManager();
-        PlayerStats stats = new PlayerStats();
+        DamageManager damage = new DamageManager(itemStatsManager);
+        PlayerStats stats = PlayerStats.getOrCreate(player);
 
         double attackerAD = stats.getPlayerAD(player) + damage.getPlayerAdaptiveAD(player);
         double attackerAP = stats.getPlayerAP(player) + damage.getPlayerAdaptiveAP(player);
@@ -609,5 +603,42 @@ public class PlayerEventListener implements Listener {
         } else {
             target.setHealth(newHealth);
         }
+    }
+
+    private boolean preventBundleInsert(ItemStack currentItem, ItemStack cursor) {
+        if (cursor.getType() == Material.BUNDLE) {
+            if (currentItem != null && !currentItem.getType().isAir()) {
+                return ItemLoreModifier.getItemId(currentItem) != null;
+            }
+        }
+        if (currentItem != null && currentItem.getType() == Material.BUNDLE) {
+            if (!cursor.getType().isAir()) {
+                return ItemLoreModifier.getItemId(cursor) != null;
+            }
+        }
+        return false;
+    }
+
+    private boolean preventLeagueItemsInHotbar(InventoryClickEvent event, Player player) {
+        int slot = event.getSlot();
+
+        if ((slot < 0 || slot > 8) && slot != 40) {
+            return false;
+        }
+
+        ItemStack cursorItem = event.getCursor();
+        ItemStack slotItem = event.getCurrentItem();
+
+        if (!cursorItem.getType().isAir() && ItemLoreModifier.getItemId(cursorItem) != null) {
+            return true;
+        }
+
+        if (slotItem != null && !slotItem.getType().isAir() && ItemLoreModifier.getItemId(slotItem) != null) {
+            if (event.isShiftClick() || event.getCursor().getType().isAir()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

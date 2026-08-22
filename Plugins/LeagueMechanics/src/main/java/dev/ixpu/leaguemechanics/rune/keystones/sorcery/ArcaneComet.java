@@ -105,7 +105,7 @@ public class ArcaneComet extends CooldownHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
+        DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
         damageManager.enableAdaptiveScaling();
         double baseDamage = damageManager.DamageCalculation(player, target, 0, BASE_ADAPTIVE_DAMAGE, 0);
         double scaledBonus = getScaledBonusDamage(player);
@@ -188,7 +188,7 @@ public class ArcaneComet extends CooldownHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         String statsDisplay = playerStats.getActionBarSections(player);
 
         String actionBarMessage = runeDisplay + " " + statsDisplay;

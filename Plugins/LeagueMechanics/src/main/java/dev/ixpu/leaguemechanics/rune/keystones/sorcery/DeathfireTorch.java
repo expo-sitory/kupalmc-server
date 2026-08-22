@@ -96,7 +96,7 @@ public class DeathfireTorch extends CooldownHandler {
     }
 
     private double keystoneDamage(Player player, Entity target) {
-        DamageManager damageManager = new DamageManager();
+        DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
         damageManager.enableOnlyAP();
         double baseDamage = damageManager.DamageCalculation(player, target, 0, 0, 0);
         double scaledBonus = getScaledBonusDamage(player);
@@ -267,7 +267,7 @@ public class DeathfireTorch extends CooldownHandler {
     }
 
     private void setPlayerDisplay(Player player, String runeDisplay) {
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
 
 
         String statsDisplay = playerStats.getActionBarSections(player);

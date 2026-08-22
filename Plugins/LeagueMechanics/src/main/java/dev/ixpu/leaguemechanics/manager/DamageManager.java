@@ -1,6 +1,5 @@
 package dev.ixpu.leaguemechanics.manager;
 
-import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 
@@ -11,6 +10,7 @@ import java.util.Random;
 
 
 public class DamageManager {
+    private final ItemStatsManager itemStatsManager;
 
     protected boolean isAdaptive = false;
     protected boolean isTrueDamage = false;
@@ -18,6 +18,10 @@ public class DamageManager {
     protected boolean isOnlyAP = false;
 
     private static final Random RANDOM = new Random();
+
+    public DamageManager(ItemStatsManager itemStatsManager) {
+        this.itemStatsManager = itemStatsManager;
+    }
 
     public void enableAdaptiveScaling() {
         this.isAdaptive = true;
@@ -34,7 +38,7 @@ public class DamageManager {
 
 
     public double DamageCalculation(Player player, Entity target, int currentStacks, double bonusAdaptive, double bonusTrueDamage) {
-        PlayerStats stats = new PlayerStats();
+        PlayerStats stats = PlayerStats.getOrCreate(player);
 
         double doransBonus = getDoransOnHitAD(player);
         double attackerAD = ((stats.getPlayerAD(player) + getPlayerAdaptiveAD(player) + doransBonus) / 7);
@@ -73,8 +77,7 @@ public class DamageManager {
     }
 
     public double getPlayerAdaptiveAD(Player player) {
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         if (playerStats.getPlayerAP(player) > playerStats.getPlayerAD(player)) {
             return 0;
         }
@@ -85,8 +88,7 @@ public class DamageManager {
     }
 
     public double getPlayerAdaptiveAP(Player player) {
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        PlayerStats playerStats = new PlayerStats();
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
         if (playerStats.getPlayerAD(player) > playerStats.getPlayerAP(player)) {
             return 0;
         }
@@ -97,7 +99,6 @@ public class DamageManager {
     }
 
     public double getPlayerCritChance(Player player) {
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         if (itemStatsManager != null) {
             return itemStatsManager.getItemCC(player);
         }
@@ -126,19 +127,17 @@ public class DamageManager {
     }
 
     public double getTargetAR(Entity target) {
-        PlayerStats stats = new PlayerStats();
         if (!(target instanceof Player targetPlayer)) {
             return 0;
         }
-        return stats.getPlayerAR(targetPlayer);
+        return PlayerStats.getOrCreate(targetPlayer).getPlayerAR(targetPlayer);
     }
 
     public double getTargetMR(Entity target) {
-        PlayerStats stats = new PlayerStats();
         if (!(target instanceof Player targetPlayer)) {
             return 0;
         }
-        return stats.getPlayerMR(targetPlayer);
+        return PlayerStats.getOrCreate(targetPlayer).getPlayerMR(targetPlayer);
     }
 
     public double getDoransOnHitAD(Player player) {
