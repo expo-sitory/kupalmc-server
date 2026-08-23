@@ -109,7 +109,7 @@ public class ItemShopManager implements Listener {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            meta.setDisplayName("§e" + shopItem.getDisplayName());
+            meta.setDisplayName("§f" + shopItem.getDisplayName());
             meta.setMaxStackSize(1);
             ItemShopData shopData = ItemShopData.getInstance();
             meta.setRarity(shopData.getRarity(shopItem.getId()));
