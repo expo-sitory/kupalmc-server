@@ -3,8 +3,10 @@ package dev.ixpu.leaguemechanics.listener;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.item.*;
+import dev.ixpu.leaguemechanics.item.passives.ItemPassive;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopGUI;
+import dev.ixpu.leaguemechanics.item.shop.ItemShopRegistry;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
@@ -20,7 +22,7 @@ import dev.ixpu.leaguemechanics.rune.keystones.resolve.Guardian;
 
 import dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
-import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
+import dev.ixpu.leaguemechanics.util.ItemModifier;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
@@ -32,6 +34,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.util.Vector;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
@@ -108,20 +111,57 @@ public class PlayerEventListener implements Listener {
         ItemStack currentItem = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
 
+        if (event.getAction() == InventoryAction.HOTBAR_SWAP
+                || event.getAction() == InventoryAction.HOTBAR_MOVE_AND_READD) {
+            ItemStack hotbarItem = player.getInventory().getItem(event.getHotbarButton());
+            if (hotbarItem != null && ItemModifier.getItemId(hotbarItem) != null) {
+                event.setCancelled(true);
+                player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
+                return;
+            }
+
+            if (!cursor.getType().isAir() && ItemModifier.getItemId(cursor) != null) {
+                event.setCancelled(true);
+                player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
+                return;
+            }
+        }
+        if (event.isShiftClick()) {
+            if (currentItem != null && !currentItem.getType().isAir()) {
+                String itemId = ItemModifier.getItemId(currentItem);
+                if (itemId != null) {
+                    event.setCancelled(true);
+                    player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
+                    return;
+                }
+            }
+        }
+
+        int slot = event.getSlot();
+        if ((slot >= 0 && slot <= 8) || slot == 40) {
+            if (!cursor.getType().isAir() && ItemModifier.getItemId(cursor) != null) {
+                event.setCancelled(true);
+                if (slot == 40) {
+                    player.sendMessage(Component.text("§cLeague items cannot be placed in your off-hand"));
+                } else {
+                    player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
+                }
+                return;
+            }
+        }
         if (preventBundleInsert(currentItem, cursor)) {
             event.setCancelled(true);
             player.sendMessage(Component.text("§cLeague items cannot be inserted into bundles"));
             return;
         }
-
-        if (preventLeagueItemsInHotbar(event, player)) {
+        if (preventLeagueItemsInHotbar(event)) {
             event.setCancelled(true);
             player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
             return;
         }
 
         if (currentItem != null && !currentItem.getType().isAir() && event.getClickedInventory() != player.getInventory()) {
-            String itemId = ItemLoreModifier.getItemId(currentItem);
+            String itemId = ItemModifier.getItemId(currentItem);
             if (itemId != null) {
                 ItemStatsManager statsManager = plugin.getStatsManager();
                 if (statsManager.countLeagueItems(player) > 5) {
@@ -133,18 +173,42 @@ public class PlayerEventListener implements Listener {
         }
 
         if (!cursor.getType().isAir()) {
-            ItemLoreModifier.syncItemStats(cursor);
+            ItemModifier.syncItemStats(cursor);
         }
         if (currentItem != null && !currentItem.getType().isAir()) {
-            ItemLoreModifier.syncItemStats(currentItem);
+            ItemModifier.syncItemStats(currentItem);
         }
 
         UUID uuid = player.getUniqueId();
         PlayerStats.invalidateCache(uuid);
         itemStatsManager.invalidateCache(uuid);
 
-
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> applyPlayerStats(player), 1L);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onSwapHandItems(PlayerSwapHandItemsEvent event) {
+        Player player = event.getPlayer();
+        if (ItemModifier.getItemId(event.getMainHandItem()) != null
+                || ItemModifier.getItemId(event.getOffHandItem()) != null) {
+            event.setCancelled(true);
+            player.sendMessage(Component.text("§cLeague items cannot be swapped between hands"));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerInteractEntity(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        ItemStack item = event.getItem();
+
+        if (item != null && item.getType() == Material.BUNDLE) {
+            ItemStack mainHand = player.getInventory().getItemInMainHand();
+            ItemStack offHand = player.getInventory().getItemInOffHand();
+            if (ItemModifier.getItemId(mainHand) != null || ItemModifier.getItemId(offHand) != null) {
+                event.setCancelled(true);
+                player.sendMessage(Component.text("§cLeague items cannot be inserted into bundles"));
+            }
+        }
     }
 
     @EventHandler
@@ -326,7 +390,7 @@ public class PlayerEventListener implements Listener {
                 continue;
             }
 
-            String itemId = ItemLoreModifier.getItemId(item);
+            String itemId = ItemModifier.getItemId(item);
             if (itemId == null) {
                 continue;
             }
@@ -339,7 +403,7 @@ public class PlayerEventListener implements Listener {
             ItemPassive passive = ItemPassivesRegistry.getInstance().getPassive(itemData.getPassiveId());
             if (passive != null) {
                 passive.onEntityKill(player, item);
-                ItemLoreModifier.syncItemStats(item);
+                ItemModifier.syncItemStats(item);
             }
         }
     }
@@ -359,18 +423,42 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            applyPlayerStats(player);
-        }, 1L);
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> applyPlayerStats(player), 1L);
     }
 
     @EventHandler
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
         Player player = event.getPlayer();
         ItemStack item = event.getItem().getItemStack();
-        String itemId = ItemLoreModifier.getItemId(item);
+        String itemId = ItemModifier.getItemId(item);
 
         if (itemId == null) {
+            return;
+        }
+        if (exceedsItemLimit(player, itemId)) {
+            event.setCancelled(true);
+            UUID uuid = player.getUniqueId();
+            long now = System.currentTimeMillis();
+            if (!titleCooldown.containsKey(uuid) || now - titleCooldown.get(uuid) >= TITLE_COOLDOWN_MS) {
+                player.showTitle(Title.title(
+                        Component.text("§c§l✗ ɪᴛᴇᴍ ʟɪᴍɪᴛ"),
+                        Component.text("§7ʏᴏᴜ ᴀʟʀᴇᴀᴅʏ ʜᴀᴠᴇ ᴛʜɪꜱ ɪᴛᴇᴍ ᴏɴ ʏᴏᴜʀ ʙᴜɪʟᴅ")
+                ));
+                titleCooldown.put(uuid, now);
+            }
+            return;
+        }
+        if (!hasMainInventorySpace(player)) {
+            event.setCancelled(true);
+            UUID uuid = player.getUniqueId();
+            long now = System.currentTimeMillis();
+            if (!titleCooldown.containsKey(uuid) || now - titleCooldown.get(uuid) >= TITLE_COOLDOWN_MS) {
+                player.showTitle(Title.title(
+                        Component.text("§c§l✗ ɪɴᴠᴇɴᴛᴏʀʏ ꜰᴜʟʟ"),
+                        Component.text("§7ɴᴏ ꜱᴘᴀᴄᴇ ɪɴ ᴍᴀɪɴ ɪɴᴠᴇɴᴛᴏʀʏ")
+                ));
+                titleCooldown.put(uuid, now);
+            }
             return;
         }
 
@@ -388,9 +476,16 @@ public class PlayerEventListener implements Listener {
             }
             return;
         }
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            applyPlayerStats(player);
-        }, 1L);
+        event.setCancelled(true);
+        for (int i = 9; i <= 35; i++) {
+            ItemStack slot = player.getInventory().getItem(i);
+            if (slot == null || slot.getType().isAir()) {
+                player.getInventory().setItem(i, item.clone());
+                event.getItem().remove();
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> applyPlayerStats(player), 1L);
+                return;
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -400,7 +495,7 @@ public class PlayerEventListener implements Listener {
         List<ItemStack> leagueItems = new ArrayList<>();
         for (ItemStack drop : event.getDrops()) {
             if (drop != null && !drop.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(drop);
+                String itemId = ItemModifier.getItemId(drop);
                 if (itemId != null) {
                     leagueItems.add(drop.clone());
                 }
@@ -425,7 +520,7 @@ public class PlayerEventListener implements Listener {
                 continue;
             }
 
-            String itemId = ItemLoreModifier.getItemId(item);
+            String itemId = ItemModifier.getItemId(item);
             if (itemId == null || !itemId.equals("dark-seal")) {
                 continue;
             }
@@ -434,7 +529,7 @@ public class PlayerEventListener implements Listener {
                     (dev.ixpu.leaguemechanics.item.passives.dark_seal) ItemPassivesRegistry.getInstance().getPassive("dark-seal");
             if (darkSeal != null) {
                 darkSeal.clearStacks(player);
-                ItemLoreModifier.syncItemStats(item);
+                ItemModifier.syncItemStats(item);
             }
         }
     }
@@ -445,28 +540,25 @@ public class PlayerEventListener implements Listener {
         applyMovementSpeedModifier(player);
     }
 
-    @SuppressWarnings("removal")
     private void syncItemStats(Player player) {
         ItemStack mainHand = player.getInventory().getItemInMainHand();
 
-        if (!mainHand.getType().isAir()) {
-            ItemLoreModifier.syncItemStats(mainHand);
-        }
+        ItemModifier.syncItemStats(mainHand);
 
         ItemStack offHand = player.getInventory().getItemInOffHand();
         if (!offHand.getType().isAir()) {
-            ItemLoreModifier.syncItemStats(offHand);
+            ItemModifier.syncItemStats(offHand);
         }
 
         for (ItemStack armor : player.getInventory().getArmorContents()) {
             if (armor != null && !armor.getType().isAir()) {
-                ItemLoreModifier.syncItemStats(armor);
+                ItemModifier.syncItemStats(armor);
             }
         }
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
-                ItemLoreModifier.syncItemStats(item);
+                ItemModifier.syncItemStats(item);
             }
         }
     }
@@ -477,13 +569,13 @@ public class PlayerEventListener implements Listener {
         if (statsManager == null) return;
 
         double bonusHP = statsManager.getItemHP(player);
-        var attr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        var attr = player.getAttribute(Attribute.MAX_HEALTH);
         if (attr != null) {
             new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
         }
 
         if (bonusHP > 0) {
-            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).addModifier(
+            Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).addModifier(
                     new AttributeModifier(UUID.randomUUID(), LEAGUE_HP_MODIFIER, bonusHP, AttributeModifier.Operation.ADD_NUMBER)
             );
         }
@@ -500,14 +592,14 @@ public class PlayerEventListener implements Listener {
 
         double bonusMS = statsManager.getItemMS(player);
 
-        var attr = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        var attr = player.getAttribute(Attribute.MOVEMENT_SPEED);
         if (attr != null) {
             new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
         }
 
         if (bonusMS > 0) {
             double speedBonus = 0.1 * (bonusMS / 100.0);
-            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)).addModifier(
+            Objects.requireNonNull(player.getAttribute(Attribute.MOVEMENT_SPEED)).addModifier(
                     new AttributeModifier(UUID.randomUUID(), LEAGUE_MS_MODIFIER, speedBonus, AttributeModifier.Operation.ADD_NUMBER)
             );
         }
@@ -539,8 +631,7 @@ public class PlayerEventListener implements Listener {
     }
 
     public boolean letRunesThrough(Player player) {
-        boolean value = letRunesThroughMap.getOrDefault(player.getUniqueId(), false);
-        return value;
+        return letRunesThroughMap.getOrDefault(player.getUniqueId(), false);
     }
 
     public boolean isAnyHotbarOnCooldown(Player player) {
@@ -606,39 +697,77 @@ public class PlayerEventListener implements Listener {
     }
 
     private boolean preventBundleInsert(ItemStack currentItem, ItemStack cursor) {
-        if (cursor.getType() == Material.BUNDLE) {
-            if (currentItem != null && !currentItem.getType().isAir()) {
-                return ItemLoreModifier.getItemId(currentItem) != null;
+        if (currentItem != null && !currentItem.getType().isAir()) {
+            if (currentItem.getType() == Material.BUNDLE) {
+                if (cursor != null && !cursor.getType().isAir() && ItemModifier.getItemId(cursor) != null) {
+                    return true;
+                }
             }
         }
-        if (currentItem != null && currentItem.getType() == Material.BUNDLE) {
-            if (!cursor.getType().isAir()) {
-                return ItemLoreModifier.getItemId(cursor) != null;
-            }
+        if (cursor != null && !cursor.getType().isAir() && cursor.getType() == Material.BUNDLE) {
+            return currentItem != null && !currentItem.getType().isAir() && ItemModifier.getItemId(currentItem) != null;
         }
+
         return false;
     }
 
-    private boolean preventLeagueItemsInHotbar(InventoryClickEvent event, Player player) {
+    private boolean preventLeagueItemsInHotbar(InventoryClickEvent event) {
         int slot = event.getSlot();
 
-        if ((slot < 0 || slot > 8) && slot != 40) {
+        if (slot < 0 || slot > 8) {
             return false;
         }
 
         ItemStack cursorItem = event.getCursor();
         ItemStack slotItem = event.getCurrentItem();
 
-        if (!cursorItem.getType().isAir() && ItemLoreModifier.getItemId(cursorItem) != null) {
+        if (!cursorItem.getType().isAir() && ItemModifier.getItemId(cursorItem) != null) {
             return true;
         }
-
-        if (slotItem != null && !slotItem.getType().isAir() && ItemLoreModifier.getItemId(slotItem) != null) {
-            if (event.isShiftClick() || event.getCursor().getType().isAir()) {
-                return true;
-            }
+        if (slotItem != null && !slotItem.getType().isAir() && ItemModifier.getItemId(slotItem) != null) {
+            return cursorItem.getType().isAir() || event.isShiftClick();
         }
 
         return false;
+    }
+
+    private boolean hasMainInventorySpace(Player player) {
+        for (int i = 9; i <= 35; i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item == null || item.getType().isAir()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean exceedsItemLimit(Player player, String itemId) {
+        ItemShopRegistry registry = ItemShopRegistry.getInstance();
+        ItemShopRegistry.ShopItem shopItem = null;
+
+        for (ItemShopRegistry.ShopItem item : registry.getAllShopItems()) {
+            if (item.getId().equals(itemId)) {
+                shopItem = item;
+                break;
+            }
+        }
+
+        if (shopItem == null) {
+            return false;
+        }
+
+        int limit = shopItem.getLimit();
+        int ownedCount = 0;
+
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv != null && !inv.getType().isAir()) {
+                String invItemId = ItemModifier.getItemId(inv);
+                if (invItemId != null && invItemId.equals(itemId)) {
+                    ownedCount++;
+                }
+            }
+        }
+
+        return ownedCount >= limit;
     }
 }

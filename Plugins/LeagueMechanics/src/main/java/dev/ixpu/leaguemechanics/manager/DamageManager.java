@@ -1,7 +1,7 @@
 package dev.ixpu.leaguemechanics.manager;
 
 import dev.ixpu.leaguemechanics.player.PlayerStats;
-import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
+import dev.ixpu.leaguemechanics.util.ItemModifier;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
@@ -147,7 +147,7 @@ public class DamageManager {
                 continue;
             }
 
-            String itemId = ItemLoreModifier.getItemId(item);
+            String itemId = ItemModifier.getItemId(item);
             if (itemId != null && (itemId.equals("dorans-ring") || itemId.equals("dorans-shield"))) {
                 bonus += 10;
             }
