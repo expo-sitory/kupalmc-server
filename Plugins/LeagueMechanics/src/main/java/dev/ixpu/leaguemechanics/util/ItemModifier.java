@@ -2,8 +2,8 @@ package dev.ixpu.leaguemechanics.util;
 
 import dev.ixpu.leaguemechanics.item.ItemStatsData;
 import dev.ixpu.leaguemechanics.item.ItemStatsRegistry;
-import dev.ixpu.leaguemechanics.item.ItemPassive;
-import dev.ixpu.leaguemechanics.item.ItemPassivesRegistry;
+import dev.ixpu.leaguemechanics.item.passives.ItemPassive;
+import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -11,20 +11,27 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.Method;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemLoreModifier {
+public class ItemModifier {
     private static NamespacedKey ITEM_ID_KEY;
+    private static NamespacedKey CUSTOM_MODEL_DATA_KEY;
+    private static NamespacedKey ITEM_MODEL_KEY;
 
     public static void initialize(Plugin plugin) {
         ITEM_ID_KEY = new NamespacedKey(plugin, "league_item_id");
+        CUSTOM_MODEL_DATA_KEY = new NamespacedKey(plugin, "league_model_data");
+        ITEM_MODEL_KEY = new NamespacedKey(plugin, "league_item_model");
     }
 
     public static void setItemId(ItemStack item, String itemId) {
         if (item == null || item.getType().isAir() || item.getItemMeta() == null) return;
 
         ItemMeta meta = item.getItemMeta();
+        meta.setMaxStackSize(1);
         PersistentDataContainer data = meta.getPersistentDataContainer();
         data.set(ITEM_ID_KEY, PersistentDataType.STRING, itemId);
         item.setItemMeta(meta);
@@ -41,6 +48,43 @@ public class ItemLoreModifier {
         return null;
     }
 
+    public static void setCustomModelData(ItemStack item, int modelData) {
+        if (item == null || item.getType().isAir() || item.getItemMeta() == null) return;
+
+        ItemMeta meta = item.getItemMeta();
+        meta.setCustomModelData(modelData);
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        data.set(CUSTOM_MODEL_DATA_KEY, PersistentDataType.INTEGER, modelData);
+        item.setItemMeta(meta);
+    }
+
+    public static void setItemModel(ItemStack item, String model) {
+        if (item == null || item.getType().isAir() || item.getItemMeta() == null || model == null) return;
+
+        ItemMeta meta = item.getItemMeta();
+
+        try {
+            String[] sep = model.split(":");
+            if (sep.length != 2) return;
+
+            NamespacedKey modelKey = new NamespacedKey(sep[0], sep[1]);
+
+            try {
+                Method setItemModelMethod = ItemMeta.class.getMethod("setItemModel", NamespacedKey.class);
+                setItemModelMethod.invoke(meta, modelKey);
+                item.setItemMeta(meta);
+                return;
+            } catch (NoSuchMethodException | SecurityException | IllegalArgumentException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+                //
+            }
+            PersistentDataContainer data = meta.getPersistentDataContainer();
+            data.set(ITEM_MODEL_KEY, PersistentDataType.STRING, model);
+            item.setItemMeta(meta);
+        } catch (Exception e) {
+            //
+        }
+    }
+
     public static void syncItemStats(ItemStack item) {
         if (item == null || item.getType().isAir() || item.getItemMeta() == null) return;
 
@@ -51,6 +95,7 @@ public class ItemLoreModifier {
         if (statData == null) return;
 
         updateItemLore(item, statData);
+        updateItemModel(item, statData);
     }
 
     private static void updateItemLore(ItemStack item, ItemStatsRegistry statData) {
@@ -99,6 +144,11 @@ public class ItemLoreModifier {
 
         meta.setLore(lore);
         item.setItemMeta(meta);
+    }
+
+    private static void updateItemModel(ItemStack item, ItemStatsRegistry statData) {
+        int modelData = (int) (statData.getAd() + statData.getAp() + statData.getHp());
+        setCustomModelData(item, modelData);
     }
 
     private static String formatStat(double value) {
