@@ -2,8 +2,7 @@ package dev.ixpu.leaguemechanics.command;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 
-import dev.ixpu.leaguemechanics.item.ItemStatsData;
-import dev.ixpu.leaguemechanics.item.ItemStatsRegistry;
+import dev.ixpu.leaguemechanics.item.shop.ItemShopGUI;
 
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
@@ -13,17 +12,13 @@ import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 
-import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 public class CommandHandler implements CommandExecutor {
@@ -56,7 +51,7 @@ public class CommandHandler implements CommandExecutor {
         String subcommand = args[0].toLowerCase();
 
         return switch (subcommand) {
-            case "give" -> handleGive(player, args);
+            case "shop" -> handleShop(player);
             case "reload" -> {
                 if (!player.hasPermission("leaguemechanics.admin")) {
                     player.sendMessage(Component.text("§cYou don't have permission to use this command."));
@@ -75,45 +70,12 @@ public class CommandHandler implements CommandExecutor {
         };
     }
 
-    private boolean handleGive(Player player, String[] args) {
-        if (!player.hasPermission("leaguemechanics.admin")) {
+    private boolean handleRunesCommand(Player player, String[] args) {
+        if (!player.hasPermission("leaguemechanics.user")) {
             player.sendMessage(Component.text("§cYou don't have permission to use this command."));
             return true;
         }
 
-        if (args.length < 2) {
-            player.sendMessage(Component.text("§cUsage: /lm give <itemId>"));
-            return true;
-        }
-
-        String itemId = args[1].toLowerCase();
-        ItemStatsRegistry itemData = ItemStatsData.getInstance().getItem(itemId);
-
-        if (itemData == null) {
-            player.sendMessage(Component.text("§cItem not found: " + itemId));
-            return true;
-        }
-
-        ItemStack item = new ItemStack(Material.NETHERITE_INGOT);
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.displayName(Component.text("§e" + itemData.getName()));
-            meta.setLore(null);
-            item.setItemMeta(meta);
-        }
-        ItemLoreModifier.setItemId(item, itemId);
-        ItemLoreModifier.syncItemStats(item);
-
-        player.getInventory().addItem(item);
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            playerEventListener.applyPlayerStats(player);
-        }, 1L);
-
-        player.sendMessage(Component.text("§a✓ Gave " + itemData.getName()));
-        return true;
-    }
-
-    private boolean handleRunesCommand(Player player, String[] args) {
         if (args.length < 2) {
             player.sendMessage(Component.text("§cUsage: /lm runes select primary <path> <keystone> | /lm runes clear"));
             return true;
@@ -185,6 +147,15 @@ public class CommandHandler implements CommandExecutor {
         runePersistence.clearAllRunes(player.getUniqueId());
         runeManager.clearPlayerRunes(player);
         player.sendMessage(Component.text("§a✓ All runes cleared"));
+        return true;
+    }
+
+    private boolean handleShop(Player player) {
+        if (!player.hasPermission("leaguemechanics.user")) {
+            player.sendMessage(Component.text("§cYou don't have permission to use this command."));
+            return true;
+        }
+        ItemShopGUI.openShop(player);
         return true;
     }
 }
