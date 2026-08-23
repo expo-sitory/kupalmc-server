@@ -4,11 +4,12 @@ import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import dev.ixpu.leaguemechanics.manager.RuneManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
+import dev.ixpu.leaguemechanics.manager.ItemShopManager;
 
 import dev.ixpu.leaguemechanics.command.CommandHandler;
 import dev.ixpu.leaguemechanics.command.CommandTabCompletions;
 
-import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
+import dev.ixpu.leaguemechanics.util.ItemModifier;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import org.bukkit.Bukkit;
@@ -67,12 +68,13 @@ public class LeagueMechanics extends JavaPlugin {
         reloadConfig();
         debugMode = getConfig().getBoolean("debug", false);
 
-        ItemLoreModifier.initialize(this);
+        ItemModifier.initialize(this);
         registerRunes();
         registerCommands();
         registerRegenTask();
 
         Bukkit.getPluginManager().registerEvents(playerEventListener, this);
+        Bukkit.getPluginManager().registerEvents(ItemShopManager.getInstance(), this);
 
         startRuneTicker();
 
@@ -95,7 +97,7 @@ public class LeagueMechanics extends JavaPlugin {
             if (runeManager != null) {
                 runeManager.tickAllPlayerRunes();
             }
-        }, 0L, 1L);
+        }, 0L, 5L);
     }
 
     public static LeagueMechanics getInstance() {
@@ -157,11 +159,6 @@ public class LeagueMechanics extends JavaPlugin {
     }
 
     public void registerRegenTask() {
-        registerHealthRegenTask();
-        registerHungerRegenTask();
-    }
-
-    private void registerHealthRegenTask() {
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -169,31 +166,19 @@ public class LeagueMechanics extends JavaPlugin {
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     double healthRegen = itemStatsManager.getItemHR(player);
+                    double saturationRegen = itemStatsManager.getItemSR(player);
 
                     if (healthRegen > 0) {
                         double newHealth = Math.min(player.getHealth() + healthRegen, player.getMaxHealth());
                         player.setHealth(newHealth);
                     }
-                }
-            }
-        }.runTaskTimer(this, 0, 300);
-    }
-
-    private void registerHungerRegenTask() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                ItemStatsManager itemStatsManager = getStatsManager();
-
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    double saturationRegen = itemStatsManager.getItemSR(player);
 
                     if (saturationRegen > 0) {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 1, (int) saturationRegen, false, false));
                     }
                 }
             }
-        }.runTaskTimer(this, 0, 500);
+        }.runTaskTimer(this, 0, 300);
     }
 
     private void registerRunes() {
