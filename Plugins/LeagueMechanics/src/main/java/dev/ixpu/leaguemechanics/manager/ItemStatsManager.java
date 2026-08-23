@@ -1,17 +1,27 @@
 package dev.ixpu.leaguemechanics.manager;
 
-import dev.ixpu.leaguemechanics.util.ItemLoreModifier;
+import dev.ixpu.leaguemechanics.util.ItemModifier;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class ItemStatsManager {
+    private static final long CACHE_TTL_MS = 100;
+    private static final String[] STAT_TYPES = {
+            "HP", "HR", "AD", "AP", "TD", "AS", "AR", "MR", "SR", "LS", "CC", "MS", "APEN", "MPEN"
+    };
+
+    private final Map<UUID, Map<String, Double>> statsCache = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> cacheTimestamp = new ConcurrentHashMap<>();
 
     public int countLeagueItems(Player player) {
         int count = 0;
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
+                String itemId = ItemModifier.getItemId(item);
                 if (itemId != null) {
                     count++;
                 }
@@ -20,22 +30,53 @@ public class ItemStatsManager {
         return count;
     }
 
-    private double getStatWithLimit(Player player, String statType) {
-        double total = 0;
-        int count = 0;
+    public void invalidateCache(UUID uuid) {
+        statsCache.remove(uuid);
+        cacheTimestamp.remove(uuid);
+    }
 
+    private Map<String, Double> computeAllStats(Player player) {
+        Map<String, Double> stats = new HashMap<>();
+        for (String stat : STAT_TYPES) {
+            stats.put(stat, 0.0);
+        }
+
+        int count = 0;
         for (ItemStack item : player.getInventory().getContents()) {
             if (count >= 6) break;
 
             if (item != null && !item.getType().isAir()) {
-                String itemId = ItemLoreModifier.getItemId(item);
+                String itemId = ItemModifier.getItemId(item);
                 if (itemId != null) {
-                    total += ItemLoreModifier.getStat(item, statType);
+                    for (String stat : STAT_TYPES) {
+                        double value = ItemModifier.getStat(item, stat);
+                        stats.merge(stat, value, Double::sum);
+                    }
                     count++;
                 }
             }
         }
-        return total;
+
+        return stats;
+    }
+
+    private double getStatWithLimit(Player player, String statType) {
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+
+        Long lastUpdate = cacheTimestamp.get(uuid);
+        if (lastUpdate != null && (now - lastUpdate) < CACHE_TTL_MS) {
+            Map<String, Double> cached = statsCache.get(uuid);
+            if (cached != null) {
+                return cached.getOrDefault(statType, 0.0);
+            }
+        }
+
+        Map<String, Double> stats = computeAllStats(player);
+        statsCache.put(uuid, stats);
+        cacheTimestamp.put(uuid, now);
+
+        return stats.getOrDefault(statType, 0.0);
     }
 
     public double getItemHP(Player player) {
