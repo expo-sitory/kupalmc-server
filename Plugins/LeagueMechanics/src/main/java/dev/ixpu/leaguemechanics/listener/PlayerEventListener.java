@@ -118,7 +118,7 @@ public class PlayerEventListener implements Listener {
                 String itemId = ItemModifier.getItemId(clickedItem);
                 if (itemId != null) {
                     event.setCancelled(true);
-                    player.sendMessage(Component.text("§cLeague items cannot be shift-clicked"));
+                    moveLeagueItemToMainInventory(player, clickedItem);
                     return;
                 }
             }
@@ -131,13 +131,13 @@ public class PlayerEventListener implements Listener {
                 ItemStack hotbarItem = player.getInventory().getItem(hotbarButton);
                 if (hotbarItem != null && ItemModifier.getItemId(hotbarItem) != null) {
                     event.setCancelled(true);
-                    player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
+                    moveLeagueItemToMainInventory(player, hotbarItem);
                     return;
                 }
             }
             if (!cursor.getType().isAir() && ItemModifier.getItemId(cursor) != null) {
                 event.setCancelled(true);
-                player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
+                moveLeagueItemToMainInventory(player, cursor);
                 return;
             }
         }
@@ -146,11 +146,7 @@ public class PlayerEventListener implements Listener {
         if ((slot >= 0 && slot <= 8) || slot == 40) {
             if (!cursor.getType().isAir() && ItemModifier.getItemId(cursor) != null) {
                 event.setCancelled(true);
-                if (slot == 40) {
-                    player.sendMessage(Component.text("§cLeague items cannot be placed in your off-hand"));
-                } else {
-                    player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
-                }
+                moveLeagueItemToMainInventory(player, cursor);
                 return;
             }
         }
@@ -161,7 +157,7 @@ public class PlayerEventListener implements Listener {
         }
         if (preventLeagueItemsInHotbar(event)) {
             event.setCancelled(true);
-            player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
+            moveLeagueItemToMainInventory(player, cursor);
             return;
         }
 
@@ -177,7 +173,7 @@ public class PlayerEventListener implements Listener {
             }
         }
 
-        if (cursor != null && !cursor.getType().isAir() && event.getClickedInventory() != player.getInventory()) {
+        if (!cursor.getType().isAir() && event.getClickedInventory() != player.getInventory()) {
             String cursorItemId = ItemModifier.getItemId(cursor);
             if (cursorItemId != null) {
                 ItemShopData shopData = ItemShopData.getInstance();
@@ -567,7 +563,7 @@ public class PlayerEventListener implements Listener {
         if (!leagueItems.isEmpty()) {
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 for (ItemStack leagueItem : leagueItems) {
-                    player.getInventory().addItem(leagueItem);
+                    moveLeagueItemToMainInventory(player, leagueItem);
                 }
             }, 1L);
         }
@@ -590,6 +586,20 @@ public class PlayerEventListener implements Listener {
                 ItemModifier.syncItemStats(item);
             }
         }
+    }
+
+    private void moveLeagueItemToMainInventory(Player player, ItemStack item) {
+        if (item == null || item.getType().isAir()) {
+            return;
+        }
+        for (int i = 9; i <= 35; i++) {
+            ItemStack slot = player.getInventory().getItem(i);
+            if (slot == null || slot.getType().isAir()) {
+                player.getInventory().setItem(i, item.clone());
+                return;
+            }
+        }
+        player.getWorld().dropItemNaturally(player.getLocation(), item.clone());
     }
 
     public void applyPlayerStats(Player player) {
