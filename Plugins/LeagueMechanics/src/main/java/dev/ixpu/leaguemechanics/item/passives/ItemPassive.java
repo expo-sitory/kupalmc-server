@@ -1,4 +1,4 @@
-package dev.ixpu.leaguemechanics.item;
+package dev.ixpu.leaguemechanics.item.passives;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

@@ -1,9 +1,4 @@
-package dev.ixpu.leaguemechanics.item;
-
-import dev.ixpu.leaguemechanics.item.passives.cull;
-import dev.ixpu.leaguemechanics.item.passives.dark_seal;
-import dev.ixpu.leaguemechanics.item.passives.dorans_ring;
-import dev.ixpu.leaguemechanics.item.passives.dorans_shield;
+package dev.ixpu.leaguemechanics.item.passives;
 
 import java.util.HashMap;
 import java.util.Map;
