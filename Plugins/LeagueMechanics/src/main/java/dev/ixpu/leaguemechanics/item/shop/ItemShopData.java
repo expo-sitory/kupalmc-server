@@ -3,6 +3,8 @@ package dev.ixpu.leaguemechanics.item.shop;
 import org.bukkit.inventory.ItemRarity;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 public class ItemShopData {
     private static ItemShopData instance;
@@ -11,6 +13,7 @@ public class ItemShopData {
     private final Map<String, Integer> itemSlots = new HashMap<>();
     private final Map<String, String> itemModels = new HashMap<>();
     private final Map<String, ItemRarity> itemRarities = new HashMap<>();
+    private final Map<String, String> itemGroups = new HashMap<>(); // Item ID -> Group name
 
     private ItemShopData() {
         loadDefaultPrices();
@@ -26,32 +29,29 @@ public class ItemShopData {
 
     private void loadDefaultPrices() {
 
-        // STARTER
-
-        addItem("cull", 18, 1, 0, ItemRarity.COMMON);
-        addItem("dark-seal", 15, 1, 1, ItemRarity.COMMON);
-        addItem("dorans-blade", 18, 1, 2, ItemRarity.COMMON);
-        addItem("dorans-bow", 17, 1, 3, ItemRarity.COMMON);
-        addItem("dorans-helm", 18, 1, 4, ItemRarity.COMMON);
-        addItem("dorans-ring", 17, 1, 5, ItemRarity.COMMON);
-        addItem("dorans-shield", 18, 1, 6, ItemRarity.COMMON);
+        // STARTER ITEMS
+        addItem("cull", 18, 1, 0, ItemRarity.COMMON, null);
+        addItem("dark-seal", 15, 1, 1, ItemRarity.COMMON, null);
+        addItem("dorans-blade", 18, 1, 2, ItemRarity.COMMON, "dorans");
+        addItem("dorans-bow", 17, 1, 3, ItemRarity.COMMON, "dorans");
+        addItem("dorans-helm", 18, 1, 4, ItemRarity.COMMON, "dorans");
+        addItem("dorans-ring", 17, 1, 5, ItemRarity.COMMON, "dorans");
+        addItem("dorans-shield", 18, 1, 6, ItemRarity.COMMON, "dorans");
 
         // BASIC ITEMS
-        addItem("amplifying-tome", 17, 6, 27, ItemRarity.UNCOMMON);
-        addItem("blasting-wand", 24, 6, 28, ItemRarity.UNCOMMON);
-        addItem("needlessly-large-rod", 28, 6, 29, ItemRarity.UNCOMMON);
-        addItem("long-sword", 15, 6, 18, ItemRarity.UNCOMMON);
-        addItem("pickaxe", 24, 6, 19, ItemRarity.UNCOMMON);
-        addItem("b.f-sword", 29, 6, 20, ItemRarity.UNCOMMON);
-        addItem("cloth-armor", 14, 6, 22, ItemRarity.UNCOMMON);
-        addItem("null-magic-mantle", 17, 6, 31, ItemRarity.UNCOMMON);
-        addItem("ruby-crystal", 17, 6, 40, ItemRarity.UNCOMMON);
-        addItem("rejuvenation-bead", 14, 6, 24, ItemRarity.UNCOMMON);
-        addItem("faeri-charm", 11, 6, 25, ItemRarity.UNCOMMON);
-        addItem("dagger", 13, 6, 33, ItemRarity.UNCOMMON);
-        addItem("boots", 14, 1, 34, ItemRarity.UNCOMMON);
-
-
+        addItem("amplifying-tome", 17, 6, 27, ItemRarity.COMMON, null);
+        addItem("blasting-wand", 24, 6, 28, ItemRarity.UNCOMMON, null);
+        addItem("needlessly-large-rod", 28, 6, 29, ItemRarity.RARE, null);
+        addItem("long-sword", 15, 6, 18, ItemRarity.COMMON, null);
+        addItem("pickaxe", 24, 6, 19, ItemRarity.UNCOMMON, null);
+        addItem("b.f-sword", 29, 6, 20, ItemRarity.EPIC, null);
+        addItem("cloth-armor", 14, 6, 22, ItemRarity.COMMON, null);
+        addItem("null-magic-mantle", 17, 6, 31, ItemRarity.UNCOMMON, null);
+        addItem("ruby-crystal", 17, 6, 40, ItemRarity.COMMON, null);
+        addItem("rejuvenation-bead", 14, 6, 24, ItemRarity.COMMON, null);
+        addItem("faeri-charm", 11, 6, 25, ItemRarity.COMMON, null);
+        addItem("dagger", 13, 6, 33, ItemRarity.COMMON, null);
+        addItem("boots", 14, 1, 34, ItemRarity.UNCOMMON, null);
     }
 
     private void loadDefaultModels() {
@@ -77,11 +77,14 @@ public class ItemShopData {
         itemModels.put("ruby-crystal", "minecraft:red_dye");
     }
 
-    private void addItem(String itemId, int price, int limit, int slot, ItemRarity rarity) {
+    private void addItem(String itemId, int price, int limit, int slot, ItemRarity rarity, String group) {
         itemPrices.put(itemId, price);
         itemLimits.put(itemId, limit);
         itemSlots.put(itemId, slot);
         itemRarities.put(itemId, rarity);
+        if (group != null) {
+            itemGroups.put(itemId, group);
+        }
     }
 
     public int getPrice(String itemId) {
@@ -118,5 +121,13 @@ public class ItemShopData {
 
     public boolean hasRarity(String itemId) {
         return itemRarities.containsKey(itemId);
+    }
+
+    public String getGroup(String itemId) {
+        return itemGroups.get(itemId);
+    }
+
+    public boolean hasGroup(String itemId) {
+        return itemGroups.containsKey(itemId);
     }
 }

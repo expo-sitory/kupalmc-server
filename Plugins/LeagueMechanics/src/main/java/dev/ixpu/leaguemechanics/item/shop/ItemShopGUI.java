@@ -59,6 +59,8 @@ public class ItemShopGUI {
 
             if (canBuy) {
                 meta.setEnchantmentGlintOverride(true);
+            } else if (playerOwnsConflictingItem(player, shopItem)) {
+                //
             }
 
             List<String> lore = new ArrayList<>();
@@ -178,5 +180,26 @@ public class ItemShopGUI {
         } else {
             return String.format("%.1f", value);
         }
+    }
+
+    private static boolean playerOwnsConflictingItem(Player player, ItemShopRegistry.ShopItem shopItem) {
+        ItemShopData shopData = ItemShopData.getInstance();
+        String itemGroup = shopData.getGroup(shopItem.getId());
+        if (itemGroup == null) {
+            return false;
+        }
+
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv != null && !inv.getType().isAir()) {
+                String itemId = ItemModifier.getItemId(inv);
+                if (itemId != null && !itemId.equals(shopItem.getId())) {
+                    String ownerGroup = shopData.getGroup(itemId);
+                    if (ownerGroup != null && ownerGroup.equals(itemGroup)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
