@@ -24,12 +24,6 @@ public class ItemStatsRegistry {
 
     public ItemStatsRegistry(String id, String name,
                              double hp, double hr, double ad, double ap, double td, double as,
-                             double ar, double mr, double ls, double cc, double sr, double ms) {
-        this(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms, false, null);
-    }
-
-    public ItemStatsRegistry(String id, String name,
-                             double hp, double hr, double ad, double ap, double td, double as,
                              double ar, double mr, double ls, double cc, double sr, double ms,
                              boolean hasPassive, String passiveId) {
         this.id = id;
@@ -71,9 +65,6 @@ public class ItemStatsRegistry {
     public double getHr() {
         return hr;
     }
-    public void setHr(double hr) {
-        this.hr = hr;
-    }
 
 
     public double getAd() {
@@ -94,57 +85,33 @@ public class ItemStatsRegistry {
     public double getTd() {
         return td;
     }
-    public void setTd(double td) {
-        this.td = td;
-    }
 
     public double getAs() {
         return as;
-    }
-    public void setAs(double as) {
-        this.as = as;
     }
 
     public double getAr() {
         return ar;
     }
-    public void setAr(double ar) {
-        this.ar = ar;
-    }
 
     public double getMr() {
         return mr;
-    }
-    public void setMr(double mr) {
-        this.mr = mr;
     }
 
     public double getLs() {
         return ls;
     }
-    public void setLs(double ls) {
-        this.ls = ls;
-    }
 
     public double getCc() {
         return cc;
-    }
-    public void setCc(double cc) {
-        this.cc = cc;
     }
 
     public double getSr() {
         return sr;
     }
-    public void setSr(double sr) {
-        this.sr = sr;
-    }
 
     public double getMs() {
         return ms;
-    }
-    public void setMs(double ms) {
-        this.ms = ms;
     }
 
     public boolean hasPassive() {
