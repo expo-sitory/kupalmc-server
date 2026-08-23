@@ -126,11 +126,14 @@ public class PlayerEventListener implements Listener {
 
         if (event.getAction() == InventoryAction.HOTBAR_SWAP
                 || event.getAction() == InventoryAction.HOTBAR_MOVE_AND_READD) {
-            ItemStack hotbarItem = player.getInventory().getItem(event.getHotbarButton());
-            if (hotbarItem != null && ItemModifier.getItemId(hotbarItem) != null) {
-                event.setCancelled(true);
-                player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
-                return;
+            int hotbarButton = event.getHotbarButton();
+            if (hotbarButton >= 0 && hotbarButton < 9) {
+                ItemStack hotbarItem = player.getInventory().getItem(hotbarButton);
+                if (hotbarItem != null && ItemModifier.getItemId(hotbarItem) != null) {
+                    event.setCancelled(true);
+                    player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
+                    return;
+                }
             }
             if (!cursor.getType().isAir() && ItemModifier.getItemId(cursor) != null) {
                 event.setCancelled(true);
