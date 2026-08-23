@@ -81,6 +81,12 @@ public class ItemShopManager implements Listener {
         if (playerOwnsItem(player, shopItem)) {
             return false;
         }
+        if (playerOwnsConflictingItem(player, shopItem)) {
+            ItemShopData shopData = ItemShopData.getInstance();
+            String group = shopData.getGroup(shopItem.getId());
+            player.sendMessage(Component.text("§cYou can only apply one (1) " + group + " item to your build"));
+            return false;
+        }
         if (!hasInventorySpace(player)) {
             player.sendMessage(Component.text("§cInventory full. Need space in main inventory to purchase."));
             return false;
@@ -103,7 +109,7 @@ public class ItemShopManager implements Listener {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            meta.setDisplayName("§f" + shopItem.getDisplayName());
+            meta.setDisplayName("§e" + shopItem.getDisplayName());
             meta.setMaxStackSize(1);
             ItemShopData shopData = ItemShopData.getInstance();
             meta.setRarity(shopData.getRarity(shopItem.getId()));
@@ -150,6 +156,29 @@ public class ItemShopManager implements Listener {
                 if (inv.getItemMeta().getDisplayName().contains(shopItem.getDisplayName())) {
                     ownedCount++;
                     if (ownedCount >= limit) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean playerOwnsConflictingItem(Player player, ItemShopRegistry.ShopItem shopItem) {
+        ItemShopData shopData = ItemShopData.getInstance();
+        String itemGroup = shopData.getGroup(shopItem.getId());
+
+        if (itemGroup == null) {
+            return false;
+        }
+
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv != null && !inv.getType().isAir()) {
+                String itemId = ItemModifier.getItemId(inv);
+                if (itemId != null && !itemId.equals(shopItem.getId())) {
+                    String ownerGroup = shopData.getGroup(itemId);
+                    if (ownerGroup != null && ownerGroup.equals(itemGroup)) {
                         return true;
                     }
                 }
