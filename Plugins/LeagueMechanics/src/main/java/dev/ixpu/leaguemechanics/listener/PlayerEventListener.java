@@ -112,6 +112,18 @@ public class PlayerEventListener implements Listener {
         ItemStack currentItem = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
 
+        if (event.isShiftClick()) {
+            ItemStack clickedItem = event.getCurrentItem();
+            if (clickedItem != null && !clickedItem.getType().isAir()) {
+                String itemId = ItemModifier.getItemId(clickedItem);
+                if (itemId != null) {
+                    event.setCancelled(true);
+                    player.sendMessage(Component.text("§cLeague items cannot be shift-clicked"));
+                    return;
+                }
+            }
+        }
+
         if (event.getAction() == InventoryAction.HOTBAR_SWAP
                 || event.getAction() == InventoryAction.HOTBAR_MOVE_AND_READD) {
             ItemStack hotbarItem = player.getInventory().getItem(event.getHotbarButton());
@@ -120,21 +132,10 @@ public class PlayerEventListener implements Listener {
                 player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
                 return;
             }
-
             if (!cursor.getType().isAir() && ItemModifier.getItemId(cursor) != null) {
                 event.setCancelled(true);
                 player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
                 return;
-            }
-        }
-        if (event.isShiftClick()) {
-            if (currentItem != null && !currentItem.getType().isAir()) {
-                String itemId = ItemModifier.getItemId(currentItem);
-                if (itemId != null) {
-                    event.setCancelled(true);
-                    player.sendMessage(Component.text("§cLeague items cannot be placed in your hotbar"));
-                    return;
-                }
             }
         }
 
@@ -169,6 +170,30 @@ public class PlayerEventListener implements Listener {
                     event.setCancelled(true);
                     player.sendMessage(Component.text("§cLeague Items Count: 6/6"));
                     return;
+                }
+            }
+        }
+
+        if (cursor != null && !cursor.getType().isAir() && event.getClickedInventory() != player.getInventory()) {
+            String cursorItemId = ItemModifier.getItemId(cursor);
+            if (cursorItemId != null) {
+                ItemShopData shopData = ItemShopData.getInstance();
+                String itemGroup = shopData.getGroup(cursorItemId);
+
+                if (itemGroup != null) {
+                    for (ItemStack inv : player.getInventory().getContents()) {
+                        if (inv != null && !inv.getType().isAir()) {
+                            String invItemId = ItemModifier.getItemId(inv);
+                            if (invItemId != null && !invItemId.equals(cursorItemId)) {
+                                String ownerGroup = shopData.getGroup(invItemId);
+                                if (ownerGroup != null && ownerGroup.equals(itemGroup)) {
+                                    event.setCancelled(true);
+                                    player.sendMessage(Component.text("§cYou can only apply one (1) " + itemGroup + " item to your build."));
+                                    return;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
