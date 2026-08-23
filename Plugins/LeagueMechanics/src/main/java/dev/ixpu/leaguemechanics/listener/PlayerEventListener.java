@@ -504,6 +504,7 @@ public class PlayerEventListener implements Listener {
             }
             return;
         }
+        String group = "";
         if (itemGroup != null) {
             for (ItemStack inv : player.getInventory().getContents()) {
                 if (inv != null && !inv.getType().isAir()) {
@@ -512,7 +513,18 @@ public class PlayerEventListener implements Listener {
                         String ownerGroup = shopData.getGroup(invItemId);
                         if (ownerGroup != null && ownerGroup.equals(itemGroup)) {
                             event.setCancelled(true);
-                            player.sendMessage(Component.text("§cYou can only apply one (1) " + itemGroup + " item to your build."));
+                            UUID uuid = player.getUniqueId();
+                            long now = System.currentTimeMillis();
+                            if (!titleCooldown.containsKey(uuid) || now - titleCooldown.get(uuid) >= TITLE_COOLDOWN_MS) {
+                                if (itemGroup.equals("dorans")) {
+                                    group = "ᴅᴏʀᴀɴ'ꜱ";
+                                }
+                                player.showTitle(Title.title(
+                                        Component.text("§c§l✗ ɪᴛᴇᴍ ɢʀᴏᴜᴘ ʟɪᴍɪᴛ"),
+                                        Component.text("§7ʏᴏᴜ ᴄᴀɴ ᴏɴʟʏ ᴀᴘᴘʟʏ 1 ᴏꜰ " + group + " §7ɪᴛᴇᴍ ᴛᴏ ʏᴏᴜʀ ʙᴜɪʟᴅ")
+                                ));
+                                titleCooldown.put(uuid, now);
+                            }
                             return;
                         }
                     }
