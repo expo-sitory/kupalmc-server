@@ -11,7 +11,7 @@ public class ItemShopData {
     private final Map<String, Integer> itemSlots = new HashMap<>();
     private final Map<String, String> itemModels = new HashMap<>();
     private final Map<String, ItemRarity> itemRarities = new HashMap<>();
-    private final Map<String, String> itemGroups = new HashMap<>(); // Item ID -> Group name
+    private final Map<String, String> itemGroups = new HashMap<>();
 
     private ItemShopData() {
         loadDefaultPrices();
@@ -37,18 +37,18 @@ public class ItemShopData {
         addItem("dorans-shield", 18, 1, 6, ItemRarity.COMMON, "dorans");
 
         // BASIC ITEMS
-        addItem("amplifying-tome", 17, 6, 27, ItemRarity.COMMON, null);
+        addItem("amplifying-tome", 17, 6, 27, ItemRarity.UNCOMMON, null);
         addItem("blasting-wand", 24, 6, 28, ItemRarity.UNCOMMON, null);
-        addItem("needlessly-large-rod", 28, 6, 29, ItemRarity.RARE, null);
-        addItem("long-sword", 15, 6, 18, ItemRarity.COMMON, null);
+        addItem("needlessly-large-rod", 28, 6, 29, ItemRarity.UNCOMMON, null);
+        addItem("long-sword", 15, 6, 18, ItemRarity.UNCOMMON, null);
         addItem("pickaxe", 24, 6, 19, ItemRarity.UNCOMMON, null);
-        addItem("b.f-sword", 29, 6, 20, ItemRarity.EPIC, null);
-        addItem("cloth-armor", 14, 6, 22, ItemRarity.COMMON, null);
+        addItem("b.f-sword", 29, 6, 20, ItemRarity.UNCOMMON, null);
+        addItem("cloth-armor", 14, 6, 22, ItemRarity.UNCOMMON, null);
         addItem("null-magic-mantle", 17, 6, 31, ItemRarity.UNCOMMON, null);
-        addItem("ruby-crystal", 17, 6, 40, ItemRarity.COMMON, null);
-        addItem("rejuvenation-bead", 14, 6, 24, ItemRarity.COMMON, null);
-        addItem("faeri-charm", 11, 6, 25, ItemRarity.COMMON, null);
-        addItem("dagger", 13, 6, 33, ItemRarity.COMMON, null);
+        addItem("ruby-crystal", 17, 6, 40, ItemRarity.UNCOMMON, null);
+        addItem("rejuvenation-bead", 14, 6, 24, ItemRarity.UNCOMMON, null);
+        addItem("faeri-charm", 11, 6, 25, ItemRarity.UNCOMMON, null);
+        addItem("dagger", 13, 6, 33, ItemRarity.UNCOMMON, null);
         addItem("boots", 14, 1, 34, ItemRarity.UNCOMMON, null);
 
     }
