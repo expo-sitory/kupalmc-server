@@ -32,7 +32,10 @@ public class CommandTabCompletions implements org.bukkit.command.TabCompleter {
 
         if (args.length == 1) {
             completions.add("runes");
-            completions.add("reload");
+            if (player.hasPermission("leaguemechanics.admin")) {
+                completions.add("reload");
+            }
+            completions.add("shop");
             return filter(completions, args[0]);
         }
 
