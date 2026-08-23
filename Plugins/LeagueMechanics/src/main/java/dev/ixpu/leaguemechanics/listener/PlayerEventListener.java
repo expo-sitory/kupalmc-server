@@ -5,6 +5,7 @@ import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.item.*;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassive;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
+import dev.ixpu.leaguemechanics.item.shop.ItemShopData;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopGUI;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopRegistry;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
@@ -429,8 +430,10 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
         Player player = event.getPlayer();
+        ItemShopData shopData = ItemShopData.getInstance();
         ItemStack item = event.getItem().getItemStack();
         String itemId = ItemModifier.getItemId(item);
+        String itemGroup = shopData.getGroup(itemId);
 
         if (itemId == null) {
             return;
@@ -475,6 +478,21 @@ public class PlayerEventListener implements Listener {
                 titleCooldown.put(uuid, now);
             }
             return;
+        }
+        if (itemGroup != null) {
+            for (ItemStack inv : player.getInventory().getContents()) {
+                if (inv != null && !inv.getType().isAir()) {
+                    String invItemId = ItemModifier.getItemId(inv);
+                    if (invItemId != null && !invItemId.equals(itemId)) {
+                        String ownerGroup = shopData.getGroup(invItemId);
+                        if (ownerGroup != null && ownerGroup.equals(itemGroup)) {
+                            event.setCancelled(true);
+                            player.sendMessage(Component.text("§cYou can only apply one (1) " + itemGroup + " item to your build."));
+                            return;
+                        }
+                    }
+                }
+            }
         }
         event.setCancelled(true);
         for (int i = 9; i <= 35; i++) {
