@@ -86,7 +86,7 @@ public class FleetFootwork extends StacksHandler {
         }
 
         if (currentStacks >= MAXIMUM_STACKS) {
-            double maxHealth = Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
+            double maxHealth = Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).getValue();
             double currentHealth = player.getHealth();
             double missingHealth = maxHealth - currentHealth;
             double scaledHealPercent = getScaledHealPercentage(player);
@@ -156,7 +156,7 @@ public class FleetFootwork extends StacksHandler {
                 AttributeModifier.Operation.MULTIPLY_SCALAR_1
         );
 
-        var movementAttr = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        var movementAttr = player.getAttribute(Attribute.MOVEMENT_SPEED);
         if (movementAttr != null) {
             movementAttr.addModifier(modifier);
             activeState.computeIfAbsent(playerUUID, k -> new ArrayList<>()).add(modifier);
@@ -176,7 +176,7 @@ public class FleetFootwork extends StacksHandler {
         List<AttributeModifier> mods = activeState.getOrDefault(playerUUID, new ArrayList<>());
         for (AttributeModifier mod : mods) {
             try {
-                Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)).removeModifier(mod);
+                Objects.requireNonNull(player.getAttribute(Attribute.MOVEMENT_SPEED)).removeModifier(mod);
                 player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_BREEZE_LAND, 1.0f, 1.2f);
             } catch (Exception e) {
                 //

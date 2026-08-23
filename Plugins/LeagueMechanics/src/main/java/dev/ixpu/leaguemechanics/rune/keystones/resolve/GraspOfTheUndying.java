@@ -124,7 +124,7 @@ public class GraspOfTheUndying extends StacksHandler {
 
         livingTarget.setHealth(newHealth);
 
-        var maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        var maxHealthAttr = player.getAttribute(Attribute.MAX_HEALTH);
         if (maxHealthAttr != null) {
             double healPercent = HEAL_PERCENT / 100;
             double maxHealth = maxHealthAttr.getValue();
