@@ -3,8 +3,6 @@ package dev.ixpu.leaguemechanics.item.shop;
 import org.bukkit.inventory.ItemRarity;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
 
 public class ItemShopData {
     private static ItemShopData instance;
@@ -52,6 +50,7 @@ public class ItemShopData {
         addItem("faeri-charm", 11, 6, 25, ItemRarity.COMMON, null);
         addItem("dagger", 13, 6, 33, ItemRarity.COMMON, null);
         addItem("boots", 14, 1, 34, ItemRarity.UNCOMMON, null);
+
     }
 
     private void loadDefaultModels() {

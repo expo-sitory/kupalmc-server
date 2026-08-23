@@ -79,5 +79,6 @@ public class ItemShopRegistry {
         public String getId() {
             return stats.getId();
         }
+
     }
 }
