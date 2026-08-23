@@ -8,6 +8,7 @@ import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import dev.ixpu.leaguemechanics.item.passives.dark_seal;
+
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -85,7 +86,7 @@ public class PlayerStats {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         ItemStack weapon = player.getInventory().getItemInMainHand();
         double itemAD = 0;
-        double baseAD = BASE_ATTACK_DAMAGE + player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getValue();
+        double baseAD = BASE_ATTACK_DAMAGE + player.getAttribute(Attribute.ATTACK_DAMAGE).getValue();
         double enchantAD = getWeaponEnchant(player);
         if (isWeapon(weapon)) {
             baseAD++;
@@ -155,7 +156,7 @@ public class PlayerStats {
     public double getPlayerAR(Player player) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         double itemAR = 0;
-        double baseAR = BASE_ARMOR + player.getAttribute(Attribute.GENERIC_ARMOR).getValue();
+        double baseAR = BASE_ARMOR + player.getAttribute(Attribute.ARMOR).getValue();
         double enchantAR = getArmorEnchant(player);
         if (itemStatsManager != null) {
             itemAR += itemStatsManager.getItemAR(player);
