@@ -126,7 +126,7 @@ public class ItemModifier {
             lore.add("§6🍖 " + formatStat(statData.getSr()) + " §fSaturation Regen per 25 sec.");
         }
         if (statData.getAs() > 0) {
-            lore.add("§c⚔ " + formatStat(statData.getAs()) + "% §fAttack Speed");
+            lore.add("§c➺ " + formatStat(statData.getAs()) + "% §fAttack Speed");
         }
         if (statData.getMs() > 0) {
             lore.add("§7👣 " + formatStat(statData.getMs()) + "% §fMovement Speed");
