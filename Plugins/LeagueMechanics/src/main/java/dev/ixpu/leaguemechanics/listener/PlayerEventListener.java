@@ -35,7 +35,6 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.util.Vector;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
@@ -61,6 +60,7 @@ public class PlayerEventListener implements Listener {
     private final ItemStatsManager itemStatsManager;
 
     private final Map<UUID, Long> titleCooldown = new HashMap<>();
+    private final Map<UUID, Long> attackCooldown = new HashMap<>();
     private final Map<UUID, Boolean> letRunesThroughMap = new HashMap<>();
 
     public PlayerEventListener(LeagueMechanics plugin, RunePersistence runePersistence) {
@@ -112,52 +112,9 @@ public class PlayerEventListener implements Listener {
         ItemStack currentItem = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
 
-        if (event.isShiftClick()) {
-            ItemStack clickedItem = event.getCurrentItem();
-            if (clickedItem != null && !clickedItem.getType().isAir()) {
-                String itemId = ItemModifier.getItemId(clickedItem);
-                if (itemId != null) {
-                    event.setCancelled(true);
-                    moveLeagueItemToMainInventory(player, clickedItem);
-                    return;
-                }
-            }
-        }
-
-        if (event.getAction() == InventoryAction.HOTBAR_SWAP
-                || event.getAction() == InventoryAction.HOTBAR_MOVE_AND_READD) {
-            int hotbarButton = event.getHotbarButton();
-            if (hotbarButton >= 0 && hotbarButton < 9) {
-                ItemStack hotbarItem = player.getInventory().getItem(hotbarButton);
-                if (hotbarItem != null && ItemModifier.getItemId(hotbarItem) != null) {
-                    event.setCancelled(true);
-                    moveLeagueItemToMainInventory(player, hotbarItem);
-                    return;
-                }
-            }
-            if (!cursor.getType().isAir() && ItemModifier.getItemId(cursor) != null) {
-                event.setCancelled(true);
-                moveLeagueItemToMainInventory(player, cursor);
-                return;
-            }
-        }
-
-        int slot = event.getSlot();
-        if ((slot >= 0 && slot <= 8) || slot == 40) {
-            if (!cursor.getType().isAir() && ItemModifier.getItemId(cursor) != null) {
-                event.setCancelled(true);
-                moveLeagueItemToMainInventory(player, cursor);
-                return;
-            }
-        }
         if (preventBundleInsert(currentItem, cursor)) {
             event.setCancelled(true);
             player.sendMessage(Component.text("§cLeague items cannot be inserted into bundles"));
-            return;
-        }
-        if (preventLeagueItemsInHotbar(event)) {
-            event.setCancelled(true);
-            moveLeagueItemToMainInventory(player, cursor);
             return;
         }
 
@@ -265,12 +222,20 @@ public class PlayerEventListener implements Listener {
         if (isAnyHotbarOnCooldown(shooter)) {
             event.setCancelled(true);
         }
+        if (isPlayerOnAttackCooldown(shooter)) {
+            event.setCancelled(true);
+            return;
+        }
         setAttackCooldown(shooter);
     }
 
     @EventHandler
     public void onBowShoot(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player shooter)) {
+            return;
+        }
+        if (isPlayerOnAttackCooldown(shooter)) {
+            event.setCancelled(true);
             return;
         }
         if (isAnyHotbarOnCooldown(shooter)) {
@@ -283,6 +248,10 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onArmSwing(PlayerArmSwingEvent event) {
         Player attacker = event.getPlayer();
+        if (isPlayerOnAttackCooldown(attacker)) {
+            event.setCancelled(true);
+            return;
+        }
         if (isAnyHotbarOnCooldown(attacker)) {
             event.setCancelled(true);
         }
@@ -343,6 +312,10 @@ public class PlayerEventListener implements Listener {
             return;
         }
         if (!(event.getEntity() instanceof LivingEntity target)) {
+            return;
+        }
+        if (isPlayerOnAttackCooldown(attacker)) {
+            event.setCancelled(true);
             return;
         }
         if (isAnyHotbarOnCooldown(attacker)) {
@@ -503,7 +476,6 @@ public class PlayerEventListener implements Listener {
             }
             return;
         }
-        String group = "";
         if (itemGroup != null) {
             for (ItemStack inv : player.getInventory().getContents()) {
                 if (inv != null && !inv.getType().isAir()) {
@@ -515,12 +487,9 @@ public class PlayerEventListener implements Listener {
                             UUID uuid = player.getUniqueId();
                             long now = System.currentTimeMillis();
                             if (!titleCooldown.containsKey(uuid) || now - titleCooldown.get(uuid) >= TITLE_COOLDOWN_MS) {
-                                if (itemGroup.equals("dorans")) {
-                                    group = "ᴅᴏʀᴀɴ'ꜱ";
-                                }
                                 player.showTitle(Title.title(
                                         Component.text("§c§l✗ ɪᴛᴇᴍ ɢʀᴏᴜᴘ ʟɪᴍɪᴛ"),
-                                        Component.text("§7ʏᴏᴜ ᴄᴀɴ ᴏɴʟʏ ᴀᴘᴘʟʏ 1 ᴏꜰ " + group + " §7ɪᴛᴇᴍ ᴛᴏ ʏᴏᴜʀ ʙᴜɪʟᴅ")
+                                        Component.text("§7ʏᴏᴜ ᴄᴀɴ ᴏɴʟʏ ᴀᴘᴘʟʏ 1 ᴏꜰ §aᴅᴏʀᴀɴ'ꜱ §7ɪᴛᴇᴍ ᴛᴏ ʏᴏᴜʀ ʙᴜɪʟᴅ")
                                 ));
                                 titleCooldown.put(uuid, now);
                             }
@@ -568,8 +537,7 @@ public class PlayerEventListener implements Listener {
             }, 1L);
         }
 
-        for (int i = 0; i < 9; i++) {
-            ItemStack item = player.getInventory().getItem(i);
+        for (ItemStack item : player.getInventory().getContents()) {
             if (item == null || item.getType().isAir()) {
                 continue;
             }
@@ -588,20 +556,40 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    private void moveLeagueItemToMainInventory(Player player, ItemStack item) {
+    public void moveLeagueItemToMainInventory(Player player, ItemStack item) {
         if (item == null || item.getType().isAir()) {
             return;
         }
         for (int i = 9; i <= 35; i++) {
             ItemStack slot = player.getInventory().getItem(i);
             if (slot == null || slot.getType().isAir()) {
-                player.getInventory().setItem(i, item.clone());
+                player.getInventory().setItem(i, item);
                 return;
             }
         }
-        player.getWorld().dropItemNaturally(player.getLocation(), item.clone());
+        player.getWorld().dropItemNaturally(player.getLocation(), item);
+        dropLeagueItemExceededLimit(player);
     }
 
+    private void dropLeagueItemExceededLimit(Player player) {
+        ItemStatsManager statsManager = plugin.getStatsManager();
+        int leagueItemCount = statsManager.countLeagueItems(player);
+
+        if (!(leagueItemCount > 5)) {
+            return;
+        }
+
+        int excessItems = leagueItemCount - 5;
+
+        for (int i = 35; i >= 9 && excessItems > 0; i--) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item != null && !item.getType().isAir() && ItemModifier.getItemId(item) != null) {
+                player.getWorld().dropItemNaturally(player.getLocation(), item);
+                player.getInventory().setItem(i, null);
+                excessItems--;
+            }
+        }
+    }
     public void applyPlayerStats(Player player) {
         syncItemStats(player);
         applyHealthModifier(player);
@@ -688,7 +676,13 @@ public class PlayerEventListener implements Listener {
 
     private void setAttackCooldown(Player player) {
         PlayerStats stats = PlayerStats.getOrCreate(player);
-        double attackSpeed = 35 * (1.0 - (stats.getPlayerAS(player) / 100.0));
+
+        double playerAS = stats.getPlayerAS(player);
+        double attackSpeed = 35 * (1.0 - playerAS);
+
+        UUID uuid = player.getUniqueId();
+        long cooldownMs = (long) attackSpeed * 50;
+        attackCooldown.put(uuid, System.currentTimeMillis() + cooldownMs);
 
         for (int i = 0; i < 9; i++) {
             ItemStack item = player.getInventory().getItem(i);
@@ -714,12 +708,38 @@ public class PlayerEventListener implements Listener {
         return false;
     }
 
+    public boolean isPlayerOnAttackCooldown(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (!attackCooldown.containsKey(uuid)) {
+            return false;
+        }
+
+        long cooldownEnd = attackCooldown.get(uuid);
+        if (System.currentTimeMillis() >= cooldownEnd) {
+            attackCooldown.remove(uuid);
+            return false;
+        }
+
+        return true;
+    }
+
+    public long getAttackCooldownRemaining(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (!attackCooldown.containsKey(uuid)) {
+            return 0;
+        }
+
+        long cooldownEnd = attackCooldown.get(uuid);
+        long remaining = cooldownEnd - System.currentTimeMillis();
+        return remaining > 0 ? remaining : 0;
+    }
+
     private void damageEvent(Player player, LivingEntity target, String type) {
         DamageManager damage = new DamageManager(itemStatsManager);
         PlayerStats stats = PlayerStats.getOrCreate(player);
 
-        double attackerAD = stats.getPlayerAD(player) + damage.getPlayerAdaptiveAD(player);
-        double attackerAP = stats.getPlayerAP(player) + damage.getPlayerAdaptiveAP(player);
+        double attackerAD = stats.getPlayerAD(player);
+        double attackerAP = stats.getPlayerAP(player);
         double targetAR = damage.getTargetAR(target);
         double targetMR = damage.getTargetMR(target);
 
@@ -774,26 +794,6 @@ public class PlayerEventListener implements Listener {
         }
         if (cursor != null && !cursor.getType().isAir() && cursor.getType() == Material.BUNDLE) {
             return currentItem != null && !currentItem.getType().isAir() && ItemModifier.getItemId(currentItem) != null;
-        }
-
-        return false;
-    }
-
-    private boolean preventLeagueItemsInHotbar(InventoryClickEvent event) {
-        int slot = event.getSlot();
-
-        if (slot < 0 || slot > 8) {
-            return false;
-        }
-
-        ItemStack cursorItem = event.getCursor();
-        ItemStack slotItem = event.getCurrentItem();
-
-        if (!cursorItem.getType().isAir() && ItemModifier.getItemId(cursorItem) != null) {
-            return true;
-        }
-        if (slotItem != null && !slotItem.getType().isAir() && ItemModifier.getItemId(slotItem) != null) {
-            return cursorItem.getType().isAir() || event.isShiftClick();
         }
 
         return false;
