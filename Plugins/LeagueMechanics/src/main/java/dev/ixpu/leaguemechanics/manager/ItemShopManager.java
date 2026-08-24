@@ -78,9 +78,6 @@ public class ItemShopManager implements Listener {
             player.sendMessage(Component.text("§cInsufficient levels."));
             return false;
         }
-        if (playerOwnsItem(player, shopItem)) {
-            return false;
-        }
         if (playerOwnsConflictingItem(player, shopItem)) {
             ItemShopData shopData = ItemShopData.getInstance();
             String group = shopData.getGroup(shopItem.getId());
@@ -93,6 +90,9 @@ public class ItemShopManager implements Listener {
         }
         if (itemStatsManager.countLeagueItems(player) > 5) {
             player.sendMessage(Component.text("§cLeague Items Count: 6/6"));
+            return false;
+        }
+        if (playerOwnsItem(player, shopItem)) {
             return false;
         }
 
