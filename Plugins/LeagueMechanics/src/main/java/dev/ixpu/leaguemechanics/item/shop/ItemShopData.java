@@ -28,7 +28,7 @@ public class ItemShopData {
     private void loadDefaultPrices() {
 
         // STARTER ITEMS
-        addItem("cull", 18, 1, 0, ItemRarity.COMMON, null);
+        addItem("cull", 18, 6, 0, ItemRarity.COMMON, null);
         addItem("dark-seal", 15, 1, 1, ItemRarity.COMMON, null);
         addItem("dorans-blade", 18, 1, 2, ItemRarity.COMMON, "dorans");
         addItem("dorans-bow", 17, 1, 3, ItemRarity.COMMON, "dorans");
