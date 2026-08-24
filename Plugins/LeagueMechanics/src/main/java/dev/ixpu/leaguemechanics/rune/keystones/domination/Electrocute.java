@@ -112,7 +112,7 @@ public class Electrocute extends StacksHandler {
     
     private double keystoneDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
-        damageManager.enableAdaptiveScaling();
+        damageManager.enableAdaptiveDamage();
         return damageManager.DamageCalculation(player, target, 0, BASE_ADAPTIVE_DAMAGE, 0);
     }
 
@@ -150,7 +150,7 @@ public class Electrocute extends StacksHandler {
     private void setPlayerDisplay(Player player, String runeDisplay) {
         PlayerStats playerStats = PlayerStats.getOrCreate(player);
         DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
-        damageManager.enableAdaptiveScaling();
+        damageManager.enableAdaptiveDamage();
 
         String statsDisplay = playerStats.getActionBarSections(player);
         String actionBarMessage = runeDisplay + " " + statsDisplay;

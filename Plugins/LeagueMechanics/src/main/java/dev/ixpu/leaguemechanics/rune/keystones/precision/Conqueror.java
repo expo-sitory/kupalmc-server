@@ -22,7 +22,7 @@ import net.kyori.adventure.text.Component;
 
 public class Conqueror extends StacksHandler {
 
-    private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 0.5;
+    private double BASE_ADAPTIVE_DAMAGE_PER_STACK = 1.7;
 
     private static final int MAXIMUM_STACKS = 12;
 
@@ -92,6 +92,7 @@ public class Conqueror extends StacksHandler {
 
     private double keystoneDamage(Player player, Entity target, int currentStacks) {
         DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
+        damageManager.enableAdaptiveDamage();
         damageManager.enableAdaptiveScaling();
         damageManager.enablePerStackScaling();
         return damageManager.DamageCalculation(player, target, currentStacks, BASE_ADAPTIVE_DAMAGE_PER_STACK, 0);

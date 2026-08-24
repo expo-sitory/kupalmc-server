@@ -106,7 +106,7 @@ public class ArcaneComet extends CooldownHandler {
 
     private double keystoneDamage(Player player, Entity target) {
         DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
-        damageManager.enableAdaptiveScaling();
+        damageManager.enableAdaptiveDamage();
         double baseDamage = damageManager.DamageCalculation(player, target, 0, BASE_ADAPTIVE_DAMAGE, 0);
         double scaledBonus = getScaledBonusDamage(player);
 

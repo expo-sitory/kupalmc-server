@@ -130,7 +130,7 @@ public class LethalTempo extends StacksHandler {
 
     private double keystoneDamage(Player player, Entity target, int currentStacks) {
         DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());
-        damageManager.enableAdaptiveScaling();
+        damageManager.enableAdaptiveDamage();
         return damageManager.DamageCalculation(player, target, currentStacks, BASE_ADAPTIVE_DAMAGE, 0);
     }
 
