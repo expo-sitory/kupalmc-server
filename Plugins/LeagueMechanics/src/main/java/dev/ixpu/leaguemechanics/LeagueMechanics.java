@@ -9,11 +9,13 @@ import dev.ixpu.leaguemechanics.manager.ItemShopManager;
 import dev.ixpu.leaguemechanics.command.CommandHandler;
 import dev.ixpu.leaguemechanics.command.CommandTabCompletions;
 
+import dev.ixpu.leaguemechanics.placeholder.PlaceholderRegistry;
 import dev.ixpu.leaguemechanics.util.ItemModifier;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -62,6 +64,7 @@ public class LeagueMechanics extends JavaPlugin {
         runePersistence = new RunePersistence(this);
         playerEventListener = new PlayerEventListener(this, runePersistence);
 
+
         getLogger().info("League Mechanics is starting...");
 
         saveDefaultConfig();
@@ -72,11 +75,13 @@ public class LeagueMechanics extends JavaPlugin {
         registerRunes();
         registerCommands();
         registerRegenTask();
+        registerHotbarCleanupTask();
 
         Bukkit.getPluginManager().registerEvents(playerEventListener, this);
         Bukkit.getPluginManager().registerEvents(ItemShopManager.getInstance(), this);
 
         startRuneTicker();
+        registerPlaceholders();
 
         getLogger().info("League Mechanics has been enabled!");
     }
@@ -179,6 +184,37 @@ public class LeagueMechanics extends JavaPlugin {
                 }
             }
         }.runTaskTimer(this, 0, 300);
+    }
+
+    public void registerHotbarCleanupTask() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    ItemStack[] inventoryContents = player.getInventory().getContents();
+                    for (int i = 0; i < 9; i++) {
+                        ItemStack item = inventoryContents[i];
+                        if (item != null && !item.getType().isAir() && ItemModifier.getItemId(item) != null) {
+                            playerEventListener.moveLeagueItemToMainInventory(player, item);
+                            player.getInventory().setItem(i, null);
+                        }
+                    }
+                    if (inventoryContents[40] != null && !inventoryContents[40].getType().isAir() && ItemModifier.getItemId(inventoryContents[40]) != null) {
+                        playerEventListener.moveLeagueItemToMainInventory(player, inventoryContents[40]);
+                        player.getInventory().setItem(40, null);
+                    }
+                }
+            }
+        }.runTaskTimer(this, 0, 0L);
+    }
+
+    private void registerPlaceholders() {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PlaceholderRegistry(this).register();
+            getLogger().info("PlaceholderAPI placeholders registered!");
+        } else {
+            getLogger().warning("PlaceholderAPI not found! Placeholders will not work.");
+        }
     }
 
     private void registerRunes() {
