@@ -1,14 +1,15 @@
 package dev.ixpu.leaguemechanics.player;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
-import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
+import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.keystones.precision.LethalTempo;
 import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import dev.ixpu.leaguemechanics.item.passives.dark_seal;
 
+import dev.ixpu.leaguemechanics.util.RuneDetector;
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -18,35 +19,19 @@ import org.bukkit.enchantments.Enchantment;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public class PlayerStats {
     private static final Map<UUID, PlayerStats> INSTANCE_CACHE = new ConcurrentHashMap<>();
-    private static final long CACHE_TTL_MS = 100;
-
-    double BASE_HEALTH = 0.0;
-    double BASE_HEALTH_REGEN = 0.0;
 
     double BASE_ATTACK_DAMAGE = 3.0;
     double BASE_ABILITY_POWER = 4.0;
-    double BASE_ADAPTIVE_FORCE = 4.0;
-
-    double BASE_TRUE_DAMAGE = 0.0;
-    double BASE_ATTACK_SPEED = 0.0;
     double BASE_ARMOR = 15.0;
     double BASE_MAGIC_RESIST = 15.0;
-
-    private final Player player;
-    private long lastCacheTime = 0;
-
-    private PlayerStats(Player player) {
-        this.player = player;
-    }
 
     public static PlayerStats getOrCreate(Player player) {
         UUID uuid = player.getUniqueId();
         PlayerStats stats = INSTANCE_CACHE.get(uuid);
         if (stats == null) {
-            stats = new PlayerStats(player);
+            stats = new PlayerStats();
             INSTANCE_CACHE.put(uuid, stats);
         }
         return stats;
@@ -56,15 +41,10 @@ public class PlayerStats {
         INSTANCE_CACHE.remove(uuid);
     }
 
-    public static void invalidateAll() {
-        INSTANCE_CACHE.clear();
-    }
-
-
     public double getPlayerHP(Player player) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         double itemHP = 0;
-        double baseHP = BASE_HEALTH;
+        double baseHP = player.getAttribute(Attribute.MAX_HEALTH).getValue();
         if (itemStatsManager != null) {
             itemHP += itemStatsManager.getItemHP(player);
         }
@@ -73,12 +53,7 @@ public class PlayerStats {
 
     public double getPlayerHR(Player player) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        double itemHR = 0;
-        double baseHR = BASE_HEALTH_REGEN;
-        if (itemStatsManager != null) {
-            itemHR += itemStatsManager.getItemHR(player);
-        }
-        return baseHR + itemHR;
+        return itemStatsManager.getItemHR(player);
     }
 
 
@@ -114,13 +89,21 @@ public class PlayerStats {
     }
 
     public double getPlayerAF(Player player) {
-        return BASE_ADAPTIVE_FORCE;
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        double bonusAD = itemStatsManager.getItemAD(player);
+        double bonusAP = itemStatsManager.getItemAP(player);
+        if (bonusAD > bonusAP) {
+            return 0.6;
+        } else if (bonusAP > bonusAD) {
+            return 0.8;
+        }
+        return 0;
     }
 
     public double getPlayerTD(Player player) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         double itemTD = 0;
-        double baseTD = BASE_TRUE_DAMAGE;
+        double baseTD = 0;
         double bonusTD = levelBasedTD(player);
         if (itemStatsManager != null) {
             itemTD += itemStatsManager.getItemTD(player);
@@ -131,8 +114,8 @@ public class PlayerStats {
     public double getPlayerAS(Player player) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         double itemAS = 0;
-        double baseAS = BASE_ATTACK_SPEED;
         double runeAS = 0;
+        double baseAS = getPlayerCountryBaseAS(player);
 
         if (itemStatsManager != null) {
             itemAS += itemStatsManager.getItemAS(player);
@@ -149,8 +132,52 @@ public class PlayerStats {
                 }
             }
         }
+        double asRatio = getPlayerRuneRatioAS(player);
+        double bonusAS = (itemAS + runeAS) / 100;
+        return bonusAS * (asRatio / baseAS);
+    }
 
-        return baseAS + itemAS + runeAS;
+    public static double getPlayerCountryBaseAS(Player player) {
+        if (hasPermission(player, "country-philippines")) return 0.694;
+        if (hasPermission(player, "country-singapore")) return 0.684;
+        if (hasPermission(player, "country-thailand")) return 0.672;
+        if (hasPermission(player, "country-cambodia")) return 0.656;
+        if (hasPermission(player, "country-vietnam")) return 0.652;
+        if (hasPermission(player, "country-myanmar")) return 0.635;
+        if (hasPermission(player, "country-malaysia")) return 0.620;
+        if (hasPermission(player, "country-brunei")) return 0.617;
+        if (hasPermission(player, "country-timor-leste")) return 0.607;
+        if (hasPermission(player, "country-laos")) return 0.596;
+        if (hasPermission(player, "country-indonesia")) return 0.400;
+        return 0.700;
+    }
+
+    public static double getPlayerRuneRatioAS(Player player) {
+        PlayerRuneData runeData = RuneDetector.detectPlayerRunes(player);
+        RunePath primaryPath = runeData.getPrimaryPath();
+
+        if (primaryPath == null) {
+            return 0.500;
+        }
+
+        return switch (primaryPath.getId()) {
+            case "domination" -> 0.676;
+            case "precision" -> 0.587;
+            case "resolve" -> 0.694;
+            case "inspiration" -> 0.626;
+            case "sorcery" -> 0.687;
+            default -> 0.500;
+        };
+    }
+
+    private static boolean hasPermission(Player player, String permission) {
+        boolean wasOp = player.isOp();
+        try {
+            player.setOp(false);
+            return player.hasPermission(permission);
+        } finally {
+            player.setOp(wasOp);
+        }
     }
 
     public double getPlayerAR(Player player) {
@@ -172,6 +199,34 @@ public class PlayerStats {
             itemMR += itemStatsManager.getItemMR(player);
         }
         return baseMR + itemMR;
+    }
+
+    public double getPlayerMS(Player player) {
+        try {
+            double baseMS = 0.1;
+            double attributeMS = player.getAttribute(Attribute.MOVEMENT_SPEED).getValue();
+            double speedEffectBonus = 0;
+            if (player.hasPotionEffect(org.bukkit.potion.PotionEffectType.SPEED)) {
+                org.bukkit.potion.PotionEffect speedEffect = player.getPotionEffect(org.bukkit.potion.PotionEffectType.SPEED);
+                if (speedEffect != null) {
+                    speedEffectBonus = 0.2 * (speedEffect.getAmplifier() + 1);
+                }
+            }
+            ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+            double itemMS = itemStatsManager != null ? itemStatsManager.getItemMS(player) : 0;
+            double totalMS = (baseMS + attributeMS) * 100;
+            totalMS += (speedEffectBonus * 100);
+            totalMS += itemMS;
+
+            return totalMS;
+        } catch (Exception e) {
+            return 0.0;
+        }
+    }
+
+    public double getPlayerCC(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        return itemStatsManager.getItemCC(player);
     }
 
     private double levelBasedTD(Player player) {
@@ -239,37 +294,23 @@ public class PlayerStats {
 
 
     public String getActionBarSections(Player player) {
-        ItemStatsManager statsManager = LeagueMechanics.getInstance().getStatsManager();
-        DamageManager damage = new DamageManager(statsManager);
 
-        double enchantmentAD = getWeaponEnchant(player);
-        double enchantmentAR = getArmorEnchant(player);
+//        double enchantmentAD = getWeaponEnchant(player);
+//        double enchantmentAR = getArmorEnchant(player);
+//
+//        double AD = getPlayerAD(player) + enchantmentAD;
+//        double AR = getPlayerAR(player) + enchantmentAR;
+//        double AP = getPlayerAP(player);
+//        double MR = getPlayerMR(player);
+//
+//        String adDisplay = " §6🗡 §f" + String.format("%.1f", AD);
+//
+//        String apDisplay = " §9☄ §f" + String.format("%.1f", AP);
+//
+//        String arDisplay = " §e🛡 §f" + String.format("%.1f", AR);
+//
+//        String mrDisplay = " §b⦿ §f" + String.format("%.1f", MR);
 
-        double adaptiveAD = damage.getPlayerAdaptiveAD(player);
-        double adaptiveAP = damage.getPlayerAdaptiveAP(player);
-
-        double AD = getPlayerAD(player) - enchantmentAD;
-        double AR = getPlayerAR(player) - enchantmentAR;
-        double AP = getPlayerAP(player);
-        double MR = getPlayerMR(player);
-
-        String adDisplay = " §6🗡 §f" + String.format("%.1f", AD);
-        if (enchantmentAD > 0 || adaptiveAD > BASE_ADAPTIVE_FORCE && adaptiveAD > adaptiveAP) {
-            adDisplay = " §6🗡 §f" + String.format("%.1f", AD) + "§f(+" + String.format("%.1f", adaptiveAD + enchantmentAD) + ")";
-        }
-
-        String apDisplay = " §9☄ §f" + String.format("%.1f", AP);
-        if (adaptiveAP > BASE_ADAPTIVE_FORCE && adaptiveAP > adaptiveAD) {
-            apDisplay = " §9☄ §f" + String.format("%.1f", AP) + "§f(+" + String.format("%.1f", adaptiveAP) + ")";
-        }
-
-        String arDisplay = " §e🛡 §f" + String.format("%.1f", AR);
-        if (enchantmentAR > 0) {
-            arDisplay = " §e🛡 §f" + String.format("%.1f", AR) + " §f(+" + String.format("%.1f", enchantmentAR) + ")";
-        }
-
-        String mrDisplay = " §b⦿ §f" + String.format("%.1f", MR);
-
-        return adDisplay + apDisplay + arDisplay + mrDisplay;
+        return "";
     }
 }
