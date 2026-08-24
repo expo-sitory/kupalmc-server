@@ -88,7 +88,7 @@ public class ItemShopGUI {
                 lore.add("§6🍖 " + formatStat(shopItem.getStats().getSr()) + " §fSaturation Regen per 25 sec.");
             }
             if (shopItem.getStats().getAs() > 0) {
-                lore.add("§c⚔ " + formatStat(shopItem.getStats().getAs()) + "% §fAttack Speed");
+                lore.add("§c➺ " + formatStat(shopItem.getStats().getAs()) + "% §fAttack Speed");
             }
             if (shopItem.getStats().getMs() > 0) {
                 lore.add("§7👣 " + formatStat(shopItem.getStats().getMs()) + "% §fMovement Speed");
