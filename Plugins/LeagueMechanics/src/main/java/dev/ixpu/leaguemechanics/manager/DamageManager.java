@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics.manager;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.ItemModifier;
 
@@ -12,7 +13,8 @@ import java.util.Random;
 public class DamageManager {
     private final ItemStatsManager itemStatsManager;
 
-    protected boolean isAdaptive = false;
+    protected boolean isAdaptiveScaling = false;
+    protected boolean isAdaptiveDamage = false;
     protected boolean isTrueDamage = false;
     protected boolean isPerStack = false;
     protected boolean isOnlyAP = false;
@@ -24,7 +26,10 @@ public class DamageManager {
     }
 
     public void enableAdaptiveScaling() {
-        this.isAdaptive = true;
+        this.isAdaptiveScaling = true;
+    }
+    public void enableAdaptiveDamage() {
+        this.isAdaptiveDamage = true;
     }
     public void enableTrueDamage() {
         this.isTrueDamage = true;
@@ -37,18 +42,23 @@ public class DamageManager {
     }
 
 
-    public double DamageCalculation(Player player, Entity target, int currentStacks, double bonusAdaptive, double bonusTrueDamage) {
+    public double DamageCalculation(Player player, Entity target, int currentStacks, double runesAdaptive, double runesTrueDamage) {
         PlayerStats stats = PlayerStats.getOrCreate(player);
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
 
         double doransBonus = getDoransOnHitAD(player);
-        double attackerAD = ((stats.getPlayerAD(player) + getPlayerAdaptiveAD(player) + doransBonus) / 7);
-        double attackerAP = (stats.getPlayerAP(player) + getPlayerAdaptiveAP(player)) / 7;
 
-        double targetAR = getTargetAR(target);
-        double targetMR = getTargetMR(target);
+        double attackerBonusAD = itemStatsManager.getItemAD(player);
+        double attackerBonusAP = itemStatsManager.getItemAP(player);
 
-        double totalPhysicalDamage = attackerAD / (1.0 + (targetAR / 100.0));
-        double totalMagicDamage = attackerAP / (1.0 + (targetMR / 100.0));
+        double attackerTotalAD = ((stats.getPlayerAD(player) + doransBonus) / 7);
+        double attackerTotalAP = (stats.getPlayerAP(player)) / 7;
+
+        double targetTotalAR = getTargetAR(target);
+        double targetTotalMR = getTargetMR(target);
+
+        double totalPhysicalDamage = attackerTotalAD / (1.0 + (targetTotalAR / 100.0));
+        double totalMagicDamage = attackerTotalAP / (1.0 + (targetTotalMR / 100.0));
 
         double totalDamageOutput = totalPhysicalDamage + (totalMagicDamage * (60 / 100.0));
 
@@ -56,46 +66,49 @@ public class DamageManager {
             totalDamageOutput *= 1.75;
         }
 
-        double rawDamage = attackerAD + attackerAP;
-        double trueDamage = stats.getPlayerTD(player) + (rawDamage * (bonusTrueDamage / 100));
+        double adaptiveDamage = runesAdaptive * levelBasedBonus(player);
 
-        double adaptiveDamage = getPlayerAdaptiveAD(player) + getPlayerAdaptiveAP(player);
+        double adaptiveForce = runesAdaptive * levelBasedBonus(player);
+        double bonusAdaptiveForce = adaptiveForce * stats.getPlayerAF(player);
+        double totalAdaptiveForce = adaptiveForce + bonusAdaptiveForce;
+
+        double rawDamage = attackerTotalAD + attackerTotalAP;
+        double trueDamage = stats.getPlayerTD(player) + (rawDamage * (runesTrueDamage / 100));
 
         if (isOnlyAP) {
             return totalMagicDamage;
         }
-        if (isAdaptive) {
-            if (isPerStack) {
-                return ((adaptiveDamage + bonusAdaptive) * levelBasedBonus(player)) * currentStacks;
+        if (isAdaptiveDamage) {
+            if (isAdaptiveScaling) {
+                if (isPerStack) {
+                    if (attackerBonusAD > attackerBonusAP) {
+                        return (totalAdaptiveForce / (1.0 + (targetTotalAR / 100.0 ))) *currentStacks;
+                    } else if (attackerBonusAP > attackerBonusAD) {
+                        return (totalAdaptiveForce / (1.0 + (targetTotalMR / 100.0 ))) *currentStacks;
+                    }
+                }
             }
-            return (adaptiveDamage + bonusAdaptive) * levelBasedBonus(player);
+            if (isPerStack) {
+                if (attackerBonusAD > attackerBonusAP) {
+                    return (adaptiveDamage /  (1.0 + (targetTotalAR / 100.0))) * currentStacks;
+                } else if (attackerBonusAP > attackerBonusAD) {
+                    return (adaptiveDamage / (1.0 + (targetTotalMR / 100.0))) * currentStacks;
+                } else {
+                    return (adaptiveDamage /  (1.0 + (targetTotalAR / 100.0))) * currentStacks;
+                }
+            }
+            if (attackerBonusAD > attackerBonusAP) {
+                return adaptiveDamage / (1.0 + (targetTotalAR / 100.0));
+            } else if (attackerBonusAP > attackerBonusAD) {
+                return adaptiveDamage / (1.0 + (targetTotalMR / 100.0));
+            } else {
+                return adaptiveDamage / (1.0 + (targetTotalAR / 100.0));
+            }
         }
         if (isTrueDamage) {
             return trueDamage;
         }
         return totalDamageOutput;
-    }
-
-    public double getPlayerAdaptiveAD(Player player) {
-        PlayerStats playerStats = PlayerStats.getOrCreate(player);
-        if (playerStats.getPlayerAP(player) > playerStats.getPlayerAD(player)) {
-            return 0;
-        }
-        if (itemStatsManager != null) {
-            return playerStats.getPlayerAF(player) * (0.1 * itemStatsManager.getItemAD(player));
-        }
-        return 0;
-    }
-
-    public double getPlayerAdaptiveAP(Player player) {
-        PlayerStats playerStats = PlayerStats.getOrCreate(player);
-        if (playerStats.getPlayerAD(player) > playerStats.getPlayerAP(player)) {
-            return 0;
-        }
-        if (itemStatsManager != null) {
-            return playerStats.getPlayerAF(player) * (0.1 * itemStatsManager.getItemAP(player));
-        }
-        return 0;
     }
 
     public double getPlayerCritChance(Player player) {
