@@ -5,6 +5,8 @@ api-version: 1.21
 description: League of Legends Mechanics
 authors:
   - Ixpu
+softdepend:
+  - PlaceholderAPI
 
 commands:
   leaguemechanics:
