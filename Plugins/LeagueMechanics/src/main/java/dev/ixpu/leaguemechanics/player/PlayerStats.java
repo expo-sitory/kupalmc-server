@@ -138,6 +138,9 @@ public class PlayerStats {
     }
 
     public static double getPlayerCountryBaseAS(Player player) {
+        double opDefault = getOpDefaultAS(player);
+        if (opDefault > 0) return opDefault;
+
         if (hasPermission(player, "country-philippines")) return 0.694;
         if (hasPermission(player, "country-singapore")) return 0.684;
         if (hasPermission(player, "country-thailand")) return 0.672;
@@ -171,13 +174,14 @@ public class PlayerStats {
     }
 
     private static boolean hasPermission(Player player, String permission) {
-        boolean wasOp = player.isOp();
-        try {
-            player.setOp(false);
-            return player.hasPermission(permission);
-        } finally {
-            player.setOp(wasOp);
+        return player.hasPermission(permission);
+    }
+
+    private static double getOpDefaultAS(Player player) {
+        if (player.isOp()) {
+            return 0.700;
         }
+        return -1;
     }
 
     public double getPlayerAR(Player player) {
