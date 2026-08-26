@@ -96,7 +96,7 @@ public class DarkHarvest extends StacksHandler {
 
         livingTarget.setHealth(newHealth);
 
-        if (isOnCooldown(player) || player.getLevel() < LEVEL_COST_PER_STACK) {
+        if (isOnCooldown(player)) {
             return;
         }
 
@@ -125,8 +125,6 @@ public class DarkHarvest extends StacksHandler {
         if (getStacks(player) >= maxStacks) {
             return;
         }
-
-        player.setLevel(player.getLevel() - LEVEL_COST_PER_STACK);
         addStack(player);
         player.playSound(player.getLocation(), Sound.ENTITY_WITHER_HURT, 1.0f, 1.0f);
     }
