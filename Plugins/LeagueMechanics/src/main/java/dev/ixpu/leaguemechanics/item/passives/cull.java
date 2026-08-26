@@ -1,6 +1,7 @@
 package dev.ixpu.leaguemechanics.item.passives;
 
 import dev.ixpu.leaguemechanics.manager.ItemPassivesManager;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -17,7 +18,7 @@ public class cull implements ItemPassive {
 
     @Override
     public String getDescription() {
-        return "§7ᴜɴɪQᴜᴇ – ʀᴇᴀᴘ: §fKilling an §eentity §fgrants an additional §a10 xp§f, up to a maximum of §a500§f.\n§fAfter having killed §e100 entities§f, grants an additional §a200 xp§f and permanently disables this passive.";
+        return "§7ᴜɴɪQᴜᴇ – ʀᴇᴀᴘ: §fKilling an §eentity §fgrants an additional §a10 xp§f, up to a maximum of §a500§f.\n§fAfter having killed §e100 entities§f, grants an additional §a200 xp§f and breaks this item.";
     }
 
     @Override
@@ -33,7 +34,8 @@ public class cull implements ItemPassive {
 
         if (killCount >= UPGRADE_THRESHOLD) {
             player.giveExp(UPGRADED_XP);
-            manager.disablePassive(player, getId());
+            item.setAmount(0);
+            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
         } else {
             int totalXpGained = killCount * XP_PER_KILL;
             if (totalXpGained < MAX_XP) {
