@@ -2,14 +2,12 @@ package dev.ixpu.leaguemechanics.player;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
-import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.keystones.precision.LethalTempo;
 import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import dev.ixpu.leaguemechanics.item.passives.dark_seal;
 
-import dev.ixpu.leaguemechanics.util.RuneDetector;
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -18,6 +16,9 @@ import org.bukkit.enchantments.Enchantment;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static dev.ixpu.leaguemechanics.player.PlayerOrigin.getPlayerCountryBaseAS;
+import static dev.ixpu.leaguemechanics.player.PlayerOrigin.getPlayerRuneRatioAS;
 
 public class PlayerStats {
     private static final Map<UUID, PlayerStats> INSTANCE_CACHE = new ConcurrentHashMap<>();
@@ -113,6 +114,7 @@ public class PlayerStats {
 
     public double getPlayerAS(Player player) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+
         double itemAS = 0;
         double runeAS = 0;
         double baseAS = getPlayerCountryBaseAS(player);
@@ -135,53 +137,6 @@ public class PlayerStats {
         double asRatio = getPlayerRuneRatioAS(player);
         double bonusAS = (itemAS + runeAS) / 100;
         return bonusAS * (asRatio / baseAS);
-    }
-
-    public static double getPlayerCountryBaseAS(Player player) {
-        double opDefault = getOpDefaultAS(player);
-        if (opDefault > 0) return opDefault;
-
-        if (hasPermission(player, "country-philippines")) return 0.694;
-        if (hasPermission(player, "country-singapore")) return 0.684;
-        if (hasPermission(player, "country-thailand")) return 0.672;
-        if (hasPermission(player, "country-cambodia")) return 0.656;
-        if (hasPermission(player, "country-vietnam")) return 0.652;
-        if (hasPermission(player, "country-myanmar")) return 0.635;
-        if (hasPermission(player, "country-malaysia")) return 0.620;
-        if (hasPermission(player, "country-brunei")) return 0.617;
-        if (hasPermission(player, "country-timor-leste")) return 0.607;
-        if (hasPermission(player, "country-laos")) return 0.596;
-        if (hasPermission(player, "country-indonesia")) return 0.400;
-        return 0.700;
-    }
-
-    public static double getPlayerRuneRatioAS(Player player) {
-        PlayerRuneData runeData = RuneDetector.detectPlayerRunes(player);
-        RunePath primaryPath = runeData.getPrimaryPath();
-
-        if (primaryPath == null) {
-            return 0.500;
-        }
-
-        return switch (primaryPath.getId()) {
-            case "domination" -> 0.676;
-            case "precision" -> 0.587;
-            case "resolve" -> 0.694;
-            case "inspiration" -> 0.626;
-            case "sorcery" -> 0.687;
-            default -> 0.500;
-        };
-    }
-
-    private static boolean hasPermission(Player player, String permission) {
-        return player.hasPermission(permission);
-    }
-
-    private static double getOpDefaultAS(Player player) {
-        if (player.isOp()) {
-            return 0.700;
-        }
-        return -1;
     }
 
     public double getPlayerAR(Player player) {
