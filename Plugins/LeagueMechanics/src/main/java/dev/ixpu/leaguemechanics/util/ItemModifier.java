@@ -120,10 +120,10 @@ public class ItemModifier {
             lore.add("§a❤ " + formatStat(statData.getHp()) + " §fHealth");
         }
         if (statData.getHr() > 0) {
-            lore.add("§2❣ " + formatStat(statData.getHr()) + " §fHealth Regen per 15 sec.");
+            lore.add("§2❣ " + formatStat(statData.getHr()) + " §fHealth Regen per 5 sec.");
         }
         if (statData.getSr() > 0) {
-            lore.add("§6🍖 " + formatStat(statData.getSr()) + " §fSaturation Regen per 25 sec.");
+            lore.add("§6🍖 " + formatStat(statData.getSr()) + " §fSaturation Regen per 5 sec.");
         }
         if (statData.getAs() > 0) {
             lore.add("§c➺ " + formatStat(statData.getAs()) + "% §fAttack Speed");
