@@ -31,11 +31,11 @@ public class CommandTabCompletions implements org.bukkit.command.TabCompleter {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            completions.add("runes");
             if (player.hasPermission("leaguemechanics.admin")) {
                 completions.add("reload");
+                completions.add("shop");
+                completions.add("runes");
             }
-            completions.add("shop");
             return filter(completions, args[0]);
         }
 
