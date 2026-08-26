@@ -9,6 +9,7 @@ import dev.ixpu.leaguemechanics.item.shop.ItemShopData;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopGUI;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopRegistry;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
+import dev.ixpu.leaguemechanics.manager.ItemPassivesManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
 
@@ -96,6 +97,12 @@ public class PlayerEventListener implements Listener {
             grasp.resetAbsorption(player);
         }
         runeManager.unloadPlayerRunes(player);
+
+        dev.ixpu.leaguemechanics.item.passives.dark_seal darkSeal =
+                (dev.ixpu.leaguemechanics.item.passives.dark_seal) ItemPassivesRegistry.getInstance().getPassive("dark-seal");
+        if (darkSeal != null) {
+            darkSeal.clearStacks(player);
+        }
 
         PlayerStats.invalidateCache(uuid);
         itemStatsManager.invalidateCache(uuid);
@@ -550,7 +557,9 @@ public class PlayerEventListener implements Listener {
             dev.ixpu.leaguemechanics.item.passives.dark_seal darkSeal =
                     (dev.ixpu.leaguemechanics.item.passives.dark_seal) ItemPassivesRegistry.getInstance().getPassive("dark-seal");
             if (darkSeal != null) {
-                darkSeal.clearStacks(player);
+                int currentStacks = darkSeal.getStacks(player);
+                int newStacks = Math.max(currentStacks - 2, 0);
+                ItemPassivesManager.getInstance().setKillCount(player, "dark-seal", newStacks);
                 ItemModifier.syncItemStats(item);
             }
         }
