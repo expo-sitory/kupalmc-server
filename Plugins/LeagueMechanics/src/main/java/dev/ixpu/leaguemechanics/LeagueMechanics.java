@@ -102,7 +102,7 @@ public class LeagueMechanics extends JavaPlugin {
             if (runeManager != null) {
                 runeManager.tickAllPlayerRunes();
             }
-        }, 0L, 5L);
+        }, 0L, 1L);
     }
 
     public static LeagueMechanics getInstance() {
@@ -205,7 +205,7 @@ public class LeagueMechanics extends JavaPlugin {
                     }
                 }
             }
-        }.runTaskTimer(this, 0, 0L);
+        }.runTaskTimer(this, 0, 10L);
     }
 
     private void registerPlaceholders() {
