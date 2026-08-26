@@ -183,7 +183,7 @@ public class LeagueMechanics extends JavaPlugin {
                     }
                 }
             }
-        }.runTaskTimer(this, 0, 300);
+        }.runTaskTimer(this, 0, 100);
     }
 
     public void registerHotbarCleanupTask() {
