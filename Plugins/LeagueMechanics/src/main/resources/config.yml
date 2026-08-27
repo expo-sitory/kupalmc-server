@@ -81,10 +81,13 @@ runes:
     resolve:
 
       aftershock:
-        effect-duration: 300 # this is ticks - default: 15s
-        absorption-level: 2 # amplifier
-        resistance-level: 2 # amplifier
-        cooldown: 45 # seconds
+        base-armor: 45.0
+        base-magic-resist: 45.0
+        bonus-armor-percent: 75.0 # bonus armor percentage
+        bonus-magic-resist-percent: 75.0 # bonus magic-resist percentage
+        base-shockwave-damage: 3.5 # base shockwave magic damage
+        shockwave-bonus-hp-percent: 8.0 # bonus magic damage from total hp percentage
+        cooldown: 20 # seconds
 
       grasp-of-the-undying:
         heal-percent: 15.0 # missing health percent - default: 15%
