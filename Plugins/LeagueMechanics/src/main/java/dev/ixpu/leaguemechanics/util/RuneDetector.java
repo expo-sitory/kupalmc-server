@@ -79,7 +79,7 @@ public class RuneDetector {
         String[] keystones = {
             "press-the-attack", "lethal-tempo", "fleet-footwork", "conqueror",
             "electrocute", "dark-harvest", "hail-of-blades",
-            "grasp-of-the-undying", "aftershock", "guardian",
+            "grasp-of-the-undying", "after-shock", "guardian",
             "summon-aery", "arcane-comet", "storm-raider-surge", "deathfire-torch",
             "glacial-augment", "unsealed-spellbook", "first-strike"
         };
