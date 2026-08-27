@@ -28,6 +28,12 @@ public class PlayerStats {
     double BASE_ARMOR = 15.0;
     double BASE_MAGIC_RESIST = 15.0;
 
+    private double temporaryADModification = 0.0;
+    private double temporaryAPModification = 0.0;
+
+    private double temporaryARModification = 0.0;
+    private double temporaryMRModification = 0.0;
+
     public static PlayerStats getOrCreate(Player player) {
         UUID uuid = player.getUniqueId();
         PlayerStats stats = INSTANCE_CACHE.get(uuid);
@@ -70,7 +76,7 @@ public class PlayerStats {
         if (itemStatsManager != null) {
             itemAD += itemStatsManager.getItemAD(player);
         }
-        return baseAD + itemAD + enchantAD;
+        return Math.max(0, baseAD + itemAD + enchantAD + temporaryADModification);
     }
 
     public double getPlayerAP(Player player) {
@@ -86,7 +92,49 @@ public class PlayerStats {
             itemAP += darkSeal.getAbilityPower(player);
         }
 
-        return baseAP + itemAP;
+        return Math.max(0, baseAP + itemAP + temporaryAPModification);
+    }
+
+    /**
+     * Modify temporary AD (for buffs/debuffs like Glacial Augment).
+     * Negative values reduce AD, positive values increase it.
+     */
+    public void modifyAD(double amount) {
+        this.temporaryADModification += amount;
+    }
+
+    /**
+     * Modify temporary AP (for buffs/debuffs like Glacial Augment).
+     * Negative values reduce AP, positive values increase it.
+     */
+    public void modifyAP(double amount) {
+        this.temporaryAPModification += amount;
+    }
+
+    /**
+     * Modify temporary armor (for buffs like After Shock).
+     * Negative values reduce armor, positive values increase it.
+     */
+    public void modifyAR(double amount) {
+        this.temporaryARModification += amount;
+    }
+
+    /**
+     * Modify temporary magic resistance (for buffs like After Shock).
+     * Negative values reduce MR, positive values increase it.
+     */
+    public void modifyMR(double amount) {
+        this.temporaryMRModification += amount;
+    }
+
+    /**
+     * Reset all temporary AD/AP/AR/MR modifications.
+     */
+    public void resetTemporaryModifications() {
+        this.temporaryADModification = 0.0;
+        this.temporaryAPModification = 0.0;
+        this.temporaryARModification = 0.0;
+        this.temporaryMRModification = 0.0;
     }
 
     public double getPlayerAF(Player player) {
@@ -147,7 +195,7 @@ public class PlayerStats {
         if (itemStatsManager != null) {
             itemAR += itemStatsManager.getItemAR(player);
         }
-        return baseAR + itemAR + enchantAR;
+        return baseAR + itemAR + enchantAR + temporaryARModification;
     }
 
     public double getPlayerMR(Player player) {
@@ -157,7 +205,7 @@ public class PlayerStats {
         if (itemStatsManager != null) {
             itemMR += itemStatsManager.getItemMR(player);
         }
-        return baseMR + itemMR;
+        return baseMR + itemMR + temporaryMRModification;
     }
 
     public double getPlayerMS(Player player) {
