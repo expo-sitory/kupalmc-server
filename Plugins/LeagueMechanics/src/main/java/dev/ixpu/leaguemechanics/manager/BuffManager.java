@@ -17,4 +17,8 @@ public class BuffManager {
 
         return baseValue + adBonus + apBonus;
     }
+
+    public double calculateDebuffValue(double baseValue, double reductionPercentage) {
+        return baseValue * (1 - (reductionPercentage / 100));
+    }
 }
