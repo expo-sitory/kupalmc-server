@@ -62,7 +62,7 @@ permissions:
     default: false
   rune-keystone.grasp-of-the-undying:
     default: false
-  rune-keystone.aftershock:
+  rune-keystone.after-shock:
     default: false
   rune-keystone.guardian:
     default: false
