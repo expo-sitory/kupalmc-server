@@ -368,7 +368,9 @@ public class PlayerEventListener implements Listener {
             return;
         }
 
+        double damage = event.getDamage();
         for (CooldownHandler rune : runeData.getAllRunes()) {
+            rune.onPlayerDamage(player, damage);
             if (rune instanceof GraspOfTheUndying grasp) {
                 grasp.activateGraspOfTheUndying(player, null);
             }
