@@ -260,7 +260,7 @@ Runes are divided into five paths:
   </tr>
     <tr align="justify">
     <td align="center">Aftershock</td>
-    <td>ᴘᴀꜱꜱɪᴠᴇ:  Immobilizing a target entity grants you a static 45 (+ 75% bonus armor) bonus armor and 45 (+ 75% bonus magic resistance) bonus magic resistance for 2.5 seconds. After the duration, you release a shockwave that deals 3.5 – 7 (based on level) (+ 8% of your bonus health) magic damage to entities within 5 blocks radius.</td>
+    <td>ᴘᴀꜱꜱɪᴠᴇ:  Being down to 30% of your max health grants you a static 45 (+ 75% bonus armor) bonus armor and 45 (+ 75% bonus magic resistance) bonus magic resistance for 2.5 seconds. After the duration, you release a shockwave that deals 3.5 – 7 (based on level) (+ 8% of your bonus health) magic damage to entities within 5 blocks radius.</td>
     <td align="center">20s</td>
   </tr>
     <tr align="justify">
