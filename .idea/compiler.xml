@@ -6,14 +6,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="keep-effects" />
-        <module name="cullingames" />
-        <module name="CoordsSync" />
         <module name="HorseStamina" />
+        <module name="items-origin" />
         <module name="LeagueMechanics" />
-        <module name="worldevents" />
-        <module name="item-origin" />
+        <module name="CoordsSync" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="coords-sync" target="25" />
+      <module name="culling-games" target="21" />
+      <module name="horse-stamina" target="25" />
+      <module name="keep-effects" target="21" />
+      <module name="league-mechanics" target="21" />
+      <module name="worldevents" target="21" />
+    </bytecodeTargetLevel>
   </component>
 </project>

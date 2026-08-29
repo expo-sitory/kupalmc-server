@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/kupalmc-server.iml" filepath="$PROJECT_DIR$/.idea/kupalmc-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CoordsSync/CoordsSync.iml" filepath="$PROJECT_DIR$/CoordsSync/CoordsSync.iml" />
+      <module fileurl="file://$PROJECT_DIR$/HorseStamina/HorseStamina.iml" filepath="$PROJECT_DIR$/HorseStamina/HorseStamina.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LeagueMechanics/LeagueMechanics.iml" filepath="$PROJECT_DIR$/LeagueMechanics/LeagueMechanics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ItemsOrigin/items-origin.iml" filepath="$PROJECT_DIR$/ItemsOrigin/items-origin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/plugins.iml" filepath="$PROJECT_DIR$/.idea/plugins.iml" />
     </modules>
   </component>
 </project>

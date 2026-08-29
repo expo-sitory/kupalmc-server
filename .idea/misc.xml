@@ -11,10 +11,14 @@
         <option value="$PROJECT_DIR$/Plugins/CullingGames/pom.xml" />
         <option value="$PROJECT_DIR$/Plugins/HorseStamina/pom.xml" />
         <option value="$PROJECT_DIR$/Plugins/LeagueMechanics/pom.xml" />
+        <option value="$PROJECT_DIR$/CoordsSync/pom.xml" />
+        <option value="$PROJECT_DIR$/HorseStamina/pom.xml" />
+        <option value="$PROJECT_DIR$/ItemsOrigin/pom.xml" />
+        <option value="$PROJECT_DIR$/LeagueMechanics/pom.xml" />
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="openjdk-26" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_26" project-jdk-name="26" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
