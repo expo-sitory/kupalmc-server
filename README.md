@@ -72,7 +72,7 @@ Units are typically given a group of non-zero, fundamental base stats by the ser
     A base statistic is a statistic's unmodified value.
     A growth statistic is an increase to the base amount that is gained explicitly by progressing.
 
-Increases and reductions to the statistics that are gained from any other sources such as runes, items, buffs and debuffs, are called bonuses. The exception is attack speed growth, which base value is depends on classes (Fighter, Bruiser, Assassin, Mage, Tank & Marksman) but uniquely counts toward the bonus amount.
+Increases and reductions to the statistics that are gained from any other sources such as runes, items, buffs and debuffs, are called bonuses. The exception is attack speed growth, which base value is depends on classes (Fighter, Bruiser, Assasin, Mage, Tank & Marksman) but uniquely counts toward the bonus amount.
 
 #### Types
 
