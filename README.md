@@ -72,7 +72,7 @@ Units are typically given a group of non-zero, fundamental base stats by the ser
     A base statistic is a statistic's unmodified value.
     A growth statistic is an increase to the base amount that is gained explicitly by progressing.
 
-Increases and reductions to the statistics that are gained from any other sources such as runes, items, buffs and debuffs, are called bonuses. The exception is attack speed growth, which base value is depends on the **player's current country** and **primary rune path** but uniquely counts toward the bonus amount.
+Increases and reductions to the statistics that are gained from any other sources such as runes, items, buffs and debuffs, are called bonuses. The exception is attack speed growth, which base value is depends on classes (Fighter, Bruiser, Assasin, Mage, Tank & Marksman) but uniquely counts toward the bonus amount.
 
 #### Types
 
@@ -84,7 +84,7 @@ There are only **10** current types of player statistics divided into 3 differen
   - <a id="armor-bullet"></a>Armor **[AR]**: Reduces (mitigates) the amount of physical damage taken.
   - <a id="mr-bullet"></a>Magic Resistance **[MR]**: Reduces (mitigates) the amount of magic damage taken.
 - ##### Offensive
-  - Attack speed **[AS]**: The number of attacks the player is allowed to perform per second. (Yes no more attribute swap to deal damage)
+  - Attack speed **[AS]**: The number of attacks the player is allowed to perform per second.
   - <a id="ad-bullet"></a>Attack damage **[AD]**: One of the two main offensive statistics, along with ability power. Unmodified basic attacks deal exactly this amount of damage.
   - <a id="ap-bullet"></a>Ability power **[AP]**: One of the two main offensive statistics, along with attack damage.
   - Critical strike chance **[Crit%]**: Denotes the chance that a basic attack will critically strike. (Yes vanilla jump crit attack deals no extra damage)
