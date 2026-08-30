@@ -16,7 +16,7 @@ public class dark_seal implements ItemPassive {
 
     @Override
     public String getDescription() {
-        return "§7ᴜɴɪQᴜᴇ – ɢʟᴏʀʏ: §fGain §e2 stacks §ffor each player kill, up to a maximum of §e10 stacks§f. \n§fFor every stack, gain §93 §lbonus §r§9ability power§f, up to §930 §fat maximum stacks. Lose 2 stacks on death and all stacks on disconnect.";
+        return "§7ᴜɴɪQᴜᴇ – ɢʟᴏʀʏ: §fGain §e2 stacks §ffor each\n§fplayer kill, up to a maximum of §e10 stacks§f. \n§fFor every stack, gain §93 §lbonus §r§9ability power§f, up to §930\n§fat maximum stacks. Lose 2 stacks on death, Lose all on disconnect";
     }
 
     @Override
