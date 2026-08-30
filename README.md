@@ -72,7 +72,7 @@ Units are typically given a group of non-zero, fundamental base stats by the ser
     A base statistic is a statistic's unmodified value.
     A growth statistic is an increase to the base amount that is gained explicitly by progressing.
 
-Increases and reductions to the statistics that are gained from any other sources such as runes, items, buffs and debuffs, are called bonuses. The exception is attack speed growth, which base value is depends on classes (Fighter, Bruiser, Assasin, Mage, Tank & Marksman) but uniquely counts toward the bonus amount.
+Increases and reductions to the statistics that are gained from any other sources such as runes, items, buffs and debuffs, are called bonuses. The exception is attack speed growth, which base value is depends on classes (Fighter, Support, Assasin, Mage, Tank & Marksman) but uniquely counts toward the bonus amount.
 
 #### Types
 
@@ -118,7 +118,7 @@ These three types exist to add variability to gameplay beyond simple deduction o
      Higher Bonus AD →  Attack damage
      Higher AP →  Ability power
 
-1 point of Adaptive Force provides **0.6** bonus AD or **0.8 AP**.
+1 point of Adaptive Force provides **0.6** bonus AD or **0.8** AP.
 
 If the bonus attack damage and the ability power of the unit are equal, the stat granted will always fallback to **AD**.
 
