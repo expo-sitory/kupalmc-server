@@ -13,6 +13,7 @@ import dev.ixpu.leaguemechanics.manager.ItemPassivesManager;
 import dev.ixpu.leaguemechanics.manager.ItemShopManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
+import dev.ixpu.leaguemechanics.manager.CritManager;
 
 import dev.ixpu.leaguemechanics.player.PlayerRuneData;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
@@ -36,6 +37,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.Bukkit;
 import org.bukkit.util.Vector;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
@@ -44,6 +46,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
@@ -63,6 +66,8 @@ public class PlayerEventListener implements Listener {
     private final Map<UUID, Long> titleCooldown = new HashMap<>();
     private final Map<UUID, Long> attackCooldown = new HashMap<>();
     private final Map<UUID, Boolean> letRunesThroughMap = new HashMap<>();
+    private final Map<UUID, Map<UUID, Long>> lastHitTimes = new HashMap<>();
+    private static final long ASSIST_WINDOW_MS = 10_000L;
 
     public PlayerEventListener(LeagueMechanics plugin, RunePersistence runePersistence) {
         this.plugin = plugin;
@@ -76,14 +81,7 @@ public class PlayerEventListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         runeManager.loadPlayerRunes(player);
-
-        String keystoneRuneId = runePersistence.loadKeystoneRune(player.getUniqueId());
-        if (keystoneRuneId != null) {
-            CooldownHandler keystone = runeRegistry.getRune(keystoneRuneId);
-            if (keystone != null) {
-                runeManager.setPlayerKeystoneRune(player, keystone);
-            }
-        }
+        dev.ixpu.leaguemechanics.player.PlayerClass.loadPlayerClass(player);
         applyPlayerStats(player);
         CooldownHandler glacial = runeRegistry.getRune("glacial-augment");
         if (glacial instanceof dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment glacialAugment) {
@@ -101,6 +99,8 @@ public class PlayerEventListener implements Listener {
             grasp.resetAbsorption(player);
         }
         runeManager.unloadPlayerRunes(player);
+        dev.ixpu.leaguemechanics.player.PlayerClass.unloadPlayer(uuid);
+        lastHitTimes.remove(uuid);
 
         dev.ixpu.leaguemechanics.item.passives.dark_seal darkSeal =
                 (dev.ixpu.leaguemechanics.item.passives.dark_seal) ItemPassivesRegistry.getInstance().getPassive("dark-seal");
@@ -110,6 +110,7 @@ public class PlayerEventListener implements Listener {
 
         PlayerStats.invalidateCache(uuid);
         itemStatsManager.invalidateCache(uuid);
+        CritManager.getInstance().removePlayer(player);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -119,10 +120,12 @@ public class PlayerEventListener implements Listener {
         }
 
         if (event.getView().getTitle().equals(ItemShopGUI.getInventoryTitle())) {
-            int slot = event.getRawSlot();
-            if (slot >= 0 && slot < event.getInventory().getSize()) {
-                ItemShopGUI.getInstance().handleClick(player, slot);
+            if (event.getClickedInventory() == event.getView().getTopInventory()) {
                 event.setCancelled(true);
+                int slot = event.getRawSlot();
+                if (slot >= 0 && slot < event.getInventory().getSize()) {
+                    ItemShopGUI.getInstance().handleClick(player, slot);
+                }
                 return;
             }
         }
@@ -222,10 +225,32 @@ public class PlayerEventListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
+        PlayerStats stats = PlayerStats.getOrCreate(event.getPlayer());
+        stats.setTemporaryASModification(event.isSneaking() ? 1.0 : 0.0);
+        applyPlayerStats(event.getPlayer());
+    }
+
     @EventHandler
     public void onLightningDamage(EntityDamageEvent event) {
         if (event.getCause() == EntityDamageEvent.DamageCause.LIGHTNING) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        PlayerRuneData runeData = runeManager.getPlayerRuneData(player);
+        if (runeData == null) {
+            return;
+        }
+        for (CooldownHandler rune : runeData.getAllRunes()) {
+            if (rune == null) {
+                continue;
+            }
+            rune.onBlockBreak(player, 1);
         }
     }
 
@@ -322,11 +347,17 @@ public class PlayerEventListener implements Listener {
 
         shooter.getWorld().playSound(shooter.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1.0f, 1.0f);
 
+        if (target instanceof Player targetPlayer) {
+            recordHit(shooter, targetPlayer);
+        }
+
         PlayerRuneData runeData = runeManager.getPlayerRuneData(shooter);
         if (runeData != null) {
-            CooldownHandler keystoneRune = runeData.getKeystoneRune();
-            if (keystoneRune != null) {
-                keystoneRune.onProjectileHit(shooter, target);
+            for (CooldownHandler rune : runeData.getAllRunes()) {
+                if (rune == null) {
+                    continue;
+                }
+                rune.onProjectileHit(shooter, target);
             }
         }
 
@@ -358,9 +389,11 @@ public class PlayerEventListener implements Listener {
 
         PlayerRuneData runeData = runeManager.getPlayerRuneData(attacker);
         if (runeData != null) {
-            CooldownHandler keystoneRune = runeData.getKeystoneRune();
-            if (keystoneRune != null) {
-                keystoneRune.onAttack(attacker, target);
+            for (CooldownHandler rune : runeData.getAllRunes()) {
+                if (rune == null) {
+                    continue;
+                }
+                rune.onAttack(attacker, target);
             }
         }
 
@@ -372,6 +405,7 @@ public class PlayerEventListener implements Listener {
                     guardian.onTakeDamage(targetPlayer);
                 }
             }
+            recordHit(attacker, targetPlayer);
         }
 
         damageEvent(attacker, target, "Melee Hit Event");
@@ -391,11 +425,15 @@ public class PlayerEventListener implements Listener {
         }
 
         double damage = event.getDamage();
+        boolean blockedByShield = player.isBlocking();
         for (CooldownHandler rune : runeData.getAllRunes()) {
             if (rune == null) {
                 continue;
             }
             rune.onPlayerDamage(player, damage);
+            if (blockedByShield) {
+                rune.onShieldBlock(player);
+            }
             if (rune instanceof GraspOfTheUndying grasp) {
                 grasp.activateGraspOfTheUndying(player, null);
             }
@@ -453,24 +491,37 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler
+    public void onPotionEffect(EntityPotionEffectEvent event) {
+        if (event.getAction() != EntityPotionEffectEvent.Action.ADDED) {
+            return;
+        }
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+
+        PlayerRuneData runeData = runeManager.getPlayerRuneData(player);
+        if (runeData == null) {
+            return;
+        }
+
+        for (CooldownHandler rune : runeData.getAllRunes()) {
+            if (rune == null) {
+                continue;
+            }
+            rune.onPotionEffectGain(player, event.getNewEffect());
+        }
+    }
+
+    @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
         ItemStack drop = event.getItemDrop().getItemStack();
 
         if (isLeagueItem(drop)) {
+            int originalSlot = findItemSlot(player, drop);
             event.setCancelled(true);
-
-            if (player.getOpenInventory().getTitle().equals(ItemShopManager.SHOP_INVENTORY_TITLE)) {
-                player.sendMessage(Component.text("§c✗ Use shift-click in your inventory to sell league items."));
-            } else {
-                player.sendMessage(Component.text("§c✗ Open the Item Shop to sell league items."));
-            }
-
-            final ItemStack toRestore = drop.clone();
-            final int originalSlot = findItemSlot(player, drop);
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                moveLeagueItemToMainInventory(player, toRestore, originalSlot);
-            }, 1L);
+            ItemShopManager.getInstance().sellItem(player, drop, originalSlot);
+            ItemShopGUI.updateShopDisplay(player);
             return;
         }
 
@@ -480,6 +531,9 @@ public class PlayerEventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+
+        fireTakedowns(player);
+        CritManager.getInstance().resetFailureStreak(player);
 
         List<Map.Entry<ItemStack, Integer>> leagueItems = new ArrayList<>();
         for (ItemStack drop : event.getDrops()) {
@@ -619,7 +673,9 @@ public class PlayerEventListener implements Listener {
         ItemStatsManager statsManager = plugin.getStatsManager();
         if (statsManager == null) return;
 
-        double bonusHP = statsManager.getItemHP(player);
+        double classBaseHP = dev.ixpu.leaguemechanics.player.PlayerClass.getPlayerClassBaseHP(player);
+        double itemBonusHP = statsManager.getItemHP(player);
+        double bonusHP = classBaseHP + itemBonusHP;
         var attr = player.getAttribute(Attribute.MAX_HEALTH);
         if (attr != null) {
             new ArrayList<>(attr.getModifiers()).forEach(attr::removeModifier);
@@ -641,7 +697,11 @@ public class PlayerEventListener implements Listener {
         ItemStatsManager statsManager = plugin.getStatsManager();
         if (statsManager == null) return;
 
-        double bonusMS = statsManager.getItemMS(player);
+        PlayerStats playerStats = PlayerStats.getOrCreate(player);
+        double itemMS = statsManager.getItemMS(player);
+        double runeMS = playerStats.getTemporaryMSModification();
+        double crouchPenalty = playerStats.getTemporaryASModification() > 0 ? 3.0 : 0.0;
+        double bonusMS = itemMS + runeMS - crouchPenalty;
 
         var attr = player.getAttribute(Attribute.MOVEMENT_SPEED);
         if (attr != null) {
@@ -673,16 +733,18 @@ public class PlayerEventListener implements Listener {
         PlayerStats stats = PlayerStats.getOrCreate(player);
 
         double playerAS = stats.getPlayerAS(player);
-        double attackSpeed = 35 * (1.0 - playerAS);
+
+        double cooldownTicks = 20.0 / playerAS;
+        int cooldownInt = (int) Math.max(1, Math.ceil(cooldownTicks));
 
         UUID uuid = player.getUniqueId();
-        long cooldownMs = (long) attackSpeed * 50;
+        long cooldownMs = (long) (cooldownTicks * 50);
         attackCooldown.put(uuid, System.currentTimeMillis() + cooldownMs);
 
         for (int i = 0; i < 9; i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item != null && !item.getType().isAir()) {
-                player.setCooldown(item.getType(), (int) attackSpeed);
+                player.setCooldown(item.getType(), cooldownInt);
             }
         }
     }
@@ -740,6 +802,25 @@ public class PlayerEventListener implements Listener {
 
         double statsDamage = damage.DamageCalculation(player, target, 0, 0, 0);
 
+        boolean didCrit = false;
+        if (statsDamage > 0) {
+            double critChance = damage.getPlayerCritChance(player);
+            if (critChance > 0 && DamageManager.criticalChance(player, critChance)) {
+                statsDamage *= DamageManager.getCritDamageMultiplier(player);
+                didCrit = true;
+            }
+        }
+        if (didCrit) {
+            PlayerRuneData critRuneData = runeManager.getPlayerRuneData(player);
+            if (critRuneData != null) {
+                for (CooldownHandler rune : critRuneData.getAllRunes()) {
+                    if (rune != null) {
+                        rune.onCrit(player);
+                    }
+                }
+            }
+        }
+
         double newHealth = target.getHealth();
         if (target instanceof Player targetPlayer) {
             double absorption = targetPlayer.getAbsorptionAmount();
@@ -769,6 +850,7 @@ public class PlayerEventListener implements Listener {
 
         DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] Stats Damage = §d" + Math.ceil(statsDamage * 100) / 100.0);
         DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Target New HP = §d" + Math.ceil(newHealth * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] Crit Streak = §d" + CritManager.getInstance().getFailureStreak(player));
 
         target.damage(0.001);
         if (newHealth <= 0) {
@@ -809,6 +891,48 @@ public class PlayerEventListener implements Listener {
             return false;
         }
         return ItemModifier.getItemId(item) != null;
+    }
+
+    private void recordHit(Player attacker, Player victim) {
+        if (attacker == null || victim == null || attacker.getUniqueId().equals(victim.getUniqueId())) {
+            return;
+        }
+        lastHitTimes
+            .computeIfAbsent(victim.getUniqueId(), k -> new HashMap<>())
+            .put(attacker.getUniqueId(), System.currentTimeMillis());
+    }
+
+    private void fireTakedowns(Player victim) {
+        Map<UUID, Long> attackers = lastHitTimes.remove(victim.getUniqueId());
+        if (attackers == null || attackers.isEmpty()) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        Player killer = victim.getKiller();
+        for (Map.Entry<UUID, Long> entry : attackers.entrySet()) {
+            if (now - entry.getValue() > ASSIST_WINDOW_MS) {
+                continue;
+            }
+            Player attacker = Bukkit.getPlayer(entry.getKey());
+            if (attacker == null) {
+                continue;
+            }
+            boolean isKill = killer != null && killer.getUniqueId().equals(entry.getKey());
+            onTakedown(attacker, victim, isKill);
+        }
+    }
+
+    public void onTakedown(Player attacker, Player victim, boolean isKill) {
+        PlayerRuneData runeData = runeManager.getPlayerRuneData(attacker);
+        if (runeData == null) {
+            return;
+        }
+        for (CooldownHandler rune : runeData.getAllRunes()) {
+            if (rune == null) {
+                continue;
+            }
+            rune.onTakedown(attacker, victim, isKill);
+        }
     }
 
     private boolean exceedsItemLimit(Player player, String itemId) {
