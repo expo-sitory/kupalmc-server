@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics.item.shop;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassive;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import dev.ixpu.leaguemechanics.util.ItemModifier;
@@ -14,6 +15,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
+import dev.ixpu.leaguemechanics.item.ItemStatsData;
+
 public class ItemShopGUI {
     private static ItemShopGUI instance;
     private static final int INVENTORY_SIZE = 54;
@@ -22,15 +25,17 @@ public class ItemShopGUI {
     private static final int CATEGORY_START = 0;
     private static final int CATEGORY_END = 8;
     private static final int FILLER_START = 9;
-    private static final int FILLER_END = 15;
-    private static final int ITEMS_START = 16;
-    private static final int ITEMS_PER_PAGE = 38;
+    private static final int FILLER_END = 17;
+    static final int ITEMS_START = 18;
+    private static final int ITEMS_PER_PAGE = 36;
 
     private static final String CATEGORY_ALL = "all";
     private static final String CATEGORY_MAIN = "main";
     private static final String CATEGORY_MAGE = "mage";
     private static final String CATEGORY_FIGHTER = "fighter";
     private static final String CATEGORY_TANK = "tank";
+    private static final String CATEGORY_MARKSMAN = "marksman";
+    private static final String CATEGORY_SUPPORT = "support";
 
     private final Map<UUID, Integer> playerPage = new HashMap<>();
     private final Map<UUID, String> playerCategory = new HashMap<>();
@@ -52,6 +57,10 @@ public class ItemShopGUI {
 
     public static String getInventoryTitle() {
         return INVENTORY_TITLE;
+    }
+
+    public static int getItemsStart() {
+        return ITEMS_START;
     }
 
     public void openShopInstance(Player player) {
@@ -79,17 +88,16 @@ public class ItemShopGUI {
 
     private void setCategoryButtons(Inventory inventory, String activeCategory) {
         int[] categorySlots = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-
         String[][] categories = {
-            {CATEGORY_ALL, "§f§lᴀʟʟ", "§7View all items", "HOPPER"},
-            {CATEGORY_MAIN, "§a§lꜱᴛᴀʀᴛᴇʀ", "§7Starting items", "WHEAT"},
-            {CATEGORY_MAGE, "§9§lᴍᴀɢᴇ", "§7AP items", "BOOK"},
-            {CATEGORY_FIGHTER, "§c§lғɪɢʜᴛᴇʀ", "§7AD items", "IRON_SWORD"},
-            {CATEGORY_TANK, "§e§lᴛᴀɴᴋ", "§7Defensive items", "SHIELD"},
-            {"page_prev", "§c§l◀", "§7Previous page", "ARROW"},
-            {"page_1", "§f§l1", "§7Page 1", "PAPER"},
-            {"page_2", "§f§l2", "§7Page 2", "PAPER"},
-            {"page_next", "§a§l▶", "§7Next page", "ARROW"}
+            {CATEGORY_ALL, "§f§lᴀʟʟ", "§7View all items", "CHEST", "ENDER_CHEST"},
+            {CATEGORY_MAIN, "§a§lꜱᴛᴀʀᴛᴇʀ", "", "CHEST", "ENDER_CHEST"},
+            {CATEGORY_MAGE, "§9☄ §lᴍᴀɢᴇ", "", "CHEST", "ENDER_CHEST"},
+            {CATEGORY_FIGHTER, "§6🗡 §lғɪɢʜᴛᴇʀ", "", "CHEST", "ENDER_CHEST"},
+            {CATEGORY_TANK, "§e🛡 §lᴛᴀɴᴋ", "", "CHEST", "ENDER_CHEST"},
+            {CATEGORY_MARKSMAN, "§c🏹 §lᴍᴀʀᴋꜱᴍᴀɴ", "", "CHEST", "ENDER_CHEST"},
+            {CATEGORY_SUPPORT, "§d❤ §lꜱᴜᴘᴘᴏʀᴛ", "", "CHEST", "ENDER_CHEST"},
+            {"page_prev", "§c§l◀", "§7Previous page", "ARROW", "ARROW"},
+            {"page_next", "§a§l▶", "§7Next page", "ARROW", "ARROW"}
         };
 
         for (int i = 0; i < categories.length && i < categorySlots.length; i++) {
@@ -97,7 +105,19 @@ public class ItemShopGUI {
             String categoryId = cat[0];
             String displayName = cat[1];
             String description = cat[2];
-            String materialName = cat[3];
+            String defaultMaterialName = cat[3];
+            String activeMaterialName = cat[4];
+
+            if (categoryId.isEmpty() && displayName.isEmpty()) {
+                continue;
+            }
+
+            boolean isActive = categoryId.equals(activeCategory);
+            boolean isPageButton = categoryId.equals("page_prev") || categoryId.equals("page_next");
+
+            String materialName = (isActive && !isPageButton && !activeMaterialName.isEmpty())
+                    ? activeMaterialName
+                    : defaultMaterialName;
 
             Material material;
             try {
@@ -105,9 +125,6 @@ public class ItemShopGUI {
             } catch (IllegalArgumentException e) {
                 material = Material.PAPER;
             }
-
-            boolean isActive = categoryId.equals(activeCategory);
-            boolean isPageButton = categoryId.startsWith("page_") || categoryId.equals("page_prev") || categoryId.equals("page_next");
 
             ItemStack item = new ItemStack(material);
             ItemMeta meta = item.getItemMeta();
@@ -213,6 +230,8 @@ public class ItemShopGUI {
             case "mage" -> 1;
             case "fighter" -> 2;
             case "tank" -> 3;
+            case "marksman" -> 4;
+            case "support" -> 5;
             default -> 99;
         };
     }
@@ -253,10 +272,10 @@ public class ItemShopGUI {
                 lore.add("§a❤ " + formatStat(shopItem.getStats().getHp()) + " §fHealth");
             }
             if (shopItem.getStats().getHr() > 0) {
-                lore.add("§2❣ " + formatStat(shopItem.getStats().getHr()) + " §fHealth Regen per 15 sec.");
+                lore.add("§2❣ " + formatStat(shopItem.getStats().getHr()) + " §fHealth Regen per 5 sec.");
             }
             if (shopItem.getStats().getSr() > 0) {
-                lore.add("§6🍖 " + formatStat(shopItem.getStats().getSr()) + " §fSaturation Regen per 25 sec.");
+                lore.add("§6🍖 " + formatStat(shopItem.getStats().getSr()) + " §fSaturation Regen per 5 sec.");
             }
             if (shopItem.getStats().getAs() > 0) {
                 lore.add("§c➺ " + formatStat(shopItem.getStats().getAs()) + "% §fAttack Speed");
@@ -280,7 +299,13 @@ public class ItemShopGUI {
                 if (playerOwnsItem(player, shopItem)) {
                     lore.add("§7§lᴏᴡɴᴇᴅ");
                 } else {
-                    lore.add("§7§ʟᴏᴄᴋᴇᴅ");
+                    lore.add("§7§lᴏᴄᴋᴇᴅ");
+                    List<String> required = shopItem.getRequiredItems();
+                    if (!required.isEmpty() && !playerHasRequiredItems(player, required)) {
+                        String names = formatRequiredItemNames(required);
+                        lore.add("");
+                        lore.add("§7   ʀᴇQᴜɪʀᴇᴍᴇɴᴛꜱ: §7" + names);
+                    }
                 }
             } else {
                 lore.add("§a§lᴘᴜʀᴄʜᴀꜱᴇ");
@@ -307,10 +332,14 @@ public class ItemShopGUI {
             int buttonIndex = slot - CATEGORY_START;
 
             String[] categoryIds = {CATEGORY_ALL, CATEGORY_MAIN, CATEGORY_MAGE, CATEGORY_FIGHTER, CATEGORY_TANK,
-                                   "page_prev", "page_1", "page_2", "page_next"};
+                                   CATEGORY_MARKSMAN, CATEGORY_SUPPORT, "page_prev", "page_next"};
 
             if (buttonIndex < categoryIds.length) {
                 String clicked = categoryIds[buttonIndex];
+
+                if (clicked.isEmpty()) {
+                    return true;
+                }
 
                 if (clicked.startsWith("page_")) {
                     int currentPage = playerPage.getOrDefault(playerId, 0);
@@ -378,7 +407,32 @@ public class ItemShopGUI {
     }
 
     private boolean canPlayerBuyItem(Player player, ItemShopRegistry.ShopItem shopItem) {
-        return !playerOwnsItem(player, shopItem);
+        if (playerOwnsItem(player, shopItem)) {
+            return false;
+        }
+        List<String> required = shopItem.getRequiredItems();
+        if (!required.isEmpty() && !playerHasRequiredItems(player, required)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean playerHasRequiredItems(Player player, List<String> requiredIds) {
+        for (String requiredId : requiredIds) {
+            if (!playerOwnsLeagueItemId(player, requiredId)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean playerOwnsLeagueItemId(Player player, String itemId) {
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv != null && !inv.getType().isAir() && itemId.equals(ItemModifier.getItemId(inv))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean playerOwnsItem(Player player, ItemShopRegistry.ShopItem shopItem) {
@@ -397,6 +451,20 @@ public class ItemShopGUI {
         }
 
         return false;
+    }
+
+    private String formatRequiredItemNames(List<String> requiredIds) {
+        ItemStatsData statsData = ItemStatsData.getInstance();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < requiredIds.size(); i++) {
+            if (i > 0) sb.append(" §7+ ");
+            String id = requiredIds.get(i);
+            String name = statsData != null && statsData.getItem(id) != null
+                    ? statsData.getItem(id).getName()
+                    : id;
+            sb.append("§e").append(name);
+        }
+        return sb.toString();
     }
 
     private String formatStat(double value) {

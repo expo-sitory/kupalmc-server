@@ -2,6 +2,7 @@ package dev.ixpu.leaguemechanics.item.shop;
 
 import org.bukkit.inventory.ItemRarity;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ItemShopData {
@@ -13,10 +14,12 @@ public class ItemShopData {
     private final Map<String, ItemRarity> itemRarities = new HashMap<>();
     private final Map<String, String> itemGroups = new HashMap<>();
     private final Map<String, String> itemCategories = new HashMap<>();
+    private final Map<String, List<String>> itemRequiredItems = new HashMap<>();
 
     private ItemShopData() {
         loadDefaultItems();
         loadDefaultModels();
+        loadDefaultRequiredItems();
     }
 
     public static ItemShopData getInstance() {
@@ -59,6 +62,14 @@ public class ItemShopData {
 
         addItem("cloth-armor", 14, 6, 0, ItemRarity.UNCOMMON, null, "tank");
         addItem("null-magic-mantle", 17, 6, 1, ItemRarity.UNCOMMON, null, "tank");
+        addItem("chain-vest", 24, 6, 2, ItemRarity.UNCOMMON, null, "tank");
+        addItem("negatron-cloak", 27, 6, 3, ItemRarity.UNCOMMON, null, "tank");
+
+    }
+
+    private void loadDefaultRequiredItems() {
+        addRequiredItem("chain-vest", "cloth-armor");
+        addRequiredItem("negatron-cloak", "null-magic-mantle");
     }
 
     private void loadDefaultModels() {
@@ -79,6 +90,8 @@ public class ItemShopData {
         itemModels.put("b.f-sword", "minecraft:diamond_sword");
         itemModels.put("cloth-armor", "minecraft:leather_chestplate");
         itemModels.put("null-magic-mantle", "minecraft:copper_nautilus_armor");
+        itemModels.put("chain-vest", "minecraft:chainmail_chestplate");
+        itemModels.put("negatron-cloak", "minecraft:iron_nautilus_armor");
         itemModels.put("rejuvenation-bead", "minecraft:green_bundle");
         itemModels.put("faeri-charm", "minecraft:orange_bundle");
         itemModels.put("ruby-crystal", "minecraft:red_dye");
@@ -95,6 +108,10 @@ public class ItemShopData {
         if (category != null) {
             itemCategories.put(itemId, category);
         }
+    }
+
+    private void addRequiredItem(String itemId, String... requiredIds) {
+        itemRequiredItems.put(itemId, List.of(requiredIds));
     }
 
     public int getPrice(String itemId) {
@@ -131,5 +148,9 @@ public class ItemShopData {
 
     public String getCategory(String itemId) {
         return itemCategories.get(itemId);
+    }
+
+    public List<String> getRequiredItems(String itemId) {
+        return itemRequiredItems.getOrDefault(itemId, List.of());
     }
 }

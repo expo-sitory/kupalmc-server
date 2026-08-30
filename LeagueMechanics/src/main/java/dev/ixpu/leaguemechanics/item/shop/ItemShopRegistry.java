@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.item.ItemStatsData;
 import dev.ixpu.leaguemechanics.item.ItemStatsRegistry;
 
 import java.util.*;
+import java.util.List;
 
 public class ItemShopRegistry {
     private static ItemShopRegistry instance;
@@ -27,8 +28,8 @@ public class ItemShopRegistry {
         String[] itemIds = {
                 "amplifying-tome", "blasting-wand", "needlessly-large-rod",
                 "cull", "long-sword", "pickaxe", "b.f-sword",
-                "cloth-armor",
-                "null-magic-mantle",
+                "cloth-armor", "chain-vest",
+                "null-magic-mantle", "negatron-cloak",
                 "ruby-crystal",
                 "rejuvenation-bead",
                 "faeri-charm",
@@ -40,7 +41,12 @@ public class ItemShopRegistry {
         for (String itemId : itemIds) {
             ItemStatsRegistry stats = statsData.getItem(itemId);
             if (stats != null && shopData.hasItem(itemId)) {
-                shopItems.add(new ShopItem(stats, shopData.getPrice(itemId), shopData.getLimit(itemId)));
+                shopItems.add(new ShopItem(
+                        stats,
+                        shopData.getPrice(itemId),
+                        shopData.getLimit(itemId),
+                        shopData.getRequiredItems(itemId)
+                ));
             }
         }
     }
@@ -62,11 +68,13 @@ public class ItemShopRegistry {
         private final ItemStatsRegistry stats;
         private final int price;
         private final int limit;
+        private final List<String> requiredItems;
 
-        public ShopItem(ItemStatsRegistry stats, int price, int limit) {
+        public ShopItem(ItemStatsRegistry stats, int price, int limit, List<String> requiredItems) {
             this.stats = stats;
             this.price = price;
             this.limit = limit;
+            this.requiredItems = requiredItems;
         }
 
         public ItemStatsRegistry getStats() {
@@ -79,6 +87,10 @@ public class ItemShopRegistry {
 
         public int getLimit() {
             return limit;
+        }
+
+        public List<String> getRequiredItems() {
+            return requiredItems;
         }
 
         public String getDisplayName() {
