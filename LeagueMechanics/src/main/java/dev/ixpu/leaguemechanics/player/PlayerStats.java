@@ -27,6 +27,10 @@ public class PlayerStats {
 
     private double temporaryARModification = 0.0;
     private double temporaryMRModification = 0.0;
+    private double temporaryTDModification = 0.0;
+    private double temporaryMSModification = 0.0;
+    private double temporaryASModification = 0.0;
+    private double temporaryCritDamageModification = 0.0;
 
     public static PlayerStats getOrCreate(Player player) {
         UUID uuid = player.getUniqueId();
@@ -104,7 +108,7 @@ public class PlayerStats {
         if (itemStatsManager != null) {
             itemTD += itemStatsManager.getItemTD(player);
         }
-        return baseTD + itemTD + bonusTD;
+        return baseTD + itemTD + bonusTD + temporaryTDModification;
     }
 
     public double getPlayerAS(Player player) {
@@ -133,8 +137,8 @@ public class PlayerStats {
             }
         }
         double asRatio = getPlayerClassAttackSpeedRatio(player);
-        double bonusAS = (itemAS + runeAS) / 100;
-        return bonusAS * (asRatio / baseAS);
+        double bonusASMultiplier = (itemAS + runeAS) / 100.0;
+        return asRatio * bonusASMultiplier + baseAS;
     }
 
     public double getPlayerAR(Player player) {
@@ -174,6 +178,7 @@ public class PlayerStats {
             double totalMS = (baseMS + attributeMS) * 100;
             totalMS += (speedEffectBonus * 100);
             totalMS += itemMS;
+            totalMS += temporaryMSModification;
 
             return totalMS;
         } catch (Exception e) {
@@ -189,9 +194,9 @@ public class PlayerStats {
     private double levelBasedTD(Player player) {
         double playerLevel = player.getLevel();
         if (playerLevel >= 300) {
-            return 20;
+            return 15;
         } else if (playerLevel >= 200) {
-            return 16;
+            return 12;
         } else if (playerLevel >= 100) {
             return 8;
         } else if (playerLevel >= 50) {
@@ -201,15 +206,25 @@ public class PlayerStats {
         }
     }
 
+    private static final Set<Material> WEAPON_MATERIALS = EnumSet.of(
+            Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD,
+            Material.DIAMOND_SWORD, Material.NETHERITE_SWORD, Material.GOLDEN_SWORD,
+            Material.WOODEN_AXE, Material.STONE_AXE, Material.IRON_AXE,
+            Material.DIAMOND_AXE, Material.NETHERITE_AXE, Material.GOLDEN_AXE,
+            Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE,
+            Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE, Material.GOLDEN_PICKAXE,
+            Material.WOODEN_SHOVEL, Material.STONE_SHOVEL, Material.IRON_SHOVEL,
+            Material.DIAMOND_SHOVEL, Material.NETHERITE_SHOVEL, Material.GOLDEN_SHOVEL,
+            Material.WOODEN_HOE, Material.STONE_HOE, Material.IRON_HOE,
+            Material.DIAMOND_HOE, Material.NETHERITE_HOE, Material.GOLDEN_HOE,
+            Material.TRIDENT, Material.MACE
+    );
+
     private boolean isWeapon(ItemStack item) {
         if (item == null || item.getType().isAir()) {
             return false;
         }
-
-        String name = item.getType().toString().toLowerCase();
-        return name.contains("sword") || name.contains("axe") || name.contains("trident") ||
-                name.contains("pickaxe") || name.contains("shovel") || name.contains("hoe") ||
-                name.contains("mace") || name.contains("spear");
+        return WEAPON_MATERIALS.contains(item.getType());
     }
 
     public double getWeaponEnchant(Player player) {
@@ -265,11 +280,47 @@ public class PlayerStats {
         this.temporaryMRModification += amount;
     }
 
+    public void modifyTD(double amount) {
+        this.temporaryTDModification += amount;
+    }
+
+    public void modifyMS(double amount) {
+        this.temporaryMSModification += amount;
+    }
+
+    public double getTemporaryMSModification() {
+        return temporaryMSModification;
+    }
+
+    public void setTemporaryASModification(double value) {
+        this.temporaryASModification = value;
+    }
+
+    public double getTemporaryASModification() {
+        return temporaryASModification;
+    }
+
+    public void modifyCritDamage(double amount) {
+        this.temporaryCritDamageModification += amount;
+    }
+
+    public double getTemporaryTDModification() {
+        return temporaryTDModification;
+    }
+
+    public double getCritDamageBonus(Player player) {
+        return temporaryCritDamageModification;
+    }
+
     public void resetTemporaryModifications() {
         this.temporaryADModification = 0.0;
         this.temporaryAPModification = 0.0;
         this.temporaryARModification = 0.0;
         this.temporaryMRModification = 0.0;
+        this.temporaryTDModification = 0.0;
+        this.temporaryMSModification = 0.0;
+        this.temporaryASModification = 0.0;
+        this.temporaryCritDamageModification = 0.0;
     }
 
 
