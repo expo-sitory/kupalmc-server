@@ -4,6 +4,7 @@ import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopData;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopGUI;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopRegistry;
+import dev.ixpu.leaguemechanics.item.ItemStatsData;
 import dev.ixpu.leaguemechanics.util.ItemModifier;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -92,7 +93,7 @@ public class ItemShopManager implements Listener {
             return Integer.compare(shopData.getOrder(a.getId()), shopData.getOrder(b.getId()));
         });
 
-        int ITEMS_START = 16;
+        int ITEMS_START = ItemShopGUI.getItemsStart();
         if (clickedSlot >= ITEMS_START && clickedSlot < 54) {
             int itemIndex = clickedSlot - ITEMS_START;
             if (itemIndex < sortedItems.size()) {
@@ -155,12 +156,71 @@ public class ItemShopManager implements Listener {
             return false;
         }
 
+        List<String> required = shopItem.getRequiredItems();
+        if (!required.isEmpty()) {
+            if (!playerHasRequiredItems(player, required)) {
+                String names = formatRequiredItemNames(required);
+                player.sendMessage(Component.text("§cRequires: §f" + names + " §c(purchase them first)"));
+                return false;
+            }
+        }
+
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.5f);
         player.setLevel(playerLevel - price);
         ItemStack purchasedItem = createPurchaseItem(shopItem);
         addItemToInventory(player, purchasedItem);
+        consumeRequiredItems(player, required);
 
+        LeagueMechanics.getInstance().getPlayerEventListener().applyPlayerStats(player);
         return true;
+    }
+
+    private boolean playerHasRequiredItems(Player player, List<String> requiredIds) {
+        for (String requiredId : requiredIds) {
+            if (!playerOwnsLeagueItemId(player, requiredId)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean playerOwnsLeagueItemId(Player player, String itemId) {
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv != null && !inv.getType().isAir() && itemId.equals(ItemModifier.getItemId(inv))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void consumeRequiredItems(Player player, List<String> requiredIds) {
+        for (String requiredId : requiredIds) {
+            for (int i = 0; i < player.getInventory().getSize(); i++) {
+                ItemStack inv = player.getInventory().getItem(i);
+                if (inv != null && !inv.getType().isAir() && requiredId.equals(ItemModifier.getItemId(inv))) {
+                    if (inv.getAmount() > 1) {
+                        inv.setAmount(inv.getAmount() - 1);
+                    } else {
+                        player.getInventory().clear(i);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private String formatRequiredItemNames(List<String> requiredIds) {
+        ItemStatsData statsData = ItemStatsData.getInstance();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < requiredIds.size(); i++) {
+            if (i > 0) sb.append(" §7+ ");
+            String id = requiredIds.get(i);
+            String name = statsData != null && statsData.getItem(id) != null
+                    ? statsData.getItem(id).getName()
+                    : id;
+            sb.append("§e").append(name);
+        }
+        return sb.toString();
     }
 
     private ItemStack createPurchaseItem(ItemShopRegistry.ShopItem shopItem) {
@@ -253,6 +313,8 @@ public class ItemShopManager implements Listener {
         if (category.equals("mage")) return 1;
         if (category.equals("fighter")) return 2;
         if (category.equals("tank")) return 3;
+        if (category.equals("marksman")) return 4;
+        if (category.equals("support")) return 5;
         return 99;
     }
 
