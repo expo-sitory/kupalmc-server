@@ -44,6 +44,17 @@ import dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch;
 import dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment;
 import dev.ixpu.leaguemechanics.rune.keystones.inspiration.FirstStrike;
 
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.precision.AbsorbLife;
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.precision.Triumph;
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.domination.CheapShot;
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.domination.TasteOfBlood;
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.inspiration.CashBack;
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.inspiration.MagicalFootwear;
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.sorcery.NimbusCloak;
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.sorcery.AxiomArcanist;
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.resolve.Demolish;
+import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.resolve.ShieldBash;
+
 
 public class LeagueMechanics extends JavaPlugin {
     private static LeagueMechanics instance;
@@ -124,6 +135,10 @@ public class LeagueMechanics extends JavaPlugin {
         return itemStatsManager;
     }
 
+    public PlayerEventListener getPlayerEventListener() {
+        return playerEventListener;
+    }
+
     public RunePersistence getRunePersistence() {
         return runePersistence;
     }
@@ -145,14 +160,7 @@ public class LeagueMechanics extends JavaPlugin {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             runeManager.loadPlayerRunes(player);
-
-            String keystoneRuneId = runePersistence.loadKeystoneRune(player.getUniqueId());
-            if (keystoneRuneId != null) {
-                CooldownHandler keystone = runeRegistry.getRune(keystoneRuneId);
-                if (keystone != null) {
-                    runeManager.setPlayerKeystoneRune(player, keystone);
-                }
-            }
+            dev.ixpu.leaguemechanics.player.PlayerClass.loadPlayerClass(player);
         }
 
         getLogger().info("LeagueMechanics reload completed!");
@@ -259,6 +267,36 @@ public class LeagueMechanics extends JavaPlugin {
         FirstStrike firstStrike = new FirstStrike(config, this, playerEventListener);
         loadRuneCooldown(firstStrike, "runes.keystones.inspiration.first-strike.cooldown");
         runeRegistry.registerRune(firstStrike);
+
+        Triumph triumph = new Triumph(config);
+        runeRegistry.registerRune(triumph);
+
+        AbsorbLife absorbLife = new AbsorbLife(config);
+        runeRegistry.registerRune(absorbLife);
+
+        CheapShot cheapShot = new CheapShot(config);
+        runeRegistry.registerRune(cheapShot);
+
+        TasteOfBlood tasteOfBlood = new TasteOfBlood(config);
+        runeRegistry.registerRune(tasteOfBlood);
+
+        NimbusCloak nimbusCloak = new NimbusCloak(config);
+        runeRegistry.registerRune(nimbusCloak);
+
+        AxiomArcanist axiomArcanist = new AxiomArcanist(config);
+        runeRegistry.registerRune(axiomArcanist);
+
+        CashBack cashBack = new CashBack(config);
+        runeRegistry.registerRune(cashBack);
+
+        MagicalFootwear magicalFootwear = new MagicalFootwear(config);
+        runeRegistry.registerRune(magicalFootwear);
+
+        Demolish demolish = new Demolish(config);
+        runeRegistry.registerRune(demolish);
+
+        ShieldBash shieldBash = new ShieldBash(config);
+        runeRegistry.registerRune(shieldBash);
 
         getLogger().info(() -> "Registered " + runeRegistry.getAllRunes().size() + " runes");
     }
