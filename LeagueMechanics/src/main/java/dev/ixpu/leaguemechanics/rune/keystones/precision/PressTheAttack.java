@@ -153,4 +153,15 @@ public class PressTheAttack extends StacksHandler {
             case IDLE -> "§6✳";
         };
     }
+
+    @Override
+    public String getDisplaySection(Player player) {
+        int currentStacks = trackActiveStacks(player);
+        String cooldown = getCooldownDisplay(player);
+        if (!cooldown.isEmpty()) {
+            return getRuneDisplay(RuneState.COOLDOWN, currentStacks, cooldown);
+        }
+        RuneState state = currentStacks == 0 ? RuneState.IDLE : RuneState.ACTIVE;
+        return getRuneDisplay(state, currentStacks, cooldown);
+    }
 }

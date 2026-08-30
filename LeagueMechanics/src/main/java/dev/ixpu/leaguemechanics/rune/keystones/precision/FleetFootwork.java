@@ -230,4 +230,17 @@ public class FleetFootwork extends StacksHandler {
             case IDLE -> "§6👣";
         };
     }
+
+    @Override
+    public String getDisplaySection(Player player) {
+        int stacks = getStacks(player);
+        int buffTicks = speedBuffTicks.getOrDefault(player.getUniqueId(), 0);
+        if (buffTicks > 0) {
+            return getRuneDisplay(RuneState.ACTIVE, stacks, buffTicks);
+        }
+        if (stacks > 0) {
+            return getRuneDisplay(RuneState.STACKING, stacks, buffTicks);
+        }
+        return getRuneDisplay(RuneState.IDLE, stacks, buffTicks);
+    }
 }

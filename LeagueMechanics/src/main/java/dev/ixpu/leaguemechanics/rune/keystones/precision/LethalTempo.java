@@ -274,4 +274,26 @@ public class LethalTempo extends StacksHandler {
             }
         };
     }
+
+    @Override
+    public String getDisplaySection(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        if (isOnCooldown(player)) {
+            return getRuneDisplay(RuneState.COOLDOWN, player, 0);
+        }
+        RuneState state = playerState.getOrDefault(playerUUID, RuneState.STACKING);
+        if (state == RuneState.STACKING) {
+            UUID lastTargetUUID = lastTarget.getOrDefault(playerUUID, null);
+            int currentStacks = 0;
+            if (lastTargetUUID != null) {
+                currentStacks = getValidStackCount(player, lastTargetUUID);
+            }
+            return getRuneDisplay(RuneState.STACKING, player, currentStacks);
+        }
+        if (state == RuneState.ACTIVE) {
+            int activeTime = activeState.getOrDefault(playerUUID, 0);
+            return getRuneDisplay(RuneState.ACTIVE, player, activeTime);
+        }
+        return getRuneDisplay(RuneState.STACKING, player, 0);
+    }
 }

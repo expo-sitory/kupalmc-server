@@ -156,4 +156,13 @@ public class Conqueror extends StacksHandler {
             case IDLE -> "§6🪓";
         };
     }
+
+    @Override
+    public String getDisplaySection(Player player) {
+        int stacks = trackActiveStacks(player);
+        if (stacks > 0) {
+            return getRuneDisplay(RuneState.STACKING, stacks);
+        }
+        return getRuneDisplay(RuneState.IDLE, stacks);
+    }
 }

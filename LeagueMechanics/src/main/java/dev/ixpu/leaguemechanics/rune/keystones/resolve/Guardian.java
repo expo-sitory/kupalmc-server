@@ -248,4 +248,18 @@ public class Guardian extends CooldownHandler {
             case IDLE -> "§2《❖》";
         };
     }
+
+    @Override
+    public String getDisplaySection(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        int remaining = windupCounter.getOrDefault(playerUUID, 0);
+        int nearbyCount = trackedPlayers.getOrDefault(playerUUID, new ArrayList<>()).size();
+        if (remaining > 0) {
+            return getRuneDisplay(RuneState.WINDUP, player, remaining, nearbyCount);
+        }
+        if (isOnCooldown(player)) {
+            return getRuneDisplay(RuneState.COOLDOWN, player, 0, 0);
+        }
+        return getRuneDisplay(RuneState.IDLE, player, 0, 0);
+    }
 }

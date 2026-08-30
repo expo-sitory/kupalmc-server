@@ -147,6 +147,18 @@ public class Electrocute extends StacksHandler {
         setPlayerDisplay(player, runeDisplay);
     }
 
+    @Override
+    public String getDisplaySection(Player player) {
+        int currentStacks = trackPerTargetStacks(player);
+        if (isOnCooldown(player)) {
+            return getRuneDisplay(player, RuneState.COOLDOWN, currentStacks);
+        }
+        if (currentStacks > 0) {
+            return getRuneDisplay(player, RuneState.STACKING, currentStacks);
+        }
+        return getRuneDisplay(player, RuneState.IDLE, currentStacks);
+    }
+
     private void setPlayerDisplay(Player player, String runeDisplay) {
         PlayerStats playerStats = PlayerStats.getOrCreate(player);
         DamageManager damageManager = new DamageManager(LeagueMechanics.getInstance().getStatsManager());

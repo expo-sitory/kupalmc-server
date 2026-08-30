@@ -14,6 +14,8 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Enemy;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -178,17 +180,18 @@ public class AfterShock extends CooldownHandler {
         int hitCount = 0;
         for (Entity entity : nearby) {
             if (entity.equals(player)) continue;
-            if (!(entity instanceof LivingEntity living)) continue;
-            if (living.getMaxHealth() < 20) continue;
+            if (!(entity instanceof Mob mob)) continue;
+            if (!(mob instanceof Enemy)) continue;
+            if (mob.getMaxHealth() < 20) continue;
 
-            double targetMR = getTargetMR(entity);
+            double targetMR = getTargetMR(mob);
             double mitigatedBase = baseComponent / (1.0 + (targetMR / 100.0));
 
-            double apComponent = damageManager.DamageCalculation(player, entity, 0, 0, 0);
+            double apComponent = damageManager.DamageCalculation(player, mob, 0, 0, 0);
 
             double finalDamage = mitigatedBase + apComponent;
 
-            applyMagicDamage(living, finalDamage);
+            applyMagicDamage(mob, finalDamage);
 
             DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] §f[§aAfter Shock§f] Keystone Damage = §d" + String.format("%.1f", finalDamage));
 
@@ -201,6 +204,8 @@ public class AfterShock extends CooldownHandler {
     }
 
     private void applyMagicDamage(LivingEntity target, double damage) {
+        if (target.isDead() || target.getHealth() <= 0) return;
+
         if (target instanceof Player targetPlayer) {
             double absorption = targetPlayer.getAbsorptionAmount();
             if (damage > absorption) {
@@ -315,5 +320,18 @@ public class AfterShock extends CooldownHandler {
             case COOLDOWN -> "§7🌀 " + getCooldownDisplay(player);
             case IDLE -> "§2🌀 ";
         };
+    }
+
+    @Override
+    public String getDisplaySection(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        int remainingTicks = effectRemainingTicks.getOrDefault(playerUUID, 0);
+        if (remainingTicks > 0) {
+            return getRuneDisplay(RuneState.ACTIVE, player, remainingTicks);
+        }
+        if (isOnCooldown(player)) {
+            return getRuneDisplay(RuneState.COOLDOWN, player, 0);
+        }
+        return getRuneDisplay(RuneState.IDLE, player, 0);
     }
 }

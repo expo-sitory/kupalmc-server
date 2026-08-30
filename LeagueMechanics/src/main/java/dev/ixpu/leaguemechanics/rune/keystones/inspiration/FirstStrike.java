@@ -273,6 +273,18 @@ public class FirstStrike extends CooldownHandler {
         };
     }
 
+    @Override
+    public String getDisplaySection(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (firstStrikeActive.getOrDefault(uuid, false)) {
+            return getRuneDisplay(RuneState.ACTIVE, player);
+        }
+        if (isOnCooldown(player)) {
+            return getRuneDisplay(RuneState.COOLDOWN, player);
+        }
+        return getRuneDisplay(RuneState.IDLE, player);
+    }
+
     enum RuneState {
         ACTIVE, COOLDOWN, IDLE
     }

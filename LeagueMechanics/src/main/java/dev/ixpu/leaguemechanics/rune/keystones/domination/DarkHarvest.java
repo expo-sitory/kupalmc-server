@@ -166,4 +166,16 @@ public class DarkHarvest extends StacksHandler {
             case IDLE -> "§4👻";
         };
     }
+
+    @Override
+    public String getDisplaySection(Player player) {
+        int currentStacks = getStacks(player);
+        if (isOnCooldown(player)) {
+            return getRuneDisplay(player, RuneState.COOLDOWN, currentStacks);
+        }
+        if (currentStacks > 0) {
+            return getRuneDisplay(player, RuneState.STACKING, currentStacks);
+        }
+        return getRuneDisplay(player, RuneState.IDLE, currentStacks);
+    }
 }

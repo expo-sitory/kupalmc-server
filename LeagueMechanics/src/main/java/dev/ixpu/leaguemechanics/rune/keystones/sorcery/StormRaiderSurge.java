@@ -198,4 +198,17 @@ public class StormRaiderSurge extends CooldownHandler {
         };
     }
 
+    @Override
+    public String getDisplaySection(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        int speedDuration = speedActiveDuration.getOrDefault(playerUUID, 0);
+        if (speedDuration > 0) {
+            return getRuneDisplay(RuneState.ACTIVE, player, speedDuration);
+        }
+        if (isOnCooldown(player)) {
+            return getRuneDisplay(RuneState.COOLDOWN, player, 0);
+        }
+        return getRuneDisplay(RuneState.IDLE, player, 0);
+    }
+
 }

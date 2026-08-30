@@ -230,4 +230,23 @@ public class GraspOfTheUndying extends StacksHandler {
         };
     }
 
+    @Override
+    public String getDisplaySection(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        if (isOnCooldown(player)) {
+            return getRuneDisplay(RuneState.COOLDOWN, player, 0, 0);
+        }
+        int stacks = getStacks(player);
+        int attackWindow = activationState.getOrDefault(playerUUID, 0);
+        RuneState state;
+        if (stacks >= maxStacks && attackWindow > 0) {
+            state = RuneState.ACTIVE;
+        } else if (stacks > 0) {
+            state = RuneState.STACKING;
+        } else {
+            state = RuneState.IDLE;
+        }
+        return getRuneDisplay(state, player, stacks, attackWindow);
+    }
+
 }

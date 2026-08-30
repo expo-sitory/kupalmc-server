@@ -206,4 +206,10 @@ public class ArcaneComet extends CooldownHandler {
         };
     }
 
+    @Override
+    public String getDisplaySection(Player player) {
+        RuneState state = isOnCooldown(player) ? RuneState.COOLDOWN : RuneState.IDLE;
+        return getRuneDisplay(state, player);
+    }
+
 }

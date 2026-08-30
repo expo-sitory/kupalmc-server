@@ -286,4 +286,13 @@ public class DeathfireTorch extends CooldownHandler {
         };
     }
 
+    @Override
+    public String getDisplaySection(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        Map<UUID, Integer> burned = burnedPlayers.get(playerUUID);
+        int burnCount = (burned != null) ? burned.size() : 0;
+        RuneState state = burnCount > 0 ? RuneState.ACTIVE : RuneState.IDLE;
+        return getRuneDisplay(state, burnCount);
+    }
+
 }

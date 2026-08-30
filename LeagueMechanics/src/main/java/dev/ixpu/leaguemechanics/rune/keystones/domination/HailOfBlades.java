@@ -285,6 +285,22 @@ public class HailOfBlades extends CooldownHandler {
         };
     }
 
+    @Override
+    public String getDisplaySection(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        if (isOnCooldown(player)) {
+            return getRuneDisplay(player, RuneState.COOLDOWN, 0);
+        }
+        if (windupActive.getOrDefault(playerUUID, false)) {
+            return getRuneDisplay(player, RuneState.WINDUP, windupTicks.getOrDefault(playerUUID, 0));
+        }
+        if (activeState.getOrDefault(playerUUID, false)) {
+            int stacks = trackActiveStacks(player);
+            return getRuneDisplay(player, RuneState.ACTIVE, stacks);
+        }
+        return getRuneDisplay(player, RuneState.IDLE, 0);
+    }
+
     private String getWindupDisplay(Player player, int remainingTicks) {
         UUID playerUUID = player.getUniqueId();
 
