@@ -21,6 +21,10 @@ public class DamageManager {
 
     private static final Random RANDOM = new Random();
 
+    private static final double CRIT_DAMAGE_MULTIPLIER = 1.75;
+
+    private static final double DEFAULT_MAGIC_RATIO = 0.6;
+
     public DamageManager(ItemStatsManager itemStatsManager) {
         this.itemStatsManager = itemStatsManager;
     }
@@ -44,71 +48,42 @@ public class DamageManager {
 
     public double DamageCalculation(Player player, Entity target, int currentStacks, double runesAdaptive, double runesTrueDamage) {
         PlayerStats stats = PlayerStats.getOrCreate(player);
-        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        ItemStatsManager statsManager = LeagueMechanics.getInstance().getStatsManager();
 
         double doransBonus = getDoransOnHitAD(player);
 
-        double attackerBonusAD = itemStatsManager.getItemAD(player);
-        double attackerBonusAP = itemStatsManager.getItemAP(player);
+        double attackerAD = (stats.getPlayerAD(player) + doransBonus) / 7.0;
+        double attackerAP = stats.getPlayerAP(player) / 7.0;
+        double targetAR = getTargetAR(target);
+        double targetMR = getTargetMR(target);
 
-        double attackerTotalAD = ((stats.getPlayerAD(player) + doransBonus) / 7);
-        double attackerTotalAP = (stats.getPlayerAP(player)) / 7;
-
-        double targetTotalAR = getTargetAR(target);
-        double targetTotalMR = getTargetMR(target);
-
-        double totalPhysicalDamage = attackerTotalAD / (1.0 + (targetTotalAR / 100.0));
-        double totalMagicDamage = attackerTotalAP / (1.0 + (targetTotalMR / 100.0));
-
-        double totalDamageOutput = totalPhysicalDamage + (totalMagicDamage * (60 / 100.0));
-
-        if (criticalChance(getPlayerCritChance(player))) {
-            totalDamageOutput *= 1.75;
-        }
-
-        double adaptiveDamage = runesAdaptive * levelBasedBonus(player);
-
-        double adaptiveForce = runesAdaptive * levelBasedBonus(player);
-        double bonusAdaptiveForce = adaptiveForce * stats.getPlayerAF(player);
-        double totalAdaptiveForce = adaptiveForce + bonusAdaptiveForce;
-
-        double rawDamage = attackerTotalAD + attackerTotalAP;
-        double trueDamage = stats.getPlayerTD(player) + (rawDamage * (runesTrueDamage / 100));
+        double baseDamage;
 
         if (isOnlyAP) {
-            return totalMagicDamage;
-        }
-        if (isAdaptiveDamage) {
+            baseDamage = attackerAP;
+        } else if (isTrueDamage) {
+            baseDamage = stats.getPlayerTD(player)
+                    + ((attackerAD + attackerAP) * (runesTrueDamage / 100.0));
+        } else if (isAdaptiveDamage) {
+            double adaptive = runesAdaptive * levelBasedBonus(player);
             if (isAdaptiveScaling) {
-                if (isPerStack) {
-                    if (attackerBonusAD > attackerBonusAP) {
-                        return (totalAdaptiveForce / (1.0 + (targetTotalAR / 100.0 ))) *currentStacks;
-                    } else if (attackerBonusAP > attackerBonusAD) {
-                        return (totalAdaptiveForce / (1.0 + (targetTotalMR / 100.0 ))) *currentStacks;
-                    }
-                }
+                adaptive += adaptive * stats.getPlayerAF(player);
             }
-            if (isPerStack) {
-                if (attackerBonusAD > attackerBonusAP) {
-                    return (adaptiveDamage /  (1.0 + (targetTotalAR / 100.0))) * currentStacks;
-                } else if (attackerBonusAP > attackerBonusAD) {
-                    return (adaptiveDamage / (1.0 + (targetTotalMR / 100.0))) * currentStacks;
-                } else {
-                    return (adaptiveDamage /  (1.0 + (targetTotalAR / 100.0))) * currentStacks;
-                }
-            }
-            if (attackerBonusAD > attackerBonusAP) {
-                return adaptiveDamage / (1.0 + (targetTotalAR / 100.0));
-            } else if (attackerBonusAP > attackerBonusAD) {
-                return adaptiveDamage / (1.0 + (targetTotalMR / 100.0));
-            } else {
-                return adaptiveDamage / (1.0 + (targetTotalAR / 100.0));
-            }
+            boolean preferMagic = statsManager.getItemAP(player) > statsManager.getItemAD(player);
+            baseDamage = applyResistance(adaptive, preferMagic, targetAR, targetMR);
+        } else {
+            double physical = applyResistance(attackerAD, false, targetAR, targetMR);
+            double magic = applyResistance(attackerAP * DEFAULT_MAGIC_RATIO, true, targetAR, targetMR);
+            baseDamage = physical + magic;
         }
-        if (isTrueDamage) {
-            return trueDamage;
-        }
-        return totalDamageOutput;
+
+        int stacks = isPerStack ? currentStacks : 1;
+        return baseDamage * stacks;
+    }
+
+    private double applyResistance(double damage, boolean isMagic, double targetAR, double targetMR) {
+        double resist = isMagic ? targetMR : targetAR;
+        return damage / (1.0 + (resist / 100.0));
     }
 
     public double getPlayerCritChance(Player player) {
@@ -122,6 +97,15 @@ public class DamageManager {
         if (playerCritChance <= 0) return false;
         if (playerCritChance >= 100) return true;
         return RANDOM.nextDouble() * 100 < playerCritChance;
+    }
+
+    public static boolean criticalChance(Player player, double playerCritChance) {
+        return CritManager.getInstance().rollCrit(player, playerCritChance);
+    }
+
+    public static double getCritDamageMultiplier(Player player) {
+        double bonus = PlayerStats.getOrCreate(player).getCritDamageBonus(player);
+        return CRIT_DAMAGE_MULTIPLIER + bonus;
     }
 
     private double levelBasedBonus(Player player) {
@@ -168,3 +152,4 @@ public class DamageManager {
         return bonus;
     }
 }
+
