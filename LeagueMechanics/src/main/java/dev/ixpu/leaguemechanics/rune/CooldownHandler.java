@@ -100,10 +100,39 @@ public abstract class CooldownHandler {
 
     public abstract void tick(Player player);
 
+    public String getDisplaySection(Player player) {
+        return "";
+    }
+
     public void onPlayerDamage(Player player, double damage) {}
 
     public void onAttack(Player attacker, Entity target) {}
 
     public void onProjectileHit(Player shooter, Entity hitEntity) {}
+
+    public void onTakedown(Player attacker, Player victim, boolean isKill) {}
+
+    public void onPotionEffectGain(Player player, org.bukkit.potion.PotionEffect effect) {}
+
+    /**
+     * Called when the player scores a critical strike.
+     * Override to react to crits (e.g., Axiom Arcanist bonus).
+     */
+    public void onCrit(Player player) {}
+
+    /**
+     * Called when the player breaks one or more blocks. The number of blocks broken
+     * in a single tick is passed in (e.g., 1 for normal mining, larger for Veining etc.).
+     * Override to react to block-breaking runes (e.g., Demolish).
+     */
+    public void onBlockBreak(Player player, int blocksBroken) {}
+
+    /**
+     * Called when the player successfully blocks an attack with a shield. No
+     * damage is reduced in this hook's signature — Bukkit's {@code Player.isBlocking()}
+     * has already evaluated true at call time.
+     * Override to react to shield-block runes (e.g., Shield Bash).
+     */
+    public void onShieldBlock(Player player) {}
 
 }
