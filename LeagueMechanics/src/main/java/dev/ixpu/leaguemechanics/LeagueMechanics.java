@@ -2,6 +2,7 @@ package dev.ixpu.leaguemechanics;
 
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
+import dev.ixpu.leaguemechanics.manager.DebuffManager;
 import dev.ixpu.leaguemechanics.manager.RuneManager;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.manager.ItemShopManager;
@@ -15,6 +16,7 @@ import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -55,6 +57,8 @@ import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.sorcery.AxiomArcanist;
 import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.resolve.Demolish;
 import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.resolve.ShieldBash;
 
+import java.util.Objects;
+
 
 public class LeagueMechanics extends JavaPlugin {
     private static LeagueMechanics instance;
@@ -72,7 +76,7 @@ public class LeagueMechanics extends JavaPlugin {
         runeManager = new RuneManager(this);
         itemStatsManager = new ItemStatsManager();
         runePersistence = new RunePersistence(this);
-        playerEventListener = new PlayerEventListener(this, runePersistence);
+        playerEventListener = new PlayerEventListener(this);
 
 
         getLogger().info("League Mechanics is starting...");
@@ -85,6 +89,8 @@ public class LeagueMechanics extends JavaPlugin {
         registerRunes();
         registerCommands();
         registerRegenTask();
+        registerHotbarCleanupTask();
+        registerDebuffTicker();
 
         Bukkit.getPluginManager().registerEvents(playerEventListener, this);
         Bukkit.getPluginManager().registerEvents(ItemShopManager.getInstance(), this);
@@ -169,8 +175,8 @@ public class LeagueMechanics extends JavaPlugin {
     private void registerCommands() {
         CommandHandler commandExecutor = new CommandHandler(this, itemStatsManager, runeManager, runePersistence, playerEventListener);
         CommandTabCompletions tabCompleter = new CommandTabCompletions(runeRegistry);
-        getCommand("leaguemechanics").setExecutor(commandExecutor);
-        getCommand("leaguemechanics").setTabCompleter(tabCompleter);
+        Objects.requireNonNull(getCommand("leaguemechanics")).setExecutor(commandExecutor);
+        Objects.requireNonNull(getCommand("leaguemechanics")).setTabCompleter(tabCompleter);
         getLogger().info("Commands registered!");
     }
 
@@ -184,8 +190,11 @@ public class LeagueMechanics extends JavaPlugin {
                     double healthRegen = itemStatsManager.getItemHR(player);
                     double saturationRegen = itemStatsManager.getItemSR(player);
 
-                    if (healthRegen > 0) {
-                        double newHealth = Math.min(player.getHealth() + healthRegen, player.getMaxHealth());
+                    dev.ixpu.leaguemechanics.player.PlayerStats ps = dev.ixpu.leaguemechanics.player.PlayerStats.getOrCreate(player);
+                    double effectiveHR = ps.getEffectiveHealthRegen(player, healthRegen);
+
+                    if (effectiveHR > 0) {
+                        double newHealth = Math.min(player.getHealth() + effectiveHR, player.getMaxHealth());
                         player.setHealth(newHealth);
                     }
 
@@ -195,6 +204,42 @@ public class LeagueMechanics extends JavaPlugin {
                 }
             }
         }.runTaskTimer(this, 0, 100);
+    }
+
+    public void registerHotbarCleanupTask() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    ItemStack[] inventoryContents = player.getInventory().getContents();
+                    for (int i = 0; i < 9; i++) {
+                        ItemStack item = inventoryContents[i];
+                        if (item != null && !item.getType().isAir() && ItemModifier.getItemId(item) != null) {
+                            playerEventListener.removeFromHotbar(player, item);
+                            player.getInventory().setItem(i, null);
+                        }
+                    }
+                    if (inventoryContents[40] != null && !inventoryContents[40].getType().isAir() && ItemModifier.getItemId(inventoryContents[40]) != null) {
+                        playerEventListener.removeFromHotbar(player, inventoryContents[40]);
+                        player.getInventory().setItem(40, null);
+                    }
+                }
+            }
+        }.runTaskTimer(this, 0, 0L);
+    }
+
+    public void registerDebuffTicker() {
+        DebuffManager.getInstance();
+        dev.ixpu.leaguemechanics.rune.DebuffTicker ticker = new dev.ixpu.leaguemechanics.rune.DebuffTicker();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                DebuffManager.getInstance().tickAll();
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    ticker.tick(player, null);
+                }
+            }
+        }.runTaskTimer(this, 0, 1L);
     }
 
     private void registerPlaceholders() {
