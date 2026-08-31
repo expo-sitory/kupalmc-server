@@ -40,7 +40,7 @@ runes:
             bonus-crit-damage: 0.12 # crit damage multiplier bonus on crit
             cooldown: 60 # seconds
           nimbus-cloak:
-            movement-speed-percent: 10.0 # flat movement speed bonus on SPEED potion gain
+            movement-speed-percent: 60.0 # flat movement speed bonus on SPEED potion gain
             decay-ticks: 100 # bonus duration in ticks (5 seconds)
 
   keystones:
