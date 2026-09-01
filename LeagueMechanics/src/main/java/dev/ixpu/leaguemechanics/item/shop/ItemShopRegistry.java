@@ -35,7 +35,18 @@ public class ItemShopRegistry {
                 "faeri-charm",
                 "dagger",
                 "boots",
-                "dorans-blade", "dorans-bow", "dorans-helm", "dorans-ring", "dorans-shield", "dark-seal"
+                "dorans-blade", "dorans-bow", "dorans-helm", "dorans-ring", "dorans-shield", "dark-seal",
+                "blightting-jewel", "flendish-codex", "lost-chapter", "fated-ashes",
+                "hextech-alternator", "oblivion-orb",
+                "executioners-calling",
+                "caulfields-warhammer", "hexdrinker", "serrated-dirk", "phage",
+                "crystalline-bracer", "giants-belt", "kindlegem", "bramble-vest",
+                "cloak-of-agility", "noonquiver", "rectrix", "recurve-bow",
+                "scouts-slingshot", "last-whisper", "heartbound-axe",
+                "spectres-cowl", "winged-moonplate", "wardens-mail", "bamis-cinder",
+                "verdant-barrier", "aether-wisp", "bandleglass-mirror",
+                "vampiric-scepter", "the-brutalizer", "steel-sigil", "zeal",
+                "berserkers-greaves", "mercurys-treads", "plated-steelcaps", "sorcerers-shoes"
         };
 
         for (String itemId : itemIds) {
