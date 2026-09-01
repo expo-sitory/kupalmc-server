@@ -22,10 +22,24 @@ public class ItemStatsRegistry {
     private boolean hasPassive;
     private String passiveId;
 
+    private double apenFlat;
+    private double apenPercent;
+    private double mpenFlat;
+    private double mpenPercent;
+
     public ItemStatsRegistry(String id, String name,
                              double hp, double hr, double ad, double ap, double td, double as,
                              double ar, double mr, double ls, double cc, double sr, double ms,
                              boolean hasPassive, String passiveId) {
+        this(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms, hasPassive, passiveId,
+                0.0, 0.0, 0.0, 0.0);
+    }
+
+    public ItemStatsRegistry(String id, String name,
+                             double hp, double hr, double ad, double ap, double td, double as,
+                             double ar, double mr, double ls, double cc, double sr, double ms,
+                             boolean hasPassive, String passiveId,
+                             double apenFlat, double apenPercent, double mpenFlat, double mpenPercent) {
         this.id = id;
         this.name = name;
 
@@ -46,6 +60,11 @@ public class ItemStatsRegistry {
         this.ms = ms;
         this.hasPassive = hasPassive;
         this.passiveId = passiveId;
+
+        this.apenFlat = apenFlat;
+        this.apenPercent = apenPercent;
+        this.mpenFlat = mpenFlat;
+        this.mpenPercent = mpenPercent;
     }
     public String getId() {
         return id;
@@ -120,5 +139,21 @@ public class ItemStatsRegistry {
 
     public String getPassiveId() {
         return passiveId;
+    }
+
+    public double getApenFlat() {
+        return apenFlat;
+    }
+
+    public double getApenPercent() {
+        return apenPercent;
+    }
+
+    public double getMpenFlat() {
+        return mpenFlat;
+    }
+
+    public double getMpenPercent() {
+        return mpenPercent;
     }
 }
