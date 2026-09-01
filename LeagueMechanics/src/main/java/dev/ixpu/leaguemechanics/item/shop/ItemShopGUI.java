@@ -1,6 +1,5 @@
 package dev.ixpu.leaguemechanics.item.shop;
 
-import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassive;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import dev.ixpu.leaguemechanics.util.ItemModifier;
@@ -27,7 +26,8 @@ public class ItemShopGUI {
     private static final int FILLER_START = 9;
     private static final int FILLER_END = 17;
     static final int ITEMS_START = 18;
-    private static final int ITEMS_PER_PAGE = 36;
+    private static final int ITEMS_PER_ROW = 9;
+    private static final int ITEMS_ROWS = 4;
 
     private static final String CATEGORY_ALL = "all";
     private static final String CATEGORY_MAIN = "main";
@@ -37,7 +37,7 @@ public class ItemShopGUI {
     private static final String CATEGORY_MARKSMAN = "marksman";
     private static final String CATEGORY_SUPPORT = "support";
 
-    private final Map<UUID, Integer> playerPage = new HashMap<>();
+    private final Map<UUID, Integer> playerScrollRow = new HashMap<>();
     private final Map<UUID, String> playerCategory = new HashMap<>();
 
     public static ItemShopGUI getInstance() {
@@ -59,15 +59,11 @@ public class ItemShopGUI {
         return INVENTORY_TITLE;
     }
 
-    public static int getItemsStart() {
-        return ITEMS_START;
-    }
-
     public void openShopInstance(Player player) {
         Inventory shopInventory = Bukkit.createInventory(null, INVENTORY_SIZE, INVENTORY_TITLE);
 
         playerCategory.putIfAbsent(player.getUniqueId(), CATEGORY_ALL);
-        playerPage.putIfAbsent(player.getUniqueId(), 0);
+        playerScrollRow.putIfAbsent(player.getUniqueId(), 0);
 
         buildGUI(shopInventory, player);
 
@@ -79,28 +75,28 @@ public class ItemShopGUI {
 
     private void buildGUI(Inventory inventory, Player player) {
         String category = playerCategory.getOrDefault(player.getUniqueId(), CATEGORY_ALL);
-        int currentPage = playerPage.getOrDefault(player.getUniqueId(), 0);
+        int scrollRow = playerScrollRow.getOrDefault(player.getUniqueId(), 0);
 
         setCategoryButtons(inventory, category);
         setFillers(inventory);
-        setItems(inventory, player, category, currentPage);
+        setItems(inventory, player, category, scrollRow);
     }
 
     private void setCategoryButtons(Inventory inventory, String activeCategory) {
         int[] categorySlots = {0, 1, 2, 3, 4, 5, 6, 7, 8};
         String[][] categories = {
-            {CATEGORY_ALL, "§f§lᴀʟʟ", "§7View all items", "CHEST", "ENDER_CHEST"},
-            {CATEGORY_MAIN, "§a§lꜱᴛᴀʀᴛᴇʀ", "", "CHEST", "ENDER_CHEST"},
-            {CATEGORY_MAGE, "§9☄ §lᴍᴀɢᴇ", "", "CHEST", "ENDER_CHEST"},
-            {CATEGORY_FIGHTER, "§6🗡 §lғɪɢʜᴛᴇʀ", "", "CHEST", "ENDER_CHEST"},
-            {CATEGORY_TANK, "§e🛡 §lᴛᴀɴᴋ", "", "CHEST", "ENDER_CHEST"},
-            {CATEGORY_MARKSMAN, "§c🏹 §lᴍᴀʀᴋꜱᴍᴀɴ", "", "CHEST", "ENDER_CHEST"},
-            {CATEGORY_SUPPORT, "§d❤ §lꜱᴜᴘᴘᴏʀᴛ", "", "CHEST", "ENDER_CHEST"},
+            {CATEGORY_ALL, "§f§lᴀʟʟ", "§7View all items", "COPPER_CHEST", "WAXED_OXIDIZED_COPPER_CHEST"},
+            {CATEGORY_MAIN, "§7★ §lꜱᴛᴀʀᴛᴇʀ", "§7Early Scaling", "COPPER_CHEST", "WAXED_OXIDIZED_COPPER_CHEST"},
+            {CATEGORY_FIGHTER, "§6🗡 §lғɪɢʜᴛᴇʀ", "§7Sustained Combat", "COPPER_CHEST", "WAXED_OXIDIZED_COPPER_CHEST"},
+            {CATEGORY_MAGE, "§9☄ §lᴍᴀɢᴇ", "§7Magic Ability", "COPPER_CHEST", "WAXED_OXIDIZED_COPPER_CHEST"},
+            {CATEGORY_TANK, "§e🛡 §lᴛᴀɴᴋ", "§7Defensive Frontline", "COPPER_CHEST", "WAXED_OXIDIZED_COPPER_CHEST"},
+            {CATEGORY_MARKSMAN, "§c🏹 §lᴍᴀʀᴋꜱᴍᴀɴ", "§7Ranged Physical", "COPPER_CHEST", "WAXED_OXIDIZED_COPPER_CHEST"},
+            {CATEGORY_SUPPORT, "§a❤ §lꜱᴜᴘᴘᴏʀᴛ", "§7Team Utility", "COPPER_CHEST", "WAXED_OXIDIZED_COPPER_CHEST"},
             {"page_prev", "§c§l◀", "§7Previous page", "ARROW", "ARROW"},
             {"page_next", "§a§l▶", "§7Next page", "ARROW", "ARROW"}
         };
 
-        for (int i = 0; i < categories.length && i < categorySlots.length; i++) {
+        for (int i = 0; i < categories.length; i++) {
             String[] cat = categories[i];
             String categoryId = cat[0];
             String displayName = cat[1];
@@ -131,18 +127,13 @@ public class ItemShopGUI {
 
             if (meta != null) {
                 if (isActive && !isPageButton) {
-                    meta.setDisplayName(displayName + " §a✓");
+                    meta.setDisplayName(" §a▶ " + displayName);
                 } else {
                     meta.setDisplayName(displayName);
                 }
-
                 List<String> lore = new ArrayList<>();
                 lore.add(description);
-                if (isActive && !isPageButton) {
-                    lore.add("§a§l▶ ᴄᴜʀʀᴇɴᴛ");
-                }
                 meta.setLore(lore);
-
                 item.setItemMeta(meta);
                 inventory.setItem(categorySlots[i], item);
             }
@@ -163,32 +154,51 @@ public class ItemShopGUI {
         }
     }
 
-    private void setItems(Inventory inventory, Player player, String category, int page) {
+    private void setItems(Inventory inventory, Player player, String category, int scrollRow) {
         ItemShopRegistry registry = ItemShopRegistry.getInstance();
         ItemShopData shopData = ItemShopData.getInstance();
 
         List<ItemShopRegistry.ShopItem> filteredItems = getSortedItems(registry.getAllShopItems(), category, shopData);
 
-        int totalPages = Math.max(1, (int) Math.ceil((double) filteredItems.size() / ITEMS_PER_PAGE));
-        int safePage = Math.min(page, totalPages - 1);
-        int startIndex = safePage * ITEMS_PER_PAGE;
-        int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.size());
+        int totalItems = filteredItems.size();
+        int maxScrollRow = Math.max(0, (int) Math.ceil((double) totalItems / ITEMS_PER_ROW) - ITEMS_ROWS);
+        int safeScrollRow = Math.min(scrollRow, maxScrollRow);
+        int startIndex = safeScrollRow * ITEMS_PER_ROW;
 
         for (int slot = ITEMS_START; slot < INVENTORY_SIZE; slot++) {
             inventory.setItem(slot, null);
         }
 
-        int itemIndex = 0;
-        for (int i = startIndex; i < endIndex; i++) {
-            int slot = ITEMS_START + itemIndex;
-
-            if (slot >= INVENTORY_SIZE) break;
-
-            ItemShopRegistry.ShopItem shopItem = filteredItems.get(i);
-            ItemStack displayItem = createItemDisplay(shopItem, player);
-            inventory.setItem(slot, displayItem);
-            itemIndex++;
+        for (int row = 0; row < ITEMS_ROWS; row++) {
+            for (int col = 0; col < ITEMS_PER_ROW; col++) {
+                int absoluteIndex = startIndex + (row * ITEMS_PER_ROW) + col;
+                int slot = ITEMS_START + (row * ITEMS_PER_ROW) + col;
+                if (absoluteIndex < totalItems) {
+                    ItemShopRegistry.ShopItem shopItem = filteredItems.get(absoluteIndex);
+                    ItemStack displayItem = createItemDisplay(shopItem, player);
+                    inventory.setItem(slot, displayItem);
+                }
+            }
         }
+        updateScrollIndicators(inventory, safeScrollRow, maxScrollRow);
+    }
+
+    private void updateScrollIndicators(Inventory inventory, int currentRow, int maxRow) {
+        ItemStack prev = new ItemStack(Material.ARROW);
+        ItemMeta meta = prev.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(currentRow > 0 ? "§a§l▲ §fScroll Up" : "§7§l▲ §8Scroll Up");
+            prev.setItemMeta(meta);
+        }
+        inventory.setItem(CATEGORY_START + 7, prev);
+
+        ItemStack next = new ItemStack(Material.ARROW);
+        ItemMeta nextMeta = next.getItemMeta();
+        if (nextMeta != null) {
+            nextMeta.setDisplayName(currentRow < maxRow ? "§a§l▼ §fScroll Down" : "§7§l▼ §8Scroll Down");
+            next.setItemMeta(nextMeta);
+        }
+        inventory.setItem(CATEGORY_START + 8, next);
     }
 
     private List<ItemShopRegistry.ShopItem> getSortedItems(List<ItemShopRegistry.ShopItem> allItems,
@@ -227,8 +237,8 @@ public class ItemShopGUI {
         if (category == null) return 99;
         return switch (category) {
             case "main" -> 0;
-            case "mage" -> 1;
-            case "fighter" -> 2;
+            case "fighter" -> 1;
+            case "mage" -> 2;
             case "tank" -> 3;
             case "marksman" -> 4;
             case "support" -> 5;
@@ -249,12 +259,23 @@ public class ItemShopGUI {
             meta.setDisplayName(displayName);
 
             boolean canBuy = canPlayerBuyItem(player, shopItem);
+            String itemGroup = ItemShopData.getInstance().getGroup(shopItem.getId());
+            boolean isBootsItem = "boots".equals(itemGroup);
+            boolean ownsAdvancedBoots = isBootsItem && playerOwnsAdvancedBoots(player);
+            boolean ownsNormalBoots = isBootsItem && playerOwnsNormalBoots(player);
+            boolean ownsThisBoots = isBootsItem && playerOwnsItemById(player, shopItem.getId());
 
-            if (canBuy) {
+            if (canBuy && !(isBootsItem && ownsAdvancedBoots)) {
                 meta.setEnchantmentGlintOverride(true);
             }
 
             List<String> lore = new ArrayList<>();
+
+            String shortDesc = ItemShopData.getInstance().getShortDesc(shopItem.getId());
+            if (shortDesc != null && !shortDesc.isEmpty()) {
+                lore.add("§7" + shortDesc);
+                lore.add("");
+            }
 
             if (shopItem.getStats().getAd() > 0) {
                 lore.add("§6🗡 " + formatStat(shopItem.getStats().getAd()) + " §fAttack Damage");
@@ -280,6 +301,24 @@ public class ItemShopGUI {
             if (shopItem.getStats().getAs() > 0) {
                 lore.add("§c➺ " + formatStat(shopItem.getStats().getAs()) + "% §fAttack Speed");
             }
+            if (shopItem.getStats().getLs() > 0) {
+                lore.add("§4💟 " + formatStat(shopItem.getStats().getLs()) + "% §fLife Steal");
+            }
+            if (shopItem.getStats().getCc() > 0) {
+                lore.add("§4➷ " + formatStat(shopItem.getStats().getCc()) + "% §fCritical Chance");
+            }
+            if (shopItem.getStats().getApenFlat() > 0) {
+                lore.add("§6🔰 " + formatStat(shopItem.getStats().getApenFlat()) + " §fLethality");
+            }
+            if (shopItem.getStats().getApenPercent() > 0) {
+                lore.add("§6⛨ " + formatStat(shopItem.getStats().getApenPercent()) + "% §fArmor Penetration");
+            }
+            if (shopItem.getStats().getMpenFlat() > 0) {
+                lore.add("§d🔘 " + formatStat(shopItem.getStats().getMpenFlat()) + " §fMagic Penetration");
+            }
+            if (shopItem.getStats().getMpenPercent() > 0) {
+                lore.add("§d🔘 " + formatStat(shopItem.getStats().getMpenPercent()) + "% §fMagic Penetration");
+            }
             if (shopItem.getStats().getMs() > 0) {
                 lore.add("§7👣 " + formatStat(shopItem.getStats().getMs()) + "% §fMovement Speed");
             }
@@ -295,20 +334,69 @@ public class ItemShopGUI {
                 }
             }
             lore.add("");
-            if (!canBuy) {
-                if (playerOwnsItem(player, shopItem)) {
-                    lore.add("§7§lᴏᴡɴᴇᴅ");
+
+            if (isBootsItem) {
+                if (ownsNormalBoots) {
+                    if (ownsThisBoots) {
+                        lore.add("§7§lᴏᴡɴᴇᴅ");
+                    } else {
+                        List<String> required = shopItem.getRequiredItems();
+                        if (!required.isEmpty() && playerHasRequiredItemsCount(player, required)) {
+                            lore.add("§a§lᴘᴜʀᴄʜᴀꜱᴇ");
+                        } else {
+                            lore.add("§7§lʟᴏᴄᴋᴇᴅ");
+                            if (!required.isEmpty()) {
+                                String names = formatRequiredItemNamesWithCount(player, required);
+                                lore.add("");
+                                lore.add("§7ʀᴇQᴜɪʀᴇᴍᴇɴᴛꜱ: §7" + names);
+                            }
+                        }
+                    }
+                } else if (ownsAdvancedBoots) {
+                    if (ownsThisBoots || "boots".equals(shopItem.getId())) {
+                        lore.add("§7§lᴏᴡɴᴇᴅ");
+                    } else {
+                        lore.add("§7§lᴜɴᴀᴠᴀɪʟᴀʙʟᴇ");
+                    }
                 } else {
-                    lore.add("§7§lᴏᴄᴋᴇᴅ");
-                    List<String> required = shopItem.getRequiredItems();
-                    if (!required.isEmpty() && !playerHasRequiredItems(player, required)) {
-                        String names = formatRequiredItemNames(required);
-                        lore.add("");
-                        lore.add("§7   ʀᴇQᴜɪʀᴇᴍᴇɴᴛꜱ: §7" + names);
+                    if (canBuy) {
+                        lore.add("§a§lᴘᴜʀᴄʜᴀꜱᴇ");
+                    } else {
+                        lore.add("§7§lʟᴏᴄᴋᴇᴅ");
+                        List<String> required = shopItem.getRequiredItems();
+                        if (!required.isEmpty() && !playerHasRequiredItemsCount(player, required)) {
+                            String names = formatRequiredItemNamesWithCount(player, required);
+                            lore.add("");
+                            lore.add("§7ʀᴇQᴜɪʀᴇᴍᴇɴᴛꜱ: §7" + names);
+                        } else {
+                            int currentCount = dev.ixpu.leaguemechanics.LeagueMechanics.getInstance().getStatsManager().countLeagueItems(player);
+                            if (currentCount - required.size() + 1 > 6) {
+                                lore.add("");
+                                lore.add("§7ʟᴇᴀɢᴜᴇ ɪᴛᴇᴍꜱ: §c" + currentCount + "/6");
+                            }
+                        }
                     }
                 }
             } else {
-                lore.add("§a§lᴘᴜʀᴄʜᴀꜱᴇ");
+                if (playerOwnsItem(player, shopItem)) {
+                    lore.add("§7§lᴏᴡɴᴇᴅ");
+                } else if (!canBuy) {
+                    lore.add("§7§lʟᴏᴄᴋᴇᴅ");
+                    List<String> required = shopItem.getRequiredItems();
+                    int currentCount = dev.ixpu.leaguemechanics.LeagueMechanics.getInstance().getStatsManager().countLeagueItems(player);
+                    if (currentCount - required.size() + 1 > 6) {
+                        lore.add("");
+                        lore.add("§7ʟᴇᴀɢᴜᴇ ɪᴛᴇᴍꜱ: §c" + currentCount + "/6");
+                    } else {
+                        if (!required.isEmpty() && !playerHasRequiredItemsCount(player, required)) {
+                            String names = formatRequiredItemNamesWithCount(player, required);
+                            lore.add("");
+                            lore.add("§7ʀᴇQᴜɪʀᴇᴍᴇɴᴛꜱ: §7" + names);
+                        }
+                    }
+                } else {
+                    lore.add("§a§lᴘᴜʀᴄʜᴀꜱᴇ");
+                }
             }
 
             meta.setLore(lore);
@@ -331,35 +419,31 @@ public class ItemShopGUI {
         if (slot >= CATEGORY_START && slot <= CATEGORY_END) {
             int buttonIndex = slot - CATEGORY_START;
 
-            String[] categoryIds = {CATEGORY_ALL, CATEGORY_MAIN, CATEGORY_MAGE, CATEGORY_FIGHTER, CATEGORY_TANK,
-                                   CATEGORY_MARKSMAN, CATEGORY_SUPPORT, "page_prev", "page_next"};
+            String[] categoryIds = {CATEGORY_ALL, CATEGORY_MAIN, CATEGORY_FIGHTER, CATEGORY_MAGE, CATEGORY_TANK,
+                                   CATEGORY_MARKSMAN, CATEGORY_SUPPORT, "scroll_up", "scroll_down"};
 
-            if (buttonIndex < categoryIds.length) {
-                String clicked = categoryIds[buttonIndex];
+            String clicked = categoryIds[buttonIndex];
 
-                if (clicked.isEmpty()) {
-                    return true;
-                }
+            if (clicked.equals("scroll_up") || clicked.equals("scroll_down")) {
+                int currentRow = playerScrollRow.getOrDefault(playerId, 0);
+                String category = playerCategory.getOrDefault(playerId, CATEGORY_ALL);
 
-                if (clicked.startsWith("page_")) {
-                    int currentPage = playerPage.getOrDefault(playerId, 0);
-                    if (clicked.equals("page_prev")) {
-                        playerPage.put(playerId, Math.max(0, currentPage - 1));
-                    } else if (clicked.equals("page_next")) {
-                        playerPage.put(playerId, currentPage + 1);
-                    } else {
-                        //
-                        try {
-                            int pageNum = Integer.parseInt(clicked.replace("page_", ""));
-                            playerPage.put(playerId, pageNum - 1);
-                        } catch (NumberFormatException ignored) {}
-                    }
-                    refreshGUI(player);
+                ItemShopRegistry registry = ItemShopRegistry.getInstance();
+                ItemShopData shopData = ItemShopData.getInstance();
+                List<ItemShopRegistry.ShopItem> filtered = getSortedItems(registry.getAllShopItems(), category, shopData);
+                int totalItems = filtered.size();
+                int maxRow = Math.max(0, (int) Math.ceil((double) totalItems / ITEMS_PER_ROW) - ITEMS_ROWS);
+
+                if (clicked.equals("scroll_up")) {
+                    playerScrollRow.put(playerId, Math.max(0, currentRow - 1));
                 } else {
-                    playerCategory.put(playerId, clicked);
-                    playerPage.put(playerId, 0);
-                    refreshGUI(player);
+                    playerScrollRow.put(playerId, Math.min(maxRow, currentRow + 1));
                 }
+                refreshGUI(player);
+            } else {
+                playerCategory.put(playerId, clicked);
+                playerScrollRow.put(playerId, 0);
+                refreshGUI(player);
             }
             return true;
         }
@@ -373,24 +457,23 @@ public class ItemShopGUI {
     }
 
     private void handleItemClick(Player player, int slot) {
-        int itemIndex = slot - ITEMS_START;
-
-        int currentPage = playerPage.getOrDefault(player.getUniqueId(), 0);
+        int scrollRow = playerScrollRow.getOrDefault(player.getUniqueId(), 0);
         String category = playerCategory.getOrDefault(player.getUniqueId(), CATEGORY_ALL);
 
         ItemShopRegistry registry = ItemShopRegistry.getInstance();
         ItemShopData shopData = ItemShopData.getInstance();
         List<ItemShopRegistry.ShopItem> sortedItems = getSortedItems(registry.getAllShopItems(), category, shopData);
 
-        int actualIndex = (currentPage * ITEMS_PER_PAGE) + itemIndex;
-        if (actualIndex < sortedItems.size()) {
-            ItemShopRegistry.ShopItem clickedItem = sortedItems.get(actualIndex);
-            handlePurchase(player, clickedItem);
-        }
-    }
+        int localIndex = slot - ITEMS_START;
+        int row = localIndex / ITEMS_PER_ROW;
+        int col = localIndex % ITEMS_PER_ROW;
+        int absoluteIndex = (scrollRow + row) * ITEMS_PER_ROW + col;
 
-    private void handlePurchase(Player player, ItemShopRegistry.ShopItem shopItem) {
-        player.sendMessage("§aYou clicked: " + shopItem.getDisplayName());
+        if (absoluteIndex < sortedItems.size()) {
+            ItemShopRegistry.ShopItem clickedItem = sortedItems.get(absoluteIndex);
+            dev.ixpu.leaguemechanics.manager.ItemShopManager.getInstance()
+                    .purchaseFromGUI(player, clickedItem);
+        }
     }
 
     private void refreshGUI(Player player) {
@@ -410,18 +493,41 @@ public class ItemShopGUI {
         if (playerOwnsItem(player, shopItem)) {
             return false;
         }
-        List<String> required = shopItem.getRequiredItems();
-        if (!required.isEmpty() && !playerHasRequiredItems(player, required)) {
+        if (playerOwnsGroupSibling(player, shopItem)) {
             return false;
         }
-        return true;
+        List<String> required = shopItem.getRequiredItems();
+        if (!required.isEmpty() && !playerHasRequiredItemsCount(player, required)) {
+            return false;
+        }
+        int currentCount = dev.ixpu.leaguemechanics.LeagueMechanics.getInstance().getStatsManager().countLeagueItems(player);
+        return currentCount - required.size() + 1 <= 6;
     }
 
-    private boolean playerHasRequiredItems(Player player, List<String> requiredIds) {
-        for (String requiredId : requiredIds) {
-            if (!playerOwnsLeagueItemId(player, requiredId)) {
-                return false;
+
+    private boolean playerOwnsGroupSibling(Player player, ItemShopRegistry.ShopItem shopItem) {
+        ItemShopData shopData = ItemShopData.getInstance();
+        String itemGroup = shopData.getGroup(shopItem.getId());
+        if (itemGroup == null) {
+            return false;
+        }
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv == null || inv.getType().isAir()) continue;
+            String ownedId = ItemModifier.getItemId(inv);
+            if (ownedId == null || ownedId.equals(shopItem.getId())) continue;
+            String ownedGroup = shopData.getGroup(ownedId);
+            if (ownedGroup != null && ownedGroup.equals(itemGroup)) {
+                return true;
             }
+        }
+        return false;
+    }
+
+    private boolean playerHasRequiredItemsCount(Player player, List<String> requiredIds) {
+        for (String requiredId : requiredIds) {
+            int required = countRequiredOccurrences(requiredIds, requiredId, requiredIds.lastIndexOf(requiredId));
+            int owned = countOwnedLeagueItems(player, requiredId);
+            if (owned < required) return false;
         }
         return true;
     }
@@ -449,22 +555,98 @@ public class ItemShopGUI {
                 }
             }
         }
-
-        return false;
+        return playerOwnsGroupSibling(player, shopItem);
     }
 
-    private String formatRequiredItemNames(List<String> requiredIds) {
+    private String formatRequiredItemNamesWithCount(Player player, List<String> requiredIds) {
         ItemStatsData statsData = ItemStatsData.getInstance();
+        java.util.LinkedHashMap<String, Integer> requiredById = new java.util.LinkedHashMap<>();
+        for (String id : requiredIds) requiredById.merge(id, 1, Integer::sum);
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < requiredIds.size(); i++) {
-            if (i > 0) sb.append(" §7+ ");
-            String id = requiredIds.get(i);
+        boolean first = true;
+        for (var e : requiredById.entrySet()) {
+            if (!first) sb.append(" §7+ ");
+            first = false;
+            String id = e.getKey();
+            int total = e.getValue();
+            int owned = countOwnedLeagueItems(player, id);
             String name = statsData != null && statsData.getItem(id) != null
                     ? statsData.getItem(id).getName()
                     : id;
-            sb.append("§e").append(name);
+            if (total > 1) {
+                String color = owned >= total ? "§a" : "§f";
+                sb.append(color).append(name).append(" §7(").append(owned).append("/").append(total).append(")");
+            } else {
+                String color = owned >= 1 ? "§a" : "§f";
+                sb.append(color).append(name);
+            }
         }
         return sb.toString();
+    }
+
+    private int countRequiredOccurrences(List<String> requiredIds, String targetId, int pos) {
+        int count = 0;
+        for (int i = 0; i <= pos; i++) {
+            if (targetId.equals(requiredIds.get(i))) count++;
+        }
+        return count;
+    }
+
+    private int countOwnedLeagueItems(Player player, String itemId) {
+        int count = 0;
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv != null && !inv.getType().isAir() && itemId.equals(ItemModifier.getItemId(inv))) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean playerOwnsAdvancedBoots(Player player) {
+        ItemShopData shopData = ItemShopData.getInstance();
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv == null || inv.getType().isAir()) continue;
+            String ownedId = ItemModifier.getItemId(inv);
+            if (ownedId == null) continue;
+            String ownedGroup = shopData.getGroup(ownedId);
+            if ("boots".equals(ownedGroup) && !shopData.getRequiredItems(ownedId).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean playerOwnsAnyBoots(Player player) {
+        ItemShopData shopData = ItemShopData.getInstance();
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv == null || inv.getType().isAir()) continue;
+            String ownedId = ItemModifier.getItemId(inv);
+            if (ownedId == null) continue;
+            if ("boots".equals(shopData.getGroup(ownedId))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean playerOwnsNormalBoots(Player player) {
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv == null || inv.getType().isAir()) continue;
+            if ("boots".equals(ItemModifier.getItemId(inv))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean playerOwnsItemById(Player player, String itemId) {
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv == null || inv.getType().isAir()) continue;
+            if (itemId.equals(ItemModifier.getItemId(inv))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String formatStat(double value) {
@@ -476,11 +658,12 @@ public class ItemShopGUI {
     }
 
     public void cleanup(Player player) {
-        playerPage.remove(player.getUniqueId());
+        playerScrollRow.remove(player.getUniqueId());
         playerCategory.remove(player.getUniqueId());
     }
 
     public String getPlayerCategory(Player player) {
         return playerCategory.getOrDefault(player.getUniqueId(), CATEGORY_ALL);
     }
+
 }
