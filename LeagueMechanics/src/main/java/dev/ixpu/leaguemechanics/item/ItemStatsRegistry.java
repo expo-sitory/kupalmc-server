@@ -27,12 +27,16 @@ public class ItemStatsRegistry {
     private double mpenFlat;
     private double mpenPercent;
 
+    private double ch;
+
+    private double tn;
+
     public ItemStatsRegistry(String id, String name,
                              double hp, double hr, double ad, double ap, double td, double as,
                              double ar, double mr, double ls, double cc, double sr, double ms,
                              boolean hasPassive, String passiveId) {
         this(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms, hasPassive, passiveId,
-                0.0, 0.0, 0.0, 0.0);
+                0.0, 0.0, 0.0, 0.0, 0.0);
     }
 
     public ItemStatsRegistry(String id, String name,
@@ -40,6 +44,26 @@ public class ItemStatsRegistry {
                              double ar, double mr, double ls, double cc, double sr, double ms,
                              boolean hasPassive, String passiveId,
                              double apenFlat, double apenPercent, double mpenFlat, double mpenPercent) {
+        this(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms, hasPassive, passiveId,
+                apenFlat, apenPercent, mpenFlat, mpenPercent, 0.0);
+    }
+
+    public ItemStatsRegistry(String id, String name,
+                             double hp, double hr, double ad, double ap, double td, double as,
+                             double ar, double mr, double ls, double cc, double sr, double ms,
+                             boolean hasPassive, String passiveId,
+                             double apenFlat, double apenPercent, double mpenFlat, double mpenPercent,
+                             double ch) {
+        this(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms, hasPassive, passiveId,
+                apenFlat, apenPercent, mpenFlat, mpenPercent, ch, 0.0);
+    }
+
+    public ItemStatsRegistry(String id, String name,
+                             double hp, double hr, double ad, double ap, double td, double as,
+                             double ar, double mr, double ls, double cc, double sr, double ms,
+                             boolean hasPassive, String passiveId,
+                             double apenFlat, double apenPercent, double mpenFlat, double mpenPercent,
+                             double ch, double tn) {
         this.id = id;
         this.name = name;
 
@@ -65,6 +89,9 @@ public class ItemStatsRegistry {
         this.apenPercent = apenPercent;
         this.mpenFlat = mpenFlat;
         this.mpenPercent = mpenPercent;
+
+        this.ch = ch;
+        this.tn = tn;
     }
     public String getId() {
         return id;
@@ -155,5 +182,21 @@ public class ItemStatsRegistry {
 
     public double getMpenPercent() {
         return mpenPercent;
+    }
+
+    public double getCh() {
+        return ch;
+    }
+
+    public void setCh(double ch) {
+        this.ch = ch;
+    }
+
+    public double getTn() {
+        return tn;
+    }
+
+    public void setTn(double tn) {
+        this.tn = tn;
     }
 }
