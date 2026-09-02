@@ -1,5 +1,7 @@
 package dev.ixpu.leaguemechanics.rune;
 
+import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -41,6 +43,18 @@ public abstract class CooldownHandler {
         this.cooldownSeconds = seconds;
     }
 
+    private long getCooldownHasteOffsetMs(Player player) {
+        if (cooldownSeconds <= 0) return 0;
+        LeagueMechanics plugin = LeagueMechanics.getInstance();
+        if (plugin == null) return 0;
+        ItemStatsManager statsManager = plugin.getStatsManager();
+        if (statsManager == null) return 0;
+        double ch = statsManager.getItemCH(player);
+        if (ch <= 0) return 0;
+        long baseMs = (long) (cooldownSeconds * 1000);
+        return (long) (baseMs * (ch / 100.0));
+    }
+
     public boolean isOnCooldown(Player player) {
         if (cooldownSeconds <= 0) {
             return false;
@@ -79,7 +93,8 @@ public abstract class CooldownHandler {
     }
 
     public void resetCooldown(Player player) {
-        playerCooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+        long offset = getCooldownHasteOffsetMs(player);
+        playerCooldowns.put(player.getUniqueId(), System.currentTimeMillis() - offset);
     }
 
     public void clearPlayerCooldown(Player player) {
@@ -114,25 +129,10 @@ public abstract class CooldownHandler {
 
     public void onPotionEffectGain(Player player, org.bukkit.potion.PotionEffect effect) {}
 
-    /**
-     * Called when the player scores a critical strike.
-     * Override to react to crits (e.g., Axiom Arcanist bonus).
-     */
     public void onCrit(Player player) {}
 
-    /**
-     * Called when the player breaks one or more blocks. The number of blocks broken
-     * in a single tick is passed in (e.g., 1 for normal mining, larger for Veining etc.).
-     * Override to react to block-breaking runes (e.g., Demolish).
-     */
     public void onBlockBreak(Player player, int blocksBroken) {}
 
-    /**
-     * Called when the player successfully blocks an attack with a shield. No
-     * damage is reduced in this hook's signature — Bukkit's {@code Player.isBlocking()}
-     * has already evaluated true at call time.
-     * Override to react to shield-block runes (e.g., Shield Bash).
-     */
     public void onShieldBlock(Player player) {}
 
 }
