@@ -11,7 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ItemStatsManager {
     private static final long CACHE_TTL_MS = 100;
     private static final String[] STAT_TYPES = {
-            "HP", "HR", "AD", "AP", "TD", "AS", "AR", "MR", "SR", "LS", "CC", "MS", "APEN", "MPEN"
+            "HP", "HR", "AD", "AP", "TD", "AS", "AR", "MR", "SR", "LS", "CC", "MS", "CH", "TN",
+            "APEN", "APEN_PERCENT", "MPEN", "MPEN_PERCENT"
     };
 
     private final Map<UUID, Map<String, Double>> statsCache = new ConcurrentHashMap<>();
@@ -131,7 +132,23 @@ public class ItemStatsManager {
         return getStatWithLimit(player, "APEN");
     }
 
+    public double getItemAPenPercent(Player player) {
+        return getStatWithLimit(player, "APEN_PERCENT");
+    }
+
     public double getItemMPen(Player player) {
         return getStatWithLimit(player, "MPEN");
+    }
+
+    public double getItemMPenPercent(Player player) {
+        return getStatWithLimit(player, "MPEN_PERCENT");
+    }
+
+    public double getItemCH(Player player) {
+        return getStatWithLimit(player, "CH");
+    }
+
+    public double getItemTN(Player player) {
+        return getStatWithLimit(player, "TN");
     }
 }
