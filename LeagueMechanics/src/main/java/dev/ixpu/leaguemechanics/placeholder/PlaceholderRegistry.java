@@ -1,7 +1,10 @@
 package dev.ixpu.leaguemechanics.placeholder;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.player.PlayerClass;
+import dev.ixpu.leaguemechanics.player.PlayerClassType;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
+import dev.ixpu.leaguemechanics.rune.RunePath;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
@@ -57,6 +60,10 @@ public class PlaceholderRegistry extends PlaceholderExpansion {
             case "hr" -> String.format("%.0f", stats.getPlayerHR(player));
             case "td" -> String.format("%.0f", stats.getPlayerTD(player));
             case "af" -> String.format("%.0f", stats.getPlayerAF(player));
+            case "ch" -> String.format("%.0f", stats.getPlayerCH(player));
+
+            case "rune_path" -> getRunePathPlaceholder(player);
+            case "class"      -> getClassPlaceholder(player);
 
             case "line1" -> getLine1(player, stats);
             case "line2" -> getLine2(player, stats);
@@ -65,6 +72,40 @@ public class PlaceholderRegistry extends PlaceholderExpansion {
 
             default -> null;
         };
+    }
+
+    private static final java.util.Map<String, String> PATH_DISPLAY = java.util.Map.of(
+            "domination",   "§c⚓ Domination",
+            "precision",    "§e⌖ Precision",
+            "resolve",     "§a⛨ Resolve",
+            "sorcery",     "§9ᛝ Sorcery",
+            "inspiration", "§3🌅 Inspiration"
+    );
+
+    private static final java.util.Map<String, String> CLASS_DISPLAY = java.util.Map.of(
+            "fighter",   "§6🗡 Fighter",
+            "mage",     "§9☄ Mage",
+            "tank",     "§e🛡 Tank",
+            "marksman", "§c🏹 Marksman",
+            "assassin", "§4➷ Assasin",
+            "support",  "§a❤ Support"
+    );
+
+    private String getRunePathPlaceholder(Player player) {
+        if (player == null) return "§☯ No Primary Rune";
+        LeagueMechanics lm = LeagueMechanics.getInstance();
+        if (lm == null || lm.getRuneManager() == null) return "§☯ No Primary Rune";
+        var runeData = lm.getRuneManager().getPlayerRuneData(player);
+        RunePath path = runeData != null ? runeData.getPrimaryPath() : null;
+        if (path == null) return "§7☯ No Primary Rune";
+        return PATH_DISPLAY.getOrDefault(path.getId(), "§☯ No Primary Rune");
+    }
+
+    private String getClassPlaceholder(Player player) {
+        if (player == null) return "§7⚔ No Class Selected";
+        PlayerClassType ct = PlayerClass.getPlayerClass(player);
+        if (ct == null) return "§7⚔ No Class Selected";
+        return CLASS_DISPLAY.getOrDefault(ct.getId(), "§7⚔ No Class Selected");
     }
 
     private String getLine1(Player player, PlayerStats stats) {
@@ -81,16 +122,16 @@ public class PlaceholderRegistry extends PlaceholderExpansion {
 
     private String getLine3(Player player, PlayerStats stats) {
         double as = stats.getPlayerAS(player);
-        double hp = stats.getPlayerHP(player);
+        double ch = stats.getPlayerCH(player);
         double roundedAS = Math.ceil(as * 100) / 100;
         String asFormatted = String.format("%.2f", roundedAS);
-        return "§c➺ §7" + String.format("%-6s", asFormatted) + "§a❤ §7" + String.format("%-4.0f", hp);
+        return "§c➺ §7" + String.format("%-6s", asFormatted) + "§7⌛ §7" + String.format("%-4.0f", ch + 20);
     }
 
     private String getLine4(Player player, PlayerStats stats) {
         double cc = stats.getPlayerCC(player);
         double ms = stats.getPlayerMS(player);
         String ccFormatted = String.format("%.0f", cc) + "%";
-        return "§4⚗ §7" + String.format("%-4s", ccFormatted) + "  §f👣 §7" + String.format("%-4.0f", ms);
+        return "§4➷ §7" + String.format("%-4s", ccFormatted) + "  §f👣 §7" + String.format("%-4.0f", ms);
     }
 }
