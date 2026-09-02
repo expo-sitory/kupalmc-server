@@ -96,7 +96,7 @@ There are only **10** current types of player statistics divided into 3 differen
 
 ### Damage
 
-    Not to be confused with attack damage, a champion statistic, nor conflated with health costs, which are not damage.
+    Not to be confused with attack damage, a player statistic, nor conflated with health costs, which are not damage.
 
 
 Damage is the result of a direct combat interaction between two units: a source unit causes a deduction of a target unit's current health via a attack (or accompanying debuff). Damage takes place in engine time ("instantaneously") and the application itself is formally called a damage instance or damage event. 
@@ -281,7 +281,7 @@ Runes are divided into five paths:
   </tr>
   <tr align="justify">
     <td align="center">First Strike</td>
-    <td>ᴘᴀꜱꜱɪᴠᴇ: Strike first, strike hard. Your first attack after 0.25 seconds of not attacking grants 10 XP and activates First Strike for 3 seconds. During this window, deal 7% true damage bonus on every attack while tracking total bonus damage dealt. When First Strike expires, gain bonus XP equal to your total tracked damage multiplied by the higher of (+ 20% from total AD and 15% for AP).</td>
+    <td>ᴘᴀꜱꜱɪᴠᴇ: Strike first, strike hard. Your first attack after 0.25 seconds of not attacking grants 10 XP and activates First Strike for 3 seconds. During this window, deal 7% true damage bonus on every attack while tracking total bonus damage dealt. When First Strike expires, gain bonus XP equal to your total tracked damage multiplied by (+ 20% from total AD and 15% for AP).</td>
     <td align="center">60s</td>
   </tr>
   <tr align="justify">
