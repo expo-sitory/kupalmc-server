@@ -60,9 +60,10 @@ public abstract class StacksHandler extends CooldownHandler {
         if (!isPerTargetMode) {
             return getStacks(player);
         }
-        UUID playerUUID = player.getUniqueId();
-        Map<UUID, Integer> targetMap = perTargetStacks.getOrDefault(playerUUID, new HashMap<>());
-        return targetMap.getOrDefault(targetUUID, 0);
+        Map<UUID, Integer> targetMap = perTargetStacks.get(player.getUniqueId());
+        if (targetMap == null) return 0;
+        Integer value = targetMap.get(targetUUID);
+        return value != null ? value : 0;
     }
 
     public void addStack(Player player) {
