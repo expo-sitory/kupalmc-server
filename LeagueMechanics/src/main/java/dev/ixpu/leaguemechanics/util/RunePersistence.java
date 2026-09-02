@@ -2,6 +2,7 @@ package dev.ixpu.leaguemechanics.util;
 
 import dev.ixpu.leaguemechanics.player.PlayerClassType;
 import dev.ixpu.leaguemechanics.rune.RunePath;
+import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -30,7 +31,11 @@ public class RunePersistence {
     public void savePrimaryPath(UUID playerUUID, RunePath path) {
         FileConfiguration config = YamlConfiguration.loadConfiguration(dataFile);
         String playerKey = playerUUID.toString();
-        config.set(playerKey + ".primary-path", path.getId());
+        if (path == null) {
+            config.set(playerKey + ".primary-path", null);
+        } else {
+            config.set(playerKey + ".primary-path", path.getId());
+        }
         try {
             config.save(dataFile);
         } catch (Exception e) {
@@ -169,6 +174,24 @@ public class RunePersistence {
     }
     public String loadSecondarySlot2Rune(UUID playerUUID) {
         return loadRuneSlot(playerUUID, "secondary-slot-2");
+    }
+
+    public void savePrimaryRuneSlot(UUID playerUUID, RuneSlot slot, String runeId) {
+        switch (slot) {
+            case KEYSTONE -> saveKeystoneRune(playerUUID, runeId);
+            case PRIMARY_SLOT_1 -> savePrimarySlot1Rune(playerUUID, runeId);
+            case PRIMARY_SLOT_2 -> savePrimarySlot2Rune(playerUUID, runeId);
+            case PRIMARY_SLOT_3 -> savePrimarySlot3Rune(playerUUID, runeId);
+            default -> throw new IllegalArgumentException("Not a primary slot: " + slot);
+        }
+    }
+
+    public void saveSecondaryRuneSlot(UUID playerUUID, RuneSlot slot, String runeId) {
+        switch (slot) {
+            case SECONDARY_SLOT_1 -> saveSecondarySlot1Rune(playerUUID, runeId);
+            case SECONDARY_SLOT_2 -> saveSecondarySlot2Rune(playerUUID, runeId);
+            default -> throw new IllegalArgumentException("Not a secondary slot: " + slot);
+        }
     }
 
     public void clearAllRunes(UUID playerUUID) {
