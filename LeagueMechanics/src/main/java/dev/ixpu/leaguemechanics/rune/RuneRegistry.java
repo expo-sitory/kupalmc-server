@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics.rune;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class RuneRegistry {
     }
 
     public Map<String, CooldownHandler> getAllRunes() {
-        return new HashMap<>(runes);
+        return Collections.unmodifiableMap(runes);
     }
 
     public void clearRegistry() {
