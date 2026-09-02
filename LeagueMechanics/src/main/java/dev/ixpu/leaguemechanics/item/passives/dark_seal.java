@@ -29,10 +29,6 @@ public class dark_seal implements ItemPassive {
         manager.setKillCount(player, getId(), newStacks);
     }
 
-    @Override
-    public void tick(Player player, ItemStack item) {
-    }
-
     public int getStacks(Player player) {
         ItemPassivesManager manager = ItemPassivesManager.getInstance();
         return Math.min(manager.getKillCount(player, getId()), MAX_STACKS);

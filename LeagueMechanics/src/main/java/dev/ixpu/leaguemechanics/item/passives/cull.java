@@ -43,8 +43,4 @@ public class cull implements ItemPassive {
             }
         }
     }
-
-    @Override
-    public void tick(Player player, ItemStack item) {
-    }
 }

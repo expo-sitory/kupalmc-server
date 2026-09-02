@@ -20,10 +20,6 @@ public class dorans_ring implements ItemPassive {
     public void onEntityKill(Player player, ItemStack item) {
     }
 
-    @Override
-    public void tick(Player player, ItemStack item) {
-    }
-
     public int getOnHitAdBonus() {
         return ONHIT_AD_BONUS;
     }
