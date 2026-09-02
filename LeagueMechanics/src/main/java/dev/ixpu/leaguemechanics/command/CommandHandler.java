@@ -46,7 +46,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            player.sendMessage(Component.text("§cUsage: /lm <subcommand>"));
+            player.sendMessage(Component.text("§cUsage: /lm <shop|class|runes|reload>"));
             return true;
         }
 
@@ -118,155 +118,185 @@ public class CommandHandler implements CommandExecutor {
         }
 
         if (args.length < 2) {
-            player.sendMessage(Component.text("§cUsage: /lm runes select <primary|secondary> <slot> <path> <rune> | /lm runes clear"));
+            sendRunesUsage(player);
             return true;
         }
 
         String runesSubcommand = args[1].toLowerCase();
         return switch (runesSubcommand) {
-            case "select" -> handleRuneSelect(player, args);
-            case "clear" -> handleRunesClear(player);
+            case "select"   -> handleRuneSelect(player, args);
+            case "clear"    -> handleRunesClear(player, args);
+            case "info"     -> handleRunesInfo(player);
             default -> {
-                player.sendMessage(Component.text("§cUnknown runes subcommand."));
-                yield false;
+                sendRunesUsage(player);
+                yield true;
             }
         };
     }
 
+    private void sendRunesUsage(Player player) {
+        player.sendMessage(Component.text("§6§lRunes Commands:"));
+        player.sendMessage(Component.text("§7  /lm runes select primary §e<path> [keystone] [slot1] [slot2] [slot3]"));
+        player.sendMessage(Component.text("§7  /lm runes select secondary §e<path> [slot1] [slot2]"));
+        player.sendMessage(Component.text("§7  /lm runes clear §8— §fclear all runes"));
+        player.sendMessage(Component.text("§7  /lm runes info §8— §fshow currently equipped runes"));
+    }
+
     private boolean handleRuneSelect(Player player, String[] args) {
-        if (args.length < 6) {
-            player.sendMessage(Component.text("§cUsage: /lm runes select <primary|secondary> <slot> <path> <rune>"));
+        if (args.length < 3) {
+            sendRunesUsage(player);
             return true;
         }
 
-        String slotLocation = args[2].toLowerCase();
-        boolean isPrimary = slotLocation.equals("primary");
-        boolean isSecondary = slotLocation.equals("secondary");
+        String location = args[2].toLowerCase();
+        if (location.equals("primary")) {
+            return handleRuneSelectPrimary(player, args);
+        } else if (location.equals("secondary")) {
+            return handleRuneSelectSecondary(player, args);
+        } else {
+            sendRunesUsage(player);
+            return true;
+        }
+    }
 
-        if (!isPrimary && !isSecondary) {
-            player.sendMessage(Component.text("§cInvalid slot location. Use: primary or secondary"));
+    private boolean handleRuneSelectPrimary(Player player, String[] args) {
+        if (args.length < 4 || args.length > 8) {
+            player.sendMessage(Component.text("§cUsage: /lm runes select primary <path> [keystone] [slot1] [slot2] [slot3]"));
             return true;
         }
 
-        String slotName = args[3].toLowerCase();
-        RuneSlot slot = null;
-
-        switch (slotName) {
-            case "keystone":
-                slot = RuneSlot.KEYSTONE;
-                break;
-            case "primary-slot-1":
-            case "slot-1":
-                slot = RuneSlot.PRIMARY_SLOT_1;
-                break;
-            case "primary-slot-2":
-            case "slot-2":
-                slot = RuneSlot.PRIMARY_SLOT_2;
-                break;
-            case "primary-slot-3":
-            case "slot-3":
-                slot = RuneSlot.PRIMARY_SLOT_3;
-                break;
-            case "secondary-slot-1":
-            case "secondary-slot-one":
-            case "slot-1s":
-                slot = RuneSlot.SECONDARY_SLOT_1;
-                break;
-            case "secondary-slot-2":
-            case "secondary-slot-two":
-            case "slot-2s":
-                slot = RuneSlot.SECONDARY_SLOT_2;
-                break;
-            default:
-                player.sendMessage(Component.text("§cInvalid slot. Use: keystone, primary-slot-1, primary-slot-2, primary-slot-3, secondary-slot-1, secondary-slot-2"));
-                return true;
-        }
-
-        if (isSecondary && (slot == RuneSlot.KEYSTONE)) {
-            player.sendMessage(Component.text("§cKeystone can only be placed in primary location"));
-            return true;
-        }
-
-        String pathName = args[4].toLowerCase();
-        RunePath path = RunePath.fromId(pathName);
+        RunePath path = RunePath.fromId(args[3].toLowerCase());
         if (path == null) {
             player.sendMessage(Component.text("§cInvalid path. Use: domination, precision, inspiration, resolve, or sorcery"));
             return true;
         }
 
-        String runeName = args[5].toLowerCase();
-        CooldownHandler rune = RuneRegistry.getInstance().getRune(runeName);
+        runeManager.setPlayerPrimaryPath(player, path);
+        runePersistence.savePrimaryPath(player.getUniqueId(), path);
 
-        if (rune == null) {
-            player.sendMessage(Component.text("§cRune not found."));
-            return true;
-        }
+        RuneSlot[] slotOrder = {
+                RuneSlot.KEYSTONE,
+                RuneSlot.PRIMARY_SLOT_1,
+                RuneSlot.PRIMARY_SLOT_2,
+                RuneSlot.PRIMARY_SLOT_3
+        };
+        StringBuilder summary = new StringBuilder("§a✓ Primary path set to §e" + path.getId());
 
-        if (!rune.getPath().equals(path)) {
-            player.sendMessage(Component.text("§c" + runeName + " is not in the " + path.getId() + " path."));
-            return true;
-        }
+        for (int i = 4; i < args.length; i++) {
+            RuneSlot slot = slotOrder[i - 4];
+            CooldownHandler rune = resolveAndValidateRune(player, args[i], path, slot);
+            if (rune == null) return true;
 
-        if (!rune.getSlot().equals(slot)) {
-            player.sendMessage(Component.text("§c" + runeName + " is not a " + slot.getId() + " slot rune"));
-            return true;
-        }
+            applyPrimaryRune(player, slot, rune);
+            runePersistence.savePrimaryRuneSlot(player.getUniqueId(), slot, rune.getId());
 
-        String permissionKey = "rune." + runeName;
-        if (!player.hasPermission(permissionKey)) {
-            player.sendMessage(Component.text("§cYou don't have permission to select " + runeName + "."));
-            return true;
+            summary.append(" §7| ").append(slot.getId()).append(": §e").append(rune.getId());
         }
-
-        boolean success;
-        switch (slot) {
-            case KEYSTONE:
-                runeManager.setPlayerKeystoneRune(player, rune);
-                runePersistence.saveKeystoneRune(player.getUniqueId(), runeName);
-                success = true;
-                break;
-            case PRIMARY_SLOT_1:
-                runeManager.setPlayerPrimarySlot1Rune(player, rune);
-                runePersistence.savePrimarySlot1Rune(player.getUniqueId(), runeName);
-                success = true;
-                break;
-            case PRIMARY_SLOT_2:
-                runeManager.setPlayerPrimarySlot2Rune(player, rune);
-                runePersistence.savePrimarySlot2Rune(player.getUniqueId(), runeName);
-                success = true;
-                break;
-            case PRIMARY_SLOT_3:
-                runeManager.setPlayerPrimarySlot3Rune(player, rune);
-                runePersistence.savePrimarySlot3Rune(player.getUniqueId(), runeName);
-                success = true;
-                break;
-            case SECONDARY_SLOT_1:
-                runeManager.setPlayerSecondarySlot1Rune(player, rune);
-                runePersistence.saveSecondarySlot1Rune(player.getUniqueId(), runeName);
-                success = true;
-                break;
-            case SECONDARY_SLOT_2:
-                runeManager.setPlayerSecondarySlot2Rune(player, rune);
-                runePersistence.saveSecondarySlot2Rune(player.getUniqueId(), runeName);
-                success = true;
-                break;
-            default:
-                success = false;
-        }
-
-        if (success) {
-            String locationText = isPrimary ? "primary" : "secondary";
-            player.sendMessage(Component.text("§a✓ Selected §e" + runeName + "§a in §e" + locationText + " §e" + slot.getId()));
-        } else {
-            player.sendMessage(Component.text("§cFailed to select rune"));
-        }
-        return success;
+        player.sendMessage(Component.text(summary.toString()));
+        return true;
     }
 
-    private boolean handleRunesClear(Player player) {
+    private boolean handleRuneSelectSecondary(Player player, String[] args) {
+        if (args.length < 4 || args.length > 6) {
+            player.sendMessage(Component.text("§cUsage: /lm runes select secondary <path> [slot1] [slot2]"));
+            return true;
+        }
+
+        RunePath path = RunePath.fromId(args[3].toLowerCase());
+        if (path == null) {
+            player.sendMessage(Component.text("§cInvalid path. Use: domination, precision, inspiration, resolve, or sorcery"));
+            return true;
+        }
+
+        runeManager.setPlayerSecondaryPath(player, path);
+        runePersistence.saveSecondaryPath(player.getUniqueId(), path);
+
+        RuneSlot[] slotOrder = {RuneSlot.SECONDARY_SLOT_1, RuneSlot.SECONDARY_SLOT_2};
+        StringBuilder summary = new StringBuilder("§a✓ Secondary path set to §e" + path.getId());
+
+        for (int i = 4; i < args.length; i++) {
+            RuneSlot slot = slotOrder[i - 4];
+            CooldownHandler rune = resolveAndValidateRune(player, args[i], path, slot);
+            if (rune == null) return true;
+
+            applySecondaryRune(player, slot, rune);
+            runePersistence.saveSecondaryRuneSlot(player.getUniqueId(), slot, rune.getId());
+
+            summary.append(" §7| ").append(slot.getId()).append(": §e").append(rune.getId());
+        }
+        player.sendMessage(Component.text(summary.toString()));
+        return true;
+    }
+
+    private void applyPrimaryRune(Player player, RuneSlot slot, CooldownHandler rune) {
+        switch (slot) {
+            case KEYSTONE -> runeManager.setPlayerKeystoneRune(player, rune);
+            case PRIMARY_SLOT_1 -> runeManager.setPlayerPrimarySlot1Rune(player, rune);
+            case PRIMARY_SLOT_2 -> runeManager.setPlayerPrimarySlot2Rune(player, rune);
+            case PRIMARY_SLOT_3 -> runeManager.setPlayerPrimarySlot3Rune(player, rune);
+            default -> throw new IllegalArgumentException("Not a primary slot: " + slot);
+        }
+    }
+
+    private void applySecondaryRune(Player player, RuneSlot slot, CooldownHandler rune) {
+        switch (slot) {
+            case SECONDARY_SLOT_1 -> runeManager.setPlayerSecondarySlot1Rune(player, rune);
+            case SECONDARY_SLOT_2 -> runeManager.setPlayerSecondarySlot2Rune(player, rune);
+            default -> throw new IllegalArgumentException("Not a secondary slot: " + slot);
+        }
+    }
+
+    private CooldownHandler resolveAndValidateRune(Player player, String runeId, RunePath path, RuneSlot slot) {
+        String normalized = runeId.toLowerCase();
+        CooldownHandler rune = RuneRegistry.getInstance().getRune(normalized);
+        if (rune == null) {
+            player.sendMessage(Component.text("§cRune not found: §e" + normalized));
+            return null;
+        }
+        if (!rune.getPath().equals(path)) {
+            player.sendMessage(Component.text("§c" + normalized + " is not in the " + path.getId() + " path."));
+            return null;
+        }
+        if (!rune.getSlot().equals(slot)) {
+            player.sendMessage(Component.text("§c" + normalized + " is not a " + slot.getId() + " slot rune"));
+            return null;
+        }
+        String permissionKey = "rune." + normalized;
+        if (!player.hasPermission(permissionKey)) {
+            player.sendMessage(Component.text("§cYou don't have permission to select " + normalized + "."));
+            return null;
+        }
+        return rune;
+    }
+
+    private boolean handleRunesClear(Player player, String[] args) {
         runePersistence.clearAllRunes(player.getUniqueId());
         runeManager.clearPlayerRunes(player);
         player.sendMessage(Component.text("§a✓ All runes cleared"));
+        return true;
+    }
+
+    private boolean handleRunesInfo(Player player) {
+        dev.ixpu.leaguemechanics.player.PlayerRuneData data = runeManager.getPlayerRuneData(player);
+        if (data == null) {
+            player.sendMessage(Component.text("§cNo runes loaded. Try rejoining."));
+            return true;
+        }
+
+        String primary = data.getPrimaryPath() != null ? data.getPrimaryPath().getId() : "§7none";
+        String secondary = data.getSecondaryPath() != null ? data.getSecondaryPath().getId() : "§7none";
+        String keystone = data.getKeystoneRune() != null ? data.getKeystoneRune().getId() : "§7none";
+        String p1 = data.getPrimarySlot1Rune() != null ? data.getPrimarySlot1Rune().getId() : "§7none";
+        String p2 = data.getPrimarySlot2Rune() != null ? data.getPrimarySlot2Rune().getId() : "§7none";
+        String p3 = data.getPrimarySlot3Rune() != null ? data.getPrimarySlot3Rune().getId() : "§7none";
+        String s1 = data.getSecondarySlot1Rune() != null ? data.getSecondarySlot1Rune().getId() : "§7none";
+        String s2 = data.getSecondarySlot2Rune() != null ? data.getSecondarySlot2Rune().getId() : "§7none";
+
+        player.sendMessage(Component.text("§6ᴍʏ ᴀᴄᴛɪᴠᴇ ʀᴜɴᴇꜱ:"));
+        player.sendMessage(Component.text("§7  Primary:   §e" + primary + " §7— keystone: §e" + keystone));
+        player.sendMessage(Component.text("§7   slot 1: §e" + p1 + " §7| slot 2: §e" + p2 + " §7| slot 3: §e" + p3));
+        player.sendMessage(Component.text("§7  Secondary: §e" + secondary));
+        player.sendMessage(Component.text("§7   slot 1: §e" + s1 + " §7| slot 2: §e" + s2));
         return true;
     }
 
