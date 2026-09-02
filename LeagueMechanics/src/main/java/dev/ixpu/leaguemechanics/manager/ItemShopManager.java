@@ -15,10 +15,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class ItemShopManager implements Listener {
@@ -35,7 +35,7 @@ public class ItemShopManager implements Listener {
         return instance;
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onShopInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) {
             return;
@@ -43,9 +43,7 @@ public class ItemShopManager implements Listener {
         if (!event.getView().getTitle().equals(SHOP_INVENTORY_TITLE)) {
             return;
         }
-        ItemStack cursor = event.getCursor();
         ItemStack currentItem = event.getCurrentItem();
-        InventoryType.SlotType slotType = event.getSlotType();
 
         if (event.getClickedInventory() == player.getInventory() && event.isShiftClick()
                 && currentItem != null && !currentItem.getType().isAir()
@@ -53,58 +51,6 @@ public class ItemShopManager implements Listener {
             event.setCancelled(true);
             sellItem(player, currentItem, event.getSlot());
             ItemShopGUI.updateShopDisplay(player);
-            return;
-        }
-        if (event.getClickedInventory() == player.getInventory()) {
-            return;
-        }
-        if (event.getClickedInventory() == null || slotType == InventoryType.SlotType.OUTSIDE) {
-            return;
-        }
-        event.setCancelled(true);
-
-        if (currentItem == null || currentItem.getType().isAir()) {
-            return;
-        }
-
-        int clickedSlot = event.getSlot();
-        ItemShopRegistry registry = ItemShopRegistry.getInstance();
-        ItemShopRegistry.ShopItem shopItem = null;
-        ItemShopData shopData = ItemShopData.getInstance();
-
-        String currentCategory = ItemShopGUI.getInstance().getPlayerCategory(player);
-
-        List<ItemShopRegistry.ShopItem> sortedItems = new java.util.ArrayList<ItemShopRegistry.ShopItem>();
-        for (ItemShopRegistry.ShopItem item : registry.getAllShopItems()) {
-            if (currentCategory.equals("all") || currentCategory.equals(shopData.getCategory(item.getId()))) {
-                sortedItems.add(item);
-            }
-        }
-
-        final String cat = currentCategory;
-        sortedItems.sort((a, b) -> {
-            if (cat.equals("all")) {
-                int catOrderA = getCategoryOrder(shopData.getCategory(a.getId()));
-                int catOrderB = getCategoryOrder(shopData.getCategory(b.getId()));
-                if (catOrderA != catOrderB) {
-                    return Integer.compare(catOrderA, catOrderB);
-                }
-            }
-            return Integer.compare(shopData.getOrder(a.getId()), shopData.getOrder(b.getId()));
-        });
-
-        int ITEMS_START = ItemShopGUI.getItemsStart();
-        if (clickedSlot >= ITEMS_START && clickedSlot < 54) {
-            int itemIndex = clickedSlot - ITEMS_START;
-            if (itemIndex < sortedItems.size()) {
-                shopItem = sortedItems.get(itemIndex);
-            }
-        }
-
-        if (shopItem != null) {
-            if (purchaseItem(player, shopItem)) {
-                ItemShopGUI.updateShopDisplay(player);
-            }
         }
     }
 
@@ -129,6 +75,12 @@ public class ItemShopManager implements Listener {
         }
     }
 
+    public void purchaseFromGUI(Player player, ItemShopRegistry.ShopItem shopItem) {
+        if (purchaseItem(player, shopItem)) {
+            ItemShopGUI.updateShopDisplay(player);
+        }
+    }
+
     private boolean purchaseItem(Player player, ItemShopRegistry.ShopItem shopItem) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
         int price = shopItem.getPrice();
@@ -144,14 +96,6 @@ public class ItemShopManager implements Listener {
             player.sendMessage(Component.text("§cYou can only apply one (1) " + group + " item to your build"));
             return false;
         }
-        if (!hasInventorySpace(player)) {
-            player.sendMessage(Component.text("§cInventory full. Need space in main inventory to purchase."));
-            return false;
-        }
-        if (itemStatsManager.countLeagueItems(player) > 5) {
-            player.sendMessage(Component.text("§cLeague Items Count: 6/6"));
-            return false;
-        }
         if (playerOwnsItem(player, shopItem)) {
             return false;
         }
@@ -160,26 +104,44 @@ public class ItemShopManager implements Listener {
         if (!required.isEmpty()) {
             if (!playerHasRequiredItems(player, required)) {
                 String names = formatRequiredItemNames(required);
-                player.sendMessage(Component.text("§cRequires: §f" + names + " §c(purchase them first)"));
+                player.sendMessage(Component.text("§cRequires: §f" + names));
                 return false;
             }
+        }
+
+        int currentCount = itemStatsManager.countLeagueItems(player);
+        int postPurchaseCount = currentCount - required.size() + 1;
+        if (postPurchaseCount > 6) {
+            player.sendMessage(Component.text("§cLeague Items Count: " + currentCount + "/6"));
+            return false;
+        }
+
+        if (!hasInventorySpace(player, required)) {
+            player.sendMessage(Component.text("§cInventory full. Need space in main inventory to purchase."));
+            return false;
         }
 
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.5f);
         player.setLevel(playerLevel - price);
         ItemStack purchasedItem = createPurchaseItem(shopItem);
-        addItemToInventory(player, purchasedItem);
         consumeRequiredItems(player, required);
+        addItemToInventory(player, purchasedItem);
 
         LeagueMechanics.getInstance().getPlayerEventListener().applyPlayerStats(player);
         return true;
     }
 
     private boolean playerHasRequiredItems(Player player, List<String> requiredIds) {
-        for (String requiredId : requiredIds) {
-            if (!playerOwnsLeagueItemId(player, requiredId)) {
-                return false;
+        java.util.Map<String, Integer> requiredCounts = new java.util.LinkedHashMap<>();
+        for (String id : requiredIds) requiredCounts.merge(id, 1, Integer::sum);
+        for (var e : requiredCounts.entrySet()) {
+            int owned = 0;
+            for (ItemStack inv : player.getInventory().getContents()) {
+                if (inv != null && !inv.getType().isAir() && e.getKey().equals(ItemModifier.getItemId(inv))) {
+                    owned++;
+                }
             }
+            if (owned < e.getValue()) return false;
         }
         return true;
     }
@@ -194,16 +156,20 @@ public class ItemShopManager implements Listener {
     }
 
     private void consumeRequiredItems(Player player, List<String> requiredIds) {
-        for (String requiredId : requiredIds) {
-            for (int i = 0; i < player.getInventory().getSize(); i++) {
+        java.util.Map<String, Integer> requiredCounts = new java.util.LinkedHashMap<>();
+        for (String id : requiredIds) requiredCounts.merge(id, 1, Integer::sum);
+        for (var e : requiredCounts.entrySet()) {
+            int toConsume = e.getValue();
+            for (int i = 0; i < player.getInventory().getSize() && toConsume > 0; i++) {
                 ItemStack inv = player.getInventory().getItem(i);
-                if (inv != null && !inv.getType().isAir() && requiredId.equals(ItemModifier.getItemId(inv))) {
-                    if (inv.getAmount() > 1) {
-                        inv.setAmount(inv.getAmount() - 1);
-                    } else {
-                        player.getInventory().clear(i);
-                    }
-                    break;
+                if (inv == null || inv.getType().isAir()) continue;
+                if (!e.getKey().equals(ItemModifier.getItemId(inv))) continue;
+                if (inv.getAmount() > toConsume) {
+                    inv.setAmount(inv.getAmount() - toConsume);
+                    toConsume = 0;
+                } else {
+                    toConsume -= inv.getAmount();
+                    player.getInventory().clear(i);
                 }
             }
         }
@@ -246,14 +212,20 @@ public class ItemShopManager implements Listener {
         return item;
     }
 
-    private boolean hasInventorySpace(Player player) {
+    private boolean hasInventorySpace(Player player, List<String> requiredIds) {
+        int emptySlots = 0;
+        int freedSlots = 0;
+        Set<String> requiredSet = new java.util.HashSet<>(requiredIds);
+
         for (int i = 9; i < 36; i++) {
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType().isAir()) {
-                return true;
+            ItemStack slot = player.getInventory().getItem(i);
+            if (slot == null || slot.getType().isAir()) {
+                emptySlots++;
+            } else if (requiredSet.contains(ItemModifier.getItemId(slot))) {
+                freedSlots++;
             }
         }
-        return false;
+        return emptySlots + freedSlots >= 1;
     }
 
     private void addItemToInventory(Player player, ItemStack item) {
@@ -292,10 +264,14 @@ public class ItemShopManager implements Listener {
             return false;
         }
 
+        java.util.Set<String> requiredIds = new java.util.HashSet<>(shopItem.getRequiredItems());
+
         for (ItemStack inv : player.getInventory().getContents()) {
             if (inv != null && !inv.getType().isAir()) {
                 String itemId = ItemModifier.getItemId(inv);
-                if (itemId != null && !itemId.equals(shopItem.getId())) {
+                if (itemId != null
+                        && !itemId.equals(shopItem.getId())
+                        && !requiredIds.contains(itemId)) {
                     String ownerGroup = shopData.getGroup(itemId);
                     if (ownerGroup != null && ownerGroup.equals(itemGroup)) {
                         return true;
@@ -307,15 +283,29 @@ public class ItemShopManager implements Listener {
         return false;
     }
 
-    private int getCategoryOrder(String category) {
-        if (category == null) return 99;
-        if (category.equals("main")) return 0;
-        if (category.equals("mage")) return 1;
-        if (category.equals("fighter")) return 2;
-        if (category.equals("tank")) return 3;
-        if (category.equals("marksman")) return 4;
-        if (category.equals("support")) return 5;
-        return 99;
+    public void consumeSellXp(Player player, ItemStack item) {
+        String itemId = ItemModifier.getItemId(item);
+        if (itemId == null) return;
+
+        ItemShopRegistry registry = ItemShopRegistry.getInstance();
+        ItemShopRegistry.ShopItem shopItem = registry.getShopItem(itemId);
+        if (shopItem == null) return;
+
+        int refundAmount = (int) Math.floor(shopItem.getPrice() * 0.70);
+        player.setLevel(player.getLevel() + refundAmount);
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+        player.sendMessage(Component.text("§fSold §e" + shopItem.getDisplayName() + " §ffor §a◎" + refundAmount + " §flevels (70%)"));
+
+        LeagueMechanics plugin = LeagueMechanics.getInstance();
+        if (plugin != null) {
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                UUID uuid = player.getUniqueId();
+                dev.ixpu.leaguemechanics.player.PlayerStats.invalidateCache(uuid);
+                dev.ixpu.leaguemechanics.manager.ItemStatsManager manager =
+                        dev.ixpu.leaguemechanics.LeagueMechanics.getInstance().getStatsManager();
+                if (manager != null) manager.invalidateCache(uuid);
+            }, 1L);
+        }
     }
 
     public void sellItem(Player player, ItemStack item, int knownSlot) {
@@ -347,7 +337,7 @@ public class ItemShopManager implements Listener {
 
         player.setLevel(player.getLevel() + refundAmount);
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
-        player.sendMessage(Component.text("§a✦ §fSold §a" + shopItem.getDisplayName() + " §ffor " + refundAmount + " levels §a(70%)"));
+        player.sendMessage(Component.text("§fSold §e" + shopItem.getDisplayName() + " §ffor §a◎" + refundAmount + " §flevels (70%)"));
 
         LeagueMechanics plugin = LeagueMechanics.getInstance();
         if (plugin != null) {
