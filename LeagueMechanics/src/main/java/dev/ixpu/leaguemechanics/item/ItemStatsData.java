@@ -40,8 +40,8 @@ public class ItemStatsData {
         addItem("b.f-sword", "B.F. Sword", 0.0, 0.0, 45.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("cloth-armor", "Cloth Armor", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("chain-vest", "Chain Vest", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        addItem("null-magic-mantle", "Null-Magic Mantle", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0);
-        addItem("negatron-cloak", "Negatron Cloak", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 45.0, 0.0, 0.0, 0.0, 0.0);
+        addItem("null-magic-mantle", "Null-Magic Mantle", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0);
+        addItem("negatron-cloak", "Negatron Cloak", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 85.0, 0.0, 0.0, 0.0, 0.0);
         addItem("ruby-crystal", "Ruby Crystal", 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("rejuvenation-bead", "Rejuvenation Bead", 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("faeri-charm", "Faeri Charm", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0);
@@ -94,7 +94,7 @@ public class ItemStatsData {
         addItem("scouts-slingshot", "Scouts' Slingshot", 0.0, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("last-whisper", "Last Whisper", 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 false, null, 0.0, 18.0, 0.0, 0.0);
-        addItem("heartbound-axe", "Heartbound Axe", 0.0, 0.0, 20.0, 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        addItem("hearthbound-axe", "Hearthbound Axe", 0.0, 0.0, 20.0, 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("spectres-cowl", "Spectre's Cowl", 20.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 35.0, 0.0, 0.0, 0.0, 0.0);
         addItem("winged-moonplate", "Winged Moonplate", 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0);
         addItem("wardens-mail", "Warden's Mail", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -110,6 +110,10 @@ public class ItemStatsData {
                 false, null, 5.0, 0.0, 0.0, 0.0);
         addItem("steel-sigil", "Steel Sigil", 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("zeal", "Zeal", 0.0, 0.0, 0.0, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 15.0, 0.0, 4.0);
+
+        // COOLDOWN HASTE ITEMS
+        addItem("glowing-mote", "Glowing Mote", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                false, null, 0.0, 0.0, 0.0, 0.0, 5.0);
     }
 
     private void addItem(String id, String name, double hp, double hr, double ad, double ap, double td,
@@ -128,8 +132,17 @@ public class ItemStatsData {
                          double as, double ar, double mr, double ls, double cc, double sr, double ms,
                          boolean hasPassive, String passiveId,
                          double apenFlat, double apenPercent, double mpenFlat, double mpenPercent) {
+        addItem(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms, hasPassive, passiveId,
+                apenFlat, apenPercent, mpenFlat, mpenPercent, 0.0);
+    }
+
+    private void addItem(String id, String name, double hp, double hr, double ad, double ap, double td,
+                         double as, double ar, double mr, double ls, double cc, double sr, double ms,
+                         boolean hasPassive, String passiveId,
+                         double apenFlat, double apenPercent, double mpenFlat, double mpenPercent,
+                         double ch) {
         items.put(id, new ItemStatsRegistry(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms,
-                hasPassive, passiveId, apenFlat, apenPercent, mpenFlat, mpenPercent));
+                hasPassive, passiveId, apenFlat, apenPercent, mpenFlat, mpenPercent, ch));
     }
 
     public ItemStatsRegistry getItem(String id) {
