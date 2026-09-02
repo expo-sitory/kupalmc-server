@@ -129,6 +129,18 @@ public class LeagueMechanics extends JavaPlugin {
         return instance;
     }
 
+
+    public static boolean playerHasVerdantBarrier(Player player) {
+        if (player == null) return false;
+        for (ItemStack inv : player.getInventory().getContents()) {
+            if (inv == null || inv.getType().isAir()) continue;
+            if ("verdant-barrier".equals(dev.ixpu.leaguemechanics.util.ItemModifier.getItemId(inv))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public RuneRegistry getRuneRegistry() {
         return runeRegistry;
     }
@@ -200,6 +212,21 @@ public class LeagueMechanics extends JavaPlugin {
 
                     if (saturationRegen > 0) {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 1, (int) saturationRegen, false, false));
+                    }
+                    if (playerHasVerdantBarrier(player)) {
+                        dev.ixpu.leaguemechanics.item.passives.verdant_barrier passive =
+                                (dev.ixpu.leaguemechanics.item.passives.verdant_barrier)
+                                        dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry.getInstance().getPassive("verdant-barrier");
+                        if (passive != null && !passive.isOnCooldown(player)) {
+                            passive.grantAbsorptionHeart(player);
+                        }
+                    } else {
+                        dev.ixpu.leaguemechanics.item.passives.verdant_barrier passive =
+                                (dev.ixpu.leaguemechanics.item.passives.verdant_barrier)
+                                        dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry.getInstance().getPassive("verdant-barrier");
+                        if (passive != null) {
+                            passive.resetHearts(player);
+                        }
                     }
                 }
             }
