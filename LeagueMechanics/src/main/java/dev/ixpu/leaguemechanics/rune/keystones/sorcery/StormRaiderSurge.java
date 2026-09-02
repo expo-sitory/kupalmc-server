@@ -130,6 +130,7 @@ public class StormRaiderSurge extends CooldownHandler {
                 player.removePotionEffect(effect);
             }
         }
+        dev.ixpu.leaguemechanics.manager.DebuffManager.getInstance().clearDebuffs(player);
     }
 
     @Override

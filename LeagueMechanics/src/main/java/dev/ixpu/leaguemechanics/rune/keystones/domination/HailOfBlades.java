@@ -7,10 +7,11 @@ import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
-import dev.ixpu.leaguemechanics.manager.BuffManager;
+import dev.ixpu.leaguemechanics.manager.StatScalingManager;
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
@@ -36,10 +37,10 @@ public class HailOfBlades extends CooldownHandler {
 
     private PlayerEventListener listener;
 
-    private final Map<UUID, Boolean> windupActive = new HashMap<>();
+    private final Set<UUID> windupActive = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Integer> windupTicks = new HashMap<>();
     private final Map<UUID, Integer> lastWindupStage = new HashMap<>();
-    private final Map<UUID, Boolean> activeState = new HashMap<>();
+    private final Set<UUID> activeState = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Double> activeASBonus = new HashMap<>();
     private final Map<UUID, List<Integer>> stackDurationTicks = new HashMap<>();
     private final Map<UUID, Integer> lastAttackTick = new HashMap<>();
@@ -62,10 +63,10 @@ public class HailOfBlades extends CooldownHandler {
     @Override
     public void onEnable(Player player) {
         UUID uuid = player.getUniqueId();
-        windupActive.put(uuid, false);
+        windupActive.remove(uuid);
         windupTicks.put(uuid, 0);
         lastWindupStage.put(uuid, 0);
-        activeState.put(uuid, false);
+        activeState.remove(uuid);
         activeASBonus.put(uuid, 0.0);
         stackDurationTicks.put(uuid, new ArrayList<>());
         lastAttackTick.put(uuid, 0);
@@ -128,10 +129,10 @@ public class HailOfBlades extends CooldownHandler {
 
             double newHealth = Math.clamp(livingTarget.getHealth() - damageToApply, 0, livingTarget.getMaxHealth());
 
-            if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(player)) {
+            if (windupActive.contains(playerUUID) || isOnCooldown(player)) {
                 return;
             }
-            if (activeState.getOrDefault(playerUUID, false)) {
+            if (activeState.contains(playerUUID)) {
                 lastAttackTick.put(playerUUID, 0);
                 currentStacks.put(playerUUID, currentStacks.getOrDefault(playerUUID, 0) - 1);
 
@@ -143,14 +144,14 @@ public class HailOfBlades extends CooldownHandler {
                 return;
             }
         } else {
-            if (windupActive.getOrDefault(playerUUID, false) || isOnCooldown(player)) {
+            if (windupActive.contains(playerUUID) || isOnCooldown(player)) {
                 return;
             }
-            if (activeState.getOrDefault(playerUUID, false)) {
+            if (activeState.contains(playerUUID)) {
                 return;
             }
         }
-        windupActive.put(playerUUID, true);
+        windupActive.add(playerUUID);
         windupTicks.put(playerUUID, WINDUP_TICKS);
         lastWindupStage.put(playerUUID, 0);
     }
@@ -178,8 +179,8 @@ public class HailOfBlades extends CooldownHandler {
     }
 
     private double getScaledTrueDamage(Player player) {
-        BuffManager buffManager = new BuffManager();
-        return buffManager.calculateBuffValue(
+        StatScalingManager statScalingManager = new StatScalingManager();
+        return statScalingManager.calculateScaledValue(
                 player,
                 TRUE_DAMAGE_PERCENT,
                 AD_PERCENTAGE_MULTIPLIER,
@@ -189,11 +190,11 @@ public class HailOfBlades extends CooldownHandler {
 
     private void deactivateEffect(Player player) {
         UUID playerUUID = player.getUniqueId();
-        activeState.put(playerUUID, false);
+        activeState.remove(playerUUID);
         activeASBonus.put(playerUUID, 0.0);
         currentStacks.put(playerUUID, 0);
         windupTicks.put(playerUUID, 0);
-        windupActive.put(playerUUID, false);
+        windupActive.remove(playerUUID);
         lastWindupStage.put(playerUUID, 0);
         lastAttackTick.put(playerUUID, 0);
         stackDurationTicks.put(playerUUID, new ArrayList<>());
@@ -215,7 +216,7 @@ public class HailOfBlades extends CooldownHandler {
             return;
         }
 
-        if (windupActive.getOrDefault(playerUUID, false)) {
+        if (windupActive.contains(playerUUID)) {
             int windupCount = windupTicks.getOrDefault(playerUUID, 0);
             windupCount--;
             windupTicks.put(playerUUID, windupCount);
@@ -224,13 +225,13 @@ public class HailOfBlades extends CooldownHandler {
             setPlayerDisplay(player, runeDisplay);
 
             if (windupCount <= 0) {
-                windupActive.put(playerUUID, false);
+                windupActive.remove(playerUUID);
                 activateEffect(player);
             }
             return;
         }
 
-        if (activeState.getOrDefault(playerUUID, false)) {
+        if (activeState.contains(playerUUID)) {
             int stacks = trackActiveStacks(player);
 
             if (stacks <= 0) {
@@ -249,7 +250,7 @@ public class HailOfBlades extends CooldownHandler {
 
     private void activateEffect(Player player) {
         UUID playerUUID = player.getUniqueId();
-        activeState.put(playerUUID, true);
+        activeState.add(playerUUID);
         activeASBonus.put(playerUUID, ATTACK_SPEED);
         lastAttackTick.put(playerUUID, 0);
         currentStacks.put(playerUUID, INITIAL_STACKS);
@@ -291,10 +292,10 @@ public class HailOfBlades extends CooldownHandler {
         if (isOnCooldown(player)) {
             return getRuneDisplay(player, RuneState.COOLDOWN, 0);
         }
-        if (windupActive.getOrDefault(playerUUID, false)) {
+        if (windupActive.contains(playerUUID)) {
             return getRuneDisplay(player, RuneState.WINDUP, windupTicks.getOrDefault(playerUUID, 0));
         }
-        if (activeState.getOrDefault(playerUUID, false)) {
+        if (activeState.contains(playerUUID)) {
             int stacks = trackActiveStacks(player);
             return getRuneDisplay(player, RuneState.ACTIVE, stacks);
         }

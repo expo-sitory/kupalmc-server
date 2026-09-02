@@ -4,7 +4,7 @@ import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.rune.StacksHandler;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
-import dev.ixpu.leaguemechanics.manager.BuffManager;
+import dev.ixpu.leaguemechanics.manager.StatScalingManager;
 
 import java.util.*;
 
@@ -102,8 +102,8 @@ public class FleetFootwork extends StacksHandler {
     }
 
     private double getScaledHealPercentage(Player player) {
-        BuffManager buffManager = new BuffManager();
-        return buffManager.calculateBuffValue(
+        StatScalingManager statScalingManager = new StatScalingManager();
+        return statScalingManager.calculateScaledValue(
                 player,
                 HEAL_PERCENT,
                 AD_PERCENTAGE_MULTIPLIER,

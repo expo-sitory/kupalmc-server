@@ -1,11 +1,13 @@
 package dev.ixpu.leaguemechanics.rune.keystones.inspiration;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.manager.DebuffManager;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
+import dev.ixpu.leaguemechanics.rune.DebuffType;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
-import dev.ixpu.leaguemechanics.manager.BuffManager;
+import dev.ixpu.leaguemechanics.manager.StatScalingManager;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +26,7 @@ import org.bukkit.potion.PotionEffectType;
 import net.kyori.adventure.text.Component;
 
 public class GlacialAugment extends CooldownHandler {
-    private int BASE_FREEZE_DURATION_TICKS = 60;
+    private int BASE_FREEZE_STRENGTH = 60;
 
     private double AD_PERCENTAGE_MULTIPLIER = 7.0;
     private double AP_PERCENTAGE_MULTIPLIER = 6.0;
@@ -48,7 +50,7 @@ public class GlacialAugment extends CooldownHandler {
 
         if (section != null) {
             this.COOLDOWN_DURATION_SECONDS = section.getInt("cooldown", 45);
-            this.BASE_FREEZE_DURATION_TICKS = section.getInt("base-freeze-duration", this.BASE_FREEZE_DURATION_TICKS);
+            this.BASE_FREEZE_STRENGTH = section.getInt("base-freeze-strength", this.BASE_FREEZE_STRENGTH);
             this.AD_PERCENTAGE_MULTIPLIER = section.getDouble("ad-percentage-multiplier", this.AD_PERCENTAGE_MULTIPLIER);
             this.AP_PERCENTAGE_MULTIPLIER = section.getDouble("ap-percentage-multiplier", this.AP_PERCENTAGE_MULTIPLIER);
         }
@@ -146,13 +148,12 @@ public class GlacialAugment extends CooldownHandler {
         placedSnowByAttacker.computeIfAbsent(attackerUUID, k -> new ArrayList<>())
                 .addAll(placedThisActivation);
 
-        livingTarget.addPotionEffect(new PotionEffect(
-                PotionEffectType.SLOWNESS,
-                scaledFreezeDuration,
-                2,
-                false,
-                false
-        ));
+        if (livingTarget instanceof Player slowPlayer && player != null) {
+            StatScalingManager ssm = new StatScalingManager();
+            double slowStrength = ssm.calculateScaledValue(player, BASE_FREEZE_STRENGTH, AD_PERCENTAGE_MULTIPLIER, AP_PERCENTAGE_MULTIPLIER);
+            int slowDurationTicks = 60;
+            DebuffManager.getInstance().applyDebuff(slowPlayer, DebuffType.SLOW, slowDurationTicks, slowStrength);
+        }
 
         applyDebuffToTarget(livingTarget, targetUUID, scaledFreezeDuration);
 
@@ -160,8 +161,6 @@ public class GlacialAugment extends CooldownHandler {
 
         if (plugin != null) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                livingTarget.removePotionEffect(PotionEffectType.SLOWNESS);
-
                 clearPlacedSnow(snowLocations, placedThisActivation);
             }, scaledFreezeDuration);
         }
@@ -206,57 +205,51 @@ public class GlacialAugment extends CooldownHandler {
             return;
         }
 
-        java.util.ArrayList<UUID> toRemove = new java.util.ArrayList<>();
-        for (UUID targetUUID : new java.util.ArrayList<>(frozen.keySet())) {
-            int duration = frozen.getOrDefault(targetUUID, 0);
-
+        java.util.Iterator<java.util.Map.Entry<UUID, Integer>> frozenIt = frozen.entrySet().iterator();
+        while (frozenIt.hasNext()) {
+            java.util.Map.Entry<UUID, Integer> entry = frozenIt.next();
+            int duration = entry.getValue();
             if (duration > 0) {
                 duration--;
-                frozen.put(targetUUID, duration);
-
                 if (duration == 0) {
-                    toRemove.add(targetUUID);
+                    frozenIt.remove();
+                } else {
+                    entry.setValue(duration);
                 }
             } else {
-                toRemove.add(targetUUID);
+                frozenIt.remove();
             }
-        }
-
-        for (UUID targetUUID : toRemove) {
-            frozen.remove(targetUUID);
         }
 
         trackDebuffTimers();
     }
 
     private void trackDebuffTimers() {
-        java.util.ArrayList<UUID> toRemove = new java.util.ArrayList<>();
-        for (UUID targetUUID : new java.util.ArrayList<>(debuffedTargets.keySet())) {
-            int duration = debuffedTargets.getOrDefault(targetUUID, 0);
-
+        java.util.Iterator<java.util.Map.Entry<UUID, Integer>> it = debuffedTargets.entrySet().iterator();
+        while (it.hasNext()) {
+            java.util.Map.Entry<UUID, Integer> entry = it.next();
+            UUID targetUUID = entry.getKey();
+            int duration = entry.getValue();
             if (duration > 0) {
                 duration--;
-                debuffedTargets.put(targetUUID, duration);
-
                 if (duration == 0) {
-                    toRemove.add(targetUUID);
+                    restoreDebuff(targetUUID);
+                    it.remove();
+                } else {
+                    entry.setValue(duration);
                 }
             } else {
-                toRemove.add(targetUUID);
+                restoreDebuff(targetUUID);
+                it.remove();
             }
-        }
-
-        for (UUID targetUUID : toRemove) {
-            restoreDebuff(targetUUID);
-            debuffedTargets.remove(targetUUID);
         }
     }
 
     private int getScaledFreezeDuration(Player player) {
-        BuffManager buffManager = new BuffManager();
-        double scaledDuration = buffManager.calculateBuffValue(
+        StatScalingManager statScalingManager = new StatScalingManager();
+        double scaledDuration = statScalingManager.calculateScaledValue(
                 player,
-                BASE_FREEZE_DURATION_TICKS,
+                BASE_FREEZE_STRENGTH,
                 AD_PERCENTAGE_MULTIPLIER,
                 AP_PERCENTAGE_MULTIPLIER
         );
@@ -266,13 +259,13 @@ public class GlacialAugment extends CooldownHandler {
     private void applyDebuffToTarget(LivingEntity target, UUID targetUUID, int duration) {
         if (target instanceof Player player) {
             PlayerStats stats = PlayerStats.getOrCreate(player);
-            BuffManager buffManager = new BuffManager();
+            StatScalingManager statScalingManager = new StatScalingManager();
 
             double currentAD = stats.getPlayerAD(player);
             double currentAP = stats.getPlayerAP(player);
 
-            double reducedAD = buffManager.calculateDebuffValue(currentAD, DEBUFF_REDUCTION_PERCENT);
-            double reducedAP = buffManager.calculateDebuffValue(currentAP, DEBUFF_REDUCTION_PERCENT);
+            double reducedAD = statScalingManager.calculateReverseScaledValue(currentAD, DEBUFF_REDUCTION_PERCENT);
+            double reducedAP = statScalingManager.calculateReverseScaledValue(currentAP, DEBUFF_REDUCTION_PERCENT);
 
             double adReduction = currentAD - reducedAD;
             double apReduction = currentAP - reducedAP;

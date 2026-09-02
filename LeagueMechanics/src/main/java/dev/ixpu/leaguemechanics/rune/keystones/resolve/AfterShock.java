@@ -1,6 +1,7 @@
 package dev.ixpu.leaguemechanics.rune.keystones.resolve;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
@@ -8,7 +9,7 @@ import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
-import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
+import dev.ixpu.leaguemechanics.rune.RuneCooldownGate;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -28,7 +29,7 @@ import java.util.*;
 
 public class AfterShock extends CooldownHandler {
 
-    private PlayerEventListener listener;
+    private RuneCooldownGate listener;
 
     private double baseArmor = 45.0;
     private double baseMagicResist = 45.0;
@@ -94,9 +95,18 @@ public class AfterShock extends CooldownHandler {
         if (isOnCooldown(player)) {
             return;
         }
-        if (listener.isAnyHotbarOnCooldown(player) && !listener.letRunesThrough(player)) {
+        if (isHotbarCooldownBlocking(listener, player)) {
             return;
         }
+        doActivateAfterShock(player);
+    }
+
+    static boolean isHotbarCooldownBlocking(RuneCooldownGate gate, Player player) {
+        return gate.isAnyHotbarOnCooldown(player) && !gate.letRunesThrough(player);
+    }
+
+    private void doActivateAfterShock(Player player) {
+        UUID playerUUID = player.getUniqueId();
         double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getValue();
         double currentHealth = player.getHealth();
         double healthPercent = (currentHealth / maxHealth) * 100.0;

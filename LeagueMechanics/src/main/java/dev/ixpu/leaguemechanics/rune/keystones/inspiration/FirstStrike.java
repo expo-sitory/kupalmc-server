@@ -11,7 +11,9 @@ import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
@@ -37,7 +39,7 @@ public class FirstStrike extends CooldownHandler {
     private static final double COMBAT_WINDOW_MS = 250;
 
     private final Map<UUID, Long> lastCombatTime = new HashMap<>();
-    private final Map<UUID, Boolean> firstStrikeActive = new HashMap<>();
+    private final Set<UUID> firstStrikeActive = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Double> bonusDamageTracked = new HashMap<>();
     private final Map<UUID, Long> buffEndTime = new HashMap<>();
     private LeagueMechanics plugin;
@@ -63,7 +65,7 @@ public class FirstStrike extends CooldownHandler {
     public void onEnable(Player player) {
         UUID uuid = player.getUniqueId();
         lastCombatTime.put(uuid, 0L);
-        firstStrikeActive.put(uuid, false);
+        firstStrikeActive.remove(uuid);
         bonusDamageTracked.put(uuid, 0.0);
         buffEndTime.put(uuid, 0L);
     }
@@ -103,7 +105,7 @@ public class FirstStrike extends CooldownHandler {
 
         if (currentTime - lastCombat > COMBAT_WINDOW_MS && !isOnCooldown(player)) {
             player.giveExp((int) INITIAL_XP);
-            firstStrikeActive.put(attackerUUID, true);
+            firstStrikeActive.add(attackerUUID);
             bonusDamageTracked.put(attackerUUID, 0.0);
 
             long buffEnd = System.currentTimeMillis() + (long) (BUFF_DURATION_SECONDS * 1000);
@@ -114,7 +116,7 @@ public class FirstStrike extends CooldownHandler {
         }
 
         double tracked = bonusDamageTracked.getOrDefault(attackerUUID, 0.0);
-        boolean isActive = firstStrikeActive.getOrDefault(attackerUUID, false);
+        boolean isActive = firstStrikeActive.contains(attackerUUID);
 
         if (isActive && System.currentTimeMillis() < buffEndTime.getOrDefault(attackerUUID, 0L)) {
             double damageToApply = keystoneDamage(player, target);
@@ -209,14 +211,14 @@ public class FirstStrike extends CooldownHandler {
         long currentTime = System.currentTimeMillis();
         long buffEnd = buffEndTime.getOrDefault(uuid, 0L);
 
-        if (currentTime >= buffEnd && firstStrikeActive.getOrDefault(uuid, false)) {
+        if (currentTime >= buffEnd && firstStrikeActive.contains(uuid)) {
             grantXPBonus(player);
-            firstStrikeActive.put(uuid, false);
+            firstStrikeActive.remove(uuid);
             bonusDamageTracked.put(uuid, 0.0);
         }
 
         RuneState state;
-        if (firstStrikeActive.getOrDefault(uuid, false)) {
+        if (firstStrikeActive.contains(uuid)) {
             state = RuneState.ACTIVE;
         } else if (isOnCooldown(player)) {
             state = RuneState.COOLDOWN;
@@ -276,7 +278,7 @@ public class FirstStrike extends CooldownHandler {
     @Override
     public String getDisplaySection(Player player) {
         UUID uuid = player.getUniqueId();
-        if (firstStrikeActive.getOrDefault(uuid, false)) {
+        if (firstStrikeActive.contains(uuid)) {
             return getRuneDisplay(RuneState.ACTIVE, player);
         }
         if (isOnCooldown(player)) {

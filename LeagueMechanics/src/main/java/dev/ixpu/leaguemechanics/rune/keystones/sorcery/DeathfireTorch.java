@@ -8,7 +8,7 @@ import dev.ixpu.leaguemechanics.rune.RuneSlot;
 import dev.ixpu.leaguemechanics.player.PlayerStats;
 import dev.ixpu.leaguemechanics.util.DebugLogger;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
-import dev.ixpu.leaguemechanics.manager.BuffManager;
+import dev.ixpu.leaguemechanics.manager.StatScalingManager;
 
 
 import java.util.HashMap;
@@ -105,8 +105,8 @@ public class DeathfireTorch extends CooldownHandler {
     }
 
     private double getScaledBonusDamage(Player player) {
-        BuffManager buffManager = new BuffManager();
-        return buffManager.calculateBuffValue(
+        StatScalingManager statScalingManager = new StatScalingManager();
+        return statScalingManager.calculateScaledValue(
                 player,
                 0,
                 AD_PERCENTAGE_MULTIPLIER,
