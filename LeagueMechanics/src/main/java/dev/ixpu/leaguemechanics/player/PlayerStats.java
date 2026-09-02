@@ -5,6 +5,8 @@ import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import dev.ixpu.leaguemechanics.rune.keystones.precision.LethalTempo;
 import dev.ixpu.leaguemechanics.rune.keystones.domination.HailOfBlades;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
+import dev.ixpu.leaguemechanics.manager.DebuffManager;
+import dev.ixpu.leaguemechanics.rune.DebuffType;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import dev.ixpu.leaguemechanics.item.passives.dark_seal;
 
@@ -31,6 +33,7 @@ public class PlayerStats {
     private double temporaryMSModification = 0.0;
     private double temporaryASModification = 0.0;
     private double temporaryCritDamageModification = 0.0;
+    private double temporaryHealingMultiplier = 1.0;
 
     public static PlayerStats getOrCreate(Player player) {
         UUID uuid = player.getUniqueId();
@@ -191,6 +194,18 @@ public class PlayerStats {
         return itemStatsManager.getItemCC(player);
     }
 
+    public double getPlayerCH(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        if (itemStatsManager == null) return 0;
+        return itemStatsManager.getItemCH(player);
+    }
+
+    public double getPlayerTN(Player player) {
+        ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
+        if (itemStatsManager == null) return 0;
+        return itemStatsManager.getItemTN(player);
+    }
+
     private double levelBasedTD(Player player) {
         double playerLevel = player.getLevel();
         if (playerLevel >= 300) {
@@ -288,6 +303,10 @@ public class PlayerStats {
         this.temporaryMSModification += amount;
     }
 
+    public void setTemporaryMSModification(double value) {
+        this.temporaryMSModification = value;
+    }
+
     public double getTemporaryMSModification() {
         return temporaryMSModification;
     }
@@ -302,6 +321,41 @@ public class PlayerStats {
 
     public void modifyCritDamage(double amount) {
         this.temporaryCritDamageModification += amount;
+    }
+
+    public void modifyHealingMultiplier(double multiplier) {
+        this.temporaryHealingMultiplier = Math.max(0.0, this.temporaryHealingMultiplier + multiplier);
+    }
+
+    public double getHealingMultiplier() {
+        return temporaryHealingMultiplier;
+    }
+
+    public boolean hasGrievousWounds(Player player) {
+        if (player == null) return false;
+        return DebuffManager.getInstance().hasDebuff(player, DebuffType.GRIEVOUS_WOUNDS);
+    }
+
+    public double getEffectiveHealingMultiplier(Player player) {
+        double base = getHealingMultiplier();
+        if (hasGrievousWounds(player)) {
+            base *= 0.6;
+        }
+        return base;
+    }
+
+    public double getEffectiveLifeSteal(Player player, double baseLifeStealPercent) {
+        if (hasGrievousWounds(player)) {
+            return baseLifeStealPercent * 0.6;
+        }
+        return baseLifeStealPercent;
+    }
+
+    public double getEffectiveHealthRegen(Player player, double baseRegen) {
+        if (hasGrievousWounds(player)) {
+            return baseRegen * 0.6;
+        }
+        return baseRegen;
     }
 
     public double getTemporaryTDModification() {
@@ -321,27 +375,51 @@ public class PlayerStats {
         this.temporaryMSModification = 0.0;
         this.temporaryASModification = 0.0;
         this.temporaryCritDamageModification = 0.0;
+        this.temporaryHealingMultiplier = 1.0;
     }
 
+    public void clearDebuffs(Player player) {
+        if (player != null) {
+            DebuffManager.getInstance().clearDebuffs(player);
+        }
+    }
 
     public String getActionBarSections(Player player) {
+        if (player == null) return "";
 
-//        double enchantmentAD = getWeaponEnchant(player);
-//        double enchantmentAR = getArmorEnchant(player);
-//
-//        double AD = getPlayerAD(player) + enchantmentAD;
-//        double AR = getPlayerAR(player) + enchantmentAR;
-//        double AP = getPlayerAP(player);
-//        double MR = getPlayerMR(player);
-//
-//        String adDisplay = " §6🗡 §f" + String.format("%.1f", AD);
-//
-//        String apDisplay = " §9☄ §f" + String.format("%.1f", AP);
-//
-//        String arDisplay = " §e🛡 §f" + String.format("%.1f", AR);
-//
-//        String mrDisplay = " §b⦿ §f" + String.format("%.1f", MR);
+        StringBuilder sb = new StringBuilder();
 
-        return "";
+        DebuffManager debuffs = DebuffManager.getInstance();
+        if (debuffs.hasDebuff(player, DebuffType.GRIEVOUS_WOUNDS)) {
+            double remaining = debuffs.getRemainingSeconds(player, DebuffType.GRIEVOUS_WOUNDS);
+            sb.append(" §2🍀 (").append(remaining).append("s)");
+        }
+        if (debuffs.hasDebuff(player, DebuffType.INFLAME)) {
+            double remaining = debuffs.getRemainingSeconds(player, DebuffType.INFLAME);
+            sb.append(" §2🔥 (").append(remaining).append("s)");
+        }
+        if (debuffs.hasDebuff(player, DebuffType.SLOW)) {
+            double remaining = debuffs.getRemainingSeconds(player, DebuffType.SLOW);
+            sb.append(" §2❄ (").append(remaining).append("s)");
+        }
+
+        dev.ixpu.leaguemechanics.manager.ItemPassivesManager passiveManager =
+                dev.ixpu.leaguemechanics.manager.ItemPassivesManager.getInstance();
+        if (passiveManager != null) {
+            appendPassiveCooldown(sb, passiveManager, player, "hextech-alternator", "§7🕹");
+            appendPassiveCooldown(sb, passiveManager, player, "hexdrinker", "§7🛡");
+            appendPassiveCooldown(sb, passiveManager, player, "bamis-cinder", "§7🔥");
+            appendPassiveCooldown(sb, passiveManager, player, "verdant-barrier", "§7⛨");
+        }
+
+        return sb.toString();
+    }
+
+    private void appendPassiveCooldown(StringBuilder sb,
+                                       dev.ixpu.leaguemechanics.manager.ItemPassivesManager manager,
+                                       Player player, String passiveId, String icon) {
+        double remaining = manager.getRemainingCooldownSeconds(player, passiveId);
+        if (remaining <= 0) return;
+        sb.append(" ").append(icon).append(" §7(").append(String.format("%.1fs", remaining)).append(")");
     }
 }
