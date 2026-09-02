@@ -9,6 +9,7 @@ import java.util.List;
 public class ItemShopRegistry {
     private static ItemShopRegistry instance;
     private final List<ShopItem> shopItems = new ArrayList<>();
+    private final Map<String, ShopItem> shopItemsById = new HashMap<>();
 
     private ItemShopRegistry() {
         registerItems();
@@ -46,33 +47,31 @@ public class ItemShopRegistry {
                 "spectres-cowl", "winged-moonplate", "wardens-mail", "bamis-cinder",
                 "verdant-barrier", "aether-wisp", "bandleglass-mirror",
                 "vampiric-scepter", "the-brutalizer", "steel-sigil", "zeal",
-                "berserkers-greaves", "mercurys-treads", "plated-steelcaps", "sorcerers-shoes"
+                "berserkers-greaves", "mercurys-treads", "plated-steelcaps", "sorcerers-shoes",
+                "glowing-mote"
         };
 
         for (String itemId : itemIds) {
             ItemStatsRegistry stats = statsData.getItem(itemId);
             if (stats != null && shopData.hasItem(itemId)) {
-                shopItems.add(new ShopItem(
+                ShopItem shopItem = new ShopItem(
                         stats,
                         shopData.getPrice(itemId),
                         shopData.getLimit(itemId),
                         shopData.getRequiredItems(itemId)
-                ));
+                );
+                shopItems.add(shopItem);
+                shopItemsById.put(shopItem.getId(), shopItem);
             }
         }
     }
 
     public List<ShopItem> getAllShopItems() {
-        return new ArrayList<>(shopItems);
+        return Collections.unmodifiableList(shopItems);
     }
 
     public ShopItem getShopItem(String id) {
-        for (ShopItem item : shopItems) {
-            if (item.getId().equals(id)) {
-                return item;
-            }
-        }
-        return null;
+        return shopItemsById.get(id);
     }
 
     public static class ShopItem {
