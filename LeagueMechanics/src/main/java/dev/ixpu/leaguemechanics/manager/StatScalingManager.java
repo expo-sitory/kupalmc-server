@@ -4,9 +4,9 @@ import dev.ixpu.leaguemechanics.player.PlayerStats;
 
 import org.bukkit.entity.Player;
 
-public class BuffManager {
+public class StatScalingManager {
 
-    public double calculateBuffValue(Player player, double baseValue, double adPercentageMultiplier, double apPercentageMultiplier) {
+    public double calculateScaledValue(Player player, double baseValue, double adPercentageMultiplier, double apPercentageMultiplier) {
         PlayerStats stats = PlayerStats.getOrCreate(player);
 
         double totalAD = stats.getPlayerAD(player);
@@ -18,7 +18,7 @@ public class BuffManager {
         return baseValue + adBonus + apBonus;
     }
 
-    public double calculateDebuffValue(double baseValue, double reductionPercentage) {
+    public double calculateReverseScaledValue(double baseValue, double reductionPercentage) {
         return baseValue * (1 - (reductionPercentage / 100));
     }
 }
