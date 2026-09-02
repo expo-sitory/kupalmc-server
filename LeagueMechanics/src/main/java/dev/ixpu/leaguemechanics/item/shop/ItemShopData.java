@@ -99,7 +99,7 @@ public class ItemShopData {
         addItem("recurve-bow", 30, 6, 3, ItemRarity.RARE, null, "marksman");
         addItem("scouts-slingshot", 25, 6, 4, ItemRarity.RARE, null, "marksman");
         addItem("last-whisper", 35, 1, 5, ItemRarity.RARE, null, "marksman");
-        addItem("heartbound-axe", 30, 6, 6, ItemRarity.RARE, null, "marksman");
+        addItem("hearthbound-axe", 30, 6, 6, ItemRarity.RARE, null, "marksman");
         addItem("zeal", 30, 6, 7, ItemRarity.RARE, null, "marksman");
 
         // --------------------------------- BOOTS ---------------------------------
@@ -129,6 +129,10 @@ public class ItemShopData {
         addItem("the-brutalizer", 31, 6, 10, ItemRarity.RARE, null, "fighter");
         addItem("steel-sigil", 27, 6, 11, ItemRarity.RARE, null, "fighter");
 
+        // --------------------------------- COOLDOWN HASTE ITEMS ---------------------------------
+
+        addItem("glowing-mote", 13, 6, 0, ItemRarity.UNCOMMON, null, "mage");
+
     }
 
     private void loadDefaultRequiredItems() {
@@ -142,7 +146,7 @@ public class ItemShopData {
         addRequiredItem("fated-ashes", "amplifying-tome");
         addRequiredItem("flendish-codex", "amplifying-tome");
         addRequiredItem("giants-belt", "ruby-crystal");
-        addRequiredItem("heartbound-axe", "long-sword", "long-sword", "dagger");
+        addRequiredItem("hearthbound-axe", "long-sword", "long-sword", "dagger");
         addRequiredItem("hexdrinker", "long-sword", "long-sword", "null-magic-mantle");
         addRequiredItem("hextech-alternator", "amplifying-tome", "amplifying-tome");
         addRequiredItem("kindlegem", "ruby-crystal");
@@ -225,7 +229,7 @@ public class ItemShopData {
         itemModels.put("fated-ashes", "minecraft:nether_star");
         itemModels.put("flendish-codex", "minecraft:writable_book");
         itemModels.put("giants-belt", "minecraft:lead");
-        itemModels.put("heartbound-axe", "minecraft:diamond_axe");
+        itemModels.put("hearthbound-axe", "minecraft:diamond_axe");
         itemModels.put("hexdrinker", "minecraft:copper_spear");
         itemModels.put("hextech-alternator", "minecraft:heavy_core");
         itemModels.put("kindlegem", "minecraft:redstone");
@@ -255,6 +259,7 @@ public class ItemShopData {
         itemModels.put("mercurys-treads", "minecraft:diamond_boots");
         itemModels.put("plated-steelcaps", "minecraft:iron_boots");
         itemModels.put("sorcerers-shoes", "minecraft:netherite_boots");
+        itemModels.put("glowing-mote", "minecraft:glow_ink_sac");
     }
 
     private void addItem(String itemId, int price, int limit, int order, ItemRarity rarity, String group, String category) {
