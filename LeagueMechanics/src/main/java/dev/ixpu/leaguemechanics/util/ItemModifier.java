@@ -11,6 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.Plugin;
 
+import dev.ixpu.leaguemechanics.item.shop.ItemShopData;
 import java.lang.reflect.Method;
 
 import java.util.ArrayList;
@@ -104,6 +105,12 @@ public class ItemModifier {
 
         List<String> lore = new ArrayList<>();
 
+        String shortDesc = ItemShopData.getInstance().getShortDesc(statData.getId());
+        if (shortDesc != null && !shortDesc.isEmpty()) {
+            lore.add("§7" + shortDesc);
+            lore.add("");
+        }
+
         if (statData.getAd() > 0) {
             lore.add("§6🗡 " + formatStat(statData.getAd()) + " §fAttack Damage");
         }
@@ -127,6 +134,30 @@ public class ItemModifier {
         }
         if (statData.getAs() > 0) {
             lore.add("§c➺ " + formatStat(statData.getAs()) + "% §fAttack Speed");
+        }
+        if (statData.getLs() > 0) {
+            lore.add("§4✚ " + formatStat(statData.getLs()) + "% §fLife Steal");
+        }
+        if (statData.getCc() > 0) {
+            lore.add("§4➷ " + formatStat(statData.getCc()) + "% §fCritical Chance");
+        }
+        if (statData.getApenFlat() > 0) {
+            lore.add("§6🔰 " + formatStat(statData.getApenFlat()) + " §fLethality");
+        }
+        if (statData.getApenPercent() > 0) {
+            lore.add("§6⛨ " + formatStat(statData.getApenPercent()) + "% §fArmor Penetration");
+        }
+        if (statData.getMpenFlat() > 0) {
+            lore.add("§d🔘 " + formatStat(statData.getMpenFlat()) + " §fMagic Penetration");
+        }
+        if (statData.getMpenPercent() > 0) {
+            lore.add("§d🔘 " + formatStat(statData.getMpenPercent()) + "% §fMagic Penetration");
+        }
+        if (statData.getCh() > 0) {
+            lore.add("§7⌛ " + formatStat(statData.getCh()) + " §fCooldown Haste");
+        }
+        if (statData.getTn() > 0) {
+            lore.add("§b⏩ " + formatStat(statData.getTn()) + " §fTenacity");
         }
         if (statData.getMs() > 0) {
             lore.add("§7👣 " + formatStat(statData.getMs()) + "% §fMovement Speed");
@@ -183,6 +214,12 @@ public class ItemModifier {
             case "CC" -> statData.getCc();
             case "SR" -> statData.getSr();
             case "MS" -> statData.getMs();
+            case "APEN" -> statData.getApenFlat();
+            case "APEN_PERCENT" -> statData.getApenPercent();
+            case "MPEN" -> statData.getMpenFlat();
+            case "MPEN_PERCENT" -> statData.getMpenPercent();
+            case "CH" -> statData.getCh();
+            case "TN" -> statData.getTn();
 
             default -> 0;
         };
