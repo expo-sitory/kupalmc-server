@@ -1,5 +1,5 @@
 name: LeagueMechanics
-version: 1.5.0
+version: 1.6.0
 main: dev.ixpu.leaguemechanics.LeagueMechanics
 api-version: 1.21
 description: League of Legends Mechanics
@@ -10,9 +10,9 @@ softdepend:
 
 commands:
   leaguemechanics:
-    description: LeagueMechanics item stats and build management
-    usage: /leaguemechanics <subcommand>
-    aliases: [lm]
+    description: League of Legends mechanics — shop, class, runes, shards, stats, debuffs
+    usage: /<leaguemechanics|lm> <shop|class|runes|reload>
+    aliases: [lm, league]
 
 permissions:
   leaguemechanics.admin:
