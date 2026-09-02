@@ -45,6 +45,10 @@ public class DamageManager {
         this.isOnlyAP = true;
     }
 
+    public boolean isMagicDamage() {
+        return isOnlyAP;
+    }
+
 
     public double DamageCalculation(Player player, Entity target, int currentStacks, double runesAdaptive, double runesTrueDamage) {
         PlayerStats stats = PlayerStats.getOrCreate(player);
@@ -52,10 +56,15 @@ public class DamageManager {
 
         double doransBonus = getDoransOnHitAD(player);
 
-        double attackerAD = (stats.getPlayerAD(player) + doransBonus) / 7.0;
-        double attackerAP = stats.getPlayerAP(player) / 7.0;
+        double attackerAD = (stats.getPlayerAD(player) + doransBonus) / 9.0;
+        double attackerAP = stats.getPlayerAP(player) / 9.0;
         double targetAR = getTargetAR(target);
         double targetMR = getTargetMR(target);
+
+        double apenFlat = statsManager.getItemAPen(player);
+        double apenPercent = statsManager.getItemAPenPercent(player);
+        double mpenFlat = statsManager.getItemMPen(player);
+        double mpenPercent = statsManager.getItemMPenPercent(player);
 
         double baseDamage;
 
@@ -70,10 +79,10 @@ public class DamageManager {
                 adaptive += adaptive * stats.getPlayerAF(player);
             }
             boolean preferMagic = statsManager.getItemAP(player) > statsManager.getItemAD(player);
-            baseDamage = applyResistance(adaptive, preferMagic, targetAR, targetMR);
+            baseDamage = applyResistance(adaptive, preferMagic, targetAR, targetMR, apenFlat, apenPercent, mpenFlat, mpenPercent);
         } else {
-            double physical = applyResistance(attackerAD, false, targetAR, targetMR);
-            double magic = applyResistance(attackerAP * DEFAULT_MAGIC_RATIO, true, targetAR, targetMR);
+            double physical = applyResistance(attackerAD, false, targetAR, targetMR, apenFlat, apenPercent, mpenFlat, mpenPercent);
+            double magic = applyResistance(attackerAP * DEFAULT_MAGIC_RATIO, true, targetAR, targetMR, apenFlat, apenPercent, mpenFlat, mpenPercent);
             baseDamage = physical + magic;
         }
 
@@ -81,9 +90,16 @@ public class DamageManager {
         return baseDamage * stacks;
     }
 
-    private double applyResistance(double damage, boolean isMagic, double targetAR, double targetMR) {
+    private double applyResistance(double damage, boolean isMagic, double targetAR, double targetMR,
+                                   double apenFlat, double apenPercent, double mpenFlat, double mpenPercent) {
         double resist = isMagic ? targetMR : targetAR;
-        return damage / (1.0 + (resist / 100.0));
+        double flatPen = isMagic ? mpenFlat : apenFlat;
+        double percentPen = isMagic ? mpenPercent : apenPercent;
+
+        double effectiveResist = Math.max(0, resist - flatPen);
+        effectiveResist = effectiveResist * (1.0 - percentPen / 100.0);
+
+        return damage / (1.0 + (effectiveResist / 100.0));
     }
 
     public double getPlayerCritChance(Player player) {
@@ -109,7 +125,11 @@ public class DamageManager {
     }
 
     private double levelBasedBonus(Player player) {
-        double playerLevel = player.getLevel();
+        return levelBasedBonusForLevel(player.getLevel());
+    }
+
+
+    public static double levelBasedBonusForLevel(double playerLevel) {
         if (playerLevel >= 300) {
             return 1.7;
         } else if (playerLevel >= 200) {
