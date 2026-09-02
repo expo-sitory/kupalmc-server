@@ -302,7 +302,7 @@ public class ItemShopGUI {
                 lore.add("§c➺ " + formatStat(shopItem.getStats().getAs()) + "% §fAttack Speed");
             }
             if (shopItem.getStats().getLs() > 0) {
-                lore.add("§4💟 " + formatStat(shopItem.getStats().getLs()) + "% §fLife Steal");
+                lore.add("§4✚ " + formatStat(shopItem.getStats().getLs()) + "% §fLife Steal");
             }
             if (shopItem.getStats().getCc() > 0) {
                 lore.add("§4➷ " + formatStat(shopItem.getStats().getCc()) + "% §fCritical Chance");
@@ -318,6 +318,12 @@ public class ItemShopGUI {
             }
             if (shopItem.getStats().getMpenPercent() > 0) {
                 lore.add("§d🔘 " + formatStat(shopItem.getStats().getMpenPercent()) + "% §fMagic Penetration");
+            }
+            if (shopItem.getStats().getCh() > 0) {
+                lore.add("§7⌛ " + formatStat(shopItem.getStats().getCh()) + " §fCooldown Haste");
+            }
+            if (shopItem.getStats().getTn() > 0) {
+                lore.add("§b⏩ " + formatStat(shopItem.getStats().getTn()) + " §fTenacity");
             }
             if (shopItem.getStats().getMs() > 0) {
                 lore.add("§7👣 " + formatStat(shopItem.getStats().getMs()) + "% §fMovement Speed");
@@ -362,17 +368,17 @@ public class ItemShopGUI {
                     if (canBuy) {
                         lore.add("§a§lᴘᴜʀᴄʜᴀꜱᴇ");
                     } else {
-                        lore.add("§7§lʟᴏᴄᴋᴇᴅ");
                         List<String> required = shopItem.getRequiredItems();
-                        if (!required.isEmpty() && !playerHasRequiredItemsCount(player, required)) {
-                            String names = formatRequiredItemNamesWithCount(player, required);
+                        int currentCount = dev.ixpu.leaguemechanics.LeagueMechanics.getInstance().getStatsManager().countLeagueItems(player);
+                        if (currentCount - required.size() + 1 > 6) {
                             lore.add("");
-                            lore.add("§7ʀᴇQᴜɪʀᴇᴍᴇɴᴛꜱ: §7" + names);
+                            lore.add("§7ʟᴇᴀɢᴜᴇ ɪᴛᴇᴍꜱ: §c" + currentCount + "/6");
                         } else {
-                            int currentCount = dev.ixpu.leaguemechanics.LeagueMechanics.getInstance().getStatsManager().countLeagueItems(player);
-                            if (currentCount - required.size() + 1 > 6) {
+                            lore.add("§7§lʟᴏᴄᴋᴇᴅ");
+                            if (!required.isEmpty() && !playerHasRequiredItemsCount(player, required)) {
+                                String names = formatRequiredItemNamesWithCount(player, required);
                                 lore.add("");
-                                lore.add("§7ʟᴇᴀɢᴜᴇ ɪᴛᴇᴍꜱ: §c" + currentCount + "/6");
+                                lore.add("§7ʀᴇQᴜɪʀᴇᴍᴇɴᴛꜱ: §7" + names);
                             }
                         }
                     }
