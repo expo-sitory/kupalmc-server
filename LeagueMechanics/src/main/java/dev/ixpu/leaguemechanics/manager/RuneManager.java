@@ -254,4 +254,52 @@ public class RuneManager {
             runeData.setSecondarySlot2Rune(null);
         }
     }
+
+    public void setPlayerPrimaryPath(Player player, RunePath path) {
+        UUID uuid = player.getUniqueId();
+        PlayerRuneData runeData = playerRuneData.computeIfAbsent(uuid, k -> new PlayerRuneData(player));
+        runeData.setPrimaryPath(path);
+    }
+
+    public void setPlayerSecondaryPath(Player player, RunePath path) {
+        UUID uuid = player.getUniqueId();
+        PlayerRuneData runeData = playerRuneData.computeIfAbsent(uuid, k -> new PlayerRuneData(player));
+        runeData.setSecondaryPath(path);
+    }
+
+    public void clearPlayerPrimaryTree(Player player) {
+        UUID uuid = player.getUniqueId();
+        PlayerRuneData runeData = playerRuneData.get(uuid);
+        if (runeData == null) return;
+
+        for (CooldownHandler rune : new CooldownHandler[]{
+                runeData.getKeystoneRune(),
+                runeData.getPrimarySlot1Rune(),
+                runeData.getPrimarySlot2Rune(),
+                runeData.getPrimarySlot3Rune()}) {
+            if (rune != null) rune.onDisable(player);
+        }
+
+        runeData.setPrimaryPath(null);
+        runeData.setKeystoneRune(null);
+        runeData.setPrimarySlot1Rune(null);
+        runeData.setPrimarySlot2Rune(null);
+        runeData.setPrimarySlot3Rune(null);
+    }
+
+    public void clearPlayerSecondaryTree(Player player) {
+        UUID uuid = player.getUniqueId();
+        PlayerRuneData runeData = playerRuneData.get(uuid);
+        if (runeData == null) return;
+
+        for (CooldownHandler rune : new CooldownHandler[]{
+                runeData.getSecondarySlot1Rune(),
+                runeData.getSecondarySlot2Rune()}) {
+            if (rune != null) rune.onDisable(player);
+        }
+
+        runeData.setSecondaryPath(null);
+        runeData.setSecondarySlot1Rune(null);
+        runeData.setSecondarySlot2Rune(null);
+    }
 }
