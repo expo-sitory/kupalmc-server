@@ -396,11 +396,11 @@ public class PlayerStats {
         }
         if (debuffs.hasDebuff(player, DebuffType.INFLAME)) {
             double remaining = debuffs.getRemainingSeconds(player, DebuffType.INFLAME);
-            sb.append(" §2🔥 (").append(remaining).append("s)");
+            sb.append(" §6🔥 (").append(remaining).append("s)");
         }
         if (debuffs.hasDebuff(player, DebuffType.SLOW)) {
             double remaining = debuffs.getRemainingSeconds(player, DebuffType.SLOW);
-            sb.append(" §2❄ (").append(remaining).append("s)");
+            sb.append(" §3❄ (").append(remaining).append("s)");
         }
 
         dev.ixpu.leaguemechanics.manager.ItemPassivesManager passiveManager =
