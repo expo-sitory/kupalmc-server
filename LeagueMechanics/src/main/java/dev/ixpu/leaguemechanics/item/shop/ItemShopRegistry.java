@@ -2,6 +2,9 @@ package dev.ixpu.leaguemechanics.item.shop;
 
 import dev.ixpu.leaguemechanics.item.ItemStatsData;
 import dev.ixpu.leaguemechanics.item.ItemStatsRegistry;
+import dev.ixpu.leaguemechanics.util.ItemModifier;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 import java.util.List;
@@ -109,6 +112,34 @@ public class ItemShopRegistry {
 
         public String getId() {
             return stats.getId();
+        }
+
+        public int getEffectivePrice(Player player) {
+            int total = price;
+            ItemShopData shopData = ItemShopData.getInstance();
+
+            for (String reqId : requiredItems) {
+                total += shopData.getPrice(reqId);
+            }
+
+            if (player != null) {
+                for (String reqId : new LinkedHashSet<>(requiredItems)) {
+                    if (playerOwnsLeagueItemId(player, reqId)) {
+                        total -= shopData.getPrice(reqId);
+                    }
+                }
+            }
+
+            return total;
+        }
+
+        private static boolean playerOwnsLeagueItemId(Player player, String itemId) {
+            for (ItemStack inv : player.getInventory().getContents()) {
+                if (inv != null && !inv.getType().isAir() && itemId.equals(ItemModifier.getItemId(inv))) {
+                    return true;
+                }
+            }
+            return false;
         }
 
     }
