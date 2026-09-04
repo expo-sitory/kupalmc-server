@@ -113,8 +113,7 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
         PlayerStats.invalidateCache(uuid);
         itemStatsManager.invalidateCache(uuid);
         CritManager.getInstance().removePlayer(player);
-        hpModifierIds.remove(uuid);
-        msModifierIds.remove(uuid);
+        removeAllAttributeModifiers(player);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -749,6 +748,30 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
             }
         }
         return -1;
+    }
+
+    /**
+     * Removes all league attribute modifiers from a player.
+     * Used during player quit and server shutdown to prevent stacking on rejoin.
+     */
+    public void removeAllAttributeModifiers(Player player) {
+        if (player == null) return;
+        UUID playerId = player.getUniqueId();
+
+        UUID hpId = hpModifierIds.remove(playerId);
+        if (hpId != null) {
+            var hpAttr = player.getAttribute(Attribute.MAX_HEALTH);
+            if (hpAttr != null) {
+                hpAttr.removeModifier(hpId);
+            }
+        }
+        UUID msId = msModifierIds.remove(playerId);
+        if (msId != null) {
+            var msAttr = player.getAttribute(Attribute.MOVEMENT_SPEED);
+            if (msAttr != null) {
+                msAttr.removeModifier(msId);
+            }
+        }
     }
 
     public void applyPlayerStats(Player player) {
