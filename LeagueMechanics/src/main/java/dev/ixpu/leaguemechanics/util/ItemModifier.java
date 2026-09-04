@@ -157,7 +157,7 @@ public class ItemModifier {
             lore.add("§7⌛ " + formatStat(statData.getCh()) + " §fCooldown Haste");
         }
         if (statData.getTn() > 0) {
-            lore.add("§b⏩ " + formatStat(statData.getTn()) + " §fTenacity");
+            lore.add("§3⏩ " + formatStat(statData.getTn()) + " §fTenacity");
         }
         if (statData.getMs() > 0) {
             lore.add("§7👣 " + formatStat(statData.getMs()) + "% §fMovement Speed");
