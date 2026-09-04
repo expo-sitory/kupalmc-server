@@ -5,224 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cda9b1ea-0c5c-4d4f-b093-41df2f38c092" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CoordsSync/CoordsSync.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HorseStamina/HorseStamina.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ItemsOrigin/items-origin.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LeagueMechanics/LeagueMechanics.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/player/PlayerClass.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kupalmc-server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/plugins.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Test_Server.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/CommandManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/ConfigManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/CoordsSync.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/DatabaseManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/MySQLManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/PlayerData.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/PlayerListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/RedisManager$CoordsSyncSubscriber.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/RedisManager$PlayerCoordinates.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/RedisManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_10_56__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/CommandManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/ConfigManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/CoordsSync.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/DatabaseManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/MySQLManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/PlayerData.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/PlayerListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/RedisManager$CoordsSyncSubscriber.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/RedisManager$PlayerCoordinates.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/RedisManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16_[Changes]1/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_11_2026_12_16__Changes_1.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/.idea/Plugins.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/.idea/compiler.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/.idea/jarRepositories.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/java/dev/ixpu/coordssync/CoordsSync.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/java/dev/ixpu/coordssync/CoordsSync.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/java/dev/ixpu/coordssync/command/CommandManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/java/dev/ixpu/coordssync/command/CommandManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/java/dev/ixpu/coordssync/config/ConfigManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/java/dev/ixpu/coordssync/config/ConfigManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/java/dev/ixpu/coordssync/database/DatabaseManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/java/dev/ixpu/coordssync/database/DatabaseManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/java/dev/ixpu/coordssync/database/MySQLManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/java/dev/ixpu/coordssync/database/MySQLManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/java/dev/ixpu/coordssync/database/PlayerData.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/java/dev/ixpu/coordssync/database/PlayerData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/java/dev/ixpu/coordssync/database/RedisManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/java/dev/ixpu/coordssync/database/RedisManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/java/dev/ixpu/coordssync/listener/PlayerListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/java/dev/ixpu/coordssync/listener/PlayerListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/resources/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/resources/plugin.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/CoordsSync/src/main/resources/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/target/CoordsSync-1.2.1.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CoordsSync/target/original-CoordsSync-1.2.1.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/CullingGamesPlugin.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/api/CullingGamesAPI.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/command/CullingGamesCommand.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/command/ForcejoinallCommand.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/config/ConfigManager.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/listener/ItemCooldownListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/listener/MovementLockListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/listener/PvPListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/listener/RespawnNotificationListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/listener/WaveMobListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/manager/EventManager.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/placeholder/CullingGamesPlaceholder.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/placeholder/CullingPlaceholderExpansion.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/util/MessageManager.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/wave/Enchantment.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/wave/Equipment.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/wave/MobBuilder.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/wave/MobSpawn.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/wave/MobSpawnData.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/wave/WaveDefinition.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/java/dev/ixpu/cullingames/wave/WaveManager.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/resources/config.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/src/main/resources/plugin.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/config.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/CullingGamesPlugin.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/api/CullingGamesAPI.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/command/CullingGamesCommand.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/command/ForcejoinallCommand.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/config/ConfigManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/listener/ItemCooldownListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/listener/MovementLockListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/listener/PvPListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/listener/RespawnNotificationListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/listener/WaveMobListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/manager/EventManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/placeholder/CullingGamesPlaceholder.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/placeholder/CullingPlaceholderExpansion$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/placeholder/CullingPlaceholderExpansion.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/util/MessageManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/wave/Enchantment.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/wave/Equipment$Builder.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/wave/Equipment.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/wave/MobBuilder.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/wave/MobSpawn.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/wave/MobSpawnData$Builder.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/wave/MobSpawnData.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/wave/WaveDefinition.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/dev/ixpu/cullingames/wave/WaveManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/classes/plugin.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/cullingames-1.0.0.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CullingGames/target/original-cullingames-1.0.0.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseCollisionTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseCollisionTask.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseHealthProtectionListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseHealthProtectionListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseJumpListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseJumpListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/HorsePowerEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/HorsePowerEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/HorsePowerPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/HorsePowerPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/HorsePowerReloadCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/HorsePowerReloadCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseRaceCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseRaceCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseRaceListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseRaceListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseRaceManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/HorseRaceManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/java/dev/ixpu/horsepower/StaminaMinigameManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/java/dev/ixpu/horsepower/StaminaMinigameManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/resources/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/HorseStamina/src/main/resources/plugin.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/HorseStamina-1.0.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorseCollisionTask.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorseHealthProtectionListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorseJumpListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorsePowerEvent.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorsePowerPlugin.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorsePowerReloadCommand.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorseRaceCommand.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorseRaceListener.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorseRaceManager$RaceData.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/HorseRaceManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/StaminaMinigameManager$MinigameState.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/dev/ixpu/horsepower/StaminaMinigameManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/classes/plugin.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/HorseStamina/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ItemsOrigin/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/ItemsOrigin/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ItemsOrigin/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ItemsOrigin/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ItemsOrigin/src/main/java/dev/ixpu/itemorigin/ItemOrigin.java" beforeDir="false" afterPath="$PROJECT_DIR$/ItemsOrigin/src/main/java/dev/ixpu/itemsorigin/ItemsOrigin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ItemsOrigin/src/main/java/dev/ixpu/itemorigin/ItemOriginCraftingListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ItemsOrigin/src/main/java/dev/ixpu/itemorigin/ItemOriginListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/ItemsOrigin/src/main/java/dev/ixpu/itemsorigin/listener/PlayerEventListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ItemsOrigin/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/ItemsOrigin/src/main/resources/plugin.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/LeagueMechanics.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/LeagueMechanics.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/command/CommandHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/command/CommandHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/command/CommandTabCompletions.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/command/CommandTabCompletions.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/ItemStatsData.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/ItemStatsData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/ItemStatsRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/ItemStatsRegistry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/ItemPassive.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/ItemPassive.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/ItemPassivesRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/ItemPassivesRegistry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/cull.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/cull.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/dark_seal.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/dark_seal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/dorans_ring.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/dorans_ring.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/dorans_shield.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/dorans_shield.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopData.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopGUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopRegistry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/listener/PlayerEventListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/listener/PlayerEventListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/BuffManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/BuffManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/DamageManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/DamageManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/ItemPassivesManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/ItemPassivesManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/ItemShopManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/ItemShopManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/ItemStatsManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/ItemStatsManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/RuneManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/RuneManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/placeholder/PlaceholderRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/placeholder/PlaceholderRegistry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/player/PlayerOrigin.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/player/PlayerRuneData.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/player/PlayerRuneData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/player/PlayerStats.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/player/PlayerStats.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/CooldownHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/CooldownHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/RunePath.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/RunePath.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/RuneRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/RuneRegistry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/RuneSlot.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/RuneSlot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/StacksHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/StacksHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/domination/DarkHarvest.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/domination/DarkHarvest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/domination/Electrocute.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/domination/Electrocute.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/domination/HailOfBlades.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/domination/HailOfBlades.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/inspiration/FirstStrike.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/inspiration/FirstStrike.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/inspiration/GlacialAugment.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/inspiration/GlacialAugment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/inspiration/UnsealedSpellbook.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/inspiration/UnsealedSpellbook.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/precision/Conqueror.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/precision/Conqueror.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/precision/FleetFootwork.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/precision/FleetFootwork.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/precision/LethalTempo.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/precision/LethalTempo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/precision/PressTheAttack.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/precision/PressTheAttack.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/resolve/AfterShock.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/resolve/AfterShock.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/resolve/GraspOfTheUndying.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/resolve/GraspOfTheUndying.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/resolve/Guardian.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/resolve/Guardian.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/sorcery/ArcaneComet.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/sorcery/ArcaneComet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/sorcery/DeathfireTorch.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/sorcery/DeathfireTorch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/sorcery/StormRaiderSurge.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/rune/keystones/sorcery/StormRaiderSurge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/DebugLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/DebugLogger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/ItemModifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/ItemModifier.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/RuneDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/RuneDetector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/RunePersistence.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/RunePersistence.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/resources/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/LeagueMechanics/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/resources/plugin.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/LeagueMechanics.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/LeagueMechanics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/ItemStatsData.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/ItemStatsData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/verdant_barrier.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/passives/verdant_barrier.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopData.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/item/shop/ItemShopRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/listener/PlayerEventListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/listener/PlayerEventListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/ItemShopManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/manager/ItemShopManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/placeholder/PlaceholderRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/placeholder/PlaceholderRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/player/PlayerStats.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/player/PlayerStats.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/ItemModifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/java/dev/ixpu/leaguemechanics/util/ItemModifier.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LeagueMechanics/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/LeagueMechanics/src/main/resources/config.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -261,61 +56,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0008560602747227" />
-      <entry key="MS500" value="1.2435086859610827" />
-      <entry key="S2" value="1.755003666377174" />
-      <entry key="S5" value="2.1760040238133422" />
-      <entry key="S10" value="2.486551364611167" />
-      <entry key="S30" value="2.8025598439170913" />
-      <entry key="S60" value="2.9980630045054473" />
-      <entry key="M2" value="4.207615298488928" />
-      <entry key="M5" value="12.169993390286123" />
-      <entry key="M10" value="22.415220041527242" />
-      <entry key="M15" value="28.18656173054363" />
-      <entry key="M30" value="36.665907433548114" />
-      <entry key="H1" value="49.29615350098829" />
-      <entry key="H2" value="77.43600566686082" />
-      <entry key="H4" value="150.09092715131064" />
-      <entry key="D1" value="689.4896051044035" />
-      <entry key="W1" value="1444.0208366420459" />
+      <entry key="MS100" value="1.0001168679058412" />
+      <entry key="MS500" value="1.2411222313917014" />
+      <entry key="S2" value="2.1666914625175067" />
+      <entry key="S5" value="2.742746145531454" />
+      <entry key="S10" value="3.3094225868341436" />
+      <entry key="S30" value="4.201061878105866" />
+      <entry key="S60" value="4.559150954392763" />
+      <entry key="M2" value="4.76803247947836" />
+      <entry key="M5" value="4.904273148640794" />
+      <entry key="M10" value="4.951631993905674" />
+      <entry key="M15" value="4.967761540106276" />
+      <entry key="M30" value="5.041586312089299" />
+      <entry key="H1" value="6.382913986090129" />
+      <entry key="H2" value="13.838459598537064" />
+      <entry key="H4" value="35.03463315808477" />
+      <entry key="D1" value="446.02372018429963" />
+      <entry key="W1" value="1418.0843941486685" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="1.8185361603506065E-17" />
-      <entry key="MS500" value="4.486879313862545E-4" />
-      <entry key="S2" value="0.14554124881369548" />
-      <entry key="S5" value="0.4625880812488777" />
-      <entry key="S10" value="0.680138503027757" />
-      <entry key="S30" value="0.8855917371154501" />
-      <entry key="S60" value="1.056996592103945" />
-      <entry key="M2" value="2.195045196274309" />
-      <entry key="M5" value="8.772364328396831" />
-      <entry key="M10" value="16.48833317742732" />
-      <entry key="M15" value="20.65627161687202" />
-      <entry key="M30" value="26.440242784604184" />
-      <entry key="H1" value="32.80579593923942" />
-      <entry key="H2" value="44.05631824763918" />
-      <entry key="H4" value="72.89363982696626" />
-      <entry key="D1" value="258.7333977883234" />
-      <entry key="W1" value="430.7733283709115" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="4.7109607926337265E-295" />
+      <entry key="S60" value="6.863643924792229E-148" />
+      <entry key="M2" value="2.6198557068648317E-74" />
+      <entry key="M5" value="3.6924187614275256E-30" />
+      <entry key="M10" value="1.9215667465449963E-15" />
+      <entry key="M15" value="1.5456232773159882E-10" />
+      <entry key="M30" value="1.2432310899591379E-5" />
+      <entry key="H1" value="0.0035325435059794567" />
+      <entry key="H2" value="0.07913366848758165" />
+      <entry key="H4" value="1.7872013310500696" />
+      <entry key="D1" value="136.87931808516518" />
+      <entry key="W1" value="393.96232854403286" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="9.368426468880055E-4" />
-      <entry key="MS500" value="0.28423942759808196" />
-      <entry key="S2" value="1.2874007737144153" />
-      <entry key="S5" value="2.245374731827688" />
-      <entry key="S10" value="2.9131960258917866" />
-      <entry key="S30" value="3.5822549150747056" />
-      <entry key="S60" value="3.9862373600003873" />
-      <entry key="M2" value="6.340212558309214" />
-      <entry key="M5" value="20.876523860253695" />
-      <entry key="M10" value="38.84869915438532" />
-      <entry key="M15" value="48.798425755664475" />
-      <entry key="M30" value="63.07813930586762" />
-      <entry key="H1" value="82.08320254555686" />
-      <entry key="H2" value="121.47763282208427" />
-      <entry key="H4" value="222.9706471801247" />
-      <entry key="D1" value="948.2145717611623" />
-      <entry key="W1" value="1874.792230856689" />
+      <entry key="MS100" value="0.10087859223731518" />
+      <entry key="MS500" value="0.8411455913717749" />
+      <entry key="S2" value="2.0210017390539834" />
+      <entry key="S5" value="2.668147922210926" />
+      <entry key="S10" value="3.2569337714105187" />
+      <entry key="S30" value="4.174090456067685" />
+      <entry key="S60" value="4.5436696057742285" />
+      <entry key="M2" value="4.759703040434609" />
+      <entry key="M5" value="4.900786911344772" />
+      <entry key="M10" value="4.949861958004384" />
+      <entry key="M15" value="4.96657533595491" />
+      <entry key="M30" value="5.040976247205936" />
+      <entry key="H1" value="6.38583662289212" />
+      <entry key="H2" value="13.916525985650916" />
+      <entry key="H4" value="36.82018530760315" />
+      <entry key="D1" value="582.8980176864935" />
+      <entry key="W1" value="1812.0448576390997" />
     </decayedShown>
   </component>
   <component name="ProblemsViewState">
@@ -343,6 +138,7 @@
     "Maven.CoordsSync [clean].executor": "Run",
     "Maven.HorseStamina [clean].executor": "Run",
     "Maven.LeagueMechanics [clean, package].executor": "Run",
+    "Maven.LeagueMechanics [clean,package].executor": "Run",
     "Maven.LeagueMechanics [clean,validate,compile...].executor": "Run",
     "Maven.LeagueMechanics [clean].executor": "Run",
     "Maven.cullingames [clean].executor": "Run",
@@ -359,7 +155,7 @@
     "git-widget-placeholder": "main",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/exponent/Local/test-server",
+    "last_opened_file_path": "/home/exponent/test-server",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.jshint": "true",
     "node.js.detected.package.tslint": "true",
@@ -370,7 +166,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "ml.llm.AcpAgentsConfigurable",
     "to.speed.mode.migration.done": "true"
   }
 }]]></component>
@@ -382,8 +178,8 @@
   </component>
   <component name="RunManager">
     <configuration name="Test Server" type="JarApplication">
-      <option name="JAR_PATH" value="$USER_HOME$/Local/test-server/server.jar" />
-      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Local/test-server" />
+      <option name="JAR_PATH" value="$USER_HOME$/test-server/server.jar" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/test-server" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="ALTERNATIVE_JRE_PATH" value="/usr/lib/jvm/java-26-openjdk" />
       <method v="2" />
