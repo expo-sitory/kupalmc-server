@@ -53,11 +53,12 @@ public class ItemStatsData {
         addItem("cloak-of-agility", "Cloak of Agility", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 15.0, 0.0, 0.0);
 
         // BOOTS
-        addItem("boots", "Boots", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 25.0);
-        addItem("berserkers-greaves", "Berserker's Greaves", 0.0, 0.0, 0.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 30.0);
-        addItem("mercurys-treads", "Mercury's Treads", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 30.0);
-        addItem("plated-steelcaps", "Plated Steelcaps", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0, 30.0);
-        addItem("sorcerers-shoes", "Sorcerer's Shoes", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 30.0,
+        addItem("boots", "Boots", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7.0);
+        addItem("berserkers-greaves", "Berserker's Greaves", 0.0, 0.0, 0.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 12.0);
+        addItem("mercurys-treads", "Mercury's Treads", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 12.0,
+                false, null, 0.0, 0.0, 0.0, 0.0, 0.0, 30.0);
+        addItem("plated-steelcaps", "Plated Steelcaps", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0, 12.0);
+        addItem("sorcerers-shoes", "Sorcerer's Shoes", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 12.0,
                 false, null, 0.0, 0.0, 12.0, 0.0);
 
 
@@ -65,8 +66,10 @@ public class ItemStatsData {
 
         addItem("blightting-jewel", "Blightting Jewel", 0.0, 0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 false, null, 0.0, 0.0, 0.0, 13.0);
-        addItem("flendish-codex", "Flendish Codex", 0.0, 0.0, 0.0, 35.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        addItem("lost-chapter", "Lost Chapter", 0.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        addItem("flendish-codex", "Flendish Codex", 0.0, 0.0, 0.0, 35.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                false, null, 0.0, 0.0, 0.0, 0.0, 5.0);
+        addItem("lost-chapter", "Lost Chapter", 0.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                false, null, 0.0, 0.0, 0.0, 0.0, 5.0);
         addItem("fated-ashes", "Fated Ashes", 0.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 true, "fated-ashes");
         addItem("hextech-alternator", "Hextech Alternator", 0.0, 0.0, 0.0, 45.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -75,7 +78,8 @@ public class ItemStatsData {
                 true, "oblivion-orb");
         addItem("executioners-calling", "Executioner's Calling", 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 true, "executioners-calling");
-        addItem("caulfields-warhammer", "Caulfield's Warhammer", 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        addItem("caulfields-warhammer", "Caulfield's Warhammer", 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                false, null, 0.0, 0.0, 0.0, 0.0, 5.0);
         addItem("hexdrinker", "Hexdrinker", 0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0,
                 true, "hexdrinker");
         addItem("serrated-dirk", "Serrated Dirk", 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -84,7 +88,8 @@ public class ItemStatsData {
                 true, "phage");
         addItem("crystalline-bracer", "Crystalline Bracer", 20.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("giants-belt", "Giant's Belt", 35.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        addItem("kindlegem", "Kindlegem", 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        addItem("kindlegem", "Kindlegem", 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                false, null, 0.0, 0.0, 0.0, 0.0, 5.0);
         addItem("bramble-vest", "Bramble Vest", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 true, "bramble-vest");
         addItem("noonquiver", "Noonquiver", 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0, 0.0);
@@ -100,26 +105,27 @@ public class ItemStatsData {
         addItem("wardens-mail", "Warden's Mail", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 true, "wardens-mail");
         addItem("bamis-cinder", "Bami's Cinder", 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                true, "bamis-cinder");
+                true, "bamis-cinder", 0.0, 0.0, 0.0, 0.0, 2.0);
         addItem("verdant-barrier", "Verdant Barrier", 0.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0,
                 true, "verdant-barrier");
         addItem("aether-wisp", "Aether Wisp", 0.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0);
-        addItem("bandleglass-mirror", "Bandleglass Mirror", 0.0, 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        addItem("bandleglass-mirror", "Bandleglass Mirror", 0.0, 0.0, 0.0, 20.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+                false, null, 0.0, 0.0, 0.0, 0.0, 5.0);
         addItem("vampiric-scepter", "Vampiric Scepter", 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7.0, 0.0, 0.0, 0.0);
         addItem("the-brutalizer", "The Brutalizer", 0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                false, null, 5.0, 0.0, 0.0, 0.0);
+                false, null, 5.0, 0.0, 0.0, 0.0, 5.0);
         addItem("steel-sigil", "Steel Sigil", 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         addItem("zeal", "Zeal", 0.0, 0.0, 0.0, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 15.0, 0.0, 4.0);
 
         // COOLDOWN HASTE ITEMS
         addItem("glowing-mote", "Glowing Mote", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                false, null, 0.0, 0.0, 0.0, 0.0, 5.0);
+                false, null, 0.0, 0.0, 0.0, 0.0, 2.0);
     }
 
     private void addItem(String id, String name, double hp, double hr, double ad, double ap, double td,
                          double as, double ar, double mr, double ls, double cc, double sr, double ms) {
         addItem(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms, false, null);
-    }
+    } 
 
     private void addItem(String id, String name, double hp, double hr, double ad, double ap, double td,
                          double as, double ar, double mr, double ls, double cc, double sr, double ms,
@@ -143,6 +149,15 @@ public class ItemStatsData {
                          double ch) {
         items.put(id, new ItemStatsRegistry(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms,
                 hasPassive, passiveId, apenFlat, apenPercent, mpenFlat, mpenPercent, ch));
+    }
+
+    private void addItem(String id, String name, double hp, double hr, double ad, double ap, double td,
+                         double as, double ar, double mr, double ls, double cc, double sr, double ms,
+                         boolean hasPassive, String passiveId,
+                         double apenFlat, double apenPercent, double mpenFlat, double mpenPercent,
+                         double ch, double tn) {
+        items.put(id, new ItemStatsRegistry(id, name, hp, hr, ad, ap, td, as, ar, mr, ls, cc, sr, ms,
+                hasPassive, passiveId, apenFlat, apenPercent, mpenFlat, mpenPercent, ch, tn));
     }
 
     public ItemStatsRegistry getItem(String id) {
