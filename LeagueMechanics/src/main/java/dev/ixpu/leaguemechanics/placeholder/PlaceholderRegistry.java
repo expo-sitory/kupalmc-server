@@ -65,6 +65,8 @@ public class PlaceholderRegistry extends PlaceholderExpansion {
             case "rune_path" -> getRunePathPlaceholder(player);
             case "class"      -> getClassPlaceholder(player);
 
+R            case "kda" -> dev.ixpu.leaguemechanics.player.PlayerKDA.getInstance().getFormattedKDA(player.getUniqueId());
+
             case "line1" -> getLine1(player, stats);
             case "line2" -> getLine2(player, stats);
             case "line3" -> getLine3(player, stats);
