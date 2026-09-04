@@ -20,10 +20,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ItemShopManager implements Listener {
     private static ItemShopManager instance;
     public static final String SHOP_INVENTORY_TITLE = "§8§lɪᴛᴇᴍ ꜱʜᴏᴘ";
+
+    private final Set<UUID> processingPurchases = ConcurrentHashMap.newKeySet();
 
     private ItemShopManager() {
     }
@@ -76,15 +79,44 @@ public class ItemShopManager implements Listener {
     }
 
     public void purchaseFromGUI(Player player, ItemShopRegistry.ShopItem shopItem) {
-        if (purchaseItem(player, shopItem)) {
-            ItemShopGUI.updateShopDisplay(player);
+        UUID playerId = player.getUniqueId();
+        if (!processingPurchases.add(playerId)) {
+            player.sendMessage(Component.text("§cPurchase already in progress..."));
+            return;
+        }
+        try {
+            if (purchaseItem(player, shopItem)) {
+                ItemShopGUI.updateShopDisplay(player);
+            }
+        } finally {
+            processingPurchases.remove(playerId);
         }
     }
 
     private boolean purchaseItem(Player player, ItemShopRegistry.ShopItem shopItem) {
         ItemStatsManager itemStatsManager = LeagueMechanics.getInstance().getStatsManager();
-        int price = shopItem.getPrice();
+        List<String> required = shopItem.getRequiredItems();
+
+        int price = shopItem.getEffectivePrice(player);
         int playerLevel = player.getLevel();
+        int currentCount = itemStatsManager.countLeagueItems(player);
+
+        int requiredOwned = 0;
+        for (String reqId : required) {
+            if (hasLeagueItemInInventory(player, reqId)) {
+                requiredOwned++;
+            }
+        }
+        int netChange = 1 - requiredOwned;
+        if (currentCount + netChange > 6) {
+            player.sendMessage(Component.text("§cLeague Items Count: " + currentCount + "/6"));
+            return false;
+        }
+
+        if (!hasInventorySpace(player, required)) {
+            player.sendMessage(Component.text("§cInventory full. Need space in main inventory to purchase."));
+            return false;
+        }
 
         if (playerLevel < price) {
             player.sendMessage(Component.text("§cInsufficient levels."));
@@ -99,26 +131,12 @@ public class ItemShopManager implements Listener {
         if (playerOwnsItem(player, shopItem)) {
             return false;
         }
-
-        List<String> required = shopItem.getRequiredItems();
         if (!required.isEmpty()) {
-            if (!playerHasRequiredItems(player, required)) {
-                String names = formatRequiredItemNames(required);
+            if (!playerHasRequiredItemsOrCanAfford(player, required)) {
+                String names = formatRequiredItemNames(player, required);
                 player.sendMessage(Component.text("§cRequires: §f" + names));
                 return false;
             }
-        }
-
-        int currentCount = itemStatsManager.countLeagueItems(player);
-        int postPurchaseCount = currentCount - required.size() + 1;
-        if (postPurchaseCount > 6) {
-            player.sendMessage(Component.text("§cLeague Items Count: " + currentCount + "/6"));
-            return false;
-        }
-
-        if (!hasInventorySpace(player, required)) {
-            player.sendMessage(Component.text("§cInventory full. Need space in main inventory to purchase."));
-            return false;
         }
 
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.5f);
@@ -131,7 +149,9 @@ public class ItemShopManager implements Listener {
         return true;
     }
 
-    private boolean playerHasRequiredItems(Player player, List<String> requiredIds) {
+    private boolean playerHasRequiredItemsOrCanAfford(Player player, List<String> requiredIds) {
+        ItemShopData shopData = ItemShopData.getInstance();
+        int playerLevel = player.getLevel();
         java.util.Map<String, Integer> requiredCounts = new java.util.LinkedHashMap<>();
         for (String id : requiredIds) requiredCounts.merge(id, 1, Integer::sum);
         for (var e : requiredCounts.entrySet()) {
@@ -141,12 +161,14 @@ public class ItemShopManager implements Listener {
                     owned++;
                 }
             }
-            if (owned < e.getValue()) return false;
+            if (owned >= e.getValue()) continue;
+            if (playerLevel >= shopData.getPrice(e.getKey())) continue;
+            return false;
         }
         return true;
     }
 
-    private boolean playerOwnsLeagueItemId(Player player, String itemId) {
+    private boolean hasLeagueItemInInventory(Player player, String itemId) {
         for (ItemStack inv : player.getInventory().getContents()) {
             if (inv != null && !inv.getType().isAir() && itemId.equals(ItemModifier.getItemId(inv))) {
                 return true;
@@ -175,16 +197,43 @@ public class ItemShopManager implements Listener {
         }
     }
 
-    private String formatRequiredItemNames(List<String> requiredIds) {
+    private String formatRequiredItemNames(Player player, List<String> requiredIds) {
         ItemStatsData statsData = ItemStatsData.getInstance();
+        ItemShopData shopData = ItemShopData.getInstance();
+        int playerLevel = player.getLevel();
+        java.util.LinkedHashMap<String, Integer> requiredCounts = new java.util.LinkedHashMap<>();
+        for (String id : requiredIds) requiredCounts.merge(id, 1, Integer::sum);
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < requiredIds.size(); i++) {
-            if (i > 0) sb.append(" §7+ ");
-            String id = requiredIds.get(i);
+        boolean first = true;
+        for (var e : requiredCounts.entrySet()) {
+            if (!first) sb.append(" §7+ ");
+            first = false;
+            String id = e.getKey();
+            int total = e.getValue();
+            int owned = 0;
+            for (ItemStack inv : player.getInventory().getContents()) {
+                if (inv != null && !inv.getType().isAir() && id.equals(ItemModifier.getItemId(inv))) {
+                    owned++;
+                }
+            }
             String name = statsData != null && statsData.getItem(id) != null
                     ? statsData.getItem(id).getName()
                     : id;
-            sb.append("§e").append(name);
+
+            String color;
+            if (owned >= total) {
+                color = "§a";
+            } else if (playerLevel >= shopData.getPrice(id)) {
+                color = "§e";
+            } else {
+                color = "§c";
+            }
+
+            if (total > 1) {
+                sb.append(color).append(name).append(" §7(").append(owned).append("/").append(total).append(")");
+            } else {
+                sb.append(color).append(name);
+            }
         }
         return sb.toString();
     }
@@ -291,7 +340,7 @@ public class ItemShopManager implements Listener {
         ItemShopRegistry.ShopItem shopItem = registry.getShopItem(itemId);
         if (shopItem == null) return;
 
-        int refundAmount = (int) Math.floor(shopItem.getPrice() * 0.70);
+        int refundAmount = (int) Math.floor(shopItem.getEffectivePrice(player) * 0.70);
         player.setLevel(player.getLevel() + refundAmount);
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
         player.sendMessage(Component.text("§fSold §e" + shopItem.getDisplayName() + " §ffor §a◎" + refundAmount + " §flevels (70%)"));
@@ -320,8 +369,7 @@ public class ItemShopManager implements Listener {
             return;
         }
 
-        int originalPrice = shopItem.getPrice();
-        int refundAmount = (int) Math.floor(originalPrice * 0.70);
+        int refundAmount = (int) Math.floor(shopItem.getEffectivePrice(player) * 0.70);
 
         if (knownSlot >= 0 && knownSlot < 36) {
             ItemStack inInv = player.getInventory().getItem(knownSlot);
