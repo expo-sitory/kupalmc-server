@@ -1,6 +1,5 @@
 package dev.ixpu.leaguemechanics.command;
 
-import dev.ixpu.leaguemechanics.player.PlayerClassType;
 import dev.ixpu.leaguemechanics.rune.CooldownHandler;
 import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
@@ -39,16 +38,15 @@ public class CommandTabCompletions implements org.bukkit.command.TabCompleter {
             if (player.hasPermission("leaguemechanics.admin")) {
                 completions.add("reload");
                 completions.add("shop");
-                completions.add("runes");
             }
             completions.add("class");
+            completions.add("runes");
+            completions.add("inspect");
             return filter(completions, args[0]);
         }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("class")) {
-            List<String> classCompletions = new ArrayList<>(List.of(PlayerClassType.getAllIds()));
-            classCompletions.add("clear");
-            return filter(classCompletions, args[1]);
+            completions.add("clear");
         }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("runes")) {
@@ -81,6 +79,13 @@ public class CommandTabCompletions implements org.bukkit.command.TabCompleter {
             } else if (location.equals("secondary")) {
                 return tabSelectSecondary(player, args);
             }
+        }
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("inspect")) {
+            return org.bukkit.Bukkit.getOnlinePlayers().stream()
+                    .map(org.bukkit.entity.Player::getName)
+                    .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .collect(Collectors.toList());
         }
 
         return new ArrayList<>();
