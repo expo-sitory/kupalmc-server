@@ -15,11 +15,10 @@ public class verdant_barrier implements ItemPassive {
     private static final int MAX_ABSORPTION_HEARTS = 10;
     private static final int HEARTS_PER_TICK = 1;
     private static final int ABSORPTION_DURATION_TICKS = Integer.MAX_VALUE;
-    private static final long DEPLETED_COOLDOWN_MS = 90_000L;
+    private static final int DEPLETED_COOLDOWN_TICKS = 90_000 / 50;
     private static final String PASSIVE_ID = "verdant-barrier";
 
     private final Map<UUID, Integer> currentHearts = new HashMap<>();
-    private final Map<UUID, Long> cooldownEndsAt = new HashMap<>();
 
     @Override
     public String getId() {
@@ -54,10 +53,9 @@ public class verdant_barrier implements ItemPassive {
             reapplyAbsorption(victim, newHearts);
 
             if (newHearts == 0) {
-                cooldownEndsAt.put(uuid, System.currentTimeMillis() + DEPLETED_COOLDOWN_MS);
                 ItemPassivesManager mgr = ItemPassivesManager.getInstance();
                 if (mgr != null) {
-                    mgr.setCooldown(victim, PASSIVE_ID, (int) (DEPLETED_COOLDOWN_MS / 50L));
+                    mgr.setCooldown(victim, PASSIVE_ID, DEPLETED_COOLDOWN_TICKS);
                 }
             }
         }
@@ -65,12 +63,12 @@ public class verdant_barrier implements ItemPassive {
 
     public void grantAbsorptionHeart(Player player) {
         if (player == null) return;
-        UUID uuid = player.getUniqueId();
-
-        if (isOnCooldown(player)) {
+        ItemPassivesManager mgr = ItemPassivesManager.getInstance();
+        if (mgr != null && mgr.isOnCooldown(player, PASSIVE_ID)) {
             return;
         }
 
+        UUID uuid = player.getUniqueId();
         int hearts = currentHearts.getOrDefault(uuid, 0);
         if (hearts < MAX_ABSORPTION_HEARTS) {
             hearts = Math.min(MAX_ABSORPTION_HEARTS, hearts + HEARTS_PER_TICK);
@@ -80,20 +78,19 @@ public class verdant_barrier implements ItemPassive {
     }
 
     public boolean isOnCooldown(Player player) {
-        Long endsAt = cooldownEndsAt.get(player.getUniqueId());
-        if (endsAt == null) return false;
-        if (System.currentTimeMillis() >= endsAt) {
-            cooldownEndsAt.remove(player.getUniqueId());
-            return false;
-        }
-        return true;
+        ItemPassivesManager mgr = ItemPassivesManager.getInstance();
+        if (mgr == null) return false;
+        return mgr.isOnCooldown(player, PASSIVE_ID);
     }
 
     public void resetHearts(Player player) {
         if (player == null) return;
         UUID uuid = player.getUniqueId();
         currentHearts.remove(uuid);
-        cooldownEndsAt.remove(uuid);
+        ItemPassivesManager mgr = ItemPassivesManager.getInstance();
+        if (mgr != null) {
+            mgr.setCooldown(player, PASSIVE_ID, 0);
+        }
         player.removePotionEffect(PotionEffectType.ABSORPTION);
     }
 
@@ -106,7 +103,7 @@ public class verdant_barrier implements ItemPassive {
         player.addPotionEffect(new PotionEffect(
                 PotionEffectType.ABSORPTION,
                 ABSORPTION_DURATION_TICKS,
-                hearts - 1,   // amplifier N = N+1 half-hearts
+                hearts - 1,
                 false,
                 false
         ));
