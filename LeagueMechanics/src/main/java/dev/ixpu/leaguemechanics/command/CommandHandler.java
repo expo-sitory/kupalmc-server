@@ -2,7 +2,8 @@ package dev.ixpu.leaguemechanics.command;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 
-import dev.ixpu.leaguemechanics.item.shop.ItemShopGUI;
+import dev.ixpu.leaguemechanics.gui.InspectGUI;
+import dev.ixpu.leaguemechanics.gui.ItemShopGUI;
 
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
@@ -13,10 +14,10 @@ import dev.ixpu.leaguemechanics.rune.RunePath;
 import dev.ixpu.leaguemechanics.rune.RuneRegistry;
 import dev.ixpu.leaguemechanics.rune.RuneSlot;
 
-import dev.ixpu.leaguemechanics.player.PlayerClassType;
 import dev.ixpu.leaguemechanics.util.RunePersistence;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -46,7 +47,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            player.sendMessage(Component.text("§cUsage: /lm <shop|class|runes|reload>"));
+            player.sendMessage(Component.text("§cUsage: /lm <shop|class|runes|reload|inspect>"));
             return true;
         }
 
@@ -54,6 +55,7 @@ public class CommandHandler implements CommandExecutor {
 
         return switch (subcommand) {
             case "shop" -> handleShop(player);
+            case "inspect" -> handleInspect(player, args);
             case "reload" -> {
                 if (!player.hasPermission("leaguemechanics.admin")) {
                     player.sendMessage(Component.text("§cYou don't have permission to use this command."));
@@ -79,17 +81,6 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
 
-        if (args.length < 2) {
-            PlayerClassType currentClass = dev.ixpu.leaguemechanics.player.PlayerClass.getPlayerClass(player);
-            if (currentClass != null) {
-                player.sendMessage(Component.text("§6Your current class: §e" + currentClass.getDisplayName()));
-            } else {
-                player.sendMessage(Component.text("§cYou don't have a class set. Use §e/lm class <class> §cto set one."));
-            }
-            player.sendMessage(Component.text("§7Available classes: §afighter §7| §asupport §7| §aassassin §7| §amage §7| §atank §7| §amarksman"));
-            return true;
-        }
-
         String classArg = args[1].toLowerCase();
 
         if (classArg.equals("clear")) {
@@ -97,17 +88,6 @@ public class CommandHandler implements CommandExecutor {
             player.sendMessage(Component.text("§a✓ Class cleared!"));
             return true;
         }
-
-        PlayerClassType classType = PlayerClassType.fromId(classArg);
-
-        if (classType == null) {
-            player.sendMessage(Component.text("§cInvalid class. Available: §afighter §7| §asupport §7| §aassassin §7| §amage §7| §atank §7| §amarksman"));
-            return true;
-        }
-
-        dev.ixpu.leaguemechanics.player.PlayerClass.setPlayerClass(player, classType);
-        playerEventListener.applyPlayerStats(player);
-        player.sendMessage(Component.text("§a✓ Class set to §e" + classType.getDisplayName() + "§a!"));
         return true;
     }
 
@@ -306,6 +286,37 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
         ItemShopGUI.openShop(player);
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean handleInspect(Player player, String[] args) {
+
+        if (!player.hasPermission("leaguemechanics.user")) {
+            player.sendMessage(Component.text("§cYou don't have permission to use this command."));
+            return true;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(Component.text("§cUsage: /lm inspect <player>"));
+            return true;
+        }
+
+        String targetName = args[1];
+        Player target = Bukkit.getPlayerExact(targetName);
+        if (target == null) {
+            player.sendMessage(Component.text("§cPlayer not found: §e" + targetName));
+            return true;
+        }
+
+        if (target.getUniqueId().equals(player.getUniqueId())) {
+            player.sendMessage(Component.text("§cYou cannot inspect yourself! Use /lm inspect <other-player>"));
+            return true;
+        }
+
+        InspectGUI.openInspect(player, target);
+        player.sendMessage(Component.text("§6⟳ Inspecting §e" + target.getName()));
+
         return true;
     }
 }
