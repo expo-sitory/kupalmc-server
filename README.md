@@ -23,11 +23,15 @@ There are only **10** current types of player statistics divided into 3 differen
   - Health Regeneration **[HR]**: The amount of health the player passively restores per 5 seconds. (Vanilla health regen from foods are disabled)
   - <a id="armor-bullet"></a>Armor **[AR]**: Reduces (mitigates) the amount of physical damage taken.
   - <a id="mr-bullet"></a>Magic Resistance **[MR]**: Reduces (mitigates) the amount of magic damage taken.
+  - Tenacity **[TN]**: Reduces the duration of movement speed debuffs by percentage
 - ##### Offensive
   - Attack speed **[AS]**: The number of attacks the player is allowed to perform per second.
   - <a id="ad-bullet"></a>Attack damage **[AD]**: One of the two main offensive statistics, along with ability power. Unmodified basic attacks deal exactly this amount of damage.
   - <a id="ap-bullet"></a>Ability power **[AP]**: One of the two main offensive statistics, along with attack damage.
   - Critical strike chance **[Crit%]**: Denotes the chance that a basic attack will critically strike. (Yes vanilla jump crit attack deals no extra damage)
+  - Armor Penetration **[APEN]**: When applying physical damage to a target, ignores a part of their **armor** in the damage calculations. This can be either flat (lethality) or percentage-based.
+  - Magic Penetration **[MPEN]**: When applying magic damage to a target, ignores a part of their **magic resistance** in the damage calculations. This can be either flat for percentage-based.
+  - Life Steal **[LS]**: How much health a player restores, as a percentage of post-mitigation damage dealth by attacks.
 - ##### Utility
   - Saturation Regeneration **[SR]**: The amount of food saturation the player passively restores per 5 seconds. (Might use this to serve as mana/energy in the future)
   - Movement Speed **[MS]**: How quickly a player moves, measured in game-distance units per second.
@@ -78,6 +82,90 @@ The player total adaptive damage scales with their current level across 5 tiers:
 - Level 100-199: **1.2x**
 - Level 200-299: **1.5x**
 - Level 300+: **1.7x**
+
+#### Damage Calculation
+
+A damage event is resolved in four steps: **base damage → resistance → multiplier → stacks**. Each damage type uses a different base-damage formula, but all three go through the same resistance and multiplier stages.
+
+##### Base Damage
+
+The base damage value depends on the source's outgoing damage and the type of the attack:
+
+- **Stats Damage** (default): The attack's raw damage is the sum of two components, the attacker's total **attack damage** (AD) and the attacker's total **ability power** (AP), each divided by `9`. Physical damage uses the AD component; magic damage uses the AP component scaled by a `0.6` default ratio. Both are summed.
+- **True Damage**: The base damage is the attacker's total **true damage** (TD) plus `(AD + AP) × runesTrueDamage / 100`.
+- **Adaptive Damage**: The base damage is `runesAdaptive × levelBasedBonus(player)`, optionally multiplied further by the attacker's adaptive force if adaptive scaling is enabled. The damage type (physical or magic) is chosen by comparing the attacker's total AD vs AP, higher AP means magic damage, higher AD means physical damage.
+
+##### Resistance
+
+Each damage component is individually mitigated by the target's resistance:
+
+```
+effectiveResist = max(0, resist − flatPen) × (1 − percentPen / 100)
+finalDamage = damage / (1 + effectiveResist / 100)
+```
+
+- **Physical damage** is mitigated by the target's **armor** (AR), using flat and percent armor penetration.
+- **Magic damage** is mitigated by the target's **magic resistance** (MR), using flat and percent magic penetration.
+- **True damage** bypasses this stage entirely, it is never mitigated.
+
+##### Multipliers
+
+After resistance is applied, the damage is multiplied by:
+
+- **Critical strike**: If the attack critically strikes, the damage is multiplied by `1.75 + bonusCritDamage` (see Critical Strike below).
+- **Stacks**: If the effect is per-stack, the damage is multiplied by the current stack count.
+
+##### Stacks
+
+The final damage is multiplied by the number of stacks the effect has accumulated (`currentStacks`), or `1` if the effect is not per-stack.
+
+---
+
+### Critical Strike
+
+Critical strike chance (**Crit%**) is a statistic that determines the probability a basic attack will critically strike. Unlike vanilla Minecraft, a critical strike here deals **extra damage**, the attack's damage is multiplied by `1.75` plus any bonus critical damage from runes or passives.
+
+#### Base Crit Damage
+
+The base critical damage multiplier is **`1.75`**. Bonus critical damage from runes and passives is added directly:
+
+```
+critDamageMultiplier = 1.75 + bonusCritDamage
+```
+
+#### Crit Chance
+
+The player's effective critical strike chance is the sum of their item **critical strike chance** statistic plus any bonus from runes. It is capped at `100%` (a guaranteed crit) and floored at `0%`.
+
+#### Luck Modifier
+
+The server uses a luck-based critical strike system to prevent long streaks of non-critical attacks. For a given crit chance `C` (as a fraction between 0 and 1):
+
+```
+luckModifier = max(0, min(1, C × (1 − C) × 2))
+```
+
+This modifier is used to compute the average expected critical damage over many attacks, factoring in both the crit chance and the crit damage multiplier.
+
+#### Failure Streaks
+
+Each player tracks a **failure streak**, the number of consecutive non-critical attacks. The streak is capped at `5`. On each attack:
+
+- If the attack critically strikes, the streak resets to `0`.
+- If the attack does not critically strike, the streak increments by `1`.
+
+The streak is used to compute a penalty that temporarily reduces the player's effective crit chance after consecutive misses, making critical strikes feel more consistent.
+
+#### Average Crit Multiplier
+
+The average critical damage multiplier over many attacks, accounting for both crit chance and bonus crit damage:
+
+```
+averageCritMultiplier = 1.0 + critChance × (1.0 + bonusCritDamage)
+```
+
+where `critChance` is the player's crit chance as a fraction (e.g. `0.3` for 30%).
+
 ---
 
 ### Player Runes
