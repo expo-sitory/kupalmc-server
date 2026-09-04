@@ -1,5 +1,6 @@
 package dev.ixpu.leaguemechanics;
 
+import dev.ixpu.leaguemechanics.gui.ClassSelectionGUI;
 import dev.ixpu.leaguemechanics.listener.PlayerEventListener;
 
 import dev.ixpu.leaguemechanics.manager.DebuffManager;
@@ -45,17 +46,6 @@ import dev.ixpu.leaguemechanics.rune.keystones.sorcery.DeathfireTorch;
 
 import dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment;
 import dev.ixpu.leaguemechanics.rune.keystones.inspiration.FirstStrike;
-
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.precision.AbsorbLife;
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.precision.Triumph;
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.domination.CheapShot;
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.domination.TasteOfBlood;
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.inspiration.CashBack;
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.inspiration.MagicalFootwear;
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.sorcery.NimbusCloak;
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.sorcery.AxiomArcanist;
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.resolve.Demolish;
-import dev.ixpu.leaguemechanics.rune.slots.primary.slot_1.resolve.ShieldBash;
 
 import java.util.Objects;
 
@@ -110,6 +100,8 @@ public class LeagueMechanics extends JavaPlugin {
                 playerEventListener.removeAllAttributeModifiers(player);
             }
         }
+
+        dev.ixpu.leaguemechanics.player.PlayerKDA.getInstance().saveAll();
 
         CooldownHandler glacial = runeRegistry != null ? runeRegistry.getRune("glacial-augment") : null;
         if (glacial instanceof dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment glacialAugment) {
@@ -244,6 +236,14 @@ public class LeagueMechanics extends JavaPlugin {
             @Override
             public void run() {
                 for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (!ClassSelectionGUI.hasPlayerSelectedClass(player)) {
+                        org.bukkit.inventory.InventoryView view = player.getOpenInventory();
+                        if (view.getType() == org.bukkit.event.inventory.InventoryType.CRAFTING
+                                || view.getType() == org.bukkit.event.inventory.InventoryType.CREATIVE) {
+                            ClassSelectionGUI.openForPlayer(player);
+                        }
+                    }
+
                     ItemStack[] inventoryContents = player.getInventory().getContents();
                     for (int i = 0; i < 9; i++) {
                         ItemStack item = inventoryContents[i];
@@ -345,36 +345,6 @@ public class LeagueMechanics extends JavaPlugin {
         FirstStrike firstStrike = new FirstStrike(config, this, playerEventListener);
         loadRuneCooldown(firstStrike, "runes.keystones.inspiration.first-strike.cooldown");
         runeRegistry.registerRune(firstStrike);
-
-        Triumph triumph = new Triumph(config);
-        runeRegistry.registerRune(triumph);
-
-        AbsorbLife absorbLife = new AbsorbLife(config);
-        runeRegistry.registerRune(absorbLife);
-
-        CheapShot cheapShot = new CheapShot(config);
-        runeRegistry.registerRune(cheapShot);
-
-        TasteOfBlood tasteOfBlood = new TasteOfBlood(config);
-        runeRegistry.registerRune(tasteOfBlood);
-
-        NimbusCloak nimbusCloak = new NimbusCloak(config);
-        runeRegistry.registerRune(nimbusCloak);
-
-        AxiomArcanist axiomArcanist = new AxiomArcanist(config);
-        runeRegistry.registerRune(axiomArcanist);
-
-        CashBack cashBack = new CashBack(config);
-        runeRegistry.registerRune(cashBack);
-
-        MagicalFootwear magicalFootwear = new MagicalFootwear(config);
-        runeRegistry.registerRune(magicalFootwear);
-
-        Demolish demolish = new Demolish(config);
-        runeRegistry.registerRune(demolish);
-
-        ShieldBash shieldBash = new ShieldBash(config);
-        runeRegistry.registerRune(shieldBash);
 
         getLogger().info(() -> "Registered " + runeRegistry.getAllRunes().size() + " runes");
     }
