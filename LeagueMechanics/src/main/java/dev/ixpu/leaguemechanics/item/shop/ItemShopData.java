@@ -20,6 +20,7 @@ public class ItemShopData {
     private ItemShopData() {
         loadDefaultItems();
         loadDefaultModels();
+        loadDefaultClassModels();
         loadDefaultRequiredItems();
         loadDefaultShortDescriptions();
     }
@@ -229,6 +230,21 @@ public class ItemShopData {
         itemModels.put("plated-steelcaps", "minecraft:iron_boots");
         itemModels.put("sorcerers-shoes", "minecraft:netherite_boots");
         itemModels.put("glowing-mote", "minecraft:glow_ink_sac");
+    }
+
+    private final Map<String, String> classModels = new HashMap<>();
+
+    private void loadDefaultClassModels() {
+        classModels.put("fighter", "minecraft:netherite_sword");
+        classModels.put("support", "minecraft:fishing_rod");
+        classModels.put("assassin", "minecraft:wooden_sword");
+        classModels.put("mage", "minecraft:enchanted_book");
+        classModels.put("tank", "minecraft:iron_chestplate");
+        classModels.put("marksman", "minecraft:bow");
+    }
+
+    public String getClassModel(String classId) {
+        return classModels.get(classId);
     }
 
     private void addItem(String itemId, int price, int limit, int order, ItemRarity rarity, String group, String category) {
