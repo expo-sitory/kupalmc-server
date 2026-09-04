@@ -1,7 +1,9 @@
-package dev.ixpu.leaguemechanics.item.shop;
+package dev.ixpu.leaguemechanics.gui;
 
 import dev.ixpu.leaguemechanics.item.passives.ItemPassive;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
+import dev.ixpu.leaguemechanics.item.shop.ItemShopData;
+import dev.ixpu.leaguemechanics.item.shop.ItemShopRegistry;
 import dev.ixpu.leaguemechanics.util.ItemModifier;
 
 import org.bukkit.Bukkit;
@@ -414,7 +416,6 @@ public class ItemShopGUI {
                 lore.add("§7ʟᴇᴀɢᴜᴇ ɪᴛᴇᴍꜱ: §c" + currentCount + "/6");
             }
 
-            // Show components on PURCHASE and LOCKED status (so player knows what's needed)
             if ((status.equals("ᴘᴜʀᴄʜᴀꜱᴇ") || status.equals("ʟᴏᴄᴋᴇᴅ")) && !required.isEmpty()) {
                 lore.add("");
                 lore.add("§7ᴄᴏᴍᴘᴏɴᴇɴᴛꜱ: §7" + names);

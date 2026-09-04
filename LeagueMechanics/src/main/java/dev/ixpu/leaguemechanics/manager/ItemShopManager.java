@@ -2,7 +2,7 @@ package dev.ixpu.leaguemechanics.manager;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopData;
-import dev.ixpu.leaguemechanics.item.shop.ItemShopGUI;
+import dev.ixpu.leaguemechanics.gui.ItemShopGUI;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopRegistry;
 import dev.ixpu.leaguemechanics.item.ItemStatsData;
 import dev.ixpu.leaguemechanics.util.ItemModifier;
