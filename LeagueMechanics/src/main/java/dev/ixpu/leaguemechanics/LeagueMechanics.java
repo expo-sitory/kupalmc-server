@@ -105,6 +105,12 @@ public class LeagueMechanics extends JavaPlugin {
     public void onDisable() {
         getLogger().info("League Mechanics is shutting down...");
 
+        if (playerEventListener != null) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                playerEventListener.removeAllAttributeModifiers(player);
+            }
+        }
+
         CooldownHandler glacial = runeRegistry != null ? runeRegistry.getRune("glacial-augment") : null;
         if (glacial instanceof dev.ixpu.leaguemechanics.rune.keystones.inspiration.GlacialAugment glacialAugment) {
             glacialAugment.clearAllSnowBlocks();
