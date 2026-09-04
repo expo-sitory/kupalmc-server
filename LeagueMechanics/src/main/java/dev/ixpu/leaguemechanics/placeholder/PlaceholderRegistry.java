@@ -125,7 +125,7 @@ public class PlaceholderRegistry extends PlaceholderExpansion {
         double ch = stats.getPlayerCH(player);
         double roundedAS = Math.ceil(as * 100) / 100;
         String asFormatted = String.format("%.2f", roundedAS);
-        return "§c➺ §7" + String.format("%-6s", asFormatted) + "§7⌛ §7" + String.format("%-4.0f", ch + 20);
+        return "§c➺ §7" + String.format("%-6s", asFormatted) + "§7⌛ §7" + String.format("%-4.0f", ch);
     }
 
     private String getLine4(Player player, PlayerStats stats) {
