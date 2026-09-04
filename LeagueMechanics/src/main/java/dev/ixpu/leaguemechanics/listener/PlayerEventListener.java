@@ -3,10 +3,12 @@ package dev.ixpu.leaguemechanics.listener;
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import dev.ixpu.leaguemechanics.LeagueMechanics;
 import dev.ixpu.leaguemechanics.item.*;
+import dev.ixpu.leaguemechanics.gui.InspectGUI;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassive;
+import dev.ixpu.leaguemechanics.gui.ClassSelectionGUI;
 import dev.ixpu.leaguemechanics.item.passives.ItemPassivesRegistry;
 import dev.ixpu.leaguemechanics.item.shop.ItemShopData;
-import dev.ixpu.leaguemechanics.item.shop.ItemShopGUI;
+import dev.ixpu.leaguemechanics.gui.ItemShopGUI;
 import dev.ixpu.leaguemechanics.manager.DamageManager;
 import dev.ixpu.leaguemechanics.manager.ItemPassivesManager;
 import dev.ixpu.leaguemechanics.manager.ItemShopManager;
@@ -69,8 +71,12 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
     private final Map<UUID, Long> attackCooldown = new ConcurrentHashMap<>();
     private final Set<UUID> letRunesThroughMap = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Map<UUID, Long>> lastHitTimes = new ConcurrentHashMap<>();
+    private final Map<UUID, UUID> lastPlayerAttacker = new ConcurrentHashMap<>();
     private final Map<UUID, List<ItemStack>> pendingLeagueItemRestore = new HashMap<>();
+    private final Map<UUID, Long> lastKillTime = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer> killStreak = new ConcurrentHashMap<>();
     private static final long ASSIST_WINDOW_MS = 10_000L;
+    private static final long MULTIKILL_WINDOW_MS = 10_000L;
 
     public PlayerEventListener(LeagueMechanics plugin) {
         this.plugin = plugin;
@@ -103,6 +109,7 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
         runeManager.unloadPlayerRunes(player);
         dev.ixpu.leaguemechanics.player.PlayerClass.unloadPlayer(uuid);
         lastHitTimes.remove(uuid);
+        dev.ixpu.leaguemechanics.player.PlayerKDA.getInstance().saveForPlayer(uuid);
 
         dev.ixpu.leaguemechanics.item.passives.dark_seal darkSeal =
                 (dev.ixpu.leaguemechanics.item.passives.dark_seal) ItemPassivesRegistry.getInstance().getPassive("dark-seal");
@@ -128,6 +135,22 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
                 int slot = event.getRawSlot();
                 if (slot >= 0 && slot < event.getInventory().getSize()) {
                     ItemShopGUI.getInstance().handleClick(player, slot);
+                }
+                return;
+            }
+        }
+
+        if (event.getView().getTitle().equals(InspectGUI.getInventoryTitle())) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (event.getView().getTitle().equals(ClassSelectionGUI.getInventoryTitle())) {
+            if (event.getClickedInventory() == event.getView().getTopInventory()) {
+                event.setCancelled(true);
+                int slot = event.getRawSlot();
+                if (slot >= 0 && slot < event.getInventory().getSize()) {
+                    ClassSelectionGUI.getInstance().handleClick(player, slot);
                 }
                 return;
             }
@@ -256,6 +279,10 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
             return;
         }
         if (event.getView().getTitle().equals(ItemShopGUI.getInventoryTitle())) {
+            return;
+        }
+        if (event.getView().getTitle().equals(InspectGUI.getInventoryTitle())) {
+            event.setCancelled(true);
             return;
         }
         ItemStack cursor = event.getCursor();
@@ -654,9 +681,18 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        Player killer = player.getKiller();
+
+        dev.ixpu.leaguemechanics.player.PlayerKDA.getInstance().recordDeath(player);
+
+        event.deathMessage(null);
 
         fireTakedowns(player);
         CritManager.getInstance().resetFailureStreak(player);
+
+        if (killer != null) {
+            broadcastKillMessage(killer, player);
+        }
 
         List<Map.Entry<ItemStack, Integer>> leagueItems = new ArrayList<>();
         for (ItemStack drop : event.getDrops()) {
@@ -750,10 +786,7 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
         return -1;
     }
 
-    /**
-     * Removes all league attribute modifiers from a player.
-     * Used during player quit and server shutdown to prevent stacking on rejoin.
-     */
+    @SuppressWarnings("removal")
     public void removeAllAttributeModifiers(Player player) {
         if (player == null) return;
         UUID playerId = player.getUniqueId();
@@ -1065,15 +1098,25 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
         lastHitTimes
             .computeIfAbsent(victim.getUniqueId(), k -> new HashMap<>())
             .put(attacker.getUniqueId(), System.currentTimeMillis());
+        lastPlayerAttacker.put(victim.getUniqueId(), attacker.getUniqueId());
     }
 
     private void fireTakedowns(Player victim) {
         Map<UUID, Long> attackers = lastHitTimes.remove(victim.getUniqueId());
         if (attackers == null || attackers.isEmpty()) {
+            lastPlayerAttacker.remove(victim.getUniqueId());
             return;
         }
         long now = System.currentTimeMillis();
         Player killer = victim.getKiller();
+        UUID trackedKiller = lastPlayerAttacker.remove(victim.getUniqueId());
+        if (trackedKiller != null) {
+            Player tracked = Bukkit.getPlayer(trackedKiller);
+            if (tracked != null) {
+                killer = tracked;
+            }
+        }
+        UUID killerUuid = killer != null ? killer.getUniqueId() : null;
         for (Map.Entry<UUID, Long> entry : attackers.entrySet()) {
             if (now - entry.getValue() > ASSIST_WINDOW_MS) {
                 continue;
@@ -1082,8 +1125,45 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
             if (attacker == null) {
                 continue;
             }
-            boolean isKill = killer != null && killer.getUniqueId().equals(entry.getKey());
+            boolean isKill = killerUuid != null && killerUuid.equals(entry.getKey());
+
+            if (isKill) {
+                dev.ixpu.leaguemechanics.player.PlayerKDA.getInstance().recordKill(attacker);
+            } else {
+                dev.ixpu.leaguemechanics.player.PlayerKDA.getInstance().recordAssist(attacker);
+            }
+
             onTakedown(attacker, victim, isKill);
+        }
+    }
+
+    private void broadcastKillMessage(Player killer, Player victim) {
+        UUID killerUuid = killer.getUniqueId();
+        long now = System.currentTimeMillis();
+        Long lastKill = lastKillTime.get(killerUuid);
+
+        int streak;
+        if (lastKill != null && (now - lastKill) <= MULTIKILL_WINDOW_MS) {
+            streak = killStreak.getOrDefault(killerUuid, 1) + 1;
+        } else {
+            streak = 1;
+        }
+
+        lastKillTime.put(killerUuid, now);
+        killStreak.put(killerUuid, streak);
+
+        String message;
+        switch (streak) {
+            case 1 -> message = "§c" + victim.getName() + " §chas been slain by §c" + killer.getName();
+            case 2 -> message = "§c" + victim.getName() + " §chas been slain by §c" + killer.getName() + " §cfor a §4double kill!";
+            case 3 -> message = "§c" + victim.getName() + " §chas been slain by §c" + killer.getName() + " §cfor a §4triple kill!";
+            case 4 -> message = "§c" + victim.getName() + " §chas been slain by §c" + killer.getName() + " §cfor a §4quadra kill!";
+            default -> message = "§c" + victim.getName() + " §chas been slain by §c" + killer.getName() + " §cfor a §4penta kill!";
+        }
+
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            online.sendMessage(message);
+            online.playSound(online.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.5f);
         }
     }
 
