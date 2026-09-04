@@ -33,7 +33,7 @@ public class ItemShopData {
 
     private void loadDefaultItems() {
 
-        // --------------------------------- STARTER ITEMS (MAIN CATEGORY) ---------------------------------
+        // --------------------------------- STARTER ITEMS ---------------------------------
 
         addItem("cull", 18, 1, 0, ItemRarity.COMMON, null, "main");
         addItem("dark-seal", 15, 1, 1, ItemRarity.COMMON, null, "main");
@@ -43,56 +43,41 @@ public class ItemShopData {
         addItem("dorans-ring", 17, 1, 5, ItemRarity.COMMON, "dorans", "main");
         addItem("dorans-shield", 18, 1, 6, ItemRarity.COMMON, "dorans", "main");
         addItem("boots", 14, 1, 7, ItemRarity.UNCOMMON, "boots", "main");
+
+        // --------------------------------- BASIC ITEMS ---------------------------------
+
         addItem("ruby-crystal", 17, 6, 8, ItemRarity.UNCOMMON, null, "main");
-        addItem("rejuvenation-bead", 14, 6, 9, ItemRarity.UNCOMMON, null, "main");
-        addItem("faeri-charm", 11, 6, 10, ItemRarity.UNCOMMON, null, "main");
         addItem("dagger", 13, 6, 11, ItemRarity.UNCOMMON, null, "main");
-
-        // --------------------------------- MAGE ITEMS ---------------------------------
-
         addItem("amplifying-tome", 17, 6, 0, ItemRarity.UNCOMMON, null, "mage");
         addItem("blasting-wand", 24, 6, 1, ItemRarity.UNCOMMON, null, "mage");
         addItem("needlessly-large-rod", 28, 6, 2, ItemRarity.UNCOMMON, null, "mage");
-
-        // --------------------------------- FIGHTER ITEMS ---------------------------------
-
         addItem("long-sword", 15, 6, 0, ItemRarity.UNCOMMON, null, "fighter");
         addItem("pickaxe", 24, 6, 1, ItemRarity.UNCOMMON, null, "fighter");
         addItem("b.f-sword", 29, 6, 2, ItemRarity.UNCOMMON, null, "fighter");
-
-        // --------------------------------- TANK ITEMS ---------------------------------
-
         addItem("cloth-armor", 14, 6, 0, ItemRarity.UNCOMMON, null, "tank");
+        addItem("rejuvenation-bead", 14, 6, 9, ItemRarity.UNCOMMON, null, "support");
+        addItem("faeri-charm", 11, 6, 10, ItemRarity.UNCOMMON, null, "support");
+        addItem("glowing-mote", 13, 6, 0, ItemRarity.UNCOMMON, null, "support");
+
+        // --------------------------------- EPIC ITEMS ---------------------------------
+
         addItem("null-magic-mantle", 17, 6, 1, ItemRarity.UNCOMMON, null, "tank");
         addItem("chain-vest", 29, 6, 2, ItemRarity.RARE, null, "tank");
         addItem("negatron-cloak", 29, 6, 3, ItemRarity.RARE, null, "tank");
-
-        // --------------------------------- MAGE RARE ITEMS ---------------------------------
-
         addItem("blightting-jewel", 33, 1, 3, ItemRarity.RARE, null, "mage");
         addItem("flendish-codex", 26, 6, 4, ItemRarity.RARE, null, "mage");
         addItem("lost-chapter", 30, 6, 5, ItemRarity.RARE, null, "mage");
         addItem("fated-ashes", 30, 6, 6, ItemRarity.RARE, null, "mage");
         addItem("hextech-alternator", 30, 6, 7, ItemRarity.RARE, null, "mage");
         addItem("oblivion-orb", 28, 6, 8, ItemRarity.RARE, null, "mage");
-
-        // --------------------------------- FIGHTER RARE ITEMS ---------------------------------
-
         addItem("caulfields-warhammer", 27, 6, 3, ItemRarity.RARE, null, "fighter");
         addItem("hexdrinker", 35, 6, 4, ItemRarity.RARE, null, "fighter");
         addItem("serrated-dirk", 25, 1, 5, ItemRarity.RARE, null, "fighter");
         addItem("phage", 30, 6, 6, ItemRarity.RARE, null, "fighter");
         addItem("executioners-calling", 25, 1, 7, ItemRarity.RARE, null, "fighter");
-
-        // --------------------------------- TANK RARE ITEMS ---------------------------------
-
         addItem("crystalline-bracer", 24, 6, 4, ItemRarity.RARE, null, "tank");
         addItem("giants-belt", 30, 6, 5, ItemRarity.RARE, null, "tank");
-        addItem("kindlegem", 25, 6, 6, ItemRarity.RARE, null, "tank");
         addItem("bramble-vest", 26, 6, 7, ItemRarity.RARE, null, "tank");
-
-        // --------------------------------- MARKSMAN RARE ITEMS ---------------------------------
-
         addItem("cloak-of-agility", 20, 6, 0, ItemRarity.UNCOMMON, null, "marksman");
         addItem("noonquiver", 35, 6, 1, ItemRarity.RARE, null, "marksman");
         addItem("rectrix", 25, 6, 2, ItemRarity.RARE, null, "marksman");
@@ -101,38 +86,22 @@ public class ItemShopData {
         addItem("last-whisper", 35, 1, 5, ItemRarity.RARE, null, "marksman");
         addItem("hearthbound-axe", 30, 6, 6, ItemRarity.RARE, null, "marksman");
         addItem("zeal", 30, 6, 7, ItemRarity.RARE, null, "marksman");
-
-        // --------------------------------- BOOTS ---------------------------------
-
         addItem("berserkers-greaves", 30, 6, 12, ItemRarity.RARE, "boots", "main");
         addItem("mercurys-treads", 33, 6, 13, ItemRarity.RARE, "boots", "main");
         addItem("plated-steelcaps", 35, 6, 14, ItemRarity.RARE, "boots", "main");
         addItem("sorcerers-shoes", 33, 6, 15, ItemRarity.RARE, "boots", "main");
-
-        // --------------------------------- TANK RARE ITEMS ---------------------------------
-
         addItem("spectres-cowl", 30, 6, 8, ItemRarity.RARE, null, "tank");
         addItem("winged-moonplate", 28, 6, 9, ItemRarity.RARE, null, "tank");
         addItem("wardens-mail", 29, 6, 10, ItemRarity.RARE, null, "tank");
         addItem("bamis-cinder", 28, 6, 11, ItemRarity.RARE, null, "tank");
-
-        // --------------------------------- MAGE RARE ITEMS ---------------------------------
-
         addItem("verdant-barrier", 34, 1, 9, ItemRarity.RARE, null, "mage");
         addItem("aether-wisp", 27, 6, 10, ItemRarity.RARE, null, "mage");
-        addItem("bandleglass-mirror", 25, 6, 11, ItemRarity.RARE, null, "mage");
-
-        // --------------------------------- FIGHTER RARE ITEMS ---------------------------------
-
         addItem("vampiric-scepter", 24, 6, 8, ItemRarity.RARE, null, "fighter");
         addItem("tunneler", 32, 6, 9, ItemRarity.RARE, null, "fighter");
         addItem("the-brutalizer", 31, 6, 10, ItemRarity.RARE, null, "fighter");
         addItem("steel-sigil", 27, 6, 11, ItemRarity.RARE, null, "fighter");
-
-        // --------------------------------- COOLDOWN HASTE ITEMS ---------------------------------
-
-        addItem("glowing-mote", 13, 6, 0, ItemRarity.UNCOMMON, null, "mage");
-
+        addItem("bandleglass-mirror", 25, 6, 11, ItemRarity.RARE, null, "support");
+        addItem("kindlegem", 25, 6, 6, ItemRarity.RARE, null, "support");
     }
 
     private void loadDefaultRequiredItems() {
@@ -140,18 +109,18 @@ public class ItemShopData {
         addRequiredItem("negatron-cloak", "null-magic-mantle");
         addRequiredItem("blightting-jewel", "amplifying-tome");
         addRequiredItem("bramble-vest", "cloth-armor", "cloth-armor");
-        addRequiredItem("caulfields-warhammer", "long-sword", "long-sword");
+        addRequiredItem("caulfields-warhammer", "long-sword", "long-sword", "glowing-mote");
         addRequiredItem("crystalline-bracer", "ruby-crystal", "rejuvenation-bead");
         addRequiredItem("executioners-calling", "long-sword");
         addRequiredItem("fated-ashes", "amplifying-tome");
-        addRequiredItem("flendish-codex", "amplifying-tome");
+        addRequiredItem("flendish-codex", "amplifying-tome", "glowing-mote");
         addRequiredItem("giants-belt", "ruby-crystal");
         addRequiredItem("hearthbound-axe", "long-sword", "long-sword", "dagger");
         addRequiredItem("hexdrinker", "long-sword", "long-sword", "null-magic-mantle");
         addRequiredItem("hextech-alternator", "amplifying-tome", "amplifying-tome");
-        addRequiredItem("kindlegem", "ruby-crystal");
+        addRequiredItem("kindlegem", "ruby-crystal", "glowing-mote");
         addRequiredItem("last-whisper", "long-sword", "long-sword");
-        addRequiredItem("lost-chapter", "amplifying-tome");
+        addRequiredItem("lost-chapter", "amplifying-tome", "glowing-mote");
         addRequiredItem("noonquiver", "long-sword", "cloak-of-agility");
         addRequiredItem("oblivion-orb", "amplifying-tome");
         addRequiredItem("phage", "ruby-crystal", "long-sword");
@@ -166,11 +135,11 @@ public class ItemShopData {
         addRequiredItem("winged-moonplate", "ruby-crystal");
         addRequiredItem("wardens-mail", "cloth-armor", "cloth-armor");
         addRequiredItem("verdant-barrier", "amplifying-tome", "amplifying-tome", "null-magic-mantle");
-        addRequiredItem("the-brutalizer", "pickaxe");
+        addRequiredItem("the-brutalizer", "pickaxe", "glowing-mote");
         addRequiredItem("steel-sigil", "cloth-armor", "cloth-armor", "long-sword");
         addRequiredItem("aether-wisp", "amplifying-tome");
-        addRequiredItem("bamis-cinder", "ruby-crystal");
-        addRequiredItem("bandleglass-mirror", "faeri-charm", "amplifying-tome");
+        addRequiredItem("bamis-cinder", "ruby-crystal", "glowing-mote");
+        addRequiredItem("bandleglass-mirror", "faeri-charm", "amplifying-tome", "glowing-mote");
         addRequiredItem("berserkers-greaves", "boots", "dagger", "dagger");
         addRequiredItem("mercurys-treads", "boots", "null-magic-mantle");
         addRequiredItem("plated-steelcaps", "boots", "cloth-armor");
