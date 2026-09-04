@@ -17,6 +17,10 @@ public class PlayerClass {
     private static final Map<UUID, PlayerClassType> playerClassCache = new HashMap<>();
     private static final Map<PlayerClassType, ClassStats> CLASS_STATS = new EnumMap<>(PlayerClassType.class);
 
+    public static ClassStats getClassStats(PlayerClassType type) {
+        return CLASS_STATS.get(type);
+    }
+
     static {
         CLASS_STATS.put(PlayerClassType.FIGHTER,   new ClassStats(10.0,  0.0, 0.0, 10.0,  0.0, 0.90, 0.90));
         CLASS_STATS.put(PlayerClassType.SUPPORT,   new ClassStats( 7.5,  5.0, 3.0,  5.0, 5.0, 0.70, 0.70));
