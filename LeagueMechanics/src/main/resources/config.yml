@@ -157,5 +157,4 @@ runes:
 
       storm-raider-surge:
         damage-percent-threshold: 30.0 # damage threshold to activate - default: 30%
-        speed-level: 1 # amplifier
         cooldown: 25 # seconds
