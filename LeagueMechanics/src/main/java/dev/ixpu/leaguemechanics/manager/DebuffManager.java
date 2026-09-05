@@ -26,12 +26,6 @@ public class DebuffManager {
         applyDebuff(target, type, durationTicks, 0.0);
     }
 
-    /**
-     * Applies a debuff to the target with an optional strength value (e.g. the
-     * slow percentage for SLOW debuffs). Strength is set by the attacker and
-     * stored on the debuff so the ticker reads it instead of inferring from
-     * the target's stats.
-     */
     public void applyDebuff(Player target, DebuffType type, int durationTicks, double strength) {
         if (target == null) return;
         long durationMs = durationTicks * 50L;
@@ -91,13 +85,9 @@ public class DebuffManager {
             clearAuxiliaryMaps(target.getUniqueId(), type);
             return 0;
         }
-        return (int) Math.ceil(remainingMs / 100.0);
+        return (int) Math.ceil(remainingMs / 1000.0);
     }
 
-    /**
-     * Returns the strength percentage stored on the debuff at apply time
-     * (e.g. 20.0 for a 20% slow). Returns 0 if not set or debuff absent.
-     */
     public double getDebuffStrength(Player target, DebuffType type) {
         if (target == null) return 0;
         Map<DebuffType, Double> strengths = debuffStrengths.get(target.getUniqueId());
