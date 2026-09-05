@@ -1,6 +1,8 @@
 package dev.ixpu.leaguemechanics.item.passives;
 
 import dev.ixpu.leaguemechanics.LeagueMechanics;
+import dev.ixpu.leaguemechanics.manager.DamageManager;
+import dev.ixpu.leaguemechanics.manager.ItemStatsManager;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -25,7 +27,7 @@ public class bamis_cinder implements ItemPassive {
 
     @Override
     public String getDescription() {
-        return "§7ᴜɴɪQᴜᴇ – ɪᴍᴍᴏʟᴀᴛᴇ: §fTaking or dealing damage activates this passive,\n§fdealing §c15 magic damage §fover §e3 seconds §fto all entities within §65 blocks§f.\n\n§790s Cooldown";
+        return "§7ᴜɴɪQᴜᴇ – ɪᴍᴍᴏʟᴀᴛᴇ: §fTaking or dealing damage activates this passive,\n§fdealing §915 magic damage §fover §e3 seconds §fto all entities within §65 blocks§f.\n\n§790s Cooldown";
     }
 
     @Override
@@ -75,12 +77,8 @@ public class bamis_cinder implements ItemPassive {
                         sourceLoc, IMMOLATE_RADIUS, IMMOLATE_RADIUS, IMMOLATE_RADIUS,
                         e -> e instanceof LivingEntity && !e.getUniqueId().equals(source.getUniqueId()))) {
                     if (!(entity instanceof LivingEntity nearby)) continue;
-                    if (nearby instanceof Player p) {
-                        double newHealth = Math.max(0, p.getHealth() - IMMOLATE_DAMAGE_PER_TICK);
-                        p.setHealth(newHealth);
-                    } else {
-                        nearby.damage(IMMOLATE_DAMAGE_PER_TICK, source);
-                    }
+                    double damageToApply = immolateDamage(source, nearby);
+                    applyMagicDamage(nearby, damageToApply, source);
                 }
 
                 elapsed += IMMOLATE_TICK_INTERVAL;
@@ -97,6 +95,32 @@ public class bamis_cinder implements ItemPassive {
                 }
             }
         }.runTaskLater(plugin, IMMOLATE_DURATION_TICKS);
+    }
+
+    private double immolateDamage(Player source, Entity target) {
+        ItemStatsManager statsManager = LeagueMechanics.getInstance().getStatsManager();
+        DamageManager damageManager = new DamageManager(statsManager);
+        damageManager.enableOnlyAP();
+        return damageManager.DamageCalculation(source, target, 0, 0, 0);
+    }
+
+    private void applyMagicDamage(LivingEntity target, double damage, Player source) {
+        if (target.isDead() || target.getHealth() <= 0) return;
+
+        if (target instanceof Player targetPlayer) {
+            double absorption = targetPlayer.getAbsorptionAmount();
+            if (damage > absorption) {
+                damage -= absorption;
+                targetPlayer.setAbsorptionAmount(0);
+            } else {
+                targetPlayer.setAbsorptionAmount(absorption - damage);
+                damage = 0;
+            }
+        }
+
+        double newHealth = Math.clamp(target.getHealth() - damage, 0, target.getMaxHealth());
+        target.damage(0.00001);
+        target.setHealth(newHealth);
     }
 
     private void spawnImmolateRing(Location center, int elapsed) {
