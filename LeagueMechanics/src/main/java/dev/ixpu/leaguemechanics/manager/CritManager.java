@@ -35,7 +35,7 @@ public class CritManager {
 
         double C = critChance / 100.0;
         double a = C * (1 - C) * 2.0;
-        return Math.max(0, Math.min(1, a));
+        return Math.clamp(a, 0, 1);
     }
 
     public boolean rollCrit(Player player, double critChancePercent) {
@@ -45,7 +45,7 @@ public class CritManager {
             critFailureStreaks.put(uuid, 0);
             return false;
         }
-        if (critChancePercent >= 100) {
+        if (critChancePercent >= 99.9) {
             critFailureStreaks.put(uuid, 0);
             return true;
         }
@@ -82,7 +82,7 @@ public class CritManager {
     }
 
     public double getLuckModifierForPlayer(Player player, double critChancePercent) {
-        int tableIndex = Math.min(200, Math.max(0, (int) Math.floor(critChancePercent * 2)));
+        int tableIndex = Math.clamp((int) Math.floor(critChancePercent * 2), 0, 200);
         return LUCK_MODIFIER_TABLE[tableIndex];
     }
 
