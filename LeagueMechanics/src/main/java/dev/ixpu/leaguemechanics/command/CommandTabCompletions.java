@@ -68,7 +68,7 @@ public class CommandTabCompletions implements org.bukkit.command.TabCompleter {
 
         if (args.length == 3 && args[0].equalsIgnoreCase("runes") && args[1].equalsIgnoreCase("select")) {
             completions.add("primary");
-            completions.add("secondary");
+            //completions.add("secondary");
             return filter(completions, args[2]);
         }
 
