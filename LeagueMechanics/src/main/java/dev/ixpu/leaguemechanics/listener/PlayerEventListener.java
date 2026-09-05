@@ -75,6 +75,7 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
     private final Map<UUID, List<ItemStack>> pendingLeagueItemRestore = new HashMap<>();
     private final Map<UUID, Long> lastKillTime = new ConcurrentHashMap<>();
     private final Map<UUID, Integer> killStreak = new ConcurrentHashMap<>();
+    private final Set<UUID> processedDeaths = ConcurrentHashMap.newKeySet();
     private static final long ASSIST_WINDOW_MS = 10_000L;
     private static final long MULTIKILL_WINDOW_MS = 10_000L;
 
@@ -109,6 +110,7 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
         runeManager.unloadPlayerRunes(player);
         dev.ixpu.leaguemechanics.player.PlayerClass.unloadPlayer(uuid);
         lastHitTimes.remove(uuid);
+        processedDeaths.remove(uuid);
         dev.ixpu.leaguemechanics.player.PlayerKDA.getInstance().saveForPlayer(uuid);
 
         dev.ixpu.leaguemechanics.item.passives.dark_seal darkSeal =
@@ -683,6 +685,11 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
         Player player = event.getEntity();
         Player killer = player.getKiller();
 
+        if (processedDeaths.contains(player.getUniqueId())) {
+            return;
+        }
+        processedDeaths.add(player.getUniqueId());
+
         dev.ixpu.leaguemechanics.player.PlayerKDA.getInstance().recordDeath(player);
 
         event.deathMessage(null);
@@ -741,6 +748,7 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
+        processedDeaths.remove(player.getUniqueId());
         List<ItemStack> cached = pendingLeagueItemRestore.remove(player.getUniqueId());
         if (cached == null || cached.isEmpty()) {
             return;
@@ -971,7 +979,7 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
 
         boolean didCrit = false;
         if (statsDamage > 0) {
-            double critChance = damage.getPlayerCritChance(player);
+            double critChance = Math.round(damage.getPlayerCritChance(player) * 10.0) / 10.0;
             if (critChance > 0 && DamageManager.criticalChance(player, critChance)) {
                 statsDamage *= DamageManager.getCritDamageMultiplier(player);
                 didCrit = true;
@@ -1044,6 +1052,7 @@ public class PlayerEventListener implements Listener, RuneCooldownGate {
         DebugLogger.debug(player, "§aTrigger Type: " + type);
         DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] Total AD = §d" + Math.ceil(attackerAD * 100) / 100.0);
         DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] Total AP = §d" + Math.ceil(attackerAP * 100) / 100.0);
+        DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] Crit Chance = §d" + Math.ceil(damage.getPlayerCritChance(player) * 100) / 100.0 + "%");
         DebugLogger.debug(player, "§7[Debug] §f[§dAttacker§f] Crit Streak = §d" + CritManager.getInstance().getFailureStreak(player));
         DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Total AR = §d" + Math.ceil(targetAR * 100) / 100.0);
         DebugLogger.debug(player, "§7[Debug] §f[§dTarget§f] Total MR = §d" + Math.ceil(targetMR * 100) / 100.0);
