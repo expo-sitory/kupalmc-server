@@ -81,13 +81,13 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
 
-        String classArg = args[1].toLowerCase();
-
-        if (classArg.equals("clear")) {
-            dev.ixpu.leaguemechanics.player.PlayerClass.clearPlayerClass(player);
-            player.sendMessage(Component.text("§a✓ Class cleared!"));
+        if (args.length < 2 || !args[1].equalsIgnoreCase("clear")) {
+            player.sendMessage(Component.text("§cUsage: §e/lm class clear"));
             return true;
         }
+
+        dev.ixpu.leaguemechanics.player.PlayerClass.clearPlayerClass(player);
+        player.sendMessage(Component.text("§a✓ Class cleared!"));
         return true;
     }
 
@@ -117,7 +117,7 @@ public class CommandHandler implements CommandExecutor {
     private void sendRunesUsage(Player player) {
         player.sendMessage(Component.text("§6§lRunes Commands:"));
         player.sendMessage(Component.text("§7  /lm runes select primary §e<path> [keystone] [slot1] [slot2] [slot3]"));
-        player.sendMessage(Component.text("§7  /lm runes select secondary §e<path> [slot1] [slot2]"));
+        //player.sendMessage(Component.text("§7  /lm runes select secondary §e<path> [slot1] [slot2]"));
         player.sendMessage(Component.text("§7  /lm runes clear §8— §fclear all runes"));
         player.sendMessage(Component.text("§7  /lm runes info §8— §fshow currently equipped runes"));
     }
@@ -177,34 +177,35 @@ public class CommandHandler implements CommandExecutor {
     }
 
     private boolean handleRuneSelectSecondary(Player player, String[] args) {
-        if (args.length < 4 || args.length > 6) {
-            player.sendMessage(Component.text("§cUsage: /lm runes select secondary <path> [slot1] [slot2]"));
-            return true;
-        }
-
-        RunePath path = RunePath.fromId(args[3].toLowerCase());
-        if (path == null) {
-            player.sendMessage(Component.text("§cInvalid path. Use: domination, precision, inspiration, resolve, or sorcery"));
-            return true;
-        }
-
-        runeManager.setPlayerSecondaryPath(player, path);
-        runePersistence.saveSecondaryPath(player.getUniqueId(), path);
-
-        RuneSlot[] slotOrder = {RuneSlot.SECONDARY_SLOT_1, RuneSlot.SECONDARY_SLOT_2};
-        StringBuilder summary = new StringBuilder("§a✓ Secondary path set to §e" + path.getId());
-
-        for (int i = 4; i < args.length; i++) {
-            RuneSlot slot = slotOrder[i - 4];
-            CooldownHandler rune = resolveAndValidateRune(player, args[i], path, slot);
-            if (rune == null) return true;
-
-            applySecondaryRune(player, slot, rune);
-            runePersistence.saveSecondaryRuneSlot(player.getUniqueId(), slot, rune.getId());
-
-            summary.append(" §7| ").append(slot.getId()).append(": §e").append(rune.getId());
-        }
-        player.sendMessage(Component.text(summary.toString()));
+//        if (args.length < 4 || args.length > 6) {
+//            player.sendMessage(Component.text("§cUsage: /lm runes select secondary <path> [slot1] [slot2]"));
+//            return true;
+//        }
+//
+//        RunePath path = RunePath.fromId(args[3].toLowerCase());
+//        if (path == null) {
+//            player.sendMessage(Component.text("§cInvalid path. Use: domination, precision, inspiration, resolve, or sorcery"));
+//            return true;
+//        }
+//
+//        runeManager.setPlayerSecondaryPath(player, path);
+//        runePersistence.saveSecondaryPath(player.getUniqueId(), path);
+//
+//        RuneSlot[] slotOrder = {RuneSlot.SECONDARY_SLOT_1, RuneSlot.SECONDARY_SLOT_2};
+//        StringBuilder summary = new StringBuilder("§a✓ Secondary path set to §e" + path.getId());
+//
+//        for (int i = 4; i < args.length; i++) {
+//            RuneSlot slot = slotOrder[i - 4];
+//            CooldownHandler rune = resolveAndValidateRune(player, args[i], path, slot);
+//            if (rune == null) return true;
+//
+//            applySecondaryRune(player, slot, rune);
+//            runePersistence.saveSecondaryRuneSlot(player.getUniqueId(), slot, rune.getId());
+//
+//            summary.append(" §7| ").append(slot.getId()).append(": §e").append(rune.getId());
+//        }
+//        player.sendMessage(Component.text(summary.toString()));
+        player.sendMessage(Component.text("Secondary and Primary rune slots under development"));
         return true;
     }
 
@@ -241,7 +242,14 @@ public class CommandHandler implements CommandExecutor {
             player.sendMessage(Component.text("§c" + normalized + " is not a " + slot.getId() + " slot rune"));
             return null;
         }
-        String permissionKey = "rune." + normalized;
+        String pathPermission = "primary-rune-path." + path.getId();
+        if (!player.hasPermission(pathPermission)) {
+            player.sendMessage(Component.text("§cYou don't have permission to use the " + path.getId() + " path."));
+            return null;
+        }
+        String permissionKey = slot == RuneSlot.KEYSTONE
+                ? "rune-keystone." + normalized
+                : "rune." + normalized;
         if (!player.hasPermission(permissionKey)) {
             player.sendMessage(Component.text("§cYou don't have permission to select " + normalized + "."));
             return null;
@@ -291,7 +299,6 @@ public class CommandHandler implements CommandExecutor {
 
     @SuppressWarnings("unchecked")
     private boolean handleInspect(Player player, String[] args) {
-
         if (!player.hasPermission("leaguemechanics.user")) {
             player.sendMessage(Component.text("§cYou don't have permission to use this command."));
             return true;
